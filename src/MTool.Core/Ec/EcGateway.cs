@@ -20,15 +20,19 @@ public sealed class EcGateway
     private readonly WritePolicy _policy;
     private readonly IAppLog _log;
     private readonly Action<string>? _persistLock;
+    private readonly EcAccessRetry _retry;
     private string? _lockReason;
 
     /// <param name="persistLock">Called with the reason when a write fails, to keep later sessions locked.</param>
-    public EcGateway(EcWorker worker, WritePolicy policy, IAppLog log, Action<string>? persistLock = null)
+    /// <param name="retry">How silent EC periods are ridden out; <see cref="EcAccessRetry.Default"/> if null.</param>
+    public EcGateway(
+        EcWorker worker, WritePolicy policy, IAppLog log, Action<string>? persistLock = null, EcAccessRetry? retry = null)
     {
         _worker = worker;
         _policy = policy;
         _log = log;
         _persistLock = persistLock;
+        _retry = retry ?? EcAccessRetry.Default;
         _lockReason = InitialLockReason(policy);
     }
 
@@ -53,7 +57,7 @@ public sealed class EcGateway
 
         try
         {
-            return await _worker.RunWriteAsync(ec => ApplyLocked(ec, snapshot), cancellationToken).ConfigureAwait(false);
+            return await _worker.RunWriteAsync(ec => ApplyLocked(WithRetry(ec), snapshot), cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -63,6 +67,10 @@ public sealed class EcGateway
             return Reject(snapshot, $"EC erişilemedi: {ex.Message}");
         }
     }
+
+    /// <summary>Every EC access of a plan, including validation reads and recovery, rides out silent periods.</summary>
+    private RetryingEcRegisters WithRetry(IEcWritableRegisters ec) =>
+        new(ec, _retry, message => SafeLog(log => log.Warn(message)));
 
     private static string? InitialLockReason(WritePolicy policy) =>
         !policy.FirmwareSupported ? $"tanınmayan firmware (yalnızca {EcMap.SupportedFirmware} destekleniyor)"

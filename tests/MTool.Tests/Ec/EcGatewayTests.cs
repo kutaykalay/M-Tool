@@ -20,9 +20,10 @@ public sealed class EcGatewayTests : IDisposable
     public void Dispose() => _worker.Dispose();
 
     private readonly List<string> _persistedLocks = [];
+    private readonly List<TimeSpan> _sleeps = [];
 
     private EcGateway Gateway(WritePolicy? policy = null, IAppLog? log = null) =>
-        new(_worker, policy ?? Live, log ?? _log, _persistedLocks.Add);
+        new(_worker, policy ?? Live, log ?? _log, _persistedLocks.Add, EcAccessRetry.Default with { Sleep = _sleeps.Add });
 
     private static WritePlan Plan(params RegisterWrite[] writes) => new("test", writes);
 
@@ -238,6 +239,104 @@ public sealed class EcGatewayTests : IDisposable
 
         outcome.Status.Should().Be(WriteStatus.FailedUnrecovered);
         gateway.IsWriteEnabled.Should().BeFalse();
+    }
+
+    // --- silent EC periods (stress measurement 2026-09-30: up to ~250 ms without an answer) ---
+
+    [Fact]
+    public async Task A_write_during_a_short_silent_period_is_retried_and_applied()
+    {
+        var gateway = Gateway();
+        _ec.SilentAccesses = 2;
+
+        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+
+        outcome.Status.Should().Be(WriteStatus.Applied);
+        _ec[0xEF].Should().Be(0x80 | 79);
+        gateway.IsWriteEnabled.Should().BeTrue();
+        _persistedLocks.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Retries_wait_with_growing_delays()
+    {
+        _ec.SilentAccesses = 3;
+
+        await Gateway().ApplyAsync(WritePlans.ChargeLimit(79));
+
+        _sleeps.Should().Equal(EcAccessRetry.Default.Delays.Take(3));
+        _sleeps.Should().BeInAscendingOrder();
+    }
+
+    [Fact]
+    public async Task Reads_before_writing_are_retried_too()
+    {
+        _ec.SilentAccesses = 1;
+
+        var outcome = await Gateway().ApplyAsync(WritePlans.FanCurves(Presets.Cool.Curves, "Cool"));
+
+        outcome.Status.Should().Be(WriteStatus.Applied);
+    }
+
+    [Fact]
+    public async Task Each_retry_is_logged_as_a_warning()
+    {
+        _ec.SilentAccesses = 1;
+
+        await Gateway().ApplyAsync(WritePlans.ChargeLimit(79));
+
+        _log.Lines.Where(l => l.StartsWith("WARN ", StringComparison.Ordinal)).Should().ContainSingle().Which.Should().Contain("0xEF").And.Contain("yeniden");
+    }
+
+    [Fact]
+    public async Task A_silent_period_longer_than_the_retry_window_still_locks()
+    {
+        var gateway = Gateway();
+        _ec.SilentAccesses = EcAccessRetry.Default.Delays.Count + 1;
+
+        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+
+        outcome.Status.Should().NotBe(WriteStatus.Applied);
+        gateway.IsWriteEnabled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task A_dead_EC_stops_retrying_once_the_plan_sleep_budget_is_spent()
+    {
+        var retry = EcAccessRetry.Default with { Sleep = _sleeps.Add, SleepBudget = TimeSpan.FromMilliseconds(150) };
+        var gateway = new EcGateway(_worker, Live, _log, _persistedLocks.Add, retry);
+        _ec.AccessError = new EcAccessException("EC dead");
+
+        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+
+        outcome.Status.Should().Be(WriteStatus.FailedUnrecovered);
+        _sleeps.Should().Equal(TimeSpan.FromMilliseconds(50), TimeSpan.FromMilliseconds(100));
+    }
+
+    [Fact]
+    public void The_default_sleep_budget_allows_at_least_one_full_retry_window()
+    {
+        var window = EcAccessRetry.Default.Delays.Aggregate(TimeSpan.Zero, (sum, d) => sum + d);
+
+        EcAccessRetry.Default.SleepBudget.Should().BeGreaterThanOrEqualTo(window);
+    }
+
+    [Fact]
+    public async Task Errors_other_than_EC_access_are_not_retried()
+    {
+        _ec.AccessError = new InvalidOperationException("bug");
+
+        await Gateway().ApplyAsync(WritePlans.ChargeLimit(79));
+
+        _sleeps.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void The_default_retry_window_covers_the_longest_measured_silent_period()
+    {
+        var window = EcAccessRetry.Default.Delays.Aggregate(TimeSpan.Zero, (sum, d) => sum + d);
+
+        window.Should().BeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(2 * 252));
     }
 
     // --- review findings (2026-09-30) ---
