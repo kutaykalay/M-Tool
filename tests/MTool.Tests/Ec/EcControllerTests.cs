@@ -5,6 +5,61 @@ namespace MTool.Tests.Ec;
 
 public class EcControllerTests
 {
+    private static readonly EcProtocolOptions FastOptions = new(MaxAttempts: 5, MaxStatusPolls: 20);
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Constructor_rejects_options_without_any_attempt(int maxAttempts)
+    {
+        var act = () => new EcController(new SimulatedEc(), FastOptions with { MaxAttempts = maxAttempts });
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void A_lost_answer_is_retried_quickly_with_default_options()
+    {
+        var ec = new SimulatedEc();
+        ec[0xA0] = 0x31;
+        ec.DropNextReads(1);
+        var controller = new EcController(ec);
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+
+        controller.Read(0xA0).Should().Be(0x31);
+
+        // Waiting longer never brought a lost answer back on real hardware; keep retries cheap.
+        clock.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(100));
+        controller.RecoveredFailures.Should().Be(1);
+    }
+
+    [Fact]
+    public void A_foreign_byte_pending_at_start_is_left_for_its_owner()
+    {
+        var ec = new SimulatedEc();
+        ec[0x68] = 60;
+        ec.LeaveForeignOutput(0x81, collectedAfterPolls: 5);
+        var controller = new EcController(ec, FastOptions);
+
+        controller.Read(0x68).Should().Be(60);
+        ec.ForeignBytesStolen.Should().Be(0);
+        ec.ForeignBytesCollectedByOwner.Should().Be(1);
+        controller.RecoveredFailures.Should().Be(0);
+    }
+
+    [Fact]
+    public void A_foreign_byte_pending_before_a_write_is_left_for_its_owner()
+    {
+        var ec = new SimulatedEc();
+        ec.LeaveForeignOutput(0x81, collectedAfterPolls: 5);
+        IEcWritableRegisters controller = new EcController(ec, FastOptions);
+
+        controller.Write(0xEF, 0xCF);
+
+        ec[0xEF].Should().Be(0xCF);
+        ec.ForeignBytesStolen.Should().Be(0);
+    }
+
     [Fact]
     public void Read_returns_register_value_without_protocol_violations()
     {
@@ -44,7 +99,8 @@ public class EcControllerTests
         var controller = new EcController(ec, new EcProtocolOptions(MaxAttempts: 3, MaxStatusPolls: 20));
 
         controller.Read(0x68).Should().Be(60);
-        controller.RecoveredFailures.Should().Be(1);
+        // Ambiguous answer, then our own answer left behind is drained as an orphan.
+        controller.RecoveredFailures.Should().Be(2);
     }
 
     [Fact]
@@ -77,7 +133,7 @@ public class EcControllerTests
         var ec = new SimulatedEc();
         ec[0x71] = 50;
         ec.DropNextReads(2);
-        var controller = new EcController(ec);
+        var controller = new EcController(ec, FastOptions);
 
         controller.Read(0x71).Should().Be(50);
         controller.RecoveredFailures.Should().Be(2);
@@ -87,8 +143,8 @@ public class EcControllerTests
     public void Read_throws_after_all_attempts_fail()
     {
         var ec = new SimulatedEc();
-        ec.DropNextReads(EcProtocolOptions.Default.MaxAttempts);
-        var controller = new EcController(ec);
+        ec.DropNextReads(FastOptions.MaxAttempts);
+        var controller = new EcController(ec, FastOptions);
 
         var act = () => controller.Read(0x68);
 
@@ -113,7 +169,7 @@ public class EcControllerTests
         var ec = new SimulatedEc();
         ec[0x68] = 60;
         ec.LeaveStaleOutput(0xAA);
-        var controller = new EcController(ec);
+        var controller = new EcController(ec, FastOptions);
 
         controller.Read(0x68).Should().Be(60);
         ec.ProtocolViolations.Should().Be(0);

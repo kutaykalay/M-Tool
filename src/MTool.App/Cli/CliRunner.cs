@@ -6,7 +6,7 @@ using MTool.Core.Settings;
 
 namespace MTool.App.Cli;
 
-/// <summary>Command-line mode (plan.md §3): <c>--dump</c>, <c>--apply</c>, <c>--restore</c>.</summary>
+/// <summary>Command-line mode (plan.md §3): <c>--dump</c>, <c>--stress</c>, <c>--apply</c>, <c>--restore</c>.</summary>
 internal static class CliRunner
 {
     private const int ExitOk = 0;
@@ -31,6 +31,11 @@ internal static class CliRunner
                 return Dump(log);
             }
 
+            if (StressCommand.TryParse(args, out var seconds, out var protocol))
+            {
+                return StressCommand.Run(log, seconds, protocol);
+            }
+
             if (args is ["--unlock", "--confirm"])
             {
                 return Unlock(log);
@@ -41,7 +46,7 @@ internal static class CliRunner
                 return Apply(log, apply!, confirm);
             }
 
-            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}{ApplyCommand.Usage}");
+            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}{StressCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
             return ExitUsage;
         }
         catch (Exception ex)
@@ -115,12 +120,12 @@ internal static class CliRunner
     }
 
     // Safe to block: callers pass work that never resumes on the UI thread (ConfigureAwait(false) / Task.Run).
-    private static T Wait<T>(Task<T> task) => task.WaitAsync(CommandTimeout).GetAwaiter().GetResult();
+    internal static T Wait<T>(Task<T> task) => task.WaitAsync(CommandTimeout).GetAwaiter().GetResult();
 
-    private static string SaveDump(string report)
+    internal static string SaveDump(string report, string prefix = "dump")
     {
         Directory.CreateDirectory(AppPaths.Dumps);
-        var path = Path.Combine(AppPaths.Dumps, $"dump-{DateTime.Now:yyyyMMdd-HHmmss}.txt");
+        var path = Path.Combine(AppPaths.Dumps, $"{prefix}-{DateTime.Now:yyyyMMdd-HHmmss}.txt");
         File.WriteAllText(path, report);
         return path;
     }

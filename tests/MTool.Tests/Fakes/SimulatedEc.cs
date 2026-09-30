@@ -19,10 +19,15 @@ internal sealed class SimulatedEc : IPortIo
 
     private enum State { Idle, AwaitReadAddress, AwaitWriteAddress, AwaitWriteValue }
 
-    private sealed class PendingOutput(byte value, int delayPolls)
+    private sealed class PendingOutput(byte value, int delayPolls, int? ownerCollectsAfterPolls = null)
     {
         public byte Value { get; } = value;
         public int DelayPolls { get; set; } = delayPolls;
+
+        /// <summary>Set for another host's byte: that host takes it after this many status polls.</summary>
+        public int? OwnerCollectsAfterPolls { get; set; } = ownerCollectsAfterPolls;
+
+        public bool IsForeign => OwnerCollectsAfterPolls.HasValue;
     }
 
     private readonly byte[] _memory = new byte[256];
@@ -45,6 +50,12 @@ internal sealed class SimulatedEc : IPortIo
     public bool Hung { get; set; }
 
     public int ProtocolViolations { get; private set; }
+
+    /// <summary>Foreign bytes the controller read off the data port (i.e. stole from their owner).</summary>
+    public int ForeignBytesStolen { get; private set; }
+
+    /// <summary>Foreign bytes their owner collected as intended.</summary>
+    public int ForeignBytesCollectedByOwner { get; private set; }
     public int CompletedWrites { get; private set; }
 
     public byte this[byte register]
@@ -61,6 +72,13 @@ internal sealed class SimulatedEc : IPortIo
 
     /// <summary>Only the next read's answer arrives after <paramref name="polls"/> status polls.</summary>
     public void DelayNextResponse(int polls) => _nextResponseDelay = polls;
+
+    /// <summary>
+    /// Puts another host's byte (e.g. Windows' answer to a query) in the output buffer; that host
+    /// collects it after <paramref name="collectedAfterPolls"/> status polls unless someone steals it first.
+    /// </summary>
+    public void LeaveForeignOutput(byte value, int collectedAfterPolls) =>
+        _output.Enqueue(new PendingOutput(value, 0, ownerCollectsAfterPolls: collectedAfterPolls));
 
     /// <summary>
     /// When the next read command arrives, a foreign byte (e.g. Windows' own EC traffic) lands in
@@ -91,7 +109,9 @@ internal sealed class SimulatedEc : IPortIo
             return 0;
         }
 
-        return _output.Dequeue().Value;
+        var taken = _output.Dequeue();
+        ForeignBytesStolen += taken.IsForeign ? 1 : 0;
+        return taken.Value;
     }
 
     public void Out(byte port, byte value)
@@ -172,6 +192,19 @@ internal sealed class SimulatedEc : IPortIo
             if (_ibfPollsLeft > 0)
             {
                 _ibfPollsLeft--;
+            }
+        }
+
+        if (_output.Count > 0 && _output.Peek().OwnerCollectsAfterPolls is { } left)
+        {
+            if (left <= 1)
+            {
+                _output.Dequeue();
+                ForeignBytesCollectedByOwner++;
+            }
+            else
+            {
+                _output.Peek().OwnerCollectsAfterPolls = left - 1;
             }
         }
 

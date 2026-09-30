@@ -30,7 +30,11 @@ internal sealed class EcSession : IDisposable
 
     public EcWorker Worker { get; }
 
-    public static EcSession Open(IAppLog log)
+    public static EcSession Open(IAppLog log) => Open(log, EcProtocolOptions.Default);
+
+    /// <param name="protocol">EC timing; only the stress test overrides the default.</param>
+    /// <param name="observeTrouble">Also receives every EC retry/failure report (after it is logged).</param>
+    public static EcSession Open(IAppLog log, EcProtocolOptions protocol, Action<EcTransactionTrouble>? observeTrouble = null)
     {
         if (PawnIoInstallation.InstalledVersion() is null)
         {
@@ -39,7 +43,11 @@ internal sealed class EcSession : IDisposable
 
         var ports = PawnIoPortIo.Open();
         var ecLock = new AccessEcMutex();
-        var controller = new EcController(ports);
+        var controller = new EcController(ports, protocol, trouble =>
+        {
+            log.Warn($"EC: {trouble}");
+            observeTrouble?.Invoke(trouble);
+        });
         var worker = new EcWorker(controller, ecLock, LockTimeout, (message, ex) => log.Error(message, ex));
         return new EcSession(ports, ecLock, controller, worker, log);
     }
