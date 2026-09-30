@@ -7,4 +7,13 @@ namespace MTool.Core.Profiles;
 /// </summary>
 public sealed record FanPoint(int UpThresholdC, int DownThresholdC, int SpeedPercent);
 
-public sealed record FanCurve(IReadOnlyList<FanPoint> Points);
+public sealed record FanCurve(IReadOnlyList<FanPoint> Points)
+{
+    /// <summary>Builds a curve from (up, down, speed) steps.</summary>
+    public static FanCurve Of(params (int Up, int Down, int Speed)[] steps) =>
+        new(Array.AsReadOnly(steps.Select(s => new FanPoint(s.Up, s.Down, s.Speed)).ToArray()));
+}
+
+public sealed record FanCurves(FanCurve Cpu, FanCurve Gpu);
+
+public sealed record FanProfile(string Name, FanCurves Curves);

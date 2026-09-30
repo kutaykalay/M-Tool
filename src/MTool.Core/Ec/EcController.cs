@@ -3,16 +3,18 @@ using System.Diagnostics;
 namespace MTool.Core.Ec;
 
 /// <summary>
-/// ACPI EC read protocol (ACPI spec ch. 12) over raw ports. Windows' own EC driver can interleave
+/// ACPI EC read/write protocol (ACPI spec ch. 12) over raw ports. Windows' own EC driver can interleave
 /// with us, so every step waits on the status flags, an answer is rejected when another byte is
 /// already queued behind it, and after a failed attempt the output buffer is drained until it
-/// stays empty. Not thread-safe: use it only from <see cref="EcWorker"/>.
+/// stays empty. Writes are only reachable through the internal <see cref="IEcWritableRegisters"/>,
+/// i.e. through <see cref="EcGateway"/>. Not thread-safe: use it only from <see cref="EcWorker"/>.
 /// </summary>
-public sealed class EcController : IEcRegisters
+public sealed class EcController : IEcRegisters, IEcWritableRegisters
 {
     private const byte DataPort = 0x62;
     private const byte CommandPort = 0x66;
     private const byte ReadCommand = 0x80;
+    private const byte WriteCommand = 0x81;
     private const byte OutputBufferFull = 0x01;
     private const byte InputBufferFull = 0x02;
     private const int SpinPollsBeforeYield = 20;
@@ -46,6 +48,24 @@ public sealed class EcController : IEcRegisters
 
         throw new EcAccessException(
             $"EC register 0x{register:X2} could not be read after {_options.MaxAttempts} attempts.");
+    }
+
+    /// <summary>Protocol-level write with retries. Does not verify; the gateway reads back.</summary>
+    void IEcWritableRegisters.Write(byte register, byte value)
+    {
+        for (var attempt = 1; attempt <= _options.MaxAttempts; attempt++)
+        {
+            if (TryWrite(register, value))
+            {
+                Interlocked.Add(ref _recoveredFailures, attempt - 1);
+                return;
+            }
+
+            Settle();
+        }
+
+        throw new EcAccessException(
+            $"EC register 0x{register:X2} could not be written after {_options.MaxAttempts} attempts.");
     }
 
     public IReadOnlyList<byte> ReadBlock(byte startRegister, int count)
@@ -92,6 +112,26 @@ public sealed class EcController : IEcRegisters
         // Another byte already waiting means the stream is out of step: we cannot tell whether
         // the byte we took was ours or a late/foreign one.
         return !OutputPending();
+    }
+
+    private bool TryWrite(byte register, byte value)
+    {
+        if (OutputPending())
+        {
+            return false;
+        }
+
+        foreach (var (port, datum) in new[] { (CommandPort, WriteCommand), (DataPort, register), (DataPort, value) })
+        {
+            if (!WaitUntil(InputBufferFull, set: false))
+            {
+                return false;
+            }
+
+            _ports.Out(port, datum);
+        }
+
+        return WaitUntil(InputBufferFull, set: false);
     }
 
     private bool OutputPending() => (_ports.In(CommandPort) & OutputBufferFull) != 0;

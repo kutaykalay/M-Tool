@@ -14,21 +14,25 @@ public sealed class EcWorker : IDisposable
     private readonly IEcLock _ecLock;
     private readonly TimeSpan _lockTimeout;
     private readonly Action<string, Exception>? _reportError;
+    private readonly Func<bool>? _accessGate;
     private readonly BlockingCollection<Action> _queue = new();
     private readonly Thread _thread;
     private int _disposed;
 
     /// <param name="reportError">Receives errors that cannot reach a caller (e.g. a failed lock release).</param>
+    /// <param name="accessGate">When it returns false, operations fail without touching the EC (sleep/resume).</param>
     public EcWorker(
         IEcRegisters registers,
         IEcLock ecLock,
         TimeSpan lockTimeout,
-        Action<string, Exception>? reportError = null)
+        Action<string, Exception>? reportError = null,
+        Func<bool>? accessGate = null)
     {
         _registers = registers;
         _ecLock = ecLock;
         _lockTimeout = lockTimeout;
         _reportError = reportError;
+        _accessGate = accessGate;
         _thread = new Thread(ProcessQueue) { IsBackground = true, Name = "M-Tool EC worker" };
         _thread.Start();
     }
@@ -55,6 +59,13 @@ public sealed class EcWorker : IDisposable
 
         return completion.Task;
     }
+
+    /// <summary>Write-capable variant for <see cref="EcGateway"/> only.</summary>
+    internal Task<T> RunWriteAsync<T>(Func<IEcWritableRegisters, T> operation, CancellationToken cancellationToken = default) =>
+        RunAsync(
+            registers => operation(registers as IEcWritableRegisters
+                ?? throw new InvalidOperationException("The EC registers behind this worker are read-only.")),
+            cancellationToken);
 
     /// <summary>
     /// Lets the running operation finish, fails everything still queued with
@@ -106,6 +117,12 @@ public sealed class EcWorker : IDisposable
         if (cancellationToken.IsCancellationRequested)
         {
             completion.TrySetCanceled(cancellationToken);
+            return;
+        }
+
+        if (_accessGate is { } gate && !gate())
+        {
+            completion.TrySetException(new EcAccessException("EC erişimi uyku/uyanış nedeniyle duraklatıldı."));
             return;
         }
 
