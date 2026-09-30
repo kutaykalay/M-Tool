@@ -1,0 +1,36 @@
+using System.Globalization;
+using MTool.Core.Device;
+using MTool.Core.Sensors;
+
+namespace MTool.App.Tray;
+
+/// <summary>Tray icon tooltip text: profile, then one line per fan. Pure, so it is unit tested.</summary>
+internal static class TrayTooltip
+{
+    /// <summary><c>NotifyIcon.Text</c> throws above this on .NET 10 (measured 2026-09-30).</summary>
+    public const int MaxLength = 127;
+
+    private const string Prefix = "M-Tool · ";
+
+    public static string Format(SensorReading reading, string profileName)
+    {
+        var marker = reading.Status switch
+        {
+            SensorStatus.Stale => " (veri eski)",
+            SensorStatus.Paused => " (duraklatıldı)",
+            _ => "",
+        };
+        var body = reading.Snapshot is { } s
+            ? $"\n{FanLine("CPU", s.CpuTempC, s.CpuRpm)}\n{FanLine("GPU", s.GpuTempC, s.GpuRpm)}"
+            : "\nSensörler okunuyor…";
+
+        var room = MaxLength - Prefix.Length - marker.Length - body.Length;
+        return Prefix + Shorten(profileName, room) + marker + body;
+    }
+
+    private static string FanLine(string name, int? tempC, int rpm) =>
+        string.Create(CultureInfo.InvariantCulture, $"{name} {tempC?.ToString(CultureInfo.InvariantCulture) ?? "—"}°C {rpm} rpm");
+
+    private static string Shorten(string text, int room) =>
+        text.Length <= room ? text : string.Concat(text.AsSpan(0, Math.Max(0, room - 1)), "…");
+}

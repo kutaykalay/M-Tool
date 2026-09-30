@@ -28,6 +28,18 @@ public sealed class P65Device
 
     public FanCurves ReadFanCurves() => new(ReadFanCurve(EcMap.CpuFan), ReadFanCurve(EcMap.GpuFan));
 
+    public ControlState ReadControlState()
+    {
+        var performance = _ec.Read(EcMap.PerformanceMode);
+        return new ControlState(
+            FanCurves: ReadFanCurves(),
+            Performance: ModeCodes.ToPerformance(performance),
+            PerformanceRaw: performance,
+            CoolerBoostOn: ModeCodes.IsCoolerBoostOn(_ec.Read(EcMap.CoolerBoost)),
+            ChargeLimitPercent: ModeCodes.ToChargeLimit(_ec.Read(EcMap.ChargeLimit)),
+            FanMode: ModeCodes.ToFanMode(_ec.Read(EcMap.FanMode)));
+    }
+
     private FanCurve ReadFanCurve(FanRegisters fan) => FanTableCodec.Decode(
         _ec.ReadBlock(fan.UpThresholdsStart, EcMap.ThresholdCount),
         _ec.ReadBlock(fan.SpeedsStart, EcMap.SpeedCount),

@@ -1,0 +1,154 @@
+<Window x:Class="MTool.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:MTool.App.ViewModels"
+        xmlns:device="clr-namespace:MTool.Core.Device;assembly=MTool.Core"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
+        Title="M-Tool" Width="380" SizeToContent="Height" ResizeMode="CanMinimize"
+        WindowStartupLocation="Manual" ShowActivated="True"
+        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
+        FontFamily="Segoe UI" FontSize="13" UseLayoutRounding="True">
+    <StackPanel Margin="14,10,14,14">
+
+        <!-- Write access (dry-run, read-only) -->
+        <Border Style="{StaticResource Band}" Margin="0,0,0,4" Tag="{Binding Status.AccessBannerKind}"
+                Visibility="{Binding Status.AccessBanner, Converter={StaticResource NotNullToVisible}}">
+            <TextBlock Text="{Binding Status.AccessBanner}" TextWrapping="Wrap" />
+        </Border>
+
+        <!-- Sensors -->
+        <TextBlock Style="{StaticResource Section}" Text="SENSÖRLER" />
+        <Border Style="{StaticResource Card}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Style="{StaticResource Muted}" Text="CPU" />
+                <TextBlock Grid.Column="1" Style="{StaticResource Muted}" Text="GPU" />
+                <TextBlock Grid.Row="1" Style="{StaticResource Value}" Text="{Binding Sensors.CpuTemperature}" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource Value}" Text="{Binding Sensors.GpuTemperature}" />
+                <TextBlock Grid.Row="2" Text="{Binding Sensors.CpuFan}" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Sensors.GpuFan}" />
+                <TextBlock Grid.Row="3" Grid.ColumnSpan="2" Margin="0,6,0,0" Style="{StaticResource Muted}"
+                           Text="{Binding Sensors.Freshness}"
+                           Visibility="{Binding Sensors.Freshness, Converter={StaticResource NotNullToVisible}}" />
+            </Grid>
+        </Border>
+
+        <!-- Fan profile -->
+        <DockPanel Margin="0,12,0,6">
+            <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="FAN PROFİLİ" />
+            <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" Text="{Binding Controls.ActiveProfileLabel}" />
+        </DockPanel>
+        <ItemsControl ItemsSource="{Binding Controls.ProfileNames}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="1" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Style="{StaticResource Choice}" Content="{Binding}" CommandParameter="{Binding}"
+                            Command="{Binding DataContext.Controls.SelectProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                        <Button.Tag>
+                            <MultiBinding Converter="{StaticResource Equal}">
+                                <Binding />
+                                <Binding Path="DataContext.Controls.ActiveProfile" RelativeSource="{RelativeSource AncestorType=Window}" />
+                            </MultiBinding>
+                        </Button.Tag>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Performance mode -->
+        <DockPanel Margin="0,12,0,6">
+            <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="PERFORMANS" />
+            <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" Text="{Binding Controls.PerformanceLabel}" />
+        </DockPanel>
+        <UniformGrid Rows="1">
+            <Button Style="{StaticResource Choice}" Content="Yüksek" CommandParameter="{x:Static device:PerformanceMode.High}"
+                    Command="{Binding Controls.SetPerformanceCommand}">
+                <Button.Tag>
+                    <MultiBinding Converter="{StaticResource Equal}">
+                        <Binding Source="{x:Static device:PerformanceMode.High}" />
+                        <Binding Path="Controls.ActivePerformance" />
+                    </MultiBinding>
+                </Button.Tag>
+            </Button>
+            <Button Style="{StaticResource Choice}" Content="Dengeli" CommandParameter="{x:Static device:PerformanceMode.Balanced}"
+                    Command="{Binding Controls.SetPerformanceCommand}">
+                <Button.Tag>
+                    <MultiBinding Converter="{StaticResource Equal}">
+                        <Binding Source="{x:Static device:PerformanceMode.Balanced}" />
+                        <Binding Path="Controls.ActivePerformance" />
+                    </MultiBinding>
+                </Button.Tag>
+            </Button>
+            <Button Style="{StaticResource Choice}" Content="Pil" CommandParameter="{x:Static device:PerformanceMode.Eco}"
+                    Command="{Binding Controls.SetPerformanceCommand}">
+                <Button.Tag>
+                    <MultiBinding Converter="{StaticResource Equal}">
+                        <Binding Source="{x:Static device:PerformanceMode.Eco}" />
+                        <Binding Path="Controls.ActivePerformance" />
+                    </MultiBinding>
+                </Button.Tag>
+            </Button>
+        </UniformGrid>
+
+        <!-- Cooler Boost -->
+        <TextBlock Style="{StaticResource Section}" Text="COOLER BOOST" />
+        <Button Style="{StaticResource Choice}" Margin="0" HorizontalAlignment="Stretch"
+                Tag="{Binding Controls.CoolerBoostOn}"
+                CommandParameter="{Binding Controls.CoolerBoostOn, Converter={StaticResource Not}}"
+                Command="{Binding Controls.SetCoolerBoostCommand}">
+            <TextBlock>
+                <Run Text="Cooler Boost" />
+                <Run Text="(fanlar tam hız)" />
+            </TextBlock>
+        </Button>
+
+        <!-- Charge limit -->
+        <DockPanel Margin="0,12,0,6">
+            <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="ŞARJ LİMİTİ" />
+            <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right">
+                <Run Text="EC:" />
+                <Run Text="{Binding Controls.ChargeLimitActual, TargetNullValue='kapalı', StringFormat='%{0}', Mode=OneWay}" />
+            </TextBlock>
+        </DockPanel>
+        <DockPanel>
+            <Button DockPanel.Dock="Right" Style="{StaticResource Choice}" Margin="8,0,0,0" Content="Uygula"
+                    Command="{Binding Controls.ApplyChargeLimitCommand}" />
+            <TextBlock DockPanel.Dock="Right" Width="44" VerticalAlignment="Center" TextAlignment="Right"
+                       Text="{Binding Controls.ChargeLimitDraft, StringFormat='%{0}'}" />
+            <Slider Minimum="{Binding Controls.ChargeLimitMin, Mode=OneTime}" Maximum="{Binding Controls.ChargeLimitMax, Mode=OneTime}" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                    Value="{Binding Controls.ChargeLimitDraft, Mode=TwoWay}" IsEnabled="{Binding Controls.CanWrite}" />
+        </DockPanel>
+
+        <!-- Drift after reboot / sleep -->
+        <Border Style="{StaticResource Band}" Tag="{x:Static vm:MessageKind.Warning}"
+                Visibility="{Binding Status.ShowReapply, Converter={StaticResource BoolToVisible}}">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Style="{StaticResource Choice}" Margin="8,0,0,0" Content="Yeniden uygula"
+                        Command="{Binding Controls.ReapplyCommand}" />
+                <TextBlock Text="{Binding Status.DriftText}" TextWrapping="Wrap" VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
+
+        <!-- Result of the last command -->
+        <Border Style="{StaticResource Band}" Tag="{Binding Status.MessageKind}"
+                Visibility="{Binding Status.Message, Converter={StaticResource NotNullToVisible}}">
+            <TextBlock Text="{Binding Status.Message}" TextWrapping="Wrap" />
+        </Border>
+    </StackPanel>
+</Window>

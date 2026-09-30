@@ -60,6 +60,14 @@ public sealed class EcWorker : IDisposable
         return completion.Task;
     }
 
+    /// <summary>
+    /// Like <see cref="RunAsync{T}"/>, but every read rides out a silent EC period as the gateway
+    /// does. For reads that matter (firmware, backup, control state), not for periodic sensor polls.
+    /// </summary>
+    public Task<T> RunRetryingAsync<T>(
+        Func<IEcRegisters, T> operation, EcAccessRetry retry, Action<string> warn, CancellationToken cancellationToken = default) =>
+        RunAsync(registers => operation(new RetryingEcReader(registers, retry, warn)), cancellationToken);
+
     /// <summary>Write-capable variant for <see cref="EcGateway"/> only.</summary>
     internal Task<T> RunWriteAsync<T>(Func<IEcWritableRegisters, T> operation, CancellationToken cancellationToken = default) =>
         RunAsync(

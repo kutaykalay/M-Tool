@@ -4,9 +4,11 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>MTool.App</RootNamespace>
     <AssemblyName>M-Tool</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\m-tool.ico</ApplicationIcon>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
@@ -14,11 +16,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- WPF and WinForms both define Application, MessageBox, ...: tray code uses full names. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+    <InternalsVisibleTo Include="MTool.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MTool.Core\MTool.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Hardware\Resources\LpcACPIEC.bin" LogicalName="MTool.LpcACPIEC.bin" />
+    <EmbeddedResource Include="Resources\m-tool.ico" LogicalName="MTool.m-tool.ico" />
   </ItemGroup>
 
 </Project>

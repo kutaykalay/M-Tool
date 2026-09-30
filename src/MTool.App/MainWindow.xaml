@@ -1,7 +1,0 @@
-<Window x:Class="MTool.App.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="M-Tool" Height="200" Width="360" WindowStartupLocation="CenterScreen">
-    <TextBlock Margin="16" TextWrapping="Wrap"
-               Text="M-Tool: arayuz Asama 4'te gelecek. Simdilik komut satirindan: M-Tool.exe --dump" />
-</Window>

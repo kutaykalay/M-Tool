@@ -94,5 +94,6 @@ public sealed class PreStateStore(string directory)
 
     private static bool IsComplete(PreMToolState? state) =>
         state is { FirmwareVersion: not null, FirmwareDate: not null, Registers: not null }
+        && state.Registers.All(r => r is not null)
         && state.Registers.Select(r => r.Register).Order().SequenceEqual(EcWriteRules.WritableRegisters);
 }

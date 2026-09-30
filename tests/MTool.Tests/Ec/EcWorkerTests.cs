@@ -126,10 +126,14 @@ public class EcWorkerTests
         var running = worker.RunAsync(_ => gate.Wait(TimeSpan.FromSeconds(5)));
         var pending = worker.RunAsync(_ => 2);
 
-        var disposing = Task.Run(worker.Dispose);
-        await Task.Delay(100);
+        // Open the gate only once Dispose is blocked in Join, i.e. after it marked the worker
+        // disposed; a fixed delay was flaky when the thread pool was busy with other tests.
+        var disposer = new Thread(worker.Dispose);
+        disposer.Start();
+        SpinWait.SpinUntil(() => disposer.ThreadState.HasFlag(ThreadState.WaitSleepJoin), TimeSpan.FromSeconds(5))
+            .Should().BeTrue();
         gate.Set();
-        await disposing;
+        disposer.Join();
 
         (await running).Should().BeTrue();
         await pending.Invoking(t => t).Should().ThrowAsync<ObjectDisposedException>();

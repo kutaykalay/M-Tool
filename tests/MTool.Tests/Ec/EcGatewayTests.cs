@@ -40,15 +40,25 @@ public sealed class EcGatewayTests : IDisposable
         outcome.Message.Should().Contain("firmware");
         _ec.Writes.Should().BeEmpty();
         gateway.IsWriteEnabled.Should().BeFalse();
+        gateway.LockReason.Should().Contain("firmware");
     }
 
     [Fact]
     public async Task Missing_pre_state_backup_rejects_every_write()
     {
-        var outcome = await Gateway(Live with { PreStateSaved = false }).ApplyAsync(WritePlans.ChargeLimit(79));
+        var gateway = Gateway(Live with { PreStateSaved = false });
+
+        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
 
         outcome.Status.Should().Be(WriteStatus.Rejected);
         _ec.Writes.Should().BeEmpty();
+        gateway.LockReason.Should().Contain("yedeği");
+    }
+
+    [Fact]
+    public void An_open_gateway_has_no_lock_reason()
+    {
+        Gateway().LockReason.Should().BeNull();
     }
 
     [Theory]
@@ -227,6 +237,17 @@ public sealed class EcGatewayTests : IDisposable
 
         outcome.Status.Should().Be(WriteStatus.FailedRecovered);
         _ec.Writes.Should().OnlyContain(w => w.Register == 0xF2);
+    }
+
+    [Fact]
+    public async Task A_failed_write_becomes_the_lock_reason()
+    {
+        _ec.StuckRegisters.Add(0xF2);
+        var gateway = Gateway();
+
+        await gateway.ApplyAsync(WritePlans.Performance(PerformanceMode.Balanced));
+
+        gateway.LockReason.Should().Contain("0xF2");
     }
 
     [Fact]
@@ -428,6 +449,7 @@ public sealed class EcGatewayTests : IDisposable
         outcome.Status.Should().Be(WriteStatus.Rejected);
         outcome.Message.Should().Contain("önceki oturumda");
         _ec.Writes.Should().BeEmpty();
+        gateway.LockReason.Should().Be("önceki oturumda yazma başarısız");
     }
 
     private sealed class ThrowingLog : IAppLog

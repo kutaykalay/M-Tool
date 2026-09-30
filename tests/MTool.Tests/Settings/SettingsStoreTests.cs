@@ -1,3 +1,5 @@
+using MTool.Core.Device;
+using MTool.Core.Profiles;
 using MTool.Core.Settings;
 
 namespace MTool.Tests.Settings;
@@ -25,7 +27,11 @@ public sealed class SettingsStoreTests : IDisposable
     public void Saved_settings_round_trip()
     {
         var store = new SettingsStore(_folder);
-        var settings = AppSettings.Default with { DryRun = false, SelectedProfile = "Cool" };
+        var settings = AppSettings.Default with
+        {
+            DryRun = false,
+            Desired = new DesiredState("Cool", PerformanceMode.Balanced, 60, FanMode.Auto),
+        };
 
         store.Save(settings);
 
@@ -60,8 +66,50 @@ public sealed class SettingsStoreTests : IDisposable
         var store = new SettingsStore(_folder);
 
         store.Save(AppSettings.Default);
-        store.Save(AppSettings.Default with { SelectedProfile = "Silent" });
+        store.Save(AppSettings.Default with { Desired = new DesiredState("Silent") });
 
         Directory.GetFiles(_folder).Select(Path.GetFileName).Should().Equal("settings.json");
+    }
+
+    [Fact]
+    public void Enums_are_written_as_names()
+    {
+        var store = new SettingsStore(_folder);
+
+        store.Save(AppSettings.Default with { Desired = new DesiredState("Cool", PerformanceMode.Eco, FanMode: FanMode.Auto) });
+
+        var json = File.ReadAllText(SettingsPath);
+        json.Should().Contain("\"performance\": \"Eco\"").And.Contain("\"fanMode\": \"Auto\"");
+    }
+
+    [Theory]
+    [InlineData("""{ "schemaVersion": 1, "dryRun": false }""")]
+    [InlineData("""{ "schemaVersion": 1, "dryRun": false, "desired": null }""")]
+    public void Missing_desired_state_falls_back_to_default(string json)
+    {
+        File.WriteAllText(SettingsPath, json);
+
+        new SettingsStore(_folder).Load().Settings.Desired.Should().Be(DesiredState.Default);
+    }
+
+    [Theory]
+    [InlineData("""{ "desired": { "fanProfile": "Cool", "chargeLimitPercent": "x" } }""")]
+    [InlineData("""{ "desired": { "fanProfile": "Cool", "performance": 7 } }""")]
+    [InlineData("""{ "desired": { "fanProfile": "Cool", "performance": "Turbo" } }""")]
+    public void Unusable_desired_state_sets_the_file_aside(string json)
+    {
+        File.WriteAllText(SettingsPath, json);
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Settings.Should().Be(AppSettings.Default);
+        result.Warning.Should().NotBeNull();
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Desired_state_cannot_be_set_to_null()
+    {
+        (AppSettings.Default with { Desired = null! }).Desired.Should().Be(DesiredState.Default);
     }
 }

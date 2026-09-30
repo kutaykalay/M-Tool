@@ -1,14 +1,24 @@
 using System.Text.Json;
+using MTool.Core.Profiles;
 
 namespace MTool.Core.Settings;
 
 /// <param name="DryRun">When true the gateway validates and logs but never writes. Default: on.</param>
+/// <param name="Desired">What the user wants the EC to hold; missing or null means <see cref="DesiredState.Default"/>.</param>
 public sealed record AppSettings(
     int SchemaVersion = AppSettings.CurrentSchemaVersion,
     bool DryRun = true,
-    string SelectedProfile = "Default")
+    DesiredState? Desired = null)
 {
     public const int CurrentSchemaVersion = 1;
+
+    public DesiredState Desired
+    {
+        get;
+        init => field = value ?? DesiredState.Default;
+    }
+
+    = Desired ?? DesiredState.Default;
 
     public static AppSettings Default { get; } = new();
 }
@@ -33,7 +43,7 @@ public sealed class SettingsStore(string directory)
         try
         {
             var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath), JsonDefaults.Options);
-            return settings is { SelectedProfile: not null }
+            return settings is not null
                 ? new SettingsLoadResult(settings, null)
                 : SetAside("boş ya da eksik");
         }

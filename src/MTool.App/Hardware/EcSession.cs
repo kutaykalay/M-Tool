@@ -1,7 +1,6 @@
 using MTool.Core;
 using MTool.Core.Device;
 using MTool.Core.Ec;
-using MTool.Core.Settings;
 
 namespace MTool.App.Hardware;
 
@@ -16,14 +15,17 @@ internal sealed class EcSession : IDisposable
     private readonly PawnIoPortIo _ports;
     private readonly AccessEcMutex _ecLock;
     private readonly IAppLog _log;
+    private readonly EcTroubleLog _troubleLog;
 
-    private EcSession(PawnIoPortIo ports, AccessEcMutex ecLock, EcController controller, EcWorker worker, IAppLog log)
+    private EcSession(
+        PawnIoPortIo ports, AccessEcMutex ecLock, EcController controller, EcWorker worker, IAppLog log, EcTroubleLog troubleLog)
     {
         _ports = ports;
         _ecLock = ecLock;
         Controller = controller;
         Worker = worker;
         _log = log;
+        _troubleLog = troubleLog;
     }
 
     public EcController Controller { get; }
@@ -33,7 +35,7 @@ internal sealed class EcSession : IDisposable
     public static EcSession Open(IAppLog log) => Open(log, EcProtocolOptions.Default);
 
     /// <param name="protocol">EC timing; only the stress test overrides the default.</param>
-    /// <param name="observeTrouble">Also receives every EC retry/failure report (after it is logged).</param>
+    /// <param name="observeTrouble">Also receives every EC retry/failure report (after the log has seen it).</param>
     public static EcSession Open(IAppLog log, EcProtocolOptions protocol, Action<EcTransactionTrouble>? observeTrouble = null)
     {
         if (PawnIoInstallation.InstalledVersion() is null)
@@ -43,45 +45,29 @@ internal sealed class EcSession : IDisposable
 
         var ports = PawnIoPortIo.Open();
         var ecLock = new AccessEcMutex();
+        var troubleLog = new EcTroubleLog(log, TimeProvider.System, EcTroubleLog.DefaultSummaryInterval);
         var controller = new EcController(ports, protocol, trouble =>
         {
-            log.Warn($"EC: {trouble}");
+            troubleLog.Report(trouble);
             observeTrouble?.Invoke(trouble);
         });
         var worker = new EcWorker(controller, ecLock, LockTimeout, (message, ex) => log.Error(message, ex));
-        return new EcSession(ports, ecLock, controller, worker, log);
+        return new EcSession(ports, ecLock, controller, worker, log, troubleLog);
     }
 
     public Task<T> ReadAsync<T>(Func<P65Device, T> read) => Worker.RunAsync(ec => read(new P65Device(ec)));
 
     /// <summary>
     /// Creates the gateway. On supported firmware the pre-M-Tool snapshot is captured first if it
-    /// does not exist yet; without it the gateway stays locked.
+    /// does not exist yet; without it (or on any EC/file trouble) the gateway stays locked.
     /// </summary>
-    public async Task<EcGateway> CreateGatewayAsync(bool dryRun)
-    {
-        var firmware = await ReadAsync(device => device.ReadFirmware()).ConfigureAwait(false);
-        var store = new PreStateStore(AppPaths.Root);
-        if (firmware.IsSupported && !store.Exists)
-        {
-            // Only when no file exists: a corrupt snapshot is left for a human to look at.
-            var state = await Worker.RunAsync(ec => PreStateCapture.Read(ec, firmware, DateTimeOffset.Now)).ConfigureAwait(false);
-            store.SaveIfMissing(state);
-            _log.Info($"M-Tool öncesi durum yedeklendi ({state.Registers.Count} register).");
-        }
-
-        var writeLock = new WriteLockStore(AppPaths.Root);
-        var policy = new WritePolicy(
-            FirmwareSupported: firmware.IsSupported,
-            PreStateSaved: store.HasValidSnapshot(firmware.Version),
-            DryRun: dryRun,
-            PersistedLockReason: writeLock.Reason);
-        return new EcGateway(Worker, policy, _log, writeLock.Lock);
-    }
+    public async Task<EcGateway> CreateGatewayAsync(bool dryRun) =>
+        (await WriteAccessBootstrap.CreateAsync(Worker, AppPaths.Root, dryRun, _log).ConfigureAwait(false)).Gateway;
 
     public void Dispose()
     {
         Worker.Dispose();
+        _troubleLog.Flush();
         _ecLock.Dispose();
         _ports.Dispose();
     }

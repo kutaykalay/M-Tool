@@ -36,7 +36,10 @@ public sealed class EcGateway
         _lockReason = InitialLockReason(policy);
     }
 
-    public bool IsWriteEnabled => Volatile.Read(ref _lockReason) is null;
+    public bool IsWriteEnabled => LockReason is null;
+
+    /// <summary>Why writes are refused (firmware, missing backup, a failed write), or null when open. Read-only.</summary>
+    public string? LockReason => Volatile.Read(ref _lockReason);
 
     public bool IsDryRun => _policy.DryRun;
 

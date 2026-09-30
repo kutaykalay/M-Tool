@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Same keys as Dark.xaml; ThemeManager swaps the two. -->
+    <SolidColorBrush x:Key="Brush.Window" Color="#F3F4F6" />
+    <SolidColorBrush x:Key="Brush.Surface" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Brush.SurfaceHover" Color="#E8EEF9" />
+    <SolidColorBrush x:Key="Brush.Border" Color="#D9DCE1" />
+    <SolidColorBrush x:Key="Brush.Text" Color="#1B1D21" />
+    <SolidColorBrush x:Key="Brush.TextMuted" Color="#5E636B" />
+    <SolidColorBrush x:Key="Brush.Accent" Color="#1F6FEB" />
+    <SolidColorBrush x:Key="Brush.AccentText" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Brush.Info" Color="#DCE9FD" />
+    <SolidColorBrush x:Key="Brush.Warning" Color="#FCEFC7" />
+    <SolidColorBrush x:Key="Brush.Error" Color="#FAD7D4" />
+    <SolidColorBrush x:Key="Brush.BandText" Color="#1B1D21" />
+</ResourceDictionary>
