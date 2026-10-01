@@ -28,6 +28,7 @@ public sealed class P65Device
 
     public FanCurves ReadFanCurves() => new(ReadFanCurve(EcMap.CpuFan), ReadFanCurve(EcMap.GpuFan));
 
+    /// <summary>Everything but the port-only registers: <see cref="ControlState.Port"/> is null.</summary>
     public ControlState ReadControlState()
     {
         var performance = _ec.Read(EcMap.PerformanceMode);
@@ -35,10 +36,12 @@ public sealed class P65Device
             FanCurves: ReadFanCurves(),
             Performance: ModeCodes.ToPerformance(performance),
             PerformanceRaw: performance,
-            CoolerBoostOn: ModeCodes.IsCoolerBoostOn(_ec.Read(EcMap.CoolerBoost)),
-            ChargeLimitPercent: ModeCodes.ToChargeLimit(_ec.Read(EcMap.ChargeLimit)),
-            FanMode: ModeCodes.ToFanMode(_ec.Read(EcMap.FanMode)));
+            FanMode: ModeCodes.ToFanMode(_ec.Read(EcMap.FanMode)),
+            Port: null);
     }
+
+    /// <summary>Cooler Boost and the charge limit: two raw port accesses, so read them only when needed.</summary>
+    public PortState ReadPortState() => new(_ec.Read(EcMap.CoolerBoost), _ec.Read(EcMap.ChargeLimit));
 
     private FanCurve ReadFanCurve(FanRegisters fan) => FanTableCodec.Decode(
         _ec.ReadBlock(fan.UpThresholdsStart, EcMap.ThresholdCount),

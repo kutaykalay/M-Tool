@@ -13,9 +13,43 @@ public class ControlStateTests
         state.FanCurves.Should().BeEquivalentTo(FactoryDefaults.FanCurves);
         state.Performance.Should().Be(PerformanceMode.High);
         state.PerformanceRaw.Should().Be(0xC0);
-        state.CoolerBoostOn.Should().BeFalse();
-        state.ChargeLimitPercent.Should().Be(80);
         state.FanMode.Should().Be(FanMode.Advanced);
+        state.Port.Should().BeNull();
+    }
+
+    [Fact]
+    public void Control_state_never_reads_the_port_registers()
+    {
+        var ec = P65Memory.Faz0Snapshot();
+        var reads = new List<byte>();
+        ec.ReadHook = register =>
+        {
+            reads.Add(register);
+            return null;
+        };
+
+        new P65Device(ec).ReadControlState();
+
+        reads.Should().NotContain([0x98, 0xEF]);
+    }
+
+    [Fact]
+    public void Port_state_reads_cooler_boost_and_charge_limit_only()
+    {
+        var ec = P65Memory.Faz0Snapshot();
+        var reads = new List<byte>();
+        ec.ReadHook = register =>
+        {
+            reads.Add(register);
+            return null;
+        };
+
+        var port = new P65Device(ec).ReadPortState();
+
+        port.Should().Be(new PortState(CoolerBoostRaw: 0x02, ChargeLimitRaw: 0xD0));
+        port.CoolerBoostOn.Should().BeFalse();
+        port.ChargeLimitPercent.Should().Be(80);
+        reads.Should().BeEquivalentTo([0x98, 0xEF]);
     }
 
     [Theory]
@@ -44,7 +78,7 @@ public class ControlStateTests
         var ec = P65Memory.Faz0Snapshot();
         ec.Load(0x98, raw);
 
-        new P65Device(ec).ReadControlState().CoolerBoostOn.Should().Be(expected);
+        new P65Device(ec).ReadPortState().CoolerBoostOn.Should().Be(expected);
     }
 
     [Theory]
@@ -59,7 +93,7 @@ public class ControlStateTests
         var ec = P65Memory.Faz0Snapshot();
         ec.Load(0xEF, raw);
 
-        new P65Device(ec).ReadControlState().ChargeLimitPercent.Should().Be(expected);
+        new P65Device(ec).ReadPortState().ChargeLimitPercent.Should().Be(expected);
     }
 
     [Theory]

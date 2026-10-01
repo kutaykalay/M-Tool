@@ -78,8 +78,22 @@ public class WmiMapTests
         device.ReadSensors();
         device.ReadFanCurves();
         device.ReadControlState();
+        device.ReadPortState();
 
         ec.Registers.Should().BeSubsetOf(WmiMap.Fields.Keys.Concat(WmiMap.PortRegisters));
+    }
+
+    [Fact]
+    public void Everything_but_the_port_state_is_read_through_wmi()
+    {
+        var ec = new RecordingRegisters(P65Memory.Faz0Snapshot());
+        var device = new P65Device(ec);
+
+        device.ReadFirmware();
+        device.ReadSensors();
+        device.ReadControlState();
+
+        ec.Registers.Should().BeSubsetOf(WmiMap.Fields.Keys);
     }
 
     [Fact]

@@ -45,6 +45,9 @@ public sealed class EcGateway
 
     public bool IsDryRun => _policy.DryRun;
 
+    /// <summary>Cooler Boost and the charge limit can be written (the raw port is open).</summary>
+    public bool IsPortAvailable => _policy.PortAvailable;
+
     public async Task<WriteOutcome> ApplyAsync(WritePlan plan, CancellationToken cancellationToken = default)
     {
         // Snapshot: the caller's list must not change between validation and writing.

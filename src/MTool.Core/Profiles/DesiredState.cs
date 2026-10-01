@@ -18,7 +18,10 @@ public sealed record DesiredState(
 
     public static DesiredState Default { get; } = new();
 
-    /// <summary>Fan table first: it is the part that keeps the laptop cool if a later write fails.</summary>
+    /// <summary>
+    /// Fan table first: it is the part that keeps the laptop cool if a later write fails. The charge
+    /// limit last: it is the only part that needs the raw port, so the WMI parts never wait on it.
+    /// </summary>
     public IReadOnlyList<WritePlan> ToPlans(ProfileCatalog catalog)
     {
         var profile = ProfileOf(catalog);
@@ -28,23 +31,27 @@ public sealed record DesiredState(
             plans.Add(WritePlans.Performance(performance));
         }
 
-        if (ChargeLimitPercent is { } percent)
-        {
-            plans.Add(WritePlans.ChargeLimit(percent));
-        }
-
         if (FanMode is { } fanMode)
         {
             plans.Add(WritePlans.Fan(fanMode));
         }
 
+        if (ChargeLimitPercent is { } percent)
+        {
+            plans.Add(WritePlans.ChargeLimit(percent));
+        }
+
         return plans.AsReadOnly();
     }
 
+    /// <summary>
+    /// A wanted charge limit that is not known (<see cref="ControlState.Port"/> null) counts as
+    /// drift: the band must not claim the EC holds it. Reapplying reads it fresh.
+    /// </summary>
     public StateDrift DriftFrom(ControlState actual, ProfileCatalog catalog) => new(
         FanTable: catalog.Find(FanProfile)?.Curves != actual.FanCurves,
         Performance: Performance is not null && Performance != actual.Performance,
-        ChargeLimit: ChargeLimitPercent is not null && ChargeLimitPercent != actual.ChargeLimitPercent,
+        ChargeLimit: ChargeLimitPercent is not null && ChargeLimitPercent != actual.Port?.ChargeLimitPercent,
         FanMode: FanMode is not null && FanMode != actual.FanMode);
 
     private FanProfile ProfileOf(ProfileCatalog catalog) =>

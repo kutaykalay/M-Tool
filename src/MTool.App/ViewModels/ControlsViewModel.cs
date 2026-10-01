@@ -9,6 +9,8 @@ namespace MTool.App.ViewModels;
 /// <summary>
 /// Profile buttons, Cooler Boost, performance mode and charge limit. Shows what the EC holds, not
 /// what was clicked: after every command the EC is read back, so a refused write snaps back.
+/// Cooler Boost and the charge limit come from the port cache (<see cref="ControlState.Port"/>):
+/// null there is shown as unknown, and without a port their commands are disabled.
 /// </summary>
 public sealed partial class ControlsViewModel : ObservableObject
 {
@@ -17,6 +19,7 @@ public sealed partial class ControlsViewModel : ObservableObject
     private readonly ProfileCatalog _catalog;
     private readonly StatusViewModel _status;
     private byte _performanceRaw;
+    private bool _portStateKnown;
 
     public ControlsViewModel(ProfileService service, IP65Control control, ProfileCatalog catalog, StatusViewModel status)
     {
@@ -49,29 +52,42 @@ public sealed partial class ControlsViewModel : ObservableObject
         _ => $"tanımsız (fabrika, 0x{_performanceRaw:X2})",
     };
 
+    /// <summary>Null when the port state is not known.</summary>
     [ObservableProperty]
-    public partial bool CoolerBoostOn { get; private set; }
+    public partial bool? CoolerBoostOn { get; private set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ChargeLimitLabel))]
     public partial int? ChargeLimitActual { get; private set; }
+
+    public string ChargeLimitLabel =>
+        !_portStateKnown ? "bilinmiyor" : ChargeLimitActual is { } percent ? $"%{percent}" : "kapalı";
 
     /// <summary>Slider value; written only by <see cref="ApplyChargeLimitCommand"/>.</summary>
     [ObservableProperty]
     public partial int ChargeLimitDraft { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanWrite))]
+    [NotifyPropertyChangedFor(nameof(CanWrite), nameof(CanWritePort))]
     [NotifyCanExecuteChangedFor(nameof(SelectProfileCommand), nameof(SetPerformanceCommand), nameof(SetCoolerBoostCommand))]
     [NotifyCanExecuteChangedFor(nameof(ApplyChargeLimitCommand), nameof(ReapplyCommand))]
     public partial bool IsBusy { get; private set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanWrite))]
+    [NotifyPropertyChangedFor(nameof(CanWrite), nameof(CanWritePort))]
     [NotifyCanExecuteChangedFor(nameof(SelectProfileCommand), nameof(SetPerformanceCommand), nameof(SetCoolerBoostCommand))]
     [NotifyCanExecuteChangedFor(nameof(ApplyChargeLimitCommand), nameof(ReapplyCommand))]
     public partial WriteMode WriteMode { get; private set; }
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanWritePort))]
+    [NotifyCanExecuteChangedFor(nameof(SetCoolerBoostCommand), nameof(ApplyChargeLimitCommand))]
+    public partial bool PortFeaturesAvailable { get; private set; } = true;
+
     public bool CanWrite => WriteMode != WriteMode.Locked && !IsBusy;
+
+    /// <summary>Cooler Boost and the charge limit: also need the raw port.</summary>
+    public bool CanWritePort => CanWrite && PortFeaturesAvailable;
 
     /// <summary>
     /// Reads the EC and updates every control and the access band. The drift band is left alone
@@ -83,6 +99,7 @@ public sealed partial class ControlsViewModel : ObservableObject
     {
         var access = _control.Access;
         WriteMode = access.WriteMode;
+        PortFeaturesAvailable = access.PortFeaturesAvailable;
         _status.SetAccess(access);
 
         ControlState state;
@@ -114,10 +131,10 @@ public sealed partial class ControlsViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanWrite))]
     private Task SetPerformanceAsync(PerformanceMode mode) => RunAsync(() => _service.SetPerformanceAsync(mode));
 
-    [RelayCommand(CanExecute = nameof(CanWrite))]
+    [RelayCommand(CanExecute = nameof(CanWritePort))]
     private Task SetCoolerBoostAsync(bool on) => RunAsync(() => _service.SetCoolerBoostAsync(on));
 
-    [RelayCommand(CanExecute = nameof(CanWrite))]
+    [RelayCommand(CanExecute = nameof(CanWritePort))]
     private Task ApplyChargeLimitAsync() => RunAsync(() => _service.SetChargeLimitAsync(ChargeLimitDraft));
 
     [RelayCommand(CanExecute = nameof(CanWrite))]
@@ -154,9 +171,11 @@ public sealed partial class ControlsViewModel : ObservableObject
         ActiveProfile = _catalog.Match(state.FanCurves)?.Name;
         ActivePerformance = state.Performance;
         OnPropertyChanged(nameof(PerformanceLabel));
-        CoolerBoostOn = state.CoolerBoostOn;
-        ChargeLimitActual = state.ChargeLimitPercent;
-        if (state.ChargeLimitPercent is { } percent)
+        _portStateKnown = state.Port is not null;
+        CoolerBoostOn = state.Port?.CoolerBoostOn;
+        ChargeLimitActual = state.Port?.ChargeLimitPercent;
+        OnPropertyChanged(nameof(ChargeLimitLabel));
+        if (state.Port?.ChargeLimitPercent is { } percent)
         {
             ChargeLimitDraft = percent;
         }

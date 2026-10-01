@@ -123,7 +123,7 @@
             <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="ŞARJ LİMİTİ" />
             <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right">
                 <Run Text="EC:" />
-                <Run Text="{Binding Controls.ChargeLimitActual, TargetNullValue='kapalı', StringFormat='%{0}', Mode=OneWay}" />
+                <Run Text="{Binding Controls.ChargeLimitLabel, Mode=OneWay}" />
             </TextBlock>
         </DockPanel>
         <DockPanel>
@@ -132,7 +132,7 @@
             <TextBlock DockPanel.Dock="Right" Width="44" VerticalAlignment="Center" TextAlignment="Right"
                        Text="{Binding Controls.ChargeLimitDraft, StringFormat='%{0}'}" />
             <Slider Minimum="{Binding Controls.ChargeLimitMin, Mode=OneTime}" Maximum="{Binding Controls.ChargeLimitMax, Mode=OneTime}" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"
-                    Value="{Binding Controls.ChargeLimitDraft, Mode=TwoWay}" IsEnabled="{Binding Controls.CanWrite}" />
+                    Value="{Binding Controls.ChargeLimitDraft, Mode=TwoWay}" IsEnabled="{Binding Controls.CanWritePort}" />
         </DockPanel>
 
         <!-- Drift after reboot / sleep -->

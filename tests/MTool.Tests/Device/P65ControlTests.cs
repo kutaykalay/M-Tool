@@ -30,7 +30,7 @@ public sealed class P65ControlTests : IDisposable
     [Fact]
     public void Open_gateway_means_writes_enabled()
     {
-        Control().Access.Should().Be(new DeviceAccess(Firmware, WriteMode.Enabled, LockReason: null));
+        Control().Access.Should().Be(new DeviceAccess(Firmware, WriteMode.Enabled, LockReason: null, PortFeaturesAvailable: true));
     }
 
     [Fact]
@@ -88,6 +88,147 @@ public sealed class P65ControlTests : IDisposable
 
         state.Performance.Should().Be(PerformanceMode.High);
         _sleeps.Should().HaveCount(2);
+    }
+
+    // --- port state (Cooler Boost, charge limit) ---
+
+    private List<byte> RecordPortReads()
+    {
+        var reads = new List<byte>();
+        _ec.ReadHook = register =>
+        {
+            if (register is 0x98 or 0xEF)
+            {
+                reads.Add(register);
+            }
+
+            return null;
+        };
+        return reads;
+    }
+
+    [Fact]
+    public async Task The_port_state_is_read_once_and_then_served_from_the_cache()
+    {
+        var portReads = RecordPortReads();
+        var control = Control();
+
+        var first = await control.ReadControlStateAsync();
+        _ec[0xEF] = 0xBC; // changed behind M-Tool's back: the cache does not see it
+        var second = await control.ReadControlStateAsync();
+
+        first.Port.Should().Be(new PortState(0x02, 0xD0));
+        second.Port.Should().Be(first.Port);
+        portReads.Should().BeEquivalentTo([0x98, 0xEF]);
+    }
+
+    [Fact]
+    public async Task Successful_port_writes_update_the_cache_without_reading_the_port_again()
+    {
+        var control = Control();
+        await control.ReadControlStateAsync();
+
+        await control.SetChargeLimitAsync(60);
+        var portReads = RecordPortReads();
+        var state = await control.ReadControlStateAsync();
+
+        state.Port!.ChargeLimitPercent.Should().Be(60);
+        portReads.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Cooler_boost_reads_the_port_state_first_and_caches_the_result()
+    {
+        var control = Control();
+
+        (await control.SetCoolerBoostAsync(true)).Status.Should().Be(WriteStatus.Applied);
+        var portReads = RecordPortReads();
+        var state = await control.ReadControlStateAsync();
+
+        state.Port.Should().Be(new PortState(0x82, 0xD0));
+        portReads.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task A_failed_port_write_makes_the_port_state_unknown()
+    {
+        var control = Control();
+        await control.ReadControlStateAsync();
+        _ec.StuckRegisters.Add(0xEF);
+
+        await control.SetChargeLimitAsync(60);
+        var portReads = RecordPortReads();
+        var state = await control.ReadControlStateAsync();
+
+        state.Port.Should().BeNull();
+        portReads.Should().BeEmpty(); // no automatic port read after a failed port write
+    }
+
+    [Fact]
+    public async Task A_failed_first_read_is_tried_again_on_the_next_refresh()
+    {
+        var silent = true;
+        _ec.ReadHook = register => silent && register == 0x98 ? throw new EcAccessException("port silent") : null;
+        var control = Control();
+
+        var first = await control.ReadControlStateAsync();
+        silent = false;
+        var second = await control.ReadControlStateAsync();
+
+        first.Port.Should().BeNull();
+        first.Performance.Should().Be(PerformanceMode.High);
+        second.Port.Should().Be(new PortState(0x02, 0xD0));
+    }
+
+    [Fact]
+    public async Task A_failed_cooler_boost_read_makes_the_cached_state_unknown()
+    {
+        var control = Control();
+        await control.ReadControlStateAsync();
+        _ec.ReadHook = register => register == 0x98 ? throw new EcAccessException("port silent") : null;
+
+        var outcome = await control.SetCoolerBoostAsync(true);
+        var state = await control.ReadControlStateAsync();
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        outcome.Message.Should().Contain("port silent");
+        state.Port.Should().BeNull();
+        _ec.Writes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Locked_writes_never_read_the_port_for_a_write()
+    {
+        var control = Control(Live with { PreStateSaved = false });
+        var portReads = RecordPortReads();
+
+        var boost = await control.SetCoolerBoostAsync(true);
+        var outcomes = await control.ApplyDesiredAsync(new DesiredState("Default", ChargeLimitPercent: 60), ProfileCatalog.BuiltIn);
+
+        boost.Status.Should().Be(WriteStatus.Rejected);
+        outcomes.Should().OnlyContain(o => o.Status == WriteStatus.Rejected);
+        portReads.Should().BeEmpty();
+    }
+
+
+    [Fact]
+    public async Task Without_a_port_nothing_reaches_the_port_registers()
+    {
+        var portReads = RecordPortReads();
+        var control = Control(Live with { PortAvailable = false });
+
+        var state = await control.ReadControlStateAsync();
+        var boost = await control.SetCoolerBoostAsync(true);
+        var charge = await control.SetChargeLimitAsync(60);
+
+        control.Access.PortFeaturesAvailable.Should().BeFalse();
+        state.Port.Should().BeNull();
+        state.Performance.Should().Be(PerformanceMode.High);
+        boost.Status.Should().Be(WriteStatus.Rejected);
+        boost.Message.Should().Contain("port");
+        charge.Status.Should().Be(WriteStatus.Rejected);
+        portReads.Should().BeEmpty();
+        _ec.Writes.Should().BeEmpty();
     }
 
     // --- writes ---
@@ -165,8 +306,55 @@ public sealed class P65ControlTests : IDisposable
         var outcomes = await Control().ApplyDesiredAsync(desired, ProfileCatalog.BuiltIn);
 
         outcomes.Should().HaveCount(3).And.OnlyContain(o => o.Status == WriteStatus.Applied);
-        var state = new P65Device(_ec).ReadControlState();
-        state.Should().BeEquivalentTo(new { FanCurves = Presets.Cool.Curves, Performance = PerformanceMode.Balanced, ChargeLimitPercent = 60 });
+        var device = new P65Device(_ec);
+        device.ReadControlState().Should().BeEquivalentTo(new { FanCurves = Presets.Cool.Curves, Performance = PerformanceMode.Balanced });
+        device.ReadPortState().ChargeLimitPercent.Should().Be(60);
+    }
+
+    [Fact]
+    public async Task The_charge_limit_is_written_last_after_the_wmi_parts()
+    {
+        var desired = new DesiredState("Cool", PerformanceMode.Balanced, 60, FanMode.Auto);
+
+        await Control().ApplyDesiredAsync(desired, ProfileCatalog.BuiltIn);
+
+        _ec.Writes.Last().Register.Should().Be(0xEF);
+        _ec.Writes.Select(w => w.Register).Should().ContainInOrder(0xF2, 0xF4, 0xEF);
+    }
+
+    [Fact]
+    public async Task A_charge_limit_the_ec_already_holds_is_not_written_again()
+    {
+        var desired = new DesiredState("Cool", ChargeLimitPercent: 80); // 0xEF is 0xD0 = 80 %
+
+        var outcomes = await Control().ApplyDesiredAsync(desired, ProfileCatalog.BuiltIn);
+
+        outcomes.Should().ContainSingle();
+        _ec.Writes.Should().NotContain(w => w.Register == 0xEF);
+    }
+
+    [Fact]
+    public async Task Reapplying_reads_the_charge_limit_fresh_because_the_ec_may_have_reset_it()
+    {
+        var control = Control();
+        await control.ReadControlStateAsync(); // caches 80 %
+        _ec[0xEF] = 0x64; // reset behind M-Tool's back (limit off)
+
+        var outcomes = await control.ApplyDesiredAsync(new DesiredState("Default", ChargeLimitPercent: 80), ProfileCatalog.BuiltIn);
+
+        outcomes.Should().HaveCount(2).And.OnlyContain(o => o.Status == WriteStatus.Applied);
+        _ec[0xEF].Should().Be(0xD0);
+    }
+
+    [Fact]
+    public async Task An_unreadable_charge_limit_is_not_written()
+    {
+        _ec.ReadHook = register => register == 0xEF ? throw new EcAccessException("port silent") : null;
+
+        var outcomes = await Control().ApplyDesiredAsync(new DesiredState("Default", ChargeLimitPercent: 60), ProfileCatalog.BuiltIn);
+
+        outcomes.Select(o => o.Status).Should().Equal(WriteStatus.Applied, WriteStatus.Rejected);
+        _ec.Writes.Should().NotContain(w => w.Register == 0xEF);
     }
 
     [Fact]

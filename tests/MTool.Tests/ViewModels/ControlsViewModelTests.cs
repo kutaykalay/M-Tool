@@ -34,7 +34,7 @@ public sealed class ControlsViewModelTests : IDisposable
     [Fact]
     public async Task Refresh_shows_what_the_ec_holds()
     {
-        _control.State = _control.State with { FanCurves = Presets.Silent.Curves, CoolerBoostOn = true, ChargeLimitPercent = 60 };
+        _control.State = _control.State with { FanCurves = Presets.Silent.Curves, Port = new PortState(0x82, 0xBC) };
 
         await _controls.RefreshAsync();
 
@@ -42,7 +42,44 @@ public sealed class ControlsViewModelTests : IDisposable
         _controls.ActivePerformance.Should().Be(PerformanceMode.High);
         _controls.CoolerBoostOn.Should().BeTrue();
         _controls.ChargeLimitActual.Should().Be(60);
+        _controls.ChargeLimitLabel.Should().Be("%60");
         _controls.ChargeLimitDraft.Should().Be(60);
+    }
+
+    [Fact]
+    public async Task An_unread_port_state_is_shown_as_unknown()
+    {
+        _control.State = _control.State with { Port = null };
+
+        await _controls.RefreshAsync();
+
+        _controls.CoolerBoostOn.Should().BeNull();
+        _controls.ChargeLimitActual.Should().BeNull();
+        _controls.ChargeLimitLabel.Should().Be("bilinmiyor");
+        _controls.ChargeLimitDraft.Should().Be(_controls.ChargeLimitMax);
+    }
+
+    [Fact]
+    public async Task A_disabled_charge_limit_is_shown_as_off()
+    {
+        _control.State = _control.State with { Port = new PortState(0x02, 0x64) };
+
+        await _controls.RefreshAsync();
+
+        _controls.ChargeLimitLabel.Should().Be("kapalı");
+    }
+
+    [Fact]
+    public async Task Without_a_port_cooler_boost_and_charge_limit_are_disabled()
+    {
+        _control.Access = _control.Access with { PortFeaturesAvailable = false };
+
+        await _controls.RefreshAsync();
+
+        _controls.SetCoolerBoostCommand.CanExecute(true).Should().BeFalse();
+        _controls.ApplyChargeLimitCommand.CanExecute(null).Should().BeFalse();
+        _controls.SelectProfileCommand.CanExecute("Cool").Should().BeTrue();
+        _controls.CanWritePort.Should().BeFalse();
     }
 
     [Fact]

@@ -12,9 +12,8 @@ public class DesiredStateTests
         FanCurves: FactoryDefaults.FanCurves,
         Performance: null,
         PerformanceRaw: 0x80,
-        CoolerBoostOn: false,
-        ChargeLimitPercent: 80,
-        FanMode: FanMode.Advanced);
+        FanMode: FanMode.Advanced,
+        Port: new PortState(CoolerBoostRaw: 0x02, ChargeLimitRaw: 0xD0));
 
     [Fact]
     public void Default_wants_only_the_default_fan_table()
@@ -25,7 +24,7 @@ public class DesiredStateTests
     }
 
     [Fact]
-    public void Plans_come_in_fan_table_performance_charge_fan_mode_order()
+    public void Plans_come_in_fan_table_performance_fan_mode_order_with_the_port_plan_last()
     {
         var desired = new DesiredState("Cool", PerformanceMode.Balanced, 60, FanMode.Auto);
 
@@ -35,8 +34,8 @@ public class DesiredStateTests
             [
                 WritePlans.FanCurves(Presets.Cool.Curves, "Cool"),
                 WritePlans.Performance(PerformanceMode.Balanced),
-                WritePlans.ChargeLimit(60),
                 WritePlans.Fan(FanMode.Auto),
+                WritePlans.ChargeLimit(60),
             ],
             options => options.WithStrictOrdering());
     }
@@ -91,6 +90,20 @@ public class DesiredStateTests
         var drift = desired.DriftFrom(FactoryState, Catalog);
 
         drift.Should().Be(new StateDrift(FanTable: false, Performance: false, ChargeLimit: true, FanMode: true));
+    }
+
+    [Fact]
+    public void A_wanted_charge_limit_that_is_not_known_counts_as_drift()
+    {
+        var desired = new DesiredState("Default", ChargeLimitPercent: 80);
+
+        desired.DriftFrom(FactoryState with { Port = null }, Catalog).ChargeLimit.Should().BeTrue();
+    }
+
+    [Fact]
+    public void An_unknown_port_state_is_no_drift_when_no_charge_limit_is_wanted()
+    {
+        DesiredState.Default.DriftFrom(FactoryState with { Port = null }, Catalog).Any.Should().BeFalse();
     }
 
     [Fact]

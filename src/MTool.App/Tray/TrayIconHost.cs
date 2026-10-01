@@ -103,8 +103,8 @@ internal sealed class TrayIconHost : INotifier, IDisposable
         }
 
         _menu.Items.Add(new ToolStripSeparator());
-        _menu.Items.Add(Item("Cooler Boost", controls.CoolerBoostOn, controls.CanWrite,
-            () => Run(controls.SetCoolerBoostCommand, !controls.CoolerBoostOn)));
+        _menu.Items.Add(Item("Cooler Boost", controls.CoolerBoostOn == true, controls.CanWritePort,
+            () => Run(controls.SetCoolerBoostCommand, controls.CoolerBoostOn != true)));
         _menu.Items.Add(PerformanceMenu(controls));
         _menu.Items.Add(new ToolStripSeparator());
         _menu.Items.Add(Item("Pencereyi aç", isChecked: false, enabled: true, _showWindow));

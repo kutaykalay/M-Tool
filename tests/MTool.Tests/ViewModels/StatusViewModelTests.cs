@@ -24,7 +24,7 @@ public class StatusViewModelTests
     {
         var status = Status();
 
-        status.SetAccess(new DeviceAccess(Supported, WriteMode.Enabled, null));
+        status.SetAccess(new DeviceAccess(Supported, WriteMode.Enabled, null, PortFeaturesAvailable: true));
 
         status.AccessBanner.Should().BeNull();
         status.AccessBannerKind.Should().Be(MessageKind.None);
@@ -35,7 +35,7 @@ public class StatusViewModelTests
     {
         var status = Status();
 
-        status.SetAccess(new DeviceAccess(Supported, WriteMode.DryRun, null));
+        status.SetAccess(new DeviceAccess(Supported, WriteMode.DryRun, null, PortFeaturesAvailable: true));
 
         status.AccessBanner.Should().Contain("DRY-RUN");
         status.AccessBannerKind.Should().Be(MessageKind.Info);
@@ -46,7 +46,7 @@ public class StatusViewModelTests
     {
         var status = Status();
 
-        status.SetAccess(new DeviceAccess(new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware"));
+        status.SetAccess(new DeviceAccess(new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true));
 
         status.AccessBanner.Should().Contain("16Q4EMS2.108").And.Contain("salt okunur");
         status.AccessBannerKind.Should().Be(MessageKind.Warning);
@@ -57,7 +57,7 @@ public class StatusViewModelTests
     {
         var status = Status();
 
-        status.SetAccess(new DeviceAccess(null, WriteMode.Locked, "tanınmayan firmware"));
+        status.SetAccess(new DeviceAccess(null, WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true));
 
         status.AccessBanner.Should().Contain("okunamadı");
     }
@@ -67,7 +67,7 @@ public class StatusViewModelTests
     {
         var status = Status();
 
-        status.SetAccess(new DeviceAccess(Supported, WriteMode.Locked, "M-Tool öncesi durum yedeği yok ya da geçersiz"));
+        status.SetAccess(new DeviceAccess(Supported, WriteMode.Locked, "M-Tool öncesi durum yedeği yok ya da geçersiz", PortFeaturesAvailable: true));
 
         status.AccessBanner.Should().Contain("yedeği yok");
         status.AccessBannerKind.Should().Be(MessageKind.Warning);

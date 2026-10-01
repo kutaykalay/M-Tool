@@ -13,10 +13,10 @@ internal sealed class FakeP65Control : IP65Control
 {
     public static readonly FirmwareInfo SupportedFirmware = new("16Q4EMS2.107", "05132019");
 
-    public DeviceAccess Access { get; set; } = new(SupportedFirmware, WriteMode.Enabled, null);
+    public DeviceAccess Access { get; set; } = new(SupportedFirmware, WriteMode.Enabled, null, PortFeaturesAvailable: true);
 
     public ControlState State { get; set; } = new(
-        FactoryDefaults.FanCurves, PerformanceMode.High, 0xC0, CoolerBoostOn: false, ChargeLimitPercent: 80, FanMode.Advanced);
+        FactoryDefaults.FanCurves, PerformanceMode.High, 0xC0, FanMode.Advanced, new PortState(CoolerBoostRaw: 0x02, ChargeLimitRaw: 0xD0));
 
     public SensorSnapshot Sensors { get; set; } = new(60, 46, 50, 0, 3044, 0);
 
@@ -44,13 +44,13 @@ internal sealed class FakeP65Control : IP65Control
         WriteAsync($"fan {profile.Name}", s => s with { FanCurves = profile.Curves });
 
     public Task<WriteOutcome> SetCoolerBoostAsync(bool on, CancellationToken cancellationToken = default) =>
-        WriteAsync($"boost {on}", s => s with { CoolerBoostOn = on });
+        WriteAsync($"boost {on}", s => s with { Port = s.Port is null ? null : s.Port with { CoolerBoostRaw = on ? (byte)0x82 : (byte)0x02 } });
 
     public Task<WriteOutcome> SetPerformanceAsync(PerformanceMode mode, CancellationToken cancellationToken = default) =>
         WriteAsync($"performance {mode}", s => s with { Performance = mode, PerformanceRaw = ModeCodes.PerformanceByte(mode) });
 
     public Task<WriteOutcome> SetChargeLimitAsync(int percent, CancellationToken cancellationToken = default) =>
-        WriteAsync($"charge {percent}", s => s with { ChargeLimitPercent = percent });
+        WriteAsync($"charge {percent}", s => s with { Port = s.Port is null ? null : s.Port with { ChargeLimitRaw = ModeCodes.ChargeLimitByte(percent) } });
 
     public Task<WriteOutcome> SetFanModeAsync(FanMode mode, CancellationToken cancellationToken = default) =>
         WriteAsync($"fan mode {mode}", s => s with { FanMode = mode });
