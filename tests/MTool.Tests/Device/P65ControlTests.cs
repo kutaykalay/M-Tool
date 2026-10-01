@@ -10,7 +10,7 @@ public sealed class P65ControlTests : IDisposable
     private static readonly WritePolicy Live = new(FirmwareSupported: true, PreStateSaved: true, DryRun: false, PortAvailable: true);
     private static readonly FirmwareInfo Firmware = new("16Q4EMS2.107", "05132019");
 
-    private readonly FakeEcRegisters _ec = P65Memory.Faz0Snapshot();
+    private readonly FakeEcRegisters _ec = P65Memory.FactorySnapshot();
     private readonly ListLog _log = new();
     private readonly List<TimeSpan> _sleeps = [];
     private readonly EcWorker _worker;

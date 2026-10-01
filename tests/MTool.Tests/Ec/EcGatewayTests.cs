@@ -10,7 +10,7 @@ public sealed class EcGatewayTests : IDisposable
 {
     private static readonly WritePolicy Live = new(FirmwareSupported: true, PreStateSaved: true, DryRun: false, PortAvailable: true);
 
-    private readonly FakeEcRegisters _ec = P65Memory.Faz0Snapshot();
+    private readonly FakeEcRegisters _ec = P65Memory.FactorySnapshot();
     private readonly ListLog _log = new();
     private readonly EcWorker _worker;
 

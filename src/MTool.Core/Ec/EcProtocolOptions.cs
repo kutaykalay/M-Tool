@@ -9,7 +9,7 @@ namespace MTool.Core.Ec;
 /// Wall-clock limit for one step. On the P65 a missing answer does not arrive late, so waiting
 /// longer does not help: a 2/5/10/20 ms sweep gave the same failure rate (~2.5% of dump-sized
 /// read cycles), 200 ms was worse. The EC has episodes in which it takes addresses but never
-/// answers; they outlast all retries (docs/plans/spike stress runs, 2026-09-30).
+/// answers; they outlast all retries (stress runs, 2026-09-30).
 /// </param>
 /// <param name="SettleClearPolls">
 /// After an unanswered read, consecutive polls with an empty output buffer required before retrying,

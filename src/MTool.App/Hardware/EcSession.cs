@@ -4,7 +4,7 @@ using MTool.Core.Ec;
 
 namespace MTool.App.Hardware;
 
-/// <summary>How a session reaches the EC (stage 5-WMI).</summary>
+/// <summary>How a session reaches the EC: MSI WMI with or without the raw port.</summary>
 internal enum EcBackends
 {
     /// <summary>WMI for everything it maps; the raw port (PawnIO) only for Cooler Boost and the charge limit.</summary>

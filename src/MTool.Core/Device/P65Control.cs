@@ -173,7 +173,7 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
     /// Read on first use and after a failed read when the port may be used; otherwise the cache.
     /// Without the port the cache is returned without waiting for <see cref="_portGate"/>: it is null
     /// until a read succeeded, and one reference read is atomic. A cached value from before a reboot
-    /// or sleep is still right for the charge limit, which the EC keeps then (plan.md §13).
+    /// or sleep is still right for the charge limit, which the EC keeps then (measured).
     /// </summary>
     private async Task<PortState?> CachedPortStateAsync(PortUse portUse, CancellationToken cancellationToken)
     {

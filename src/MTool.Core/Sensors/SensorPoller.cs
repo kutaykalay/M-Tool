@@ -4,7 +4,7 @@ namespace MTool.Core.Sensors;
 
 /// <summary>
 /// Reads the sensors on a timer (1 s with the window open, 5 s for the tray tooltip). The EC goes
-/// silent for 117-252 ms now and then (plan.md §8), so a failed poll is skipped and the last good
+/// silent for 117-252 ms now and then, so a failed poll is skipped and the last good
 /// values stay; only <see cref="StaleAfterMisses"/> misses in a row mark the data stale. Nothing
 /// thrown by a read escapes, polls never overlap, and the log gets a line only when the state changes.
 /// </summary>

@@ -5,7 +5,7 @@ namespace MTool.Core.Profiles;
 
 /// <summary>
 /// What the user wants the EC to hold. Saved in settings.json and written again after a reboot or
-/// resume, because the EC resets its fan tables and performance mode then (plan.md §12).
+/// resume, because the EC resets its fan tables and performance mode then.
 /// A null field is never written. Cooler Boost is deliberately not part of it: it is a temporary switch.
 /// </summary>
 public sealed record DesiredState(
@@ -46,7 +46,7 @@ public sealed record DesiredState(
 
     /// <summary>
     /// The parts that go through WMI only. Automatic reapplying uses this: the EC keeps the charge
-    /// limit across reboot and sleep (plan.md §13), so start-up and resume never need the raw port.
+    /// limit across reboot and sleep (measured), so start-up and resume never need the raw port.
     /// </summary>
     public DesiredState WithoutPortParts() => this with { ChargeLimitPercent = null };
 

@@ -2,7 +2,7 @@ using MTool.Core.Device;
 
 namespace MTool.Core.Profiles;
 
-/// <summary>The fan profiles the user can pick. Stage 5 adds the user's own profiles.</summary>
+/// <summary>The fan profiles the user can pick.</summary>
 public sealed class ProfileCatalog(IReadOnlyList<FanProfile> profiles)
 {
     public static ProfileCatalog BuiltIn { get; } = new([FactoryDefaults.Profile, Presets.Cool, Presets.Silent]);

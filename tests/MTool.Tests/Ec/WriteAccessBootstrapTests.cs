@@ -10,7 +10,7 @@ public sealed class WriteAccessBootstrapTests : IDisposable
     private static readonly DateTimeOffset Now = new(2026, 9, 30, 22, 0, 0, TimeSpan.FromHours(3));
 
     private readonly string _folder = Directory.CreateTempSubdirectory("mtool-test-").FullName;
-    private readonly FakeEcRegisters _ec = P65Memory.Faz0Snapshot();
+    private readonly FakeEcRegisters _ec = P65Memory.FactorySnapshot();
     private readonly ListLog _log = new();
     private readonly List<TimeSpan> _sleeps = [];
     private readonly EcWorker _worker;

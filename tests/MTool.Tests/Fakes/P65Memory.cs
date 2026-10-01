@@ -1,9 +1,9 @@
 namespace MTool.Tests.Fakes;
 
-/// <summary>EC contents read from the real P65 in Faz 0 (factory Default fan tables).</summary>
+/// <summary>EC contents read from the real P65 (factory Default fan tables).</summary>
 internal static class P65Memory
 {
-    public static FakeEcRegisters Faz0Snapshot()
+    public static FakeEcRegisters FactorySnapshot()
     {
         var ec = new FakeEcRegisters();
         ec.LoadAscii(0xA0, "16Q4EMS2.107");

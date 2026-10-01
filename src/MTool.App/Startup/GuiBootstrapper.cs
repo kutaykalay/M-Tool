@@ -15,7 +15,7 @@ namespace MTool.App.Startup;
 
 /// <summary>
 /// Composition root of the GUI: settings, EC session, write access, services, view model, window
-/// and tray. Never writes to the EC by itself (re-applying at start-up is stage 6). If start-up
+/// and tray. Never writes to the EC by itself (re-applying at start-up is not wired yet). If start-up
 /// fails half way, what was built is torn down again, so no tray icon or PawnIO handle is left.
 /// Shutdown: polling stops, a running EC write may finish, the tray icon goes, the EC session closes.
 /// </summary>
@@ -75,7 +75,7 @@ internal sealed class GuiBootstrapper : IDisposable
         var control = new P65Control(session.Worker, setup, log);
         var service = new ProfileService(control, catalog, new SettingsStore(AppPaths.Root), settings, log);
 
-        // Sleep/resume gating (PowerStateCoordinator) is wired in stage 6; until then access is always allowed.
+        // Sleep/resume gating (PowerStateCoordinator) is not wired yet; until then access is always allowed.
         var poller = new SensorPoller(
             control.ReadSensorsAsync, () => true, () => service.IsBusy, TimeProvider.System, log, MainViewModel.HiddenInterval);
         teardown.Push(("sensör yoklama", poller.Dispose));

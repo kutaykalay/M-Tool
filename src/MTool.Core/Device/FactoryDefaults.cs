@@ -3,8 +3,9 @@ using MTool.Core.Profiles;
 namespace MTool.Core.Device;
 
 /// <summary>
-/// Factory fan tables of firmware 16Q4EMS2.107, embedded instead of trusting a first-run read
-/// (plan.md §4.3). Read by YAMDCC from the EC and matched byte for byte in Faz 0.
+/// Factory fan tables of firmware 16Q4EMS2.107, embedded instead of trusting a first-run read:
+/// another tool may have changed them by then. Read by YAMDCC from the EC and matched byte for byte
+/// against a dump of this laptop.
 /// </summary>
 public static class FactoryDefaults
 {

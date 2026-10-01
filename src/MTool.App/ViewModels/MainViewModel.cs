@@ -9,7 +9,7 @@ namespace MTool.App.ViewModels;
 /// <summary>Ties the window, the tray tooltip and the sensor poller together.</summary>
 public sealed partial class MainViewModel : ObservableObject
 {
-    /// <summary>plan.md §3: 1 s with the window open, 5 s for the tray tooltip.</summary>
+    /// <summary>1 s with the window open, 5 s for the tray tooltip.</summary>
     public static readonly TimeSpan VisibleInterval = TimeSpan.FromSeconds(1);
 
     public static readonly TimeSpan HiddenInterval = TimeSpan.FromSeconds(5);

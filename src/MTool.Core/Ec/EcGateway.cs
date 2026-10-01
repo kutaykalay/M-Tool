@@ -4,7 +4,7 @@ using MTool.Core.Profiles;
 namespace MTool.Core.Ec;
 
 /// <summary>
-/// The single write path to the EC (plan.md §4). Every plan passes the firmware/backup/persisted
+/// The single write path to the EC. Every plan passes the firmware/backup/persisted
 /// lock, the register whitelist and value rules, and a whole-table safety check; it is then
 /// written in safe order with read-back verification. On any failure the fan table is brought back
 /// to a verified safe state (factory table, then Cooler Boost as a last attempt) and writes stay

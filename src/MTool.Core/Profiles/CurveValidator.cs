@@ -2,7 +2,7 @@ using MTool.Core.Ec;
 
 namespace MTool.Core.Profiles;
 
-/// <summary>Whole-curve rules every fan table must pass before it can reach the EC (plan.md §4.1).</summary>
+/// <summary>Whole-curve rules every fan table must pass before it can reach the EC.</summary>
 public static class CurveValidator
 {
     public const int PointCount = 7;

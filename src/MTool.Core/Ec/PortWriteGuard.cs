@@ -4,7 +4,7 @@ namespace MTool.Core.Ec;
 
 /// <summary>
 /// Catches a port access that disturbed other EC memory, as the port handshake racing Windows' ACPI
-/// driver did in stage 4 (0x6A and 0xF2 mangled). Before the first port access of a Cooler Boost or
+/// driver did on this laptop (0x6A and 0xF2 mangled). Before the first port access of a Cooler Boost or
 /// charge limit plan, the registers that matter most and that WMI can read (both fan tables,
 /// performance mode, fan mode) are read; after the plan, whether it succeeded or failed, they are
 /// read again and compared. Through <see cref="RoutedEcRegisters"/> these reads go to WMI, so the

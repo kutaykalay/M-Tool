@@ -14,7 +14,7 @@ public sealed record FanRegisters(
 
 /// <summary>
 /// EC register map for MSI P65 Creator 9SE, firmware 16Q4EMS2.107. Verified against YAMDCC's
-/// working config and a read-only dump in Faz 0 (docs/plans/faz0-arastirma.md §6).
+/// working config and a read-only dump of this laptop's EC.
 /// </summary>
 public static class EcMap
 {

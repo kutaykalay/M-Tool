@@ -13,7 +13,7 @@ public class SynchronizationContextTests
     [Fact]
     public void Gateway_completes_while_the_calling_context_is_blocked()
     {
-        using var worker = new EcWorker(P65Memory.Faz0Snapshot(), new FakeEcLock(), TimeSpan.FromMilliseconds(50));
+        using var worker = new EcWorker(P65Memory.FactorySnapshot(), new FakeEcLock(), TimeSpan.FromMilliseconds(50));
         var gateway = new EcGateway(worker, new WritePolicy(true, true, DryRun: true, PortAvailable: true), new ListLog());
         var previous = SynchronizationContext.Current;
         SynchronizationContext.SetSynchronizationContext(new NeverRunningContext());

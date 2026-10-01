@@ -71,7 +71,7 @@ public class WmiMapTests
     [Fact]
     public void Every_register_the_device_reads_is_reachable_through_wmi_or_the_port()
     {
-        var ec = new RecordingRegisters(P65Memory.Faz0Snapshot());
+        var ec = new RecordingRegisters(P65Memory.FactorySnapshot());
         var device = new P65Device(ec);
 
         device.ReadFirmware();
@@ -86,7 +86,7 @@ public class WmiMapTests
     [Fact]
     public void Everything_but_the_port_state_is_read_through_wmi()
     {
-        var ec = new RecordingRegisters(P65Memory.Faz0Snapshot());
+        var ec = new RecordingRegisters(P65Memory.FactorySnapshot());
         var device = new P65Device(ec);
 
         device.ReadFirmware();
@@ -99,7 +99,7 @@ public class WmiMapTests
     [Fact]
     public void Fake_wmi_reads_and_writes_the_mapped_ec_memory()
     {
-        var memory = P65Memory.Faz0Snapshot();
+        var memory = P65Memory.FactorySnapshot();
         var wmi = new FakeWmiFields(memory);
 
         wmi.Read("MSI_CPU", [5, 11]).Should().Equal(55, 45);
@@ -112,7 +112,7 @@ public class WmiMapTests
     [Fact]
     public void Fake_wmi_rejects_fields_that_are_not_in_the_map()
     {
-        var wmi = new FakeWmiFields(P65Memory.Faz0Snapshot());
+        var wmi = new FakeWmiFields(P65Memory.FactorySnapshot());
 
         var act = () => wmi.Read("MSI_CPU", [0]);
 

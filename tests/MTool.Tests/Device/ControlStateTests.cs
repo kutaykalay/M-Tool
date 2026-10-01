@@ -6,9 +6,9 @@ namespace MTool.Tests.Device;
 public class ControlStateTests
 {
     [Fact]
-    public void Reads_control_state_of_the_faz0_snapshot()
+    public void Reads_control_state_of_the_factory_snapshot()
     {
-        var state = new P65Device(P65Memory.Faz0Snapshot()).ReadControlState();
+        var state = new P65Device(P65Memory.FactorySnapshot()).ReadControlState();
 
         state.FanCurves.Should().BeEquivalentTo(FactoryDefaults.FanCurves);
         state.Performance.Should().Be(PerformanceMode.High);
@@ -20,7 +20,7 @@ public class ControlStateTests
     [Fact]
     public void Control_state_never_reads_the_port_registers()
     {
-        var ec = P65Memory.Faz0Snapshot();
+        var ec = P65Memory.FactorySnapshot();
         var reads = new List<byte>();
         ec.ReadHook = register =>
         {
@@ -36,7 +36,7 @@ public class ControlStateTests
     [Fact]
     public void Port_state_reads_cooler_boost_and_charge_limit_only()
     {
-        var ec = P65Memory.Faz0Snapshot();
+        var ec = P65Memory.FactorySnapshot();
         var reads = new List<byte>();
         ec.ReadHook = register =>
         {
@@ -60,7 +60,7 @@ public class ControlStateTests
     [InlineData(0xC4, null)]
     public void Decodes_performance_mode_and_keeps_the_raw_byte(byte raw, PerformanceMode? expected)
     {
-        var ec = P65Memory.Faz0Snapshot();
+        var ec = P65Memory.FactorySnapshot();
         ec.Load(0xF2, raw);
 
         var state = new P65Device(ec).ReadControlState();
@@ -75,7 +75,7 @@ public class ControlStateTests
     [InlineData(0x02, false)]
     public void Cooler_boost_is_bit_7(byte raw, bool expected)
     {
-        var ec = P65Memory.Faz0Snapshot();
+        var ec = P65Memory.FactorySnapshot();
         ec.Load(0x98, raw);
 
         new P65Device(ec).ReadPortState().CoolerBoostOn.Should().Be(expected);
@@ -90,7 +90,7 @@ public class ControlStateTests
     [InlineData(0xE5, null)]
     public void Charge_limit_is_reported_only_when_enabled_and_in_range(byte raw, int? expected)
     {
-        var ec = P65Memory.Faz0Snapshot();
+        var ec = P65Memory.FactorySnapshot();
         ec.Load(0xEF, raw);
 
         new P65Device(ec).ReadPortState().ChargeLimitPercent.Should().Be(expected);
@@ -102,7 +102,7 @@ public class ControlStateTests
     [InlineData(0x4D, null)]
     public void Decodes_fan_mode(byte raw, FanMode? expected)
     {
-        var ec = P65Memory.Faz0Snapshot();
+        var ec = P65Memory.FactorySnapshot();
         ec.Load(0xF4, raw);
 
         new P65Device(ec).ReadControlState().FanMode.Should().Be(expected);

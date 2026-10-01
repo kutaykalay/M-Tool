@@ -23,7 +23,7 @@ public class RpmCodecTests
 
 public class FanTableCodecTests
 {
-    // CPU table read from the P65 in Faz 0 (factory Default).
+    // CPU table read from the P65 (factory Default).
     private static readonly byte[] CpuUp = [55, 64, 70, 76, 82, 88];
     private static readonly byte[] CpuSpeeds = [45, 50, 60, 70, 75, 80, 80];
 

@@ -7,7 +7,7 @@ using MTool.Core.Settings;
 namespace MTool.App.Cli;
 
 /// <summary>
-/// Command-line mode (plan.md §3): <c>--dump</c>, <c>--watch</c>, <c>--apply</c>, <c>--restore</c>, <c>--unlock</c>.
+/// Command-line mode: <c>--dump</c>, <c>--watch</c>, <c>--apply</c>, <c>--restore</c>, <c>--unlock</c>.
 /// <c>--watch</c> runs WMI only (PawnIO never opened); the others use the hybrid backend.
 /// </summary>
 internal static class CliRunner

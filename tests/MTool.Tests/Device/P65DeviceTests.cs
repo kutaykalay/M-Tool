@@ -9,7 +9,7 @@ public class P65DeviceTests
     [Fact]
     public void Reads_firmware_version_and_date()
     {
-        var device = new P65Device(P65Memory.Faz0Snapshot());
+        var device = new P65Device(P65Memory.FactorySnapshot());
 
         var firmware = device.ReadFirmware();
 
@@ -38,7 +38,7 @@ public class P65DeviceTests
     [Fact]
     public void Reads_sensors()
     {
-        var device = new P65Device(P65Memory.Faz0Snapshot());
+        var device = new P65Device(P65Memory.FactorySnapshot());
 
         var sensors = device.ReadSensors();
 
@@ -52,7 +52,7 @@ public class P65DeviceTests
     [InlineData(255)]
     public void Implausible_temperature_is_reported_as_missing(byte raw)
     {
-        var ec = P65Memory.Faz0Snapshot();
+        var ec = P65Memory.FactorySnapshot();
         ec.Load(0x68, raw);
 
         new P65Device(ec).ReadSensors().CpuTempC.Should().BeNull();
@@ -61,7 +61,7 @@ public class P65DeviceTests
     [Fact]
     public void Reads_both_fan_curves()
     {
-        var device = new P65Device(P65Memory.Faz0Snapshot());
+        var device = new P65Device(P65Memory.FactorySnapshot());
 
         var curves = device.ReadFanCurves();
 

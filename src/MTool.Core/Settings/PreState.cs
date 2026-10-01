@@ -7,7 +7,7 @@ namespace MTool.Core.Settings;
 public sealed record RegisterValue(byte Register, byte Value);
 
 /// <summary>
-/// Every writable register as it was before M-Tool's first write (plan.md §4.3). Not the factory
+/// Every writable register as it was before M-Tool's first write. Not the factory
 /// state: YAMDCC had already written some of these values.
 /// </summary>
 public sealed record PreMToolState(
@@ -93,8 +93,8 @@ public sealed class PreStateStore(string directory)
     }
 
     /// <summary>
-    /// Every writable register must be present. Extra registers are allowed: snapshots taken before
-    /// stage 5-WMI also hold the down offsets, which are no longer writable.
+    /// Every writable register must be present. Extra registers are allowed: snapshots taken by older
+    /// versions also hold the down offsets, which are no longer writable.
     /// </summary>
     private static bool IsComplete(PreMToolState? state) =>
         state is { FirmwareVersion: not null, FirmwareDate: not null, Registers: not null }

@@ -6,7 +6,7 @@ using MTool.App.Startup;
 namespace MTool.App;
 
 /// <summary>
-/// With arguments: command-line mode (plan.md §3), unchanged. Without: the tray app, one per
+/// With arguments: command-line mode, unchanged. Without: the tray app, one per
 /// session. Unhandled errors are logged and never write to the EC.
 /// </summary>
 public partial class App : Application

@@ -10,7 +10,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
     private static readonly WritePolicy Live = new(FirmwareSupported: true, PreStateSaved: true, DryRun: false, PortAvailable: true);
 
     // One EC: WMI and the port both reach this memory, as on the laptop.
-    private readonly FakeEcRegisters _ec = P65Memory.Faz0Snapshot();
+    private readonly FakeEcRegisters _ec = P65Memory.FactorySnapshot();
     private readonly FakeWmiFields _wmi;
     private readonly List<byte> _portReads = [];
     private EcWorker? _worker;
@@ -217,7 +217,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
         _wmi.Calls.Should().NotContain(c => c.StartsWith("write"));
     }
 
-    // --- port rules (stage 5-WMI step 4) ---
+    // --- port rules ---
 
     private EcGateway GatewayOver(RoutedEcRegisters routed, WritePolicy policy, List<string>? persistedLocks = null)
     {
@@ -261,9 +261,9 @@ public sealed class RoutedEcRegistersTests : IDisposable
     }
 
     [Theory]
-    [InlineData(0x6A, 0x00)] // CPU up threshold, as mangled in stage 4 [Y] 9
+    [InlineData(0x6A, 0x00)] // CPU up threshold, as once mangled by the port race
     [InlineData(0x8C, 0x64)] // GPU speed
-    [InlineData(0xF2, 0xC4)] // performance mode, as mangled in stage 4 [Y] 9
+    [InlineData(0xF2, 0xC4)] // performance mode, as once mangled by the port race
     [InlineData(0xF4, 0x0D)] // fan mode
     public async Task A_port_write_that_changes_a_register_wmi_watches_fails_and_locks(byte register, byte raced)
     {

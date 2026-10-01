@@ -3,7 +3,7 @@ using MTool.Core.Device;
 namespace MTool.Core.Ec;
 
 /// <summary>
-/// Per-register whitelist and value rules (plan.md §4.1). Whole-table rules live in
+/// Per-register whitelist and value rules. Whole-table rules live in
 /// <see cref="Profiles.CurveValidator"/>.
 /// </summary>
 public static class EcWriteRules
