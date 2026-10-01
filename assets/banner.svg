@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" width="1280" height="320" role="img" aria-labelledby="title desc">
+  <title id="title">M-Tool</title>
+  <desc id="desc">M-Tool banner: the name, a one-line description and the factory CPU fan curve drawn as a stepped line.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f1115"/>
+      <stop offset="1" stop-color="#171b22"/>
+    </linearGradient>
+    <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff7a45" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#ff7a45" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="320" rx="18" fill="url(#bg)"/>
+
+  <!-- grid -->
+  <g stroke="#ffffff" stroke-opacity="0.06" stroke-width="1">
+    <line x1="720" y1="72" x2="1180" y2="72"/>
+    <line x1="720" y1="119" x2="1180" y2="119"/>
+    <line x1="720" y1="167" x2="1180" y2="167"/>
+    <line x1="720" y1="214" x2="1180" y2="214"/>
+  </g>
+  <line x1="720" y1="262" x2="1180" y2="262" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1"/>
+
+  <!-- factory CPU fan curve (16Q4EMS2.107) -->
+  <polygon fill="url(#fill)" points="720,176 897,176 897,167 961,167 961,148 1003,148 1003,129 1046,129 1046,120 1088,120 1088,110 1180,110 1180,262 720,262"/>
+  <polyline fill="none" stroke="#ff7a45" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"
+            points="720,176 897,176 897,167 961,167 961,148 1003,148 1003,129 1046,129 1046,120 1088,120 1088,110 1180,110"/>
+  <g fill="#0f1115" stroke="#ff7a45" stroke-width="2.5">
+    <circle cx="897" cy="167" r="4.5"/>
+    <circle cx="961" cy="148" r="4.5"/>
+    <circle cx="1003" cy="129" r="4.5"/>
+    <circle cx="1046" cy="120" r="4.5"/>
+    <circle cx="1088" cy="110" r="4.5"/>
+  </g>
+  <g font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" fill="#6b7480">
+    <text x="720" y="284">30 °C</text>
+    <text x="1180" y="284" text-anchor="end">95 °C</text>
+  </g>
+
+  <!-- wordmark -->
+  <g font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+    <text x="96" y="160" font-size="76" font-weight="600" fill="#f2f4f7" letter-spacing="-1.5">M-Tool</text>
+    <text x="100" y="204" font-size="22" fill="#9aa3ad">Fan curves, Cooler Boost, performance mode</text>
+    <text x="100" y="234" font-size="22" fill="#9aa3ad">and charge limit for the MSI P65 Creator.</text>
+  </g>
+</svg>
