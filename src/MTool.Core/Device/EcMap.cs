@@ -40,4 +40,15 @@ public static class EcMap
     public const byte ChargeLimit = 0xEF;
     public const byte PerformanceMode = 0xF2;
     public const byte FanMode = 0xF4;
+
+    /// <summary>Up thresholds and speeds of both fans, in register order.</summary>
+    public static IReadOnlyList<byte> FanTableRegisters { get; } =
+        new[] { CpuFan, GpuFan }
+            .SelectMany(fan => Range(fan.UpThresholdsStart, ThresholdCount).Concat(Range(fan.SpeedsStart, SpeedCount)))
+            .Order()
+            .ToArray()
+            .AsReadOnly();
+
+    private static IEnumerable<byte> Range(byte start, int count) =>
+        Enumerable.Range(start, count).Select(r => (byte)r);
 }

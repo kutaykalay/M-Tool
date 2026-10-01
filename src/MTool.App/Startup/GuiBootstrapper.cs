@@ -71,7 +71,7 @@ internal sealed class GuiBootstrapper : IDisposable
         Application app, FileLog log, Action exit, ProfileCatalog catalog, AppSettings settings,
         IReadOnlyList<string> warnings, EcSession session, Stack<(string Name, Action Dispose)> teardown)
     {
-        var setup = await WriteAccessBootstrap.CreateAsync(session.Worker, AppPaths.Root, settings.DryRun, portAvailable: true, log);
+        var setup = await WriteAccessBootstrap.CreateAsync(session.Worker, AppPaths.Root, settings.DryRun, session.PortAvailable, log);
         var control = new P65Control(session.Worker, setup, log);
         var service = new ProfileService(control, catalog, new SettingsStore(AppPaths.Root), settings, log);
 
@@ -143,7 +143,8 @@ internal sealed class GuiBootstrapper : IDisposable
 
         try
         {
-            return EcSession.Open(log);
+            // A GUI without PawnIO (WMI only) is deferred; until then the set-up screen above stays.
+            return EcSession.Open(log, EcBackends.Hybrid);
         }
         catch (Exception ex)
         {

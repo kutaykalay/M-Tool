@@ -4,21 +4,32 @@ using MTool.Core.Ec;
 
 namespace MTool.App.Hardware;
 
+/// <summary>How a session reaches the EC (stage 5-WMI).</summary>
+internal enum EcBackends
+{
+    /// <summary>WMI for everything it maps; the raw port (PawnIO) only for Cooler Boost and the charge limit.</summary>
+    Hybrid,
+
+    /// <summary>WMI only. PawnIO is never opened, so the port cannot be used at all.</summary>
+    WmiOnly,
+}
+
 /// <summary>
-/// Opens PawnIO, the Access_EC lock and the EC worker, reads the firmware and makes sure the
-/// "before M-Tool" snapshot exists before any gateway can be created.
+/// Opens WMI, (in <see cref="EcBackends.Hybrid"/>) PawnIO, the Access_EC lock and the EC worker
+/// over <see cref="RoutedEcRegisters"/>. The lock is held for WMI accesses too, so they queue
+/// behind port accesses like every other EC operation.
 /// </summary>
 internal sealed class EcSession : IDisposable
 {
     private static readonly TimeSpan LockTimeout = TimeSpan.FromMilliseconds(500);
 
-    private readonly PawnIoPortIo _ports;
+    private readonly PawnIoPortIo? _ports;
     private readonly AccessEcMutex _ecLock;
     private readonly IAppLog _log;
-    private readonly EcTroubleLog _troubleLog;
+    private readonly EcTroubleLog? _troubleLog;
 
     private EcSession(
-        PawnIoPortIo ports, AccessEcMutex ecLock, EcController controller, EcWorker worker, IAppLog log, EcTroubleLog troubleLog)
+        PawnIoPortIo? ports, AccessEcMutex ecLock, EcController? controller, EcWorker worker, IAppLog log, EcTroubleLog? troubleLog)
     {
         _ports = ports;
         _ecLock = ecLock;
@@ -28,47 +39,61 @@ internal sealed class EcSession : IDisposable
         _troubleLog = troubleLog;
     }
 
-    public EcController Controller { get; }
+    /// <summary>The raw port; null in <see cref="EcBackends.WmiOnly"/>.</summary>
+    public EcController? Controller { get; }
 
     public EcWorker Worker { get; }
 
-    public static EcSession Open(IAppLog log) => Open(log, EcProtocolOptions.Default);
+    /// <summary>Derived from the port the router was given, so the gateway's policy cannot disagree with it.</summary>
+    public bool PortAvailable => Controller is not null;
 
-    /// <param name="protocol">EC timing; only the stress test overrides the default.</param>
-    /// <param name="observeTrouble">Also receives every EC retry/failure report (after the log has seen it).</param>
-    public static EcSession Open(IAppLog log, EcProtocolOptions protocol, Action<EcTransactionTrouble>? observeTrouble = null)
+    /// <exception cref="EcAccessException">PawnIO (Hybrid) or WMI1 is missing or does not answer.</exception>
+    public static EcSession Open(IAppLog log, EcBackends backend)
     {
-        if (PawnIoInstallation.InstalledVersion() is null)
+        if (backend == EcBackends.Hybrid && PawnIoInstallation.InstalledVersion() is null)
         {
             throw new EcAccessException($"PawnIO kurulu değil. Kurmak için: {PawnIoInstallation.InstallCommand}");
         }
 
-        var ports = PawnIoPortIo.Open();
+        var wmi = MsiWmiFields.Open();
         var ecLock = new AccessEcMutex();
-        var troubleLog = new EcTroubleLog(log, TimeProvider.System, EcTroubleLog.DefaultSummaryInterval);
-        var controller = new EcController(ports, protocol, trouble =>
+        PawnIoPortIo? ports = null;
+        try
         {
-            troubleLog.Report(trouble);
-            observeTrouble?.Invoke(trouble);
-        });
-        var worker = new EcWorker(controller, ecLock, LockTimeout, (message, ex) => log.Error(message, ex));
-        return new EcSession(ports, ecLock, controller, worker, log, troubleLog);
-    }
+            EcController? controller = null;
+            EcTroubleLog? troubleLog = null;
+            if (backend == EcBackends.Hybrid)
+            {
+                ports = PawnIoPortIo.Open();
+                troubleLog = new EcTroubleLog(log, TimeProvider.System, EcTroubleLog.DefaultSummaryInterval);
+                controller = new EcController(ports, EcProtocolOptions.Default, troubleLog.Report);
+            }
 
-    public Task<T> ReadAsync<T>(Func<P65Device, T> read) => Worker.RunAsync(ec => read(new P65Device(ec)));
+            var registers = RoutedEcRegisters.Create(wmi, controller);
+            var worker = new EcWorker(registers, ecLock, LockTimeout, (message, ex) => log.Error(message, ex));
+            log.Info($"EC oturumu: {backend}");
+            return new EcSession(ports, ecLock, controller, worker, log, troubleLog);
+        }
+        catch
+        {
+            ports?.Dispose();
+            ecLock.Dispose();
+            throw;
+        }
+    }
 
     /// <summary>
     /// Creates the gateway. On supported firmware the pre-M-Tool snapshot is captured first if it
     /// does not exist yet; without it (or on any EC/file trouble) the gateway stays locked.
     /// </summary>
     public async Task<EcGateway> CreateGatewayAsync(bool dryRun) =>
-        (await WriteAccessBootstrap.CreateAsync(Worker, AppPaths.Root, dryRun, portAvailable: true, _log).ConfigureAwait(false)).Gateway;
+        (await WriteAccessBootstrap.CreateAsync(Worker, AppPaths.Root, dryRun, PortAvailable, _log).ConfigureAwait(false)).Gateway;
 
     public void Dispose()
     {
         Worker.Dispose();
-        _troubleLog.Flush();
+        _troubleLog?.Flush();
         _ecLock.Dispose();
-        _ports.Dispose();
+        _ports?.Dispose();
     }
 }

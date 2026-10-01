@@ -13,7 +13,8 @@ namespace MTool.Core.Ec;
 /// </summary>
 internal static class PortWriteGuard
 {
-    private static readonly IReadOnlyList<byte> Watched = BuildWatched();
+    private static readonly IReadOnlyList<byte> Watched =
+        [.. EcMap.FanTableRegisters.Append(EcMap.PerformanceMode).Append(EcMap.FanMode).Order()];
 
     public static bool Guards(WritePlan plan) => plan.Writes.Any(w => WmiMap.PortRegisters.Contains(w.Register));
 
@@ -35,16 +36,6 @@ internal static class PortWriteGuard
             return new PortDisturbance([], Unreadable: true);
         }
     }
-
-    private static byte[] BuildWatched()
-    {
-        var tables = new[] { EcMap.CpuFan, EcMap.GpuFan }.SelectMany(fan =>
-            Range(fan.UpThresholdsStart, EcMap.ThresholdCount).Concat(Range(fan.SpeedsStart, EcMap.SpeedCount)));
-        return [.. tables.Append(EcMap.PerformanceMode).Append(EcMap.FanMode).Order()];
-    }
-
-    private static IEnumerable<byte> Range(byte start, int count) =>
-        Enumerable.Range(start, count).Select(r => (byte)r);
 }
 
 /// <param name="Changes">Watched registers that changed, with their new value, in register order.</param>

@@ -6,7 +6,10 @@ using MTool.Core.Settings;
 
 namespace MTool.App.Cli;
 
-/// <summary>Command-line mode (plan.md §3): <c>--dump</c>, <c>--stress</c>, <c>--apply</c>, <c>--restore</c>.</summary>
+/// <summary>
+/// Command-line mode (plan.md §3): <c>--dump</c>, <c>--watch</c>, <c>--apply</c>, <c>--restore</c>, <c>--unlock</c>.
+/// <c>--watch</c> runs WMI only (PawnIO never opened); the others use the hybrid backend.
+/// </summary>
 internal static class CliRunner
 {
     private const int ExitOk = 0;
@@ -31,9 +34,9 @@ internal static class CliRunner
                 return Dump(log);
             }
 
-            if (StressCommand.TryParse(args, out var seconds, out var protocol))
+            if (WatchCommand.TryParse(args, out var watchSeconds))
             {
-                return StressCommand.Run(log, seconds, protocol);
+                return WatchCommand.Run(log, watchSeconds);
             }
 
             if (args is ["--unlock", "--confirm"])
@@ -46,7 +49,7 @@ internal static class CliRunner
                 return Apply(log, apply!, confirm);
             }
 
-            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}{StressCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
+            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}{WatchCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
             return ExitUsage;
         }
         catch (Exception ex)
@@ -58,21 +61,22 @@ internal static class CliRunner
         }
     }
 
+    /// <summary>Hybrid: everything through WMI except 0x98 and 0xEF, which cost one port read each.</summary>
     private static int Dump(FileLog log)
     {
-        using var session = EcSession.Open(log);
+        using var session = EcSession.Open(log, EcBackends.Hybrid);
         var report = Wait(session.Worker.RunAsync(ec =>
-            DumpFormatter.Format(new Core.Device.P65Device(ec), ec, session.Controller.RecoveredFailures)));
+            DumpFormatter.Format(new Core.Device.P65Device(ec), ec, session.Controller?.RecoveredFailures ?? 0)));
         Console.WriteLine(report);
         Console.WriteLine($"Kaydedildi: {SaveDump(report)}");
         return ExitOk;
     }
 
-    private static int Apply(FileLog log, Func<EcSession, Task<WriteOutcome>> apply, bool confirm)
+    private static int Apply(FileLog log, ApplyCommand.ApplyRequest apply, bool confirm)
     {
-        using var session = EcSession.Open(log);
+        using var session = EcSession.Open(log, EcBackends.Hybrid);
         // Start off the UI thread so no continuation is ever posted back to it.
-        var outcome = Wait(Task.Run(() => apply(session)));
+        var outcome = Wait(Task.Run(() => ApplyCommand.RunAsync(session, apply, dryRun: !confirm)));
 
         var report = string.Join(Environment.NewLine,
             $"{(confirm ? "CANLI" : "DRY-RUN")}: {outcome.Status}",
@@ -95,7 +99,7 @@ internal static class CliRunner
         try
         {
             return Wait(session.Worker.RunAsync(ec =>
-                DumpFormatter.Format(new Core.Device.P65Device(ec), ec, session.Controller.RecoveredFailures)));
+                DumpFormatter.Format(new Core.Device.P65Device(ec), ec, session.Controller?.RecoveredFailures ?? 0)));
         }
         catch (Exception ex)
         {

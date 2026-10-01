@@ -22,42 +22,48 @@ internal static class ApplyCommand
         "  --confirm olmadan: dry-run, EC'ye yazılmaz. Komut satırı settings.json'daki dryRun'a bakmaz;\n" +
         "  her canlı yazma --confirm ister.";
 
-    /// <summary>Plan builder that may need the live EC (Cooler Boost keeps the other bits of 0x98).</summary>
-    private delegate WritePlan PlanBuilder(P65CurrentState current);
+    /// <param name="NeedsCoolerBoostRegister">
+    /// Cooler Boost keeps the other bits of 0x98, so only its plan reads that register (through the
+    /// port) first; every other plan is built without any EC access.
+    /// </param>
+    /// <param name="Build">Builds the plan from the current 0x98 (ignored unless needed).</param>
+    internal sealed record ApplyRequest(bool NeedsCoolerBoostRegister, Func<byte, WritePlan> Build);
 
-    private sealed record P65CurrentState(byte CoolerBoostRegister);
-
-    public static bool TryParse(string[] args, out Func<EcSession, Task<WriteOutcome>>? run, out bool confirm)
+    public static bool TryParse(string[] args, out ApplyRequest? request, out bool confirm)
     {
         confirm = args.Contains("--confirm");
         var rest = args.Where(a => a != "--confirm").ToArray();
-        PlanBuilder? builder = rest switch
+        request = rest switch
         {
-            ["--restore"] => _ => WritePlans.FanCurves(FactoryDefaults.FanCurves, "Default (restore)"),
+            ["--restore"] => Fixed(WritePlans.FanCurves(FactoryDefaults.FanCurves, "Default (restore)")),
             ["--apply", "charge", var percent] when int.TryParse(percent, out var p)
                 && p is >= EcWriteRules.MinChargeLimitPercent and <= EcWriteRules.MaxChargeLimitPercent =>
-                _ => WritePlans.ChargeLimit(p),
-            ["--apply", "boost", "on"] => current => WritePlans.CoolerBoost(true, current.CoolerBoostRegister),
-            ["--apply", "boost", "off"] => current => WritePlans.CoolerBoost(false, current.CoolerBoostRegister),
-            ["--apply", "perf", var mode] when ParsePerformance(mode) is { } m => _ => WritePlans.Performance(m),
-            ["--apply", "fan", var name] when ParseProfile(name) is { } profile =>
-                _ => WritePlans.FanCurves(profile.Curves, profile.Name),
-            ["--apply", "fanmode", "auto"] => _ => WritePlans.Fan(FanMode.Auto),
-            ["--apply", "fanmode", "advanced"] => _ => WritePlans.Fan(FanMode.Advanced),
+                Fixed(WritePlans.ChargeLimit(p)),
+            ["--apply", "boost", "on"] => new ApplyRequest(true, current => WritePlans.CoolerBoost(true, current)),
+            ["--apply", "boost", "off"] => new ApplyRequest(true, current => WritePlans.CoolerBoost(false, current)),
+            ["--apply", "perf", var mode] when ParsePerformance(mode) is { } m => Fixed(WritePlans.Performance(m)),
+            ["--apply", "fan", var name] when ParseProfile(name) is { } profile => Fixed(WritePlans.FanCurves(profile.Curves, profile.Name)),
+            ["--apply", "fanmode", "auto"] => Fixed(WritePlans.Fan(FanMode.Auto)),
+            ["--apply", "fanmode", "advanced"] => Fixed(WritePlans.Fan(FanMode.Advanced)),
             _ => null,
         };
-
-        var dryRun = !confirm;
-        run = builder is null ? null : session => RunAsync(session, builder, dryRun);
-        return run is not null;
+        return request is not null;
     }
 
-    private static async Task<WriteOutcome> RunAsync(EcSession session, PlanBuilder builder, bool dryRun)
+    /// <summary>
+    /// 0x98 is read through the port only when the gateway could write it at all; otherwise the plan
+    /// is built from 0 and the gateway refuses it before any EC access (lock or closed port).
+    /// </summary>
+    public static async Task<WriteOutcome> RunAsync(EcSession session, ApplyRequest request, bool dryRun)
     {
         var gateway = await session.CreateGatewayAsync(dryRun).ConfigureAwait(false);
-        var current = await session.Worker.RunAsync(ec => new P65CurrentState(ec.Read(EcMap.CoolerBoost))).ConfigureAwait(false);
-        return await gateway.ApplyAsync(builder(current)).ConfigureAwait(false);
+        var current = request.NeedsCoolerBoostRegister && gateway.IsWriteEnabled && gateway.IsPortAvailable
+            ? await session.Worker.RunAsync(ec => ec.Read(EcMap.CoolerBoost)).ConfigureAwait(false)
+            : (byte)0;
+        return await gateway.ApplyAsync(request.Build(current)).ConfigureAwait(false);
     }
+
+    private static ApplyRequest Fixed(WritePlan plan) => new(false, _ => plan);
 
     private static PerformanceMode? ParsePerformance(string value) => value switch
     {
