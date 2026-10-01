@@ -281,7 +281,7 @@ public sealed class ControlsViewModelTests : IDisposable
     {
         public DeviceAccess Access => inner.Access;
 
-        public Task<ControlState> ReadControlStateAsync(CancellationToken cancellationToken = default) =>
+        public Task<ControlState> ReadControlStateAsync(PortUse portUse, CancellationToken cancellationToken = default) =>
             Task.FromException<ControlState>(new EcAccessException("EC hung"));
 
         public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default) => inner.ReadSensorsAsync(cancellationToken);

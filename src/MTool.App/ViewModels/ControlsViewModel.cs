@@ -105,7 +105,7 @@ public sealed partial class ControlsViewModel : ObservableObject
         ControlState state;
         try
         {
-            state = await _control.ReadControlStateAsync();
+            state = await _control.ReadControlStateAsync(PortUse.Allowed);
         }
         catch (Exception ex)
         {
@@ -140,9 +140,8 @@ public sealed partial class ControlsViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanWrite))]
     private Task ReapplyAsync() => RunAsync(async () =>
     {
-        var outcomes = await _service.ReapplyAsync();
-        var worst = outcomes.FirstOrDefault(o => o.Status is not (WriteStatus.Applied or WriteStatus.DryRun)) ?? outcomes.LastOrDefault();
-        return new CommandResult(worst ?? new WriteOutcome(WriteStatus.Rejected, [], "Yeniden uygulanacak bir şey yok."));
+        var outcomes = await _service.ReapplyAsync(PortUse.Allowed);
+        return new CommandResult(ReapplySummary.Worst(outcomes) ?? new WriteOutcome(WriteStatus.Rejected, [], "Yeniden uygulanacak bir şey yok."));
     });
 
     /// <summary>One command at a time: the tray menu can start one while the window's is running.</summary>

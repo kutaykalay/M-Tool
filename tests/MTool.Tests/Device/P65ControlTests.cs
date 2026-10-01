@@ -84,7 +84,7 @@ public sealed class P65ControlTests : IDisposable
     {
         _ec.SilentAccesses = 2;
 
-        var state = await Control().ReadControlStateAsync();
+        var state = await Control().ReadControlStateAsync(PortUse.Allowed);
 
         state.Performance.Should().Be(PerformanceMode.High);
         _sleeps.Should().HaveCount(2);
@@ -113,9 +113,9 @@ public sealed class P65ControlTests : IDisposable
         var portReads = RecordPortReads();
         var control = Control();
 
-        var first = await control.ReadControlStateAsync();
+        var first = await control.ReadControlStateAsync(PortUse.Allowed);
         _ec[0xEF] = 0xBC; // changed behind M-Tool's back: the cache does not see it
-        var second = await control.ReadControlStateAsync();
+        var second = await control.ReadControlStateAsync(PortUse.Allowed);
 
         first.Port.Should().Be(new PortState(0x02, 0xD0));
         second.Port.Should().Be(first.Port);
@@ -126,11 +126,11 @@ public sealed class P65ControlTests : IDisposable
     public async Task Successful_port_writes_update_the_cache_without_reading_the_port_again()
     {
         var control = Control();
-        await control.ReadControlStateAsync();
+        await control.ReadControlStateAsync(PortUse.Allowed);
 
         await control.SetChargeLimitAsync(60);
         var portReads = RecordPortReads();
-        var state = await control.ReadControlStateAsync();
+        var state = await control.ReadControlStateAsync(PortUse.Allowed);
 
         state.Port!.ChargeLimitPercent.Should().Be(60);
         portReads.Should().BeEmpty();
@@ -143,7 +143,7 @@ public sealed class P65ControlTests : IDisposable
 
         (await control.SetCoolerBoostAsync(true)).Status.Should().Be(WriteStatus.Applied);
         var portReads = RecordPortReads();
-        var state = await control.ReadControlStateAsync();
+        var state = await control.ReadControlStateAsync(PortUse.Allowed);
 
         state.Port.Should().Be(new PortState(0x82, 0xD0));
         portReads.Should().BeEmpty();
@@ -153,12 +153,12 @@ public sealed class P65ControlTests : IDisposable
     public async Task A_failed_port_write_makes_the_port_state_unknown()
     {
         var control = Control();
-        await control.ReadControlStateAsync();
+        await control.ReadControlStateAsync(PortUse.Allowed);
         _ec.StuckRegisters.Add(0xEF);
 
         await control.SetChargeLimitAsync(60);
         var portReads = RecordPortReads();
-        var state = await control.ReadControlStateAsync();
+        var state = await control.ReadControlStateAsync(PortUse.Allowed);
 
         state.Port.Should().BeNull();
         portReads.Should().BeEmpty(); // no automatic port read after a failed port write
@@ -171,9 +171,9 @@ public sealed class P65ControlTests : IDisposable
         _ec.ReadHook = register => silent && register == 0x98 ? throw new EcAccessException("port silent") : null;
         var control = Control();
 
-        var first = await control.ReadControlStateAsync();
+        var first = await control.ReadControlStateAsync(PortUse.Allowed);
         silent = false;
-        var second = await control.ReadControlStateAsync();
+        var second = await control.ReadControlStateAsync(PortUse.Allowed);
 
         first.Port.Should().BeNull();
         first.Performance.Should().Be(PerformanceMode.High);
@@ -184,11 +184,11 @@ public sealed class P65ControlTests : IDisposable
     public async Task A_failed_cooler_boost_read_makes_the_cached_state_unknown()
     {
         var control = Control();
-        await control.ReadControlStateAsync();
+        await control.ReadControlStateAsync(PortUse.Allowed);
         _ec.ReadHook = register => register == 0x98 ? throw new EcAccessException("port silent") : null;
 
         var outcome = await control.SetCoolerBoostAsync(true);
-        var state = await control.ReadControlStateAsync();
+        var state = await control.ReadControlStateAsync(PortUse.Allowed);
 
         outcome.Status.Should().Be(WriteStatus.Rejected);
         outcome.Message.Should().Contain("port silent");
@@ -217,7 +217,7 @@ public sealed class P65ControlTests : IDisposable
         var portReads = RecordPortReads();
         var control = Control(Live with { PortAvailable = false });
 
-        var state = await control.ReadControlStateAsync();
+        var state = await control.ReadControlStateAsync(PortUse.Allowed);
         var boost = await control.SetCoolerBoostAsync(true);
         var charge = await control.SetChargeLimitAsync(60);
 
@@ -229,6 +229,90 @@ public sealed class P65ControlTests : IDisposable
         charge.Status.Should().Be(WriteStatus.Rejected);
         portReads.Should().BeEmpty();
         _ec.Writes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Reapplying_without_the_port_parts_never_touches_the_port()
+    {
+        var portReads = RecordPortReads();
+        var control = Control(); // nothing cached yet, as right after start-up or resume
+        var desired = new DesiredState("Cool", PerformanceMode.Balanced, ChargeLimitPercent: 60);
+
+        var outcomes = await control.ApplyDesiredAsync(desired.WithoutPortParts(), ProfileCatalog.BuiltIn);
+
+        outcomes.Should().HaveCount(2).And.OnlyContain(o => o.Status == WriteStatus.Applied);
+        portReads.Should().BeEmpty();
+        _ec.Writes.Should().NotContain(w => w.Register == 0x98 || w.Register == 0xEF);
+    }
+
+    [Fact]
+    public async Task A_state_read_without_port_access_serves_a_known_cache()
+    {
+        var control = Control();
+        await control.ReadControlStateAsync(PortUse.Allowed);
+        _ec[0xEF] = 0xBC;
+        var portReads = RecordPortReads();
+
+        var state = await control.ReadControlStateAsync(PortUse.None);
+
+        state.Port.Should().Be(new PortState(0x02, 0xD0));
+        portReads.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task A_state_read_without_port_access_leaves_an_unread_port_unknown_for_the_next_read()
+    {
+        var portReads = RecordPortReads();
+        var control = Control();
+
+        var withoutPort = await control.ReadControlStateAsync(PortUse.None);
+        portReads.Should().BeEmpty();
+        var withPort = await control.ReadControlStateAsync(PortUse.Allowed);
+
+        withoutPort.Port.Should().BeNull();
+        withoutPort.Performance.Should().Be(PerformanceMode.High);
+        withPort.Port.Should().Be(new PortState(0x02, 0xD0));
+        portReads.Should().BeEquivalentTo([0x98, 0xEF]);
+    }
+
+    [Fact]
+    public async Task A_state_read_without_port_access_after_a_failed_read_stays_unknown_until_a_read_may_use_the_port()
+    {
+        var silent = true;
+        _ec.ReadHook = register => silent && register == 0x98 ? throw new EcAccessException("port silent") : null;
+        var control = Control();
+        await control.ReadControlStateAsync(PortUse.Allowed); // fails: unknown, not settled
+        silent = false;
+        var portReads = RecordPortReads();
+
+        var withoutPort = await control.ReadControlStateAsync(PortUse.None);
+        portReads.Should().BeEmpty();
+        var withPort = await control.ReadControlStateAsync(PortUse.Allowed);
+
+        withoutPort.Port.Should().BeNull();
+        withPort.Port.Should().Be(new PortState(0x02, 0xD0));
+    }
+
+    [Fact]
+    public async Task A_state_read_without_port_access_in_a_wmi_only_session_is_unknown()
+    {
+        var portReads = RecordPortReads();
+
+        var state = await Control(Live with { PortAvailable = false }).ReadControlStateAsync(PortUse.None);
+
+        state.Port.Should().BeNull();
+        portReads.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Every_port_read_is_logged()
+    {
+        var control = Control();
+
+        await control.ReadControlStateAsync(PortUse.Allowed);
+        await control.ReadControlStateAsync(PortUse.Allowed); // cache: no second line
+
+        _log.Lines.Should().ContainSingle(l => l.StartsWith("INFO") && l.Contains("port okundu") && l.Contains("0x98=0x02 0xEF=0xD0"));
     }
 
     // --- writes ---
@@ -337,7 +421,7 @@ public sealed class P65ControlTests : IDisposable
     public async Task Reapplying_reads_the_charge_limit_fresh_because_the_ec_may_have_reset_it()
     {
         var control = Control();
-        await control.ReadControlStateAsync(); // caches 80 %
+        await control.ReadControlStateAsync(PortUse.Allowed); // caches 80 %
         _ec[0xEF] = 0x64; // reset behind M-Tool's back (limit off)
 
         var outcomes = await control.ApplyDesiredAsync(new DesiredState("Default", ChargeLimitPercent: 80), ProfileCatalog.BuiltIn);

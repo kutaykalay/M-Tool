@@ -111,4 +111,15 @@ public class DesiredStateTests
     {
         new DesiredState("Turbo").DriftFrom(FactoryState, Catalog).FanTable.Should().BeTrue();
     }
+
+    [Fact]
+    public void Without_port_parts_drops_only_the_charge_limit()
+    {
+        var desired = new DesiredState("Cool", PerformanceMode.Balanced, 60, FanMode.Auto);
+
+        var wmiOnly = desired.WithoutPortParts();
+
+        wmiOnly.Should().Be(new DesiredState("Cool", PerformanceMode.Balanced, ChargeLimitPercent: null, FanMode.Auto));
+        wmiOnly.ToPlans(Catalog).Should().NotContain(p => p.Writes.Any(w => w.Register == EcMap.ChargeLimit));
+    }
 }

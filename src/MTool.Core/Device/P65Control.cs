@@ -18,7 +18,7 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
 
     // Every port read and cache update holds this, so an older read can never overwrite a newer write.
     private readonly SemaphoreSlim _portGate = new(1, 1);
-    private PortState? _port;
+    private volatile PortState? _port; // volatile: read without the gate for PortUse.None
     private bool _portSettled; // read, or deliberately unknown after a failed write: no automatic read
 
     private bool PortAvailable => setup.Gateway.IsPortAvailable;
@@ -30,11 +30,11 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
     public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default) =>
         worker.RunAsync(ec => new P65Device(ec).ReadSensors(), cancellationToken);
 
-    public async Task<ControlState> ReadControlStateAsync(CancellationToken cancellationToken = default)
+    public async Task<ControlState> ReadControlStateAsync(PortUse portUse, CancellationToken cancellationToken = default)
     {
         var state = await worker.RunRetryingAsync(ec => new P65Device(ec).ReadControlState(), _retry, log.Warn, cancellationToken)
             .ConfigureAwait(false);
-        return state with { Port = await CachedPortStateAsync(cancellationToken).ConfigureAwait(false) };
+        return state with { Port = await CachedPortStateAsync(portUse, cancellationToken).ConfigureAwait(false) };
     }
 
     public Task<WriteOutcome> ApplyFanProfileAsync(FanProfile profile, CancellationToken cancellationToken = default) =>
@@ -169,20 +169,33 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
         return outcome;
     }
 
-    /// <summary>Read on first use and after a failed read; otherwise the cache.</summary>
-    private async Task<PortState?> CachedPortStateAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// Read on first use and after a failed read when the port may be used; otherwise the cache.
+    /// Without the port the cache is returned without waiting for <see cref="_portGate"/>: it is null
+    /// until a read succeeded, and one reference read is atomic. A cached value from before a reboot
+    /// or sleep is still right for the charge limit, which the EC keeps then (plan.md §13).
+    /// </summary>
+    private async Task<PortState?> CachedPortStateAsync(PortUse portUse, CancellationToken cancellationToken)
     {
         if (!PortAvailable)
         {
             return null;
         }
 
+        if (portUse == PortUse.None)
+        {
+            return _port;
+        }
+
         await _portGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            return _portSettled
-                ? _port
-                : (await FreshReadLockedAsync("Cooler Boost/şarj limiti", cancellationToken).ConfigureAwait(false)).State;
+            if (_portSettled)
+            {
+                return _port;
+            }
+
+            return (await FreshReadLockedAsync("Cooler Boost/şarj limiti", cancellationToken).ConfigureAwait(false)).State;
         }
         finally
         {
@@ -201,6 +214,7 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
             var state = await worker.RunRetryingAsync(ec => new P65Device(ec).ReadPortState(), _retry, log.Warn, cancellationToken)
                 .ConfigureAwait(false);
             (_port, _portSettled) = (state, true);
+            log.Info($"{what}: port okundu, 0x{EcMap.CoolerBoost:X2}=0x{state.CoolerBoostRaw:X2} 0x{EcMap.ChargeLimit:X2}=0x{state.ChargeLimitRaw:X2}");
             return (state, null);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

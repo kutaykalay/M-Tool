@@ -136,11 +136,48 @@ public sealed class ProfileServiceTests : IDisposable
         var desired = new DesiredState("Cool", PerformanceMode.High);
         var service = Service(AppSettings.Default with { Desired = desired });
 
-        var outcomes = await service.ReapplyAsync();
+        var outcomes = await service.ReapplyAsync(PortUse.Allowed);
 
         outcomes.Should().ContainSingle().Which.Status.Should().Be(WriteStatus.Applied);
         _control.Calls.Should().Equal($"desired {desired}");
         SettingsFileExists.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Reapply_without_the_port_leaves_the_charge_limit_out_and_keeps_the_desired_state()
+    {
+        var desired = new DesiredState("Cool", PerformanceMode.High, ChargeLimitPercent: 60);
+        var service = Service(AppSettings.Default with { Desired = desired });
+
+        var outcomes = await service.ReapplyAsync(PortUse.None);
+
+        outcomes.Should().ContainSingle().Which.Status.Should().Be(WriteStatus.Applied);
+        _control.Calls.Should().Equal($"desired {desired with { ChargeLimitPercent = null }}");
+        service.Desired.Should().Be(desired);
+        SettingsFileExists.Should().BeFalse();
+        _changes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Reapply_waits_for_a_running_command_and_counts_as_busy()
+    {
+        _control.WriteGate = new TaskCompletionSource();
+        var service = Service();
+
+        var command = service.SelectProfileAsync("Cool");
+        SpinWait.SpinUntil(() => !_control.Calls.IsEmpty, TimeSpan.FromSeconds(5)).Should().BeTrue("the command's write started");
+        var reapply = service.ReapplyAsync(PortUse.None);
+
+        reapply.IsCompleted.Should().BeFalse();
+        _control.Calls.Should().Equal("fan Cool");
+        service.IsBusy.Should().BeTrue();
+
+        _control.WriteGate.SetResult();
+        await Task.WhenAll(command, reapply);
+
+        _control.Calls.Should().HaveCount(2).And.HaveElementAt(1, $"desired {new DesiredState("Cool")}");
+        _control.MaxWritesRunning.Should().Be(1);
+        service.IsBusy.Should().BeFalse();
     }
 
     [Fact]
@@ -186,7 +223,7 @@ public sealed class ProfileServiceTests : IDisposable
     {
         var service = Service(AppSettings.Default with { Desired = new DesiredState("Turbo", ChargeLimitPercent: 120) });
 
-        await service.ReapplyAsync();
+        await service.ReapplyAsync(PortUse.Allowed);
 
         service.Desired.Should().Be(DesiredState.Default);
         _control.Calls.Should().Equal($"desired {DesiredState.Default}");

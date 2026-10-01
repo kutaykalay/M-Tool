@@ -63,13 +63,18 @@ public sealed class ProfileService(
     /// <summary>Temporary switch: never part of the desired state.</summary>
     public Task<CommandResult> SetCoolerBoostAsync(bool on) => RunAsync(() => control.SetCoolerBoostAsync(on), update: null);
 
-    public async Task<IReadOnlyList<WriteOutcome>> ReapplyAsync()
+    /// <param name="portUse">
+    /// <see cref="PortUse.None"/> for automatic reapplying (start-up, resume): the charge limit is
+    /// left out, so the raw port is never touched. The desired state itself stays as it is.
+    /// </param>
+    public async Task<IReadOnlyList<WriteOutcome>> ReapplyAsync(PortUse portUse)
     {
         Interlocked.Increment(ref _commands);
         await _oneAtATime.WaitAsync().ConfigureAwait(false);
         try
         {
-            return await control.ApplyDesiredAsync(Desired, catalog).ConfigureAwait(false);
+            var desired = portUse == PortUse.Allowed ? Desired : Desired.WithoutPortParts();
+            return await control.ApplyDesiredAsync(desired, catalog).ConfigureAwait(false);
         }
         finally
         {

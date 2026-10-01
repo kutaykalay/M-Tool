@@ -45,6 +45,12 @@ public sealed record DesiredState(
     }
 
     /// <summary>
+    /// The parts that go through WMI only. Automatic reapplying uses this: the EC keeps the charge
+    /// limit across reboot and sleep (plan.md §13), so start-up and resume never need the raw port.
+    /// </summary>
+    public DesiredState WithoutPortParts() => this with { ChargeLimitPercent = null };
+
+    /// <summary>
     /// A wanted charge limit that is not known (<see cref="ControlState.Port"/> null) counts as
     /// drift: the band must not claim the EC holds it. Reapplying reads it fresh.
     /// </summary>

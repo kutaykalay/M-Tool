@@ -29,7 +29,11 @@ public interface IP65Control
     Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default);
 
     /// <summary>Rides out silent EC periods like the gateway does.</summary>
-    Task<ControlState> ReadControlStateAsync(CancellationToken cancellationToken = default);
+    /// <param name="portUse">
+    /// <see cref="PortUse.None"/>: Cooler Boost and the charge limit come only from the cache, unknown
+    /// (null) if it was never read. For refreshes right after start-up or resume, when the raw port is riskiest.
+    /// </param>
+    Task<ControlState> ReadControlStateAsync(PortUse portUse, CancellationToken cancellationToken = default);
 
     Task<WriteOutcome> ApplyFanProfileAsync(FanProfile profile, CancellationToken cancellationToken = default);
 

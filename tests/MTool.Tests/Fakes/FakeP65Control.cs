@@ -34,9 +34,13 @@ internal sealed class FakeP65Control : IP65Control
 
     public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default) => Task.FromResult(Sensors);
 
-    public Task<ControlState> ReadControlStateAsync(CancellationToken cancellationToken = default)
+    /// <summary>The <see cref="PortUse"/> of every state read, in order.</summary>
+    public ConcurrentQueue<PortUse> StateReadPortUses { get; } = new();
+
+    public Task<ControlState> ReadControlStateAsync(PortUse portUse, CancellationToken cancellationToken = default)
     {
         Calls.Enqueue("read state");
+        StateReadPortUses.Enqueue(portUse);
         return Task.FromResult(State);
     }
 
