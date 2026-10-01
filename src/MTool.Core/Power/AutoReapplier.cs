@@ -14,7 +14,7 @@ namespace MTool.Core.Power;
 /// the raw port. Nothing thrown escapes.
 /// </summary>
 /// <param name="reapply">Writes the desired state; see <see cref="ProfileService.ReapplyAsync"/>.</param>
-/// <param name="coordinator">The EC access gate this class opens and closes; built with the same resume delay.</param>
+/// <param name="coordinator">The EC access gate this class opens and closes; built with <see cref="AutoReapplyOptions.GateDelay"/>.</param>
 public sealed class AutoReapplier(
     Func<PortUse, Task<IReadOnlyList<WriteOutcome>>> reapply,
     IPowerEvents events,
@@ -169,8 +169,8 @@ public sealed class AutoReapplier(
 
         try
         {
-            // The timer runs on the monotonic clock and the gate on the wall clock; a clock step after
-            // wake can leave the gate shut for a moment, so a closed gate is retried, not dropped.
+            // The resume delay outlasts the gate, but if the gate is still shut (a late wake event, a slow
+            // timer clock) the reapply is retried, not dropped.
             if (!coordinator.IsEcAccessAllowed)
             {
                 log.Warn($"Otomatik yeniden uygulama ({trigger}) ertelendi: EC erişimi henüz kapalı");
@@ -252,8 +252,10 @@ public sealed class AutoReapplier(
 
     private static AutoReapplyOptions Validated(AutoReapplyOptions options)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(options.GateDelay, TimeSpan.Zero, nameof(options));
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(options.ResumeDelay, TimeSpan.Zero, nameof(options));
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(options.RetryDelay, TimeSpan.Zero, nameof(options));
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(options.ResumeDelay, options.GateDelay, nameof(options));
         return options;
     }
 }

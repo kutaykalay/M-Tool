@@ -24,7 +24,7 @@ public sealed class SleepGateTests : IDisposable
 
     public SleepGateTests()
     {
-        _coordinator = new PowerStateCoordinator(_time, AutoReapplyOptions.Default.ResumeDelay);
+        _coordinator = new PowerStateCoordinator(_time, AutoReapplyOptions.Default.GateDelay);
         _worker = new EcWorker(_ec, new FakeEcLock(), TimeSpan.FromMilliseconds(50), accessGate: () => _coordinator.IsEcAccessAllowed);
         var retry = EcAccessRetry.Default with { Sleep = _ => { } };
         _control = new P65Control(_worker, new WriteAccessSetup(Firmware, new EcGateway(_worker, Live, _log, retry: retry)), _log, retry);
@@ -63,11 +63,11 @@ public sealed class SleepGateTests : IDisposable
     }
 
     [Fact]
-    public async Task Writes_work_again_once_the_resume_delay_has_passed()
+    public async Task Writes_work_again_once_the_gate_delay_has_passed()
     {
         _coordinator.OnSuspend();
         _coordinator.OnResume();
-        _time.Advance(AutoReapplyOptions.Default.ResumeDelay);
+        _time.Advance(AutoReapplyOptions.Default.GateDelay);
 
         var outcome = await _control.SetPerformanceAsync(PerformanceMode.Balanced);
 

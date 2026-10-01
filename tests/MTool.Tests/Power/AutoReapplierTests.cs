@@ -10,6 +10,9 @@ public sealed class AutoReapplierTests : IDisposable
 {
     private static readonly AutoReapplyOptions Options = AutoReapplyOptions.Default;
 
+    /// <summary>A Windows timer runs on the coarse tick count, so it can fire this much early against the gate's clock.</summary>
+    private static readonly TimeSpan CoarseTimerTick = TimeSpan.FromMilliseconds(16);
+
     private readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 10, 1, 22, 0, 0, TimeSpan.Zero));
     private readonly FakePowerEvents _events = new();
     private readonly ListLog _log = new();
@@ -19,13 +22,13 @@ public sealed class AutoReapplierTests : IDisposable
     private readonly List<AutoReapplyResult> _results = [];
     private AutoReapplier? _reapplier;
 
-    public AutoReapplierTests() => _coordinator = new PowerStateCoordinator(_time, Options.ResumeDelay);
+    public AutoReapplierTests() => _coordinator = new PowerStateCoordinator(_time, Options.GateDelay);
 
     public void Dispose() => _reapplier?.Dispose();
 
-    private AutoReapplier Reapplier(AutoReapplyOptions? options = null)
+    private AutoReapplier Reapplier(AutoReapplyOptions? options = null, TimeProvider? time = null)
     {
-        _reapplier = new AutoReapplier(Reapply, _events, _coordinator, _time, _log, options ?? Options);
+        _reapplier = new AutoReapplier(Reapply, _events, _coordinator, time ?? _time, _log, options ?? Options);
         _reapplier.Reapplied += _results.Add;
         return _reapplier;
     }
@@ -66,6 +69,19 @@ public sealed class AutoReapplierTests : IDisposable
     }
 
     private sealed record Call(PortUse PortUse, bool GateOpen);
+
+    /// <summary>The same clock, but every timer fires <paramref name="early"/> before it is due.</summary>
+    private sealed class EarlyTimers(FakeTimeProvider time, TimeSpan early) : TimeProvider
+    {
+        public override long TimestampFrequency => time.TimestampFrequency;
+
+        public override long GetTimestamp() => time.GetTimestamp();
+
+        public override DateTimeOffset GetUtcNow() => time.GetUtcNow();
+
+        public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period) =>
+            time.CreateTimer(callback, state, dueTime > early ? dueTime - early : TimeSpan.Zero, period);
+    }
 
     private sealed class ThrowingLog : MTool.Core.IAppLog
     {
@@ -147,6 +163,19 @@ public sealed class AutoReapplierTests : IDisposable
     }
 
     [Fact]
+    public void Resume_finds_the_gate_open_even_if_the_timer_fires_a_tick_early()
+    {
+        Reapplier(time: new EarlyTimers(_time, CoarseTimerTick)).Start();
+        SleepAndWake();
+
+        _time.Advance(Options.ResumeDelay - CoarseTimerTick);
+
+        _log.Lines.Should().NotContain(l => l.StartsWith("WARN"));
+        _results.Select(r => r.Trigger).Should().Equal(ReapplyTrigger.Startup, ReapplyTrigger.Resume);
+        _calls[^1].GateOpen.Should().BeTrue();
+    }
+
+    [Fact]
     public void Two_resumes_in_a_row_reapply_once()
     {
         Started();
@@ -190,10 +219,11 @@ public sealed class AutoReapplierTests : IDisposable
     [Fact]
     public void A_closed_gate_at_run_time_defers_the_reapply_to_one_retry()
     {
-        Reapplier(Options with { ResumeDelay = TimeSpan.FromSeconds(1) }).Start();
+        var early = TimeSpan.FromSeconds(2);
+        Reapplier(time: new EarlyTimers(_time, early)).Start();
         SleepAndWake();
 
-        _time.Advance(TimeSpan.FromSeconds(1));
+        _time.Advance(Options.ResumeDelay - early);
         var whileClosed = _calls.Count;
         _time.Advance(Options.RetryDelay);
 
@@ -389,12 +419,27 @@ public sealed class AutoReapplierTests : IDisposable
     }
 
     [Theory]
-    [InlineData(0, 30)]
-    [InlineData(5, 0)]
-    [InlineData(-1, 30)]
-    public void Delays_must_be_positive(int resumeSeconds, int retrySeconds)
+    [InlineData(5, 0, 30)]
+    [InlineData(5, 6, 0)]
+    [InlineData(5, -1, 30)]
+    [InlineData(0, 6, 30)]
+    [InlineData(-1, 6, 30)]
+    public void Delays_must_be_positive(int gateSeconds, int resumeSeconds, int retrySeconds)
     {
-        var options = new AutoReapplyOptions(TimeSpan.FromSeconds(resumeSeconds), TimeSpan.FromSeconds(retrySeconds));
+        var options = new AutoReapplyOptions(
+            TimeSpan.FromSeconds(gateSeconds), TimeSpan.FromSeconds(resumeSeconds), TimeSpan.FromSeconds(retrySeconds));
+
+        var create = () => new AutoReapplier(Reapply, _events, _coordinator, _time, _log, options);
+
+        create.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Theory]
+    [InlineData(5, 5)]
+    [InlineData(6, 5)]
+    public void The_resume_delay_must_outlast_the_gate(int gateSeconds, int resumeSeconds)
+    {
+        var options = Options with { GateDelay = TimeSpan.FromSeconds(gateSeconds), ResumeDelay = TimeSpan.FromSeconds(resumeSeconds) };
 
         var create = () => new AutoReapplier(Reapply, _events, _coordinator, _time, _log, options);
 

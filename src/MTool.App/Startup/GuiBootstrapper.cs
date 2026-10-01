@@ -44,7 +44,7 @@ internal sealed class GuiBootstrapper : IDisposable
         var catalog = ProfileCatalog.BuiltIn;
         var (settings, warnings) = LoadSettings(catalog, log);
         var reapplyOptions = AutoReapplyOptions.Default;
-        var coordinator = new PowerStateCoordinator(TimeProvider.System, reapplyOptions.ResumeDelay);
+        var coordinator = new PowerStateCoordinator(TimeProvider.System, reapplyOptions.GateDelay);
         if (OpenSession(log, () => coordinator.IsEcAccessAllowed) is not { } session)
         {
             return null;
