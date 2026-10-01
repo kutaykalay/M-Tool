@@ -41,6 +41,12 @@ public class WmiMapTests
     }
 
     [Fact]
+    public void Firmware_date_follows_the_version_so_one_software_range_covers_both()
+    {
+        EcMap.FirmwareDate.Should().Be((byte)(EcMap.FirmwareVersion + EcMap.FirmwareVersionLength));
+    }
+
+    [Fact]
     public void No_two_registers_share_a_wmi_field()
     {
         WmiMap.Fields.Values.Should().OnlyHaveUniqueItems();

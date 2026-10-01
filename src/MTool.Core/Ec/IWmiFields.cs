@@ -8,7 +8,11 @@ namespace MTool.Core.Ec;
 /// </summary>
 public interface IWmiFields
 {
-    /// <summary>Reads the fields of one class, in the order of <paramref name="indices"/>.</summary>
+    /// <summary>
+    /// Reads the fields of one class, in the order of <paramref name="indices"/>. Callers only ask
+    /// for fields in <see cref="Device.WmiMap"/>; anything else is a programming error
+    /// (<see cref="InvalidOperationException"/>), never retried.
+    /// </summary>
     /// <exception cref="EcAccessException">WMI did not answer (timeout, service busy); safe to retry.</exception>
     IReadOnlyList<int> Read(string className, IReadOnlyList<int> indices);
 

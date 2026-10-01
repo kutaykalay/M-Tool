@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 namespace MTool.Core.Device;
 
 /// <summary>One instance of an MSI WMI1 class: the EC field at <paramref name="Index"/>.</summary>
@@ -14,11 +16,11 @@ public sealed record WmiField(string ClassName, int Index)
 /// </summary>
 public static class WmiMap
 {
-    public const string Software = "MSI_Software";
-    public const string Cpu = "MSI_CPU";
-    public const string Vga = "MSI_VGA";
-    public const string Ap = "MSI_AP";
-    public const string System = "MSI_System";
+    public const string SoftwareClass = "MSI_Software";
+    public const string CpuClass = "MSI_CPU";
+    public const string VgaClass = "MSI_VGA";
+    public const string ApClass = "MSI_AP";
+    public const string SystemClass = "MSI_System";
 
     private const int FirmwareStartIndex = 6;
     private const int TemperatureIndex = 1;
@@ -26,25 +28,26 @@ public static class WmiMap
     private const int UpThresholdsStartIndex = 5;
     private const int SpeedsStartIndex = 11;
 
-    public static IReadOnlyDictionary<byte, WmiField> Fields { get; } = Build();
+    // Frozen: a cast back to a mutable collection must not be able to widen what the router reaches.
+    public static IReadOnlyDictionary<byte, WmiField> Fields { get; } = Build().ToFrozenDictionary();
 
-    public static IReadOnlySet<byte> PortRegisters { get; } = new HashSet<byte> { EcMap.CoolerBoost, EcMap.ChargeLimit };
+    public static IReadOnlySet<byte> PortRegisters { get; } = new[] { EcMap.CoolerBoost, EcMap.ChargeLimit }.ToFrozenSet();
 
     private static Dictionary<byte, WmiField> Build()
     {
         var fields = new Dictionary<byte, WmiField>();
-        AddRange(fields, EcMap.FirmwareVersion, EcMap.FirmwareVersionLength + EcMap.FirmwareDateLength, Software, FirmwareStartIndex);
-        AddFan(fields, EcMap.CpuFan, Cpu);
-        AddFan(fields, EcMap.GpuFan, Vga);
+        AddRange(fields, EcMap.FirmwareVersion, EcMap.FirmwareVersionLength + EcMap.FirmwareDateLength, SoftwareClass, FirmwareStartIndex);
+        AddFan(fields, EcMap.CpuFan, CpuClass);
+        AddFan(fields, EcMap.GpuFan, VgaClass);
 
         // RPM bytes run backwards: MSI_AP[2..5] = 0xCD, 0xCC, 0xCB, 0xCA.
-        fields.Add(0xCD, new WmiField(Ap, 2));
-        fields.Add(0xCC, new WmiField(Ap, 3));
-        fields.Add(0xCB, new WmiField(Ap, 4));
-        fields.Add(0xCA, new WmiField(Ap, 5));
+        fields.Add(0xCD, new WmiField(ApClass, 2));
+        fields.Add(0xCC, new WmiField(ApClass, 3));
+        fields.Add(0xCB, new WmiField(ApClass, 4));
+        fields.Add(0xCA, new WmiField(ApClass, 5));
 
-        fields.Add(EcMap.PerformanceMode, new WmiField(System, 7));
-        fields.Add(EcMap.FanMode, new WmiField(System, 9));
+        fields.Add(EcMap.PerformanceMode, new WmiField(SystemClass, 7));
+        fields.Add(EcMap.FanMode, new WmiField(SystemClass, 9));
         return fields;
     }
 
