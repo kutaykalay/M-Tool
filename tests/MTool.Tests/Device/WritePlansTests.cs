@@ -1,5 +1,6 @@
 using MTool.Core.Device;
 using MTool.Core.Ec;
+using MTool.Core.Profiles;
 using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Device;
@@ -13,8 +14,7 @@ public class WritePlansTests
 
         tables.UpThresholds.Should().Equal(55, 64, 70, 76, 82, 88);
         tables.Speeds.Should().Equal(45, 50, 60, 70, 75, 80, 80);
-        tables.DownOffsets.Should().Equal(8, 3, 3, 3, 3, 3);
-        FanTableCodec.Decode(tables.UpThresholds, tables.Speeds, tables.DownOffsets)
+        FanTableCodec.Decode(tables.UpThresholds, tables.Speeds)
             .Points.Should().Equal(FactoryDefaults.FanCurves.Cpu.Points);
     }
 
@@ -28,14 +28,24 @@ public class WritePlansTests
     }
 
     [Fact]
-    public void Fan_curve_plan_covers_all_38_table_registers()
+    public void Fan_curve_plan_covers_the_26_threshold_and_speed_registers()
     {
         var plan = WritePlans.FanCurves(FactoryDefaults.FanCurves, "Default");
 
-        plan.Writes.Should().HaveCount(38);
+        plan.Writes.Should().HaveCount(26);
         plan.Writes.Select(w => w.Register).Should().OnlyHaveUniqueItems();
         plan.Writes.Should().Contain(new RegisterWrite(0x72, 45));
-        plan.Writes.Should().Contain(new RegisterWrite(0x97, 5));
+        plan.Writes.Should().Contain(new RegisterWrite(0x90, 90));
+    }
+
+    [Fact]
+    public void Fan_curve_plans_never_touch_the_down_offsets()
+    {
+        var plans = new[] { FactoryDefaults.Profile, Presets.Cool, Presets.Silent }
+            .Select(p => WritePlans.FanCurves(p.Curves, p.Name));
+
+        plans.SelectMany(p => p.Writes).Should().NotContain(w => w.Register >= 0x7A && w.Register <= 0x7F)
+            .And.NotContain(w => w.Register >= 0x92 && w.Register <= 0x97);
     }
 
     [Theory]

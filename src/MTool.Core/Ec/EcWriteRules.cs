@@ -11,8 +11,6 @@ public static class EcWriteRules
     public const int MinUpThresholdC = 30;
     public const int MaxUpThresholdC = 95;
     public const int MaxSpeedPercent = 100;
-    public const int MinDownOffsetC = 1;
-    public const int MaxDownOffsetC = 15;
     public const int MinChargeLimitPercent = 50;
     public const int MaxChargeLimitPercent = 100;
 
@@ -23,26 +21,25 @@ public static class EcWriteRules
     private static readonly HashSet<byte> PerformanceValues = [0xC0, 0xC1, 0xC2];
     private static readonly HashSet<byte> FanModeValues = [0x0D, 0x8D];
 
-    private enum Kind { UpThreshold, Speed, DownOffset, CoolerBoost, ChargeLimit, Performance, FanMode }
+    private enum Kind { UpThreshold, Speed, CoolerBoost, ChargeLimit, Performance, FanMode }
 
     private static readonly IReadOnlyDictionary<byte, Kind> Kinds = BuildKinds();
 
     public static IReadOnlyCollection<byte> WritableRegisters { get; } = Kinds.Keys.Order().ToArray();
 
     public static bool IsFanTable(byte register) =>
-        Kinds.TryGetValue(register, out var kind) && kind is Kind.UpThreshold or Kind.Speed or Kind.DownOffset;
+        Kinds.TryGetValue(register, out var kind) && kind is Kind.UpThreshold or Kind.Speed;
 
     /// <summary>
-    /// Safe write order: speeds, then up thresholds, then offsets, other settings, fan mode last.
+    /// Safe write order: speeds, then up thresholds, other settings, fan mode last.
     /// A plan cut short mixes two valid tables instead of leaving a mode switch ahead of its table.
     /// </summary>
     public static int WriteOrder(byte register) => Kinds[register] switch
     {
         Kind.Speed => 0,
         Kind.UpThreshold => 1,
-        Kind.DownOffset => 2,
-        Kind.FanMode => 4,
-        _ => 3,
+        Kind.FanMode => 3,
+        _ => 2,
     };
 
     /// <summary>Rules that need no EC state. Returns an error message or null.</summary>
@@ -60,8 +57,6 @@ public static class EcWriteRules
                 $"{write}: yukarı eşik {MinUpThresholdC}-{MaxUpThresholdC} °C olmalı.",
             Kind.Speed when value > MaxSpeedPercent =>
                 $"{write}: fan hızı en fazla %{MaxSpeedPercent}.",
-            Kind.DownOffset when value is < MinDownOffsetC or > MaxDownOffsetC =>
-                $"{write}: aşağı eşik farkı {MinDownOffsetC}-{MaxDownOffsetC} °C olmalı.",
             Kind.ChargeLimit when !IsValidChargeLimit(write.Value) =>
                 $"{write}: şarj limiti 0x80 | %{MinChargeLimitPercent}-{MaxChargeLimitPercent} olmalı.",
             Kind.Performance when !PerformanceValues.Contains(write.Value) =>
@@ -99,7 +94,6 @@ public static class EcWriteRules
         {
             AddRange(kinds, fan.UpThresholdsStart, EcMap.ThresholdCount, Kind.UpThreshold);
             AddRange(kinds, fan.SpeedsStart, EcMap.SpeedCount, Kind.Speed);
-            AddRange(kinds, fan.DownOffsetsStart, EcMap.ThresholdCount, Kind.DownOffset);
         }
 
         return kinds;

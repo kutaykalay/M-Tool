@@ -134,7 +134,7 @@ public sealed class EcGatewayTests : IDisposable
         var outcome = await gateway.ApplyAsync(WritePlans.FanCurves(Presets.Cool.Curves, "Cool"));
 
         outcome.Status.Should().Be(WriteStatus.DryRun);
-        outcome.Planned.Should().HaveCount(38);
+        outcome.Planned.Should().HaveCount(26);
         _ec.Writes.Should().BeEmpty();
         _log.Lines.Should().Contain(l => l.Contains("DRY-RUN") && l.Contains("Cool"));
     }
@@ -161,7 +161,7 @@ public sealed class EcGatewayTests : IDisposable
     }
 
     [Fact]
-    public async Task Writes_speeds_before_thresholds_before_offsets_and_fan_mode_last()
+    public async Task Writes_speeds_before_thresholds_and_fan_mode_last()
     {
         var writes = WritePlans.FanCurves(Presets.Cool.Curves, "Cool").Writes
             .Concat(WritePlans.Fan(FanMode.Advanced).Writes)
@@ -179,10 +179,25 @@ public sealed class EcGatewayTests : IDisposable
     {
         >= 0x72 and <= 0x78 or >= 0x8A and <= 0x90 => 0,
         >= 0x6A and <= 0x6F or >= 0x82 and <= 0x87 => 1,
-        >= 0x7A and <= 0x7F or >= 0x92 and <= 0x97 => 2,
-        0xF4 => 4,
-        _ => 3,
+        0xF4 => 3,
+        _ => 2,
     };
+
+    [Fact]
+    public async Task Checking_a_fan_plan_never_reads_the_down_offsets()
+    {
+        var reads = new HashSet<byte>();
+        _ec.ReadHook = register =>
+        {
+            reads.Add(register);
+            return null;
+        };
+
+        var outcome = await Gateway().ApplyAsync(WritePlans.FanCurves(Presets.Cool.Curves, "Cool"));
+
+        outcome.Status.Should().Be(WriteStatus.Applied);
+        reads.Should().NotContain(r => r >= 0x7A && r <= 0x7F).And.NotContain(r => r >= 0x92 && r <= 0x97);
+    }
 
     [Fact]
     public async Task A_write_that_does_not_stick_the_first_time_is_retried()

@@ -184,7 +184,7 @@ public sealed class P65ControlTests : IDisposable
     [Fact]
     public async Task A_rejected_fan_table_stops_the_rest_of_the_desired_state()
     {
-        var unsafeCurve = FanCurve.Of((0, 0, 45), (55, 47, 50), (64, 61, 60), (70, 67, 70), (76, 73, 75), (82, 79, 80), (88, 85, 150));
+        var unsafeCurve = FanCurve.Of((0, 45), (55, 50), (64, 60), (70, 70), (76, 75), (82, 80), (88, 150));
         var catalog = new ProfileCatalog([new FanProfile("Bad", new FanCurves(unsafeCurve, unsafeCurve))]);
 
         var outcomes = await Control().ApplyDesiredAsync(new DesiredState("Bad", PerformanceMode.Balanced, FanMode: FanMode.Auto), catalog);

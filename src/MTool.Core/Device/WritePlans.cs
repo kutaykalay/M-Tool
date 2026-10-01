@@ -34,8 +34,7 @@ public static class WritePlans
     {
         var tables = FanTableCodec.Encode(curve);
         return Block(fan.UpThresholdsStart, tables.UpThresholds)
-            .Concat(Block(fan.SpeedsStart, tables.Speeds))
-            .Concat(Block(fan.DownOffsetsStart, tables.DownOffsets));
+            .Concat(Block(fan.SpeedsStart, tables.Speeds));
     }
 
     private static IEnumerable<RegisterWrite> Block(byte start, IReadOnlyList<byte> values) =>

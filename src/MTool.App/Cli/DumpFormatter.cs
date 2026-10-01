@@ -20,14 +20,18 @@ internal static class DumpFormatter
             .AppendLine($"GPU        : {Temp(sensors.GpuTempC)}, fan %{sensors.GpuFanPercent}, {sensors.GpuRpm} RPM")
             .AppendLine($"Registers  : 0x98={Hex(ec, EcMap.CoolerBoost)} 0xEF={Hex(ec, EcMap.ChargeLimit)} " +
                         $"0xF2={Hex(ec, EcMap.PerformanceMode)} 0xF4={Hex(ec, EcMap.FanMode)}");
-        AppendCurve(text, "CPU egrisi", curves.Cpu);
-        AppendCurve(text, "GPU egrisi", curves.Gpu);
+        AppendCurve(text, "CPU egrisi", curves.Cpu, FactoryDefaults.CpuDownOffsets);
+        AppendCurve(text, "GPU egrisi", curves.Gpu, FactoryDefaults.GpuDownOffsets);
+        text.AppendLine("             (esik/inis; inis = esik - fabrika farki, EC'den okunmaz)");
         return text.AppendLine($"Kurtarilan okuma hatasi: {recoveredFailures}").ToString();
     }
 
-    private static void AppendCurve(StringBuilder text, string title, FanCurve curve)
+    private static void AppendCurve(StringBuilder text, string title, FanCurve curve, IReadOnlyList<int> downOffsets)
     {
-        var steps = curve.Points.Select(p => $"{p.UpThresholdC}/{p.DownThresholdC}C->%{p.SpeedPercent}");
+        var downs = curve.DownThresholdsC(downOffsets);
+        var steps = curve.Points.Select((p, i) => i == 0
+            ? $"0C->%{p.SpeedPercent}"
+            : $"{p.UpThresholdC}/{downs[i - 1]}C->%{p.SpeedPercent}");
         text.AppendLine($"{title} : {string.Join("  ", steps)}");
     }
 

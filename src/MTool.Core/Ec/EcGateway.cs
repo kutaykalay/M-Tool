@@ -151,8 +151,7 @@ public sealed class EcGateway
         }
 
         var overlay = plan.Writes.ToDictionary(w => w.Register, w => w.Value);
-        return CurveError("CPU", ProjectCurve(ec, EcMap.CpuFan, overlay))
-            ?? CurveError("GPU", ProjectCurve(ec, EcMap.GpuFan, overlay));
+        return TablesError(ec, overlay);
     }
 
     private static FanCurve ProjectCurve(IEcRegisters ec, FanRegisters fan, IReadOnlyDictionary<byte, byte> overlay)
@@ -164,12 +163,16 @@ public sealed class EcGateway
 
         return FanTableCodec.Decode(
             Block(fan.UpThresholdsStart, EcMap.ThresholdCount),
-            Block(fan.SpeedsStart, EcMap.SpeedCount),
-            Block(fan.DownOffsetsStart, EcMap.ThresholdCount));
+            Block(fan.SpeedsStart, EcMap.SpeedCount));
     }
 
-    private static string? CurveError(string fanName, FanCurve curve) =>
-        CurveValidator.Validate(curve) is [var first, ..] ? $"{fanName} eğrisi güvensiz olur: {first}" : null;
+    /// <summary>Both curves as the EC would hold them after <paramref name="overlay"/>, checked against the factory down offsets.</summary>
+    private static string? TablesError(IEcRegisters ec, IReadOnlyDictionary<byte, byte> overlay) =>
+        CurveError("CPU", ProjectCurve(ec, EcMap.CpuFan, overlay), FactoryDefaults.CpuDownOffsets)
+        ?? CurveError("GPU", ProjectCurve(ec, EcMap.GpuFan, overlay), FactoryDefaults.GpuDownOffsets);
+
+    private static string? CurveError(string fanName, FanCurve curve, IReadOnlyList<int> downOffsets) =>
+        CurveValidator.Validate(curve, downOffsets) is [var first, ..] ? $"{fanName} eğrisi güvensiz olur: {first}" : null;
 
     private static IReadOnlyList<RegisterWrite> Ordered(IEnumerable<RegisterWrite> writes) =>
         writes.OrderBy(w => EcWriteRules.WriteOrder(w.Register)).ThenBy(w => w.Register).ToArray().AsReadOnly();
@@ -218,9 +221,7 @@ public sealed class EcGateway
         try
         {
             var unchanged = new Dictionary<byte, byte>();
-            if (!touchedFanTable
-                && CurveError("CPU", ProjectCurve(ec, EcMap.CpuFan, unchanged)) is null
-                && CurveError("GPU", ProjectCurve(ec, EcMap.GpuFan, unchanged)) is null)
+            if (!touchedFanTable && TablesError(ec, unchanged) is null)
             {
                 return true;
             }

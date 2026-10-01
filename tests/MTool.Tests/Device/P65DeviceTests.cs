@@ -65,8 +65,8 @@ public class P65DeviceTests
 
         var curves = device.ReadFanCurves();
 
-        curves.Cpu.Points[1].Should().Be(new FanPoint(55, 47, 50));
-        curves.Gpu.Points[0].Should().Be(new FanPoint(0, 0, 0));
-        curves.Gpu.Points[6].Should().Be(new FanPoint(86, 81, 90));
+        curves.Cpu.Points[1].Should().Be(new FanPoint(55, 50));
+        curves.Gpu.Points[0].Should().Be(new FanPoint(0, 0));
+        curves.Gpu.Points[6].Should().Be(new FanPoint(86, 90));
     }
 }

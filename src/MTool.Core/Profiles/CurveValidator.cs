@@ -22,7 +22,12 @@ public static class CurveValidator
     public const int EnvelopeMinSpeedPercent = 50;
 
     /// <summary>Returns human-readable (Turkish) problems; empty when the curve is valid.</summary>
-    public static IReadOnlyList<string> Validate(FanCurve curve)
+    /// <param name="downOffsets">
+    /// The EC's down offsets for this fan (one per step after the idle point). M-Tool never writes
+    /// them, so they are the factory values: <see cref="Device.FactoryDefaults.CpuDownOffsets"/>.
+    /// </param>
+    /// <exception cref="ArgumentException">The offset count does not match a seven-point curve.</exception>
+    public static IReadOnlyList<string> Validate(FanCurve curve, IReadOnlyList<int> downOffsets)
     {
         var points = curve.Points;
         if (points.Count != PointCount)
@@ -31,17 +36,18 @@ public static class CurveValidator
         }
 
         var errors = new List<string>();
-        if (points[0].UpThresholdC != 0 || points[0].DownThresholdC != 0)
+        if (points[0].UpThresholdC != 0)
         {
             errors.Add("İlk nokta boştaki hızdır, eşik taşımaz.");
         }
 
+        var downThresholds = curve.DownThresholdsC(downOffsets);
         for (var i = 0; i < PointCount; i++)
         {
             CheckSpeed(points, i, errors);
             if (i > 0)
             {
-                CheckThresholds(points, i, errors);
+                CheckThresholds(points, i, downThresholds[i - 1], errors);
             }
         }
 
@@ -79,9 +85,9 @@ public static class CurveValidator
         }
     }
 
-    private static void CheckThresholds(IReadOnlyList<FanPoint> points, int i, List<string> errors)
+    private static void CheckThresholds(IReadOnlyList<FanPoint> points, int i, int down, List<string> errors)
     {
-        var (up, down) = (points[i].UpThresholdC, points[i].DownThresholdC);
+        var up = points[i].UpThresholdC;
         var previousUp = points[i - 1].UpThresholdC;
 
         if (up is < EcWriteRules.MinUpThresholdC or > EcWriteRules.MaxUpThresholdC)
@@ -94,14 +100,10 @@ public static class CurveValidator
             errors.Add($"Adım {i}: yukarı eşikler artan olmalı.");
         }
 
-        if (down >= up || down <= previousUp)
+        // The fixed factory offset decides the down threshold, so only the up threshold can fix this.
+        if (down <= previousUp)
         {
-            errors.Add($"Adım {i}: aşağı eşik, önceki adımın yukarı eşiğinden ({previousUp} °C) büyük ve bu adımınkinden ({up} °C) küçük olmalı.");
-        }
-
-        if (up - down > EcWriteRules.MaxDownOffsetC)
-        {
-            errors.Add($"Adım {i}: aşağı eşik, yukarı eşikten en fazla {EcWriteRules.MaxDownOffsetC} °C düşük olabilir.");
+            errors.Add($"Adım {i}: aşağı eşik ({up} °C - fabrika farkı = {down} °C), önceki adımın yukarı eşiğinden ({previousUp} °C) büyük olmalı; yukarı eşiği artırın.");
         }
     }
 

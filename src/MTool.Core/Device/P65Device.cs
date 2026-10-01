@@ -42,8 +42,7 @@ public sealed class P65Device
 
     private FanCurve ReadFanCurve(FanRegisters fan) => FanTableCodec.Decode(
         _ec.ReadBlock(fan.UpThresholdsStart, EcMap.ThresholdCount),
-        _ec.ReadBlock(fan.SpeedsStart, EcMap.SpeedCount),
-        _ec.ReadBlock(fan.DownOffsetsStart, EcMap.ThresholdCount));
+        _ec.ReadBlock(fan.SpeedsStart, EcMap.SpeedCount));
 
     private int? ReadTemperature(FanRegisters fan)
     {

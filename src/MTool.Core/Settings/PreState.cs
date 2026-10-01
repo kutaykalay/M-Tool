@@ -92,8 +92,14 @@ public sealed class PreStateStore(string directory)
         }
     }
 
+    /// <summary>
+    /// Every writable register must be present. Extra registers are allowed: snapshots taken before
+    /// stage 5-WMI also hold the down offsets, which are no longer writable.
+    /// </summary>
     private static bool IsComplete(PreMToolState? state) =>
         state is { FirmwareVersion: not null, FirmwareDate: not null, Registers: not null }
         && state.Registers.All(r => r is not null)
-        && state.Registers.Select(r => r.Register).Order().SequenceEqual(EcWriteRules.WritableRegisters);
+        && state.Registers.Select(r => r.Register).ToHashSet() is var saved
+        && saved.Count == state.Registers.Count
+        && saved.IsSupersetOf(EcWriteRules.WritableRegisters);
 }

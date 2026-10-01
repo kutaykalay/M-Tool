@@ -76,6 +76,42 @@ public sealed class PreStateTests : IDisposable
     }
 
     [Fact]
+    public void A_snapshot_that_also_holds_the_old_down_offset_registers_still_counts()
+    {
+        // Snapshots taken before stage 5-WMI also hold 0x7A-0x7F and 0x92-0x97.
+        byte[] offsets = [0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97];
+        var current = PreStateCapture.Read(P65Memory.Faz0Snapshot(), new FirmwareInfo("16Q4EMS2.107", "d"), Now);
+        var old = current with
+        {
+            Registers = current.Registers.Concat(offsets.Select(r => new RegisterValue(r, 3))).OrderBy(r => r.Register).ToArray(),
+        };
+        var store = new PreStateStore(_folder);
+        store.SaveIfMissing(old);
+
+        store.HasValidSnapshot("16Q4EMS2.107").Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_snapshot_missing_a_writable_register_does_not_count()
+    {
+        var current = PreStateCapture.Read(P65Memory.Faz0Snapshot(), new FirmwareInfo("16Q4EMS2.107", "d"), Now);
+        var store = new PreStateStore(_folder);
+        store.SaveIfMissing(current with { Registers = current.Registers.Where(r => r.Register != 0xF2).ToArray() });
+
+        store.Load().Should().BeNull();
+    }
+
+    [Fact]
+    public void A_snapshot_with_a_register_saved_twice_does_not_count()
+    {
+        var current = PreStateCapture.Read(P65Memory.Faz0Snapshot(), new FirmwareInfo("16Q4EMS2.107", "d"), Now);
+        var store = new PreStateStore(_folder);
+        store.SaveIfMissing(current with { Registers = current.Registers.Append(new RegisterValue(0xF2, 0xC1)).ToArray() });
+
+        store.Load().Should().BeNull();
+    }
+
+    [Fact]
     public void Store_returns_null_when_nothing_was_saved()
     {
         new PreStateStore(_folder).Load().Should().BeNull();

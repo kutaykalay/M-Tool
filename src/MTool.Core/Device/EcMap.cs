@@ -1,13 +1,16 @@
 namespace MTool.Core.Device;
 
-/// <summary>Register addresses of one fan's live values and its table in EC memory.</summary>
+/// <summary>
+/// Register addresses of one fan's live values and its table in EC memory. The down offsets after
+/// the speeds (CPU 0x7A-0x7F, GPU 0x92-0x97) are deliberately absent: M-Tool never reads or writes
+/// them, because WMI has no access to them.
+/// </summary>
 public sealed record FanRegisters(
     byte Temperature,
     byte SpeedPercent,
     byte RpmHigh,
     byte UpThresholdsStart,
-    byte SpeedsStart,
-    byte DownOffsetsStart);
+    byte SpeedsStart);
 
 /// <summary>
 /// EC register map for MSI P65 Creator 9SE, firmware 16Q4EMS2.107. Verified against YAMDCC's
@@ -27,11 +30,11 @@ public static class EcMap
 
     public static FanRegisters CpuFan { get; } = new(
         Temperature: 0x68, SpeedPercent: 0x71, RpmHigh: 0xCC,
-        UpThresholdsStart: 0x6A, SpeedsStart: 0x72, DownOffsetsStart: 0x7A);
+        UpThresholdsStart: 0x6A, SpeedsStart: 0x72);
 
     public static FanRegisters GpuFan { get; } = new(
         Temperature: 0x80, SpeedPercent: 0x89, RpmHigh: 0xCA,
-        UpThresholdsStart: 0x82, SpeedsStart: 0x8A, DownOffsetsStart: 0x92);
+        UpThresholdsStart: 0x82, SpeedsStart: 0x8A);
 
     public const byte CoolerBoost = 0x98;
     public const byte ChargeLimit = 0xEF;
