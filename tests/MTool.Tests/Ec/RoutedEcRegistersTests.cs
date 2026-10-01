@@ -7,7 +7,7 @@ namespace MTool.Tests.Ec;
 
 public sealed class RoutedEcRegistersTests : IDisposable
 {
-    private static readonly WritePolicy Live = new(FirmwareSupported: true, PreStateSaved: true, DryRun: false);
+    private static readonly WritePolicy Live = new(FirmwareSupported: true, PreStateSaved: true, DryRun: false, PortAvailable: true);
 
     // One EC: WMI and the port both reach this memory, as on the laptop.
     private readonly FakeEcRegisters _ec = P65Memory.Faz0Snapshot();
@@ -215,5 +215,190 @@ public sealed class RoutedEcRegistersTests : IDisposable
         outcome.Status.Should().Be(WriteStatus.Applied);
         PortWrites.Should().Equal(0xEF);
         _wmi.Calls.Should().NotContain(c => c.StartsWith("write"));
+    }
+
+    // --- port rules (stage 5-WMI step 4) ---
+
+    private EcGateway GatewayOver(RoutedEcRegisters routed, WritePolicy policy, List<string>? persistedLocks = null)
+    {
+        _worker = new EcWorker(routed, new FakeEcLock(), TimeSpan.FromMilliseconds(50));
+        return new EcGateway(_worker, policy, new ListLog(), persistedLocks is null ? null : persistedLocks.Add,
+            EcAccessRetry.Default with { Sleep = _ => { } });
+    }
+
+    public static TheoryData<string> PortPlans => ["charge", "boost"];
+
+    private static WritePlan PortPlan(string name) =>
+        name == "charge" ? WritePlans.ChargeLimit(79) : WritePlans.CoolerBoost(on: true, currentValue: 0x02);
+
+    [Theory]
+    [MemberData(nameof(PortPlans))]
+    public async Task Without_a_port_a_port_plan_is_rejected_before_any_ec_access_and_nothing_locks(string plan)
+    {
+        var persistedLocks = new List<string>();
+        var gateway = GatewayOver(WmiOnly(), Live with { PortAvailable = false }, persistedLocks);
+
+        var outcome = await gateway.ApplyAsync(PortPlan(plan));
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        outcome.Message.Should().Contain("port");
+        gateway.IsWriteEnabled.Should().BeTrue();
+        persistedLocks.Should().BeEmpty();
+        _wmi.Calls.Should().BeEmpty();
+        _portReads.Should().BeEmpty();
+        _ec.Writes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Without_a_port_fan_profiles_still_apply_through_wmi()
+    {
+        var gateway = GatewayOver(WmiOnly(), Live with { PortAvailable = false });
+
+        var outcome = await gateway.ApplyAsync(WritePlans.FanCurves(Presets.Cool.Curves, "Cool"));
+
+        outcome.Status.Should().Be(WriteStatus.Applied);
+        new P65Device(WmiOnly()).ReadFanCurves().Should().Be(Presets.Cool.Curves);
+    }
+
+    [Theory]
+    [InlineData(0x6A, 0x00)] // CPU up threshold, as mangled in stage 4 [Y] 9
+    [InlineData(0x8C, 0x64)] // GPU speed
+    [InlineData(0xF2, 0xC4)] // performance mode, as mangled in stage 4 [Y] 9
+    [InlineData(0xF4, 0x0D)] // fan mode
+    public async Task A_port_write_that_changes_a_register_wmi_watches_fails_and_locks(byte register, byte raced)
+    {
+        var persistedLocks = new List<string>();
+        var gateway = GatewayOver(Hybrid(), Live, persistedLocks);
+        _ec.AfterWrite = written =>
+        {
+            if (written == EcMap.ChargeLimit)
+            {
+                _ec[register] = raced;
+            }
+        };
+
+        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+
+        outcome.Status.Should().Be(WriteStatus.FailedRecovered);
+        outcome.Message.Should().Contain($"0x{register:X2}");
+        gateway.IsWriteEnabled.Should().BeFalse();
+        persistedLocks.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task A_port_write_that_mangles_the_fan_table_restores_the_factory_table_even_if_still_valid()
+    {
+        var gateway = GatewayOver(Hybrid(), Live);
+        // 50 °C instead of 55: a valid curve, but not the one that was set.
+        _ec.AfterWrite = written => _ec[0x6A] = written == EcMap.ChargeLimit ? (byte)50 : _ec[0x6A];
+
+        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+
+        outcome.Status.Should().Be(WriteStatus.FailedRecovered);
+        new P65Device(Hybrid()).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
+    }
+
+    [Fact]
+    public async Task A_port_write_that_throws_mid_handshake_still_finds_and_repairs_a_mangled_table()
+    {
+        var gateway = GatewayOver(Hybrid(), Live);
+        _ec.AfterWrite = written =>
+        {
+            if (written == EcMap.ChargeLimit)
+            {
+                _ec[0x6A] = 50; // still a valid curve, so only the comparison can catch it
+                throw new EcAccessException("handshake timed out");
+            }
+        };
+
+        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+
+        outcome.Status.Should().Be(WriteStatus.FailedRecovered);
+        outcome.Message.Should().Contain("0x6A");
+        new P65Device(Hybrid()).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
+    }
+
+    [Fact]
+    public async Task A_disturbed_performance_mode_is_restored_to_its_value_before_the_port_write()
+    {
+        var gateway = GatewayOver(Hybrid(), Live);
+        _ec.AfterWrite = written => _ec[0xF2] = written == EcMap.ChargeLimit ? (byte)0xC4 : _ec[0xF2];
+
+        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+
+        outcome.Status.Should().Be(WriteStatus.FailedRecovered);
+        outcome.Message.Should().Contain("Geri yüklendi: 0xF2=0xC0");
+        _ec[0xF2].Should().Be(0xC0);
+        gateway.IsWriteEnabled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task A_cooler_boost_validation_read_that_mangles_the_table_is_caught()
+    {
+        var gateway = GatewayOver(Hybrid(), Live);
+        _ec.ReadHook = register =>
+        {
+            if (register == EcMap.CoolerBoost && _ec[0x6A] == 55)
+            {
+                _ec[0x6A] = 50;
+            }
+
+            return null;
+        };
+
+        var outcome = await gateway.ApplyAsync(WritePlans.CoolerBoost(on: true, currentValue: 0x02));
+
+        outcome.Status.Should().Be(WriteStatus.FailedRecovered);
+        outcome.Message.Should().Contain("0x6A");
+        new P65Device(Hybrid()).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
+    }
+
+    [Fact]
+    public async Task A_failed_cooler_boost_validation_read_without_side_effects_is_only_a_rejection()
+    {
+        var persistedLocks = new List<string>();
+        var gateway = GatewayOver(Hybrid(), Live, persistedLocks);
+        _ec.ReadHook = register => register == EcMap.CoolerBoost ? throw new EcAccessException("port silent") : null;
+
+        var outcome = await gateway.ApplyAsync(WritePlans.CoolerBoost(on: true, currentValue: 0x02));
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        gateway.IsWriteEnabled.Should().BeTrue();
+        persistedLocks.Should().BeEmpty();
+        _ec.Writes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task A_failed_cooler_boost_validation_read_with_side_effects_fails_and_locks()
+    {
+        var gateway = GatewayOver(Hybrid(), Live);
+        _ec.ReadHook = register =>
+        {
+            if (register != EcMap.CoolerBoost)
+            {
+                return null;
+            }
+
+            _ec[0xF4] = 0x0D;
+            throw new EcAccessException("port silent");
+        };
+
+        var outcome = await gateway.ApplyAsync(WritePlans.CoolerBoost(on: true, currentValue: 0x02));
+
+        outcome.Status.Should().Be(WriteStatus.FailedRecovered);
+        gateway.IsWriteEnabled.Should().BeFalse();
+        _ec[0xF4].Should().Be(0x8D);
+    }
+
+    [Fact]
+    public async Task A_port_write_without_side_effects_compares_the_watched_registers_through_wmi_only()
+    {
+        var gateway = GatewayOver(Hybrid(), Live);
+
+        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+
+        outcome.Status.Should().Be(WriteStatus.Applied);
+        _wmi.Calls.Should().NotBeEmpty().And.OnlyContain(c => c.StartsWith("read"));
+        _portReads.Should().OnlyContain(r => r == EcMap.ChargeLimit);
     }
 }

@@ -26,8 +26,20 @@ public sealed class WriteAccessBootstrapTests : IDisposable
 
     private string PreStatePath => Path.Combine(_folder, "pre-mtool-state.json");
 
-    private Task<WriteAccessSetup> CreateAsync(bool dryRun = false) => WriteAccessBootstrap.CreateAsync(
-        _worker, _folder, dryRun, _log, EcAccessRetry.Default with { Sleep = _sleeps.Add }, () => Now);
+    private Task<WriteAccessSetup> CreateAsync(bool dryRun = false, bool portAvailable = true) => WriteAccessBootstrap.CreateAsync(
+        _worker, _folder, dryRun, portAvailable, _log, EcAccessRetry.Default with { Sleep = _sleeps.Add }, () => Now);
+
+    [Fact]
+    public async Task Without_a_port_the_gateway_opens_but_refuses_port_plans()
+    {
+        var setup = await CreateAsync(portAvailable: false);
+
+        var outcome = await setup.Gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        setup.Gateway.IsWriteEnabled.Should().BeTrue();
+        _ec.Writes.Should().BeEmpty();
+    }
 
     [Fact]
     public async Task Supported_firmware_without_a_backup_takes_one_and_opens_writes()

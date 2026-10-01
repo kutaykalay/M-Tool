@@ -10,7 +10,9 @@ namespace MTool.Core.Ec;
 /// to a verified safe state (factory table, then Cooler Boost as a last attempt) and writes stay
 /// locked, persisted through <c>persistLock</c> so a new session starts locked too. The whole plan
 /// runs as one <see cref="EcWorker"/> operation, so the Access_EC lock is held from validation to
-/// the final read-back.
+/// the final read-back. Cooler Boost and the charge limit go through the raw port: a plan for one
+/// of them holds nothing else, is refused untouched when the port is closed, and fails if
+/// <see cref="PortWriteGuard"/> sees other registers change around it.
 /// </summary>
 public sealed class EcGateway
 {
@@ -53,7 +55,7 @@ public sealed class EcGateway
             return Reject(snapshot, $"EC yazma kapalı: {reason}");
         }
 
-        if (CheckShape(snapshot) is { } shapeError)
+        if (CheckShape(snapshot, _policy.PortAvailable) is { } shapeError)
         {
             return Reject(snapshot, shapeError);
         }
@@ -80,7 +82,7 @@ public sealed class EcGateway
         : !policy.PreStateSaved ? "M-Tool öncesi durum yedeği yok ya da geçersiz"
         : policy.PersistedLockReason;
 
-    private static string? CheckShape(WritePlan plan)
+    private static string? CheckShape(WritePlan plan, bool portAvailable)
     {
         if (plan.Writes.Count == 0)
         {
@@ -92,7 +94,21 @@ public sealed class EcGateway
             return $"0x{duplicate.Key:X2} planda birden fazla kez var.";
         }
 
-        return plan.Writes.Select(EcWriteRules.CheckStatic).FirstOrDefault(e => e is not null);
+        return plan.Writes.Select(EcWriteRules.CheckStatic).FirstOrDefault(e => e is not null)
+            ?? CheckPortRules(plan, portAvailable);
+    }
+
+    /// <summary>One port register per plan, so a side effect is never blamed on the wrong write.</summary>
+    private static string? CheckPortRules(WritePlan plan, bool portAvailable)
+    {
+        if (plan.Writes.FirstOrDefault(w => WmiMap.PortRegisters.Contains(w.Register)) is not { } portWrite)
+        {
+            return null;
+        }
+
+        return !portAvailable ? $"{portWrite}: port kapalı (yalnızca WMI); Cooler Boost ve şarj limiti yazılamaz."
+            : plan.Writes.Count > 1 ? $"{portWrite}: port register'ı planda tek başına olmalı."
+            : null;
     }
 
     private WriteOutcome ApplyLocked(IEcWritableRegisters ec, WritePlan plan)
@@ -103,9 +119,12 @@ public sealed class EcGateway
             return Reject(plan, $"EC yazma kapalı: {reason}");
         }
 
-        if (CheckAgainstEc(ec, plan) is { } error)
+        // Before the first port access (validation reads 0x98 through it). If this throws,
+        // nothing has changed yet and ApplyAsync rejects the plan.
+        var watched = PortWriteGuard.Guards(plan) && !_policy.DryRun ? PortWriteGuard.Snapshot(ec) : null;
+        if (ValidateAgainstEc(ec, plan, watched) is { } refused)
         {
-            return Reject(plan, error);
+            return refused;
         }
 
         var ordered = Ordered(plan.Writes);
@@ -122,16 +141,43 @@ public sealed class EcGateway
                 ?? ordered.FirstOrDefault(w => ec.Read(w.Register) != w.Value);
             if (failed is not null)
             {
-                return Fail(ec, plan, ordered, $"{failed} doğrulanamadı.", exception: null);
+                return Fail(ec, plan, $"{failed} doğrulanamadı.", exception: null, watched);
+            }
+
+            if (watched is not null && PortWriteGuard.Check(ec, watched).Any)
+            {
+                return Fail(ec, plan, "port yazması doğrulandı ama yan etki görüldü.", exception: null, watched);
             }
         }
         catch (Exception ex)
         {
-            return Fail(ec, plan, ordered, ex.Message, ex);
+            return Fail(ec, plan, ex.Message, ex, watched);
         }
 
         SafeLog(log => log.Info($"{plan.Description}: uygulandı ve doğrulandı."));
         return new WriteOutcome(WriteStatus.Applied, ordered, "Uygulandı ve doğrulandı.");
+    }
+
+    /// <summary>
+    /// A rejection, a failure, or null when the plan may be written. A port read that fails during
+    /// validation is a rejection, unless the watched registers changed around it: then it is a
+    /// failure like any disturbing port write.
+    /// </summary>
+    private WriteOutcome? ValidateAgainstEc(IEcWritableRegisters ec, WritePlan plan, IReadOnlyDictionary<byte, byte>? watched)
+    {
+        try
+        {
+            return CheckAgainstEc(ec, plan) is { } error ? Reject(plan, error) : null;
+        }
+        catch (Exception ex) when (watched is not null)
+        {
+            if (!PortWriteGuard.Check(ec, watched).Any)
+            {
+                throw;
+            }
+
+            return Fail(ec, plan, $"doğrulama okuması başarısız: {ex.Message}", ex, watched);
+        }
     }
 
     /// <summary>
@@ -195,25 +241,58 @@ public sealed class EcGateway
     }
 
     /// <summary>Locks first, recovers second, logs last: nothing here may skip the recovery.</summary>
+    /// <param name="watched">For a port plan, the registers read before its first port access.</param>
     private WriteOutcome Fail(
-        IEcWritableRegisters ec, WritePlan plan, IReadOnlyList<RegisterWrite> ordered, string reason, Exception? exception)
+        IEcWritableRegisters ec, WritePlan plan, string reason, Exception? exception, IReadOnlyDictionary<byte, byte>? watched)
     {
         var lockReason = $"yazma başarısız oldu: {plan.Description}, {reason}";
         Volatile.Write(ref _lockReason, lockReason);
         PersistLock(lockReason);
 
-        var touchedFanTable = ordered.Any(w => EcWriteRules.IsFanTable(w.Register));
+        // A half-finished port handshake is the likeliest source of damage, so check on every failure.
+        var disturbance = watched is null ? new PortDisturbance([], Unreadable: false) : PortWriteGuard.Check(ec, watched);
+        var ordered = Ordered(plan.Writes);
+        var touchedFanTable = disturbance.TouchesFanTable || ordered.Any(w => EcWriteRules.IsFanTable(w.Register));
         var safe = TryEnsureSafeFanTable(ec, touchedFanTable);
+        var restored = watched is null ? "" : RestoreDisturbedModes(ec, watched, disturbance);
         var boosted = !safe && TryCoolerBoost(ec);
 
-        SafeLog(log => log.Error($"{plan.Description}: yazma başarısız, EC yazma kilitlendi. {reason}", exception));
+        var details = string.Join(' ', new[] { reason, disturbance.Describe(), restored }.Where(t => t.Length > 0));
+        SafeLog(log => log.Error($"{plan.Description}: yazma başarısız, EC yazma kilitlendi. {details}", exception));
         if (safe)
         {
-            return new WriteOutcome(WriteStatus.FailedRecovered, ordered, $"Yazma başarısız, fan tablosu güvenli. {reason}");
+            return new WriteOutcome(WriteStatus.FailedRecovered, ordered, $"Yazma başarısız, fan tablosu güvenli. {details}");
         }
 
         SafeLog(log => log.Error($"Güvenli fan tablosu doğrulanamadı; Cooler Boost {(boosted ? "açıldı" : "da açılamadı")}."));
-        return new WriteOutcome(WriteStatus.FailedUnrecovered, ordered, $"Yazma başarısız, fan tablosu doğrulanamadı. {reason}");
+        return new WriteOutcome(WriteStatus.FailedUnrecovered, ordered, $"Yazma başarısız, fan tablosu doğrulanamadı. {details}");
+    }
+
+    /// <summary>Puts a disturbed performance or fan mode back to its value before the port access.</summary>
+    private string RestoreDisturbedModes(
+        IEcWritableRegisters ec, IReadOnlyDictionary<byte, byte> watched, PortDisturbance disturbance)
+    {
+        var restores = disturbance.Changes
+            .Where(c => !EcWriteRules.IsFanTable(c.Register))
+            .Select(c => new RegisterWrite(c.Register, watched[c.Register]))
+            .Where(w => EcWriteRules.CheckStatic(w) is null)
+            .ToArray();
+        if (restores.Length == 0)
+        {
+            return "";
+        }
+
+        var list = string.Join(' ', restores.Select(w => w.ToString()));
+        try
+        {
+            SafeLog(log => log.Warn($"Kurtarma: {list} geri yükleniyor."));
+            return restores.All(w => WriteVerified(ec, w)) ? $"Geri yüklendi: {list}." : $"Geri yüklenemedi: {list}.";
+        }
+        catch (Exception ex)
+        {
+            SafeLog(log => log.Error($"Kurtarma: {list} geri yüklenemedi", ex));
+            return $"Geri yüklenemedi: {list}.";
+        }
     }
 
     private bool TryEnsureSafeFanTable(IEcWritableRegisters ec, bool touchedFanTable)
@@ -241,6 +320,12 @@ public sealed class EcGateway
     /// <summary>Read-modify-write of 0x98 only when two reads agree, so a garbled byte is never written back.</summary>
     private bool TryCoolerBoost(IEcWritableRegisters ec)
     {
+        if (!_policy.PortAvailable)
+        {
+            SafeLog(log => log.Error("Kurtarma: port kapalı (yalnızca WMI), Cooler Boost denenmedi."));
+            return false;
+        }
+
         try
         {
             var (first, second) = (ec.Read(EcMap.CoolerBoost), ec.Read(EcMap.CoolerBoost));

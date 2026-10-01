@@ -62,7 +62,7 @@ internal sealed class EcSession : IDisposable
     /// does not exist yet; without it (or on any EC/file trouble) the gateway stays locked.
     /// </summary>
     public async Task<EcGateway> CreateGatewayAsync(bool dryRun) =>
-        (await WriteAccessBootstrap.CreateAsync(Worker, AppPaths.Root, dryRun, _log).ConfigureAwait(false)).Gateway;
+        (await WriteAccessBootstrap.CreateAsync(Worker, AppPaths.Root, dryRun, portAvailable: true, _log).ConfigureAwait(false)).Gateway;
 
     public void Dispose()
     {

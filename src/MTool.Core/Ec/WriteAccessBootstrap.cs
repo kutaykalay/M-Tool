@@ -17,6 +17,7 @@ public static class WriteAccessBootstrap
         EcWorker worker,
         string dataDirectory,
         bool dryRun,
+        bool portAvailable,
         IAppLog log,
         EcAccessRetry? retry = null,
         Func<DateTimeOffset>? now = null)
@@ -33,6 +34,7 @@ public static class WriteAccessBootstrap
             FirmwareSupported: firmware?.IsSupported ?? false,
             PreStateSaved: firmware is not null && HasValidSnapshot(store, firmware, log),
             DryRun: dryRun,
+            PortAvailable: portAvailable,
             PersistedLockReason: ReadPersistedLock(dataDirectory, log, out var writeLock));
         return new WriteAccessSetup(firmware, new EcGateway(worker, policy, log, writeLock.Lock, retry));
     }

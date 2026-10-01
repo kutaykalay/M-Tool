@@ -18,6 +18,9 @@ internal sealed class FakeEcRegisters : IEcWritableRegisters
     /// <summary>Overrides what a read returns (e.g. garbage from concurrent EC traffic); null = memory.</summary>
     public Func<byte, byte?>? ReadHook { get; set; }
 
+    /// <summary>Runs after every write attempt with its register (e.g. a race that mangles another register).</summary>
+    public Action<byte>? AfterWrite { get; set; }
+
     /// <summary>When set, every access throws this (EC unreachable).</summary>
     public Exception? AccessError { get; set; }
 
@@ -52,12 +55,12 @@ internal sealed class FakeEcRegisters : IEcWritableRegisters
     {
         ThrowIfUnreachable();
         Writes.Add((register, value));
-        if (StuckRegisters.Contains(register) || FlakyOnceRegisters.Remove(register))
+        if (!StuckRegisters.Contains(register) && !FlakyOnceRegisters.Remove(register))
         {
-            return;
+            _memory[register] = value;
         }
 
-        _memory[register] = value;
+        AfterWrite?.Invoke(register);
     }
 
     private void ThrowIfUnreachable()

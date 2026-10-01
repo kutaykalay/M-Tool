@@ -11,8 +11,13 @@ public sealed record WritePlan(string Description, IReadOnlyList<RegisterWrite> 
 /// <param name="FirmwareSupported">EC firmware is exactly the verified one.</param>
 /// <param name="PreStateSaved">The "before M-Tool" snapshot exists on disk.</param>
 /// <param name="DryRun">Validate and log, never write.</param>
+/// <param name="PortAvailable">
+/// Cooler Boost and the charge limit can be reached (the raw port is open). When false, plans for
+/// them are refused before any EC access and recovery never reaches for Cooler Boost.
+/// </param>
 /// <param name="PersistedLockReason">Set when an earlier session's write failed; writes stay locked until cleared by hand.</param>
-public sealed record WritePolicy(bool FirmwareSupported, bool PreStateSaved, bool DryRun, string? PersistedLockReason = null);
+public sealed record WritePolicy(
+    bool FirmwareSupported, bool PreStateSaved, bool DryRun, bool PortAvailable, string? PersistedLockReason = null);
 
 public enum WriteStatus
 {

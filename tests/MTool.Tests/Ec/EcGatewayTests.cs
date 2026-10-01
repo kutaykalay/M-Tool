@@ -8,7 +8,7 @@ namespace MTool.Tests.Ec;
 
 public sealed class EcGatewayTests : IDisposable
 {
-    private static readonly WritePolicy Live = new(FirmwareSupported: true, PreStateSaved: true, DryRun: false);
+    private static readonly WritePolicy Live = new(FirmwareSupported: true, PreStateSaved: true, DryRun: false, PortAvailable: true);
 
     private readonly FakeEcRegisters _ec = P65Memory.Faz0Snapshot();
     private readonly ListLog _log = new();
@@ -244,6 +244,60 @@ public sealed class EcGatewayTests : IDisposable
     }
 
     [Fact]
+    public async Task Without_a_port_recovery_skips_cooler_boost_instead_of_reaching_for_the_port()
+    {
+        var boostReads = 0;
+        _ec.ReadHook = register =>
+        {
+            boostReads += register == EcMap.CoolerBoost ? 1 : 0;
+            return null;
+        };
+        _ec.StuckRegisters.Add(0x72);
+        _ec[0x72] = 99; // neither Cool nor factory value will stick
+
+        var outcome = await Gateway(Live with { PortAvailable = false })
+            .ApplyAsync(WritePlans.FanCurves(Presets.Cool.Curves, "Cool"));
+
+        outcome.Status.Should().Be(WriteStatus.FailedUnrecovered);
+        boostReads.Should().Be(0);
+        _ec.Writes.Should().NotContain(w => w.Register == EcMap.CoolerBoost);
+        _log.Lines.Should().Contain(l => l.Contains("port"));
+    }
+
+    // --- port plans ---
+
+    [Fact]
+    public async Task A_port_plan_whose_watched_registers_cannot_be_read_is_rejected_without_writing()
+    {
+        var gateway = Gateway();
+        // Only the guard reads 0x6A for a charge limit plan.
+        _ec.ReadHook = register => register == 0x6A ? throw new EcAccessException("EC silent") : null;
+
+        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        _ec.Writes.Should().BeEmpty();
+        gateway.IsWriteEnabled.Should().BeTrue();
+        _persistedLocks.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(0xEF, 0x80 | 79, 0x72, 50)] // charge limit + fan speed
+    [InlineData(0x98, 0x82, 0xF2, 0xC1)] // Cooler Boost + performance mode
+    [InlineData(0x98, 0x82, 0xEF, 0x80 | 79)] // both port registers
+    public async Task A_port_register_must_be_the_only_write_in_its_plan(byte first, byte firstValue, byte second, byte secondValue)
+    {
+        var gateway = Gateway();
+
+        var outcome = await gateway.ApplyAsync(Plan(new RegisterWrite(first, firstValue), new RegisterWrite(second, secondValue)));
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        outcome.Message.Should().Contain("tek başına");
+        _ec.Writes.Should().BeEmpty();
+        gateway.IsWriteEnabled.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task A_failed_non_fan_write_locks_without_touching_the_fan_table()
     {
         _ec.StuckRegisters.Add(0xF2);
@@ -271,7 +325,7 @@ public sealed class EcGatewayTests : IDisposable
         var gateway = Gateway();
         _ec.AccessError = new EcAccessException("EC hung");
 
-        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+        var outcome = await gateway.ApplyAsync(WritePlans.Performance(PerformanceMode.Balanced));
 
         outcome.Status.Should().Be(WriteStatus.FailedUnrecovered);
         gateway.IsWriteEnabled.Should().BeFalse();
@@ -319,9 +373,9 @@ public sealed class EcGatewayTests : IDisposable
     {
         _ec.SilentAccesses = 1;
 
-        await Gateway().ApplyAsync(WritePlans.ChargeLimit(79));
+        await Gateway().ApplyAsync(WritePlans.Performance(PerformanceMode.Balanced));
 
-        _log.Lines.Where(l => l.StartsWith("WARN ", StringComparison.Ordinal)).Should().ContainSingle().Which.Should().Contain("0xEF").And.Contain("yeniden");
+        _log.Lines.Where(l => l.StartsWith("WARN ", StringComparison.Ordinal)).Should().ContainSingle().Which.Should().Contain("0xF2").And.Contain("yeniden");
     }
 
     [Fact]
@@ -330,7 +384,7 @@ public sealed class EcGatewayTests : IDisposable
         var gateway = Gateway();
         _ec.SilentAccesses = EcAccessRetry.Default.Delays.Count + 1;
 
-        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+        var outcome = await gateway.ApplyAsync(WritePlans.Performance(PerformanceMode.Balanced));
 
         outcome.Status.Should().NotBe(WriteStatus.Applied);
         gateway.IsWriteEnabled.Should().BeFalse();
@@ -343,7 +397,7 @@ public sealed class EcGatewayTests : IDisposable
         var gateway = new EcGateway(_worker, Live, _log, _persistedLocks.Add, retry);
         _ec.AccessError = new EcAccessException("EC dead");
 
-        var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+        var outcome = await gateway.ApplyAsync(WritePlans.Performance(PerformanceMode.Balanced));
 
         outcome.Status.Should().Be(WriteStatus.FailedUnrecovered);
         _sleeps.Should().Equal(TimeSpan.FromMilliseconds(50), TimeSpan.FromMilliseconds(100));
