@@ -442,6 +442,30 @@ public sealed class AutoReapplierTests : IDisposable
     }
 
     [Fact]
+    public void A_reapply_started_before_dispose_counts_as_running_until_it_ends()
+    {
+        var pending = Hold();
+        var reapplier = Started();
+
+        reapplier.Dispose();
+        var whileWriting = reapplier.IsRunning;
+        pending.SetResult(Outcomes(WriteStatus.Applied));
+
+        whileWriting.Should().BeTrue();
+        reapplier.IsRunning.Should().BeFalse();
+    }
+
+    [Fact]
+    public void A_reapply_that_throws_is_no_longer_running()
+    {
+        Throw(new InvalidOperationException("boom"));
+
+        var reapplier = Started();
+
+        reapplier.IsRunning.Should().BeFalse();
+    }
+
+    [Fact]
     public void Start_after_dispose_does_nothing()
     {
         var reapplier = Reapplier();

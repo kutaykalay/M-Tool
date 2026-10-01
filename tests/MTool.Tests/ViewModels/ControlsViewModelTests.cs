@@ -36,7 +36,7 @@ public sealed class ControlsViewModelTests : IDisposable
     {
         _control.State = _control.State with { FanCurves = Presets.Silent.Curves, Port = new PortState(0x82, 0xBC) };
 
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
 
         _controls.ActiveProfile.Should().Be("Silent");
         _controls.ActivePerformance.Should().Be(PerformanceMode.High);
@@ -51,7 +51,7 @@ public sealed class ControlsViewModelTests : IDisposable
     {
         _control.State = _control.State with { Port = null };
 
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
 
         _controls.CoolerBoostOn.Should().BeNull();
         _controls.ChargeLimitActual.Should().BeNull();
@@ -64,7 +64,7 @@ public sealed class ControlsViewModelTests : IDisposable
     {
         _control.State = _control.State with { Port = new PortState(0x02, 0x64) };
 
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
 
         _controls.ChargeLimitLabel.Should().Be("kapalı");
     }
@@ -74,7 +74,7 @@ public sealed class ControlsViewModelTests : IDisposable
     {
         _control.Access = _control.Access with { PortFeaturesAvailable = false };
 
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
 
         _controls.SetCoolerBoostCommand.CanExecute(true).Should().BeFalse();
         _controls.ApplyChargeLimitCommand.CanExecute(null).Should().BeFalse();
@@ -87,7 +87,7 @@ public sealed class ControlsViewModelTests : IDisposable
     {
         _control.State = _control.State with { Performance = null, PerformanceRaw = 0x80, FanCurves = Tweaked() };
 
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
 
         _controls.ActiveProfile.Should().BeNull();
         _controls.ActiveProfileLabel.Should().Contain("bilinmeyen");
@@ -97,7 +97,7 @@ public sealed class ControlsViewModelTests : IDisposable
     [Fact]
     public async Task Selecting_a_profile_writes_it_and_shows_the_ec_state_after()
     {
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
 
         await _controls.SelectProfileCommand.ExecuteAsync("Cool");
 
@@ -109,7 +109,7 @@ public sealed class ControlsViewModelTests : IDisposable
     [Fact]
     public async Task A_rejected_profile_leaves_the_real_selection()
     {
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
         _control.NextStatus = WriteStatus.Rejected;
 
         await _controls.SelectProfileCommand.ExecuteAsync("Cool");
@@ -123,7 +123,7 @@ public sealed class ControlsViewModelTests : IDisposable
     {
         _control.Access = _control.Access with { WriteMode = WriteMode.Locked, LockReason = "x" };
 
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
 
         _controls.CanWrite.Should().BeFalse();
         _controls.SelectProfileCommand.CanExecute("Cool").Should().BeFalse();
@@ -138,7 +138,7 @@ public sealed class ControlsViewModelTests : IDisposable
     {
         _control.Access = _control.Access with { WriteMode = WriteMode.DryRun };
 
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
 
         _controls.SelectProfileCommand.CanExecute("Cool").Should().BeTrue();
     }
@@ -146,7 +146,7 @@ public sealed class ControlsViewModelTests : IDisposable
     [Fact]
     public async Task Moving_the_charge_slider_does_not_write_until_applied()
     {
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
 
         _controls.ChargeLimitDraft = 60;
         _control.Calls.Should().NotContain(c => c.StartsWith("charge"));
@@ -159,7 +159,7 @@ public sealed class ControlsViewModelTests : IDisposable
     [Fact]
     public async Task Commands_are_disabled_while_a_write_runs()
     {
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
         _control.WriteGate = new TaskCompletionSource();
 
         var running = _controls.SetPerformanceCommand.ExecuteAsync(PerformanceMode.Eco);
@@ -176,7 +176,7 @@ public sealed class ControlsViewModelTests : IDisposable
     [Fact]
     public async Task Cooler_boost_toggles()
     {
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
 
         await _controls.SetCoolerBoostCommand.ExecuteAsync(true);
 
@@ -190,7 +190,7 @@ public sealed class ControlsViewModelTests : IDisposable
         await _service.SelectProfileAsync("Cool");
         _control.State = _control.State with { FanCurves = FactoryDefaults.FanCurves }; // as after a reboot
 
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
         _status.ShowReapply.Should().BeTrue();
 
         await _controls.ReapplyCommand.ExecuteAsync(null);
@@ -204,7 +204,7 @@ public sealed class ControlsViewModelTests : IDisposable
         var failing = new ThrowingStateControl(_control);
         var controls = new ControlsViewModel(_service, failing, ProfileCatalog.BuiltIn, _status);
 
-        await controls.RefreshAsync();
+        await controls.RefreshAsync(PortUse.Allowed);
 
         _status.Message.Should().Contain("okunamadı");
         _status.MessageKind.Should().Be(MessageKind.Warning);
@@ -234,7 +234,7 @@ public sealed class ControlsViewModelTests : IDisposable
     [Fact]
     public async Task A_command_started_while_another_runs_is_ignored()
     {
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
         _control.WriteGate = new TaskCompletionSource();
 
         var first = _controls.SetPerformanceCommand.ExecuteAsync(PerformanceMode.Eco);
@@ -250,12 +250,12 @@ public sealed class ControlsViewModelTests : IDisposable
     public async Task A_refresh_during_a_write_does_not_flash_the_drift_band()
     {
         await _service.SelectProfileAsync("Cool");
-        await _controls.RefreshAsync();
+        await _controls.RefreshAsync(PortUse.Allowed);
         _status.ShowReapply.Should().BeFalse();
         _control.WriteGate = new TaskCompletionSource();
 
         var running = _controls.SelectProfileCommand.ExecuteAsync("Silent");
-        await _controls.RefreshAsync(); // e.g. the window was opened meanwhile
+        await _controls.RefreshAsync(PortUse.Allowed); // e.g. the window was opened meanwhile
         _status.ShowReapply.Should().BeFalse();
 
         _control.WriteGate.SetResult();
@@ -304,5 +304,20 @@ public sealed class ControlsViewModelTests : IDisposable
         public Task<IReadOnlyList<WriteOutcome>> ApplyDesiredAsync(
             DesiredState desired, ProfileCatalog catalog, CancellationToken cancellationToken = default) =>
             inner.ApplyDesiredAsync(desired, catalog, cancellationToken);
+    }
+
+    [Fact]
+    public async Task A_slow_older_refresh_does_not_overwrite_a_newer_one()
+    {
+        var slowRead = new TaskCompletionSource();
+        _control.NextReadGate = slowRead;
+        var older = _controls.RefreshAsync(PortUse.Allowed);
+        _control.State = _control.State with { FanCurves = Presets.Silent.Curves };
+
+        await _controls.RefreshAsync(PortUse.None);
+        slowRead.SetResult();
+        await older;
+
+        _controls.ActiveProfile.Should().Be("Silent");
     }
 }

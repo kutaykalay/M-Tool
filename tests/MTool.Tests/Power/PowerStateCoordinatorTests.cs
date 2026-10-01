@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Time.Testing;
 using MTool.Core.Ec;
 using MTool.Core.Power;
 using MTool.Tests.Fakes;
@@ -11,15 +12,31 @@ public class PowerStateCoordinatorTests
     [Fact]
     public void Access_is_allowed_while_running()
     {
-        var coordinator = new PowerStateCoordinator(new ManualTime(), ResumeDelay);
+        var coordinator = new PowerStateCoordinator(new FakeTimeProvider(), ResumeDelay);
 
+        coordinator.IsEcAccessAllowed.Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_wall_clock_step_does_not_open_the_gate_early()
+    {
+        var time = new SteppedWallClock();
+        var coordinator = new PowerStateCoordinator(time, ResumeDelay);
+        coordinator.OnSuspend();
+        coordinator.OnResume();
+
+        time.WallClockStep = TimeSpan.FromHours(1);
+        var afterStep = coordinator.IsEcAccessAllowed;
+        time.Advance(ResumeDelay);
+
+        afterStep.Should().BeFalse();
         coordinator.IsEcAccessAllowed.Should().BeTrue();
     }
 
     [Fact]
     public void Access_stops_on_suspend()
     {
-        var coordinator = new PowerStateCoordinator(new ManualTime(), ResumeDelay);
+        var coordinator = new PowerStateCoordinator(new FakeTimeProvider(), ResumeDelay);
 
         coordinator.OnSuspend();
 
@@ -29,7 +46,7 @@ public class PowerStateCoordinatorTests
     [Fact]
     public void Access_resumes_only_after_the_settle_delay()
     {
-        var time = new ManualTime();
+        var time = new FakeTimeProvider();
         var coordinator = new PowerStateCoordinator(time, ResumeDelay);
         coordinator.OnSuspend();
 
@@ -45,7 +62,7 @@ public class PowerStateCoordinatorTests
     [Fact]
     public void A_second_suspend_during_the_settle_delay_blocks_again()
     {
-        var time = new ManualTime();
+        var time = new FakeTimeProvider();
         var coordinator = new PowerStateCoordinator(time, ResumeDelay);
         coordinator.OnSuspend();
         coordinator.OnResume();
@@ -59,7 +76,7 @@ public class PowerStateCoordinatorTests
     [Fact]
     public async Task Worker_refuses_ec_access_while_suspended()
     {
-        var coordinator = new PowerStateCoordinator(new ManualTime(), ResumeDelay);
+        var coordinator = new PowerStateCoordinator(new FakeTimeProvider(), ResumeDelay);
         var ran = false;
         using var worker = new EcWorker(
             new FakeEcRegisters(), new FakeEcLock(), TimeSpan.FromMilliseconds(50),
@@ -72,12 +89,19 @@ public class PowerStateCoordinatorTests
         ran.Should().BeFalse();
     }
 
-    private sealed class ManualTime : TimeProvider
+    /// <summary>Monotonic time from a fake; the wall clock can jump on its own, as after a time sync.</summary>
+    private sealed class SteppedWallClock : TimeProvider
     {
-        private DateTimeOffset _now = new(2026, 9, 30, 12, 0, 0, TimeSpan.Zero);
+        private readonly FakeTimeProvider _monotonic = new();
 
-        public override DateTimeOffset GetUtcNow() => _now;
+        public TimeSpan WallClockStep { get; set; }
 
-        public void Advance(TimeSpan by) => _now += by;
+        public override DateTimeOffset GetUtcNow() => _monotonic.GetUtcNow() + WallClockStep;
+
+        public override long GetTimestamp() => _monotonic.GetTimestamp();
+
+        public override long TimestampFrequency => _monotonic.TimestampFrequency;
+
+        public void Advance(TimeSpan by) => _monotonic.Advance(by);
     }
 }

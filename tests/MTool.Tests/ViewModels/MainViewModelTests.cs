@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Time.Testing;
 using MTool.App.ViewModels;
 using MTool.Core.Device;
+using MTool.Core.Ec;
+using MTool.Core.Power;
 using MTool.Core.Profiles;
 using MTool.Core.Sensors;
 using MTool.Core.Settings;
@@ -91,13 +93,134 @@ public sealed class MainViewModelTests : IDisposable
     public async Task The_tooltip_does_not_claim_a_profile_the_ec_does_not_hold()
     {
         _control.Access = _control.Access with { WriteMode = WriteMode.DryRun };
-        _control.NextStatus = MTool.Core.Ec.WriteStatus.DryRun;
+        _control.NextStatus = WriteStatus.DryRun;
         await _main.InitializeAsync([]);
 
         await _main.Controls.SelectProfileCommand.ExecuteAsync("Silent");
 
         _main.TrayTooltip.Should().Contain("Default").And.NotContain("Silent");
     }
+
+    // --- start-up and automatic reapplying ---
+
+    [Fact]
+    public async Task Initialize_does_not_read_the_port()
+    {
+        await _main.InitializeAsync([]);
+
+        _control.StateReadPortUses.Should().Equal(PortUse.None);
+    }
+
+    [Fact]
+    public async Task Showing_the_window_reads_the_port()
+    {
+        await _main.InitializeAsync([]);
+
+        await _main.OnWindowShownAsync();
+
+        _control.StateReadPortUses.Should().Equal(PortUse.None, PortUse.Allowed);
+    }
+
+    [Theory]
+    [InlineData(WriteStatus.Applied)]
+    [InlineData(WriteStatus.DryRun)]
+    public async Task A_successful_automatic_reapply_refreshes_quietly_without_the_port(WriteStatus status)
+    {
+        await _main.InitializeAsync([]);
+        _control.State = _control.State with { FanCurves = Presets.Cool.Curves };
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Resume, status));
+
+        _main.Controls.ActiveProfile.Should().Be("Cool");
+        _main.TrayTooltip.Should().Contain("Cool");
+        _main.Status.Message.Should().BeNull();
+        _notifier.Errors.Should().BeEmpty();
+        _control.StateReadPortUses.Should().OnlyContain(p => p == PortUse.None);
+    }
+
+    [Fact]
+    public async Task A_rejected_automatic_reapply_shows_a_warning_without_a_balloon()
+    {
+        await _main.InitializeAsync([]);
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Startup, WriteStatus.Applied, WriteStatus.Rejected));
+
+        _main.Status.MessageKind.Should().Be(MessageKind.Warning);
+        _main.Status.Message.Should().Contain("Otomatik yeniden uygulama").And.Contain(nameof(WriteStatus.Rejected));
+        _notifier.Errors.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(WriteStatus.FailedRecovered)]
+    [InlineData(WriteStatus.FailedUnrecovered)]
+    public async Task A_failed_automatic_reapply_shows_an_error_and_a_balloon(WriteStatus status)
+    {
+        await _main.InitializeAsync([]);
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Resume, status));
+
+        _main.Status.MessageKind.Should().Be(MessageKind.Error);
+        _main.Status.Message.Should().Contain("Otomatik yeniden uygulama");
+        _notifier.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task An_automatic_reapply_with_nothing_to_do_shows_nothing()
+    {
+        await _main.InitializeAsync([]);
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Startup));
+
+        _main.Status.Message.Should().BeNull();
+        _notifier.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task A_later_success_clears_an_earlier_automatic_warning()
+    {
+        await _main.InitializeAsync([]);
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Startup, WriteStatus.Rejected));
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Retry, WriteStatus.Applied));
+
+        _main.Status.Message.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task A_successful_automatic_reapply_keeps_other_messages()
+    {
+        await _main.InitializeAsync(["settings.json okunamadı"]);
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Startup, WriteStatus.Applied));
+
+        _main.Status.Message.Should().Contain("settings.json okunamadı");
+    }
+
+    [Fact]
+    public async Task A_later_success_clears_an_earlier_automatic_error()
+    {
+        await _main.InitializeAsync([]);
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Resume, WriteStatus.FailedRecovered));
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Resume, WriteStatus.Applied));
+
+        _main.Status.Message.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task A_success_keeps_a_newer_message_that_replaced_the_automatic_one()
+    {
+        await _main.InitializeAsync([]);
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Startup, WriteStatus.Rejected));
+        _main.Status.ShowWarning("başka bir uyarı");
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Retry, WriteStatus.Applied));
+
+        _main.Status.Message.Should().Be("başka bir uyarı");
+    }
+
+    private static AutoReapplyResult Result(ReapplyTrigger trigger, params WriteStatus[] statuses) =>
+        new(trigger, [.. statuses.Select(s => new WriteOutcome(s, [], s.ToString()))]);
 
     [Fact]
     public void Intervals_match_the_plan()

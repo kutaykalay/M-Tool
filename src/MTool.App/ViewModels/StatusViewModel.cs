@@ -78,6 +78,15 @@ public sealed partial class StatusViewModel(INotifier notifier) : ObservableObje
 
     public void ShowWarning(string text) => (Message, MessageKind) = (text, MessageKind.Warning);
 
+    /// <summary>Clears the message only if it is still this one; a newer message stays.</summary>
+    public void ClearMessage(string ifShowing)
+    {
+        if (Message == ifShowing)
+        {
+            (Message, MessageKind) = (null, MessageKind.None);
+        }
+    }
+
     private static string DriftParts(StateDrift drift) => string.Join(", ", new[]
     {
         drift.FanTable ? "fan tablosu" : null,

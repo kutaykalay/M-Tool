@@ -37,11 +37,21 @@ internal sealed class FakeP65Control : IP65Control
     /// <summary>The <see cref="PortUse"/> of every state read, in order.</summary>
     public ConcurrentQueue<PortUse> StateReadPortUses { get; } = new();
 
-    public Task<ControlState> ReadControlStateAsync(PortUse portUse, CancellationToken cancellationToken = default)
+    /// <summary>When set, the next state read returns the state of its start only once this completes.</summary>
+    public TaskCompletionSource? NextReadGate { get; set; }
+
+    public async Task<ControlState> ReadControlStateAsync(PortUse portUse, CancellationToken cancellationToken = default)
     {
         Calls.Enqueue("read state");
         StateReadPortUses.Enqueue(portUse);
-        return Task.FromResult(State);
+        var state = State;
+        if (NextReadGate is { } gate)
+        {
+            NextReadGate = null;
+            await gate.Task;
+        }
+
+        return state;
     }
 
     public Task<WriteOutcome> ApplyFanProfileAsync(FanProfile profile, CancellationToken cancellationToken = default) =>

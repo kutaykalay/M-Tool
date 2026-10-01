@@ -47,8 +47,9 @@ internal sealed class EcSession : IDisposable
     /// <summary>Derived from the port the router was given, so the gateway's policy cannot disagree with it.</summary>
     public bool PortAvailable => Controller is not null;
 
+    /// <param name="accessGate">When it returns false, EC operations fail without touching the EC (sleep/resume).</param>
     /// <exception cref="EcAccessException">PawnIO (Hybrid) or WMI1 is missing or does not answer.</exception>
-    public static EcSession Open(IAppLog log, EcBackends backend)
+    public static EcSession Open(IAppLog log, EcBackends backend, Func<bool>? accessGate = null)
     {
         if (backend == EcBackends.Hybrid && PawnIoInstallation.InstalledVersion() is null)
         {
@@ -70,7 +71,7 @@ internal sealed class EcSession : IDisposable
             }
 
             var registers = RoutedEcRegisters.Create(wmi, controller);
-            var worker = new EcWorker(registers, ecLock, LockTimeout, (message, ex) => log.Error(message, ex));
+            var worker = new EcWorker(registers, ecLock, LockTimeout, (message, ex) => log.Error(message, ex), accessGate);
             log.Info($"EC oturumu: {backend}");
             return new EcSession(ports, ecLock, controller, worker, log, troubleLog);
         }

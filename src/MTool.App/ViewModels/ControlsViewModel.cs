@@ -20,6 +20,7 @@ public sealed partial class ControlsViewModel : ObservableObject
     private readonly StatusViewModel _status;
     private byte _performanceRaw;
     private bool _portStateKnown;
+    private int _refreshes;
 
     public ControlsViewModel(ProfileService service, IP65Control control, ProfileCatalog catalog, StatusViewModel status)
     {
@@ -93,10 +94,16 @@ public sealed partial class ControlsViewModel : ObservableObject
     /// Reads the EC and updates every control and the access band. The drift band is left alone
     /// while a command runs: the EC is between states then, and the command refreshes it when done.
     /// </summary>
-    public Task RefreshAsync() => RefreshAsync(updateDrift: !IsBusy);
+    /// <param name="portUse">
+    /// <see cref="PortUse.None"/> at start-up and after an automatic reapply: Cooler Boost and the
+    /// charge limit then come from the cache, or stay unknown until the window is opened.
+    /// </param>
+    public Task RefreshAsync(PortUse portUse) => RefreshAsync(updateDrift: !IsBusy, portUse);
 
-    private async Task RefreshAsync(bool updateDrift)
+    private async Task RefreshAsync(bool updateDrift, PortUse portUse)
     {
+        // Refreshes can overlap (window shown, command done, automatic reapply); only the newest is shown.
+        var refresh = ++_refreshes;
         var access = _control.Access;
         WriteMode = access.WriteMode;
         PortFeaturesAvailable = access.PortFeaturesAvailable;
@@ -105,7 +112,7 @@ public sealed partial class ControlsViewModel : ObservableObject
         ControlState state;
         try
         {
-            state = await _control.ReadControlStateAsync(PortUse.Allowed);
+            state = await _control.ReadControlStateAsync(portUse);
         }
         catch (Exception ex)
         {
@@ -115,6 +122,11 @@ public sealed partial class ControlsViewModel : ObservableObject
                 _status.ShowWarning($"EC durumu okunamadı, gösterilen değerler eski olabilir: {ex.Message}");
             }
 
+            return;
+        }
+
+        if (refresh != _refreshes)
+        {
             return;
         }
 
@@ -156,7 +168,7 @@ public sealed partial class ControlsViewModel : ObservableObject
         try
         {
             _status.Report(await command());
-            await RefreshAsync(updateDrift: true);
+            await RefreshAsync(updateDrift: true, PortUse.Allowed);
         }
         finally
         {

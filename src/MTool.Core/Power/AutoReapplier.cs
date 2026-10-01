@@ -27,6 +27,7 @@ public sealed class AutoReapplier(
     private readonly Lock _sync = new();
     private ITimer? _waiting;
     private long _generation;
+    private int _running;
     private bool _started;
     private bool _disposed;
 
@@ -35,6 +36,21 @@ public sealed class AutoReapplier(
     /// sleep or wake is still reported (it did write), so its result may arrive just before a newer one.
     /// </summary>
     public event Action<AutoReapplyResult>? Reapplied;
+
+    /// <summary>
+    /// True while a reapply that started before <see cref="Dispose"/> is still running. After
+    /// Dispose no new one starts, so shutdown can wait for this before closing the EC session.
+    /// </summary>
+    public bool IsRunning
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _running > 0;
+            }
+        }
+    }
 
     /// <summary>Subscribes to power events and reapplies once now. Later calls do nothing.</summary>
     public void Start()
@@ -121,23 +137,38 @@ public sealed class AutoReapplier(
     /// <summary>Fire and forget: <see cref="RunAsync"/> catches everything itself.</summary>
     private void OnTimer(ReapplyTrigger trigger, long generation) => _ = RunAsync(trigger, generation);
 
-    private bool IsCurrent(long generation)
+    /// <summary>Counts the run in under the same lock Dispose takes, so Dispose never misses one.</summary>
+    private bool TryEnter(long generation)
     {
         lock (_sync)
         {
-            return !_disposed && generation == _generation;
+            if (_disposed || generation != _generation)
+            {
+                return false;
+            }
+
+            _running++;
+            return true;
+        }
+    }
+
+    private void Exit()
+    {
+        lock (_sync)
+        {
+            _running--;
         }
     }
 
     private async Task RunAsync(ReapplyTrigger trigger, long generation)
     {
+        if (!TryEnter(generation))
+        {
+            return;
+        }
+
         try
         {
-            if (!IsCurrent(generation))
-            {
-                return;
-            }
-
             // The timer runs on the monotonic clock and the gate on the wall clock; a clock step after
             // wake can leave the gate shut for a moment, so a closed gate is retried, not dropped.
             if (!coordinator.IsEcAccessAllowed)
@@ -158,6 +189,10 @@ public sealed class AutoReapplier(
         catch (Exception ex)
         {
             Guarded("hata kaydı", () => log.Error($"Otomatik yeniden uygulama ({trigger}) hata verdi", ex));
+        }
+        finally
+        {
+            Exit();
         }
     }
 

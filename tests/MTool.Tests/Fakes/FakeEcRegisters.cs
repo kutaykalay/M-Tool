@@ -27,6 +27,9 @@ internal sealed class FakeEcRegisters : IEcWritableRegisters
     /// <summary>The next this many accesses fail with <see cref="EcAccessException"/> (a silent EC period).</summary>
     public int SilentAccesses { get; set; }
 
+    /// <summary>Every read or write that reached this EC, including failed ones.</summary>
+    public int Accesses { get; private set; }
+
     public byte this[byte register]
     {
         get => _memory[register];
@@ -65,6 +68,7 @@ internal sealed class FakeEcRegisters : IEcWritableRegisters
 
     private void ThrowIfUnreachable()
     {
+        Accesses++;
         if (AccessError is { } error)
         {
             throw error;
