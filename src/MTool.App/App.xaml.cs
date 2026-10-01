@@ -6,8 +6,9 @@ using MTool.App.Startup;
 namespace MTool.App;
 
 /// <summary>
-/// With arguments: command-line mode, unchanged. Without: the tray app, one per
-/// session. Unhandled errors are logged and never write to the EC.
+/// Without arguments: the tray app with its window, one per session. With <c>--tray</c>: the same
+/// app with the icon only (sign-in task). Any other arguments: command-line mode. Unhandled errors
+/// are logged and never write to the EC.
 /// </summary>
 public partial class App : Application
 {
@@ -19,16 +20,17 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        if (CliRunner.IsCliInvocation(e.Args))
+        var mode = StartupArgs.Parse(e.Args);
+        if (mode == StartupMode.CommandLine)
         {
             Shutdown(CliRunner.Run(e.Args));
             return;
         }
 
-        _instance = SingleInstance.TryAcquire();
+        _instance = SingleInstance.TryAcquire(askToShow: mode == StartupMode.Window);
         if (_instance is null)
         {
-            Shutdown(0); // The running instance was asked to show its window.
+            Shutdown(0); // A GUI already runs; for a plain start it was asked to show its window.
             return;
         }
 
@@ -51,7 +53,14 @@ public partial class App : Application
         }
 
         _instance.ListenForShowRequests(() => Dispatcher.BeginInvoke(() => _gui?.Window.ShowNearTray()));
-        _gui.Window.ShowNearTray();
+        if (mode == StartupMode.Window)
+        {
+            _gui.Window.ShowNearTray();
+        }
+        else
+        {
+            _log.Info("Tepside gizli başladı (--tray); pencere açılana kadar port okunmaz.");
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)

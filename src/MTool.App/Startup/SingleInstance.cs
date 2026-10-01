@@ -3,7 +3,8 @@ using System.Threading;
 namespace MTool.App.Startup;
 
 /// <summary>
-/// One GUI per user session. A second start asks the first to show its window and exits.
+/// One GUI per user session. A second start exits; a plain one first asks the running GUI to show
+/// its window, a <c>--tray</c> one (the sign-in task meeting a GUI already open) does not.
 /// The CLI does not take this lock: it is the recovery path and must work while the GUI runs.
 /// </summary>
 internal sealed class SingleInstance : IDisposable
@@ -17,8 +18,8 @@ internal sealed class SingleInstance : IDisposable
 
     private SingleInstance(Mutex mutex, EventWaitHandle showRequested) => (_mutex, _showRequested) = (mutex, showRequested);
 
-    /// <summary>The lock, or null after signalling the running instance to show itself.</summary>
-    public static SingleInstance? TryAcquire()
+    /// <summary>The lock, or null when a GUI already runs (signalled to show itself if <paramref name="askToShow"/>).</summary>
+    public static SingleInstance? TryAcquire(bool askToShow)
     {
         // The event exists before the mutex, so a second start can always signal the first.
         var showRequested = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
@@ -31,7 +32,10 @@ internal sealed class SingleInstance : IDisposable
         mutex.Dispose();
         using (showRequested)
         {
-            showRequested.Set();
+            if (askToShow)
+            {
+                showRequested.Set();
+            }
         }
 
         return null;

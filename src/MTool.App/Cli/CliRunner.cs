@@ -1,6 +1,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using MTool.App.Hardware;
+using MTool.App.Startup;
 using MTool.Core.Ec;
 using MTool.Core.Settings;
 
@@ -19,8 +20,6 @@ internal static class CliRunner
     private const int ExitWriteFailed = 4;
     private const int AttachParentProcess = -1;
     private static readonly TimeSpan CommandTimeout = TimeSpan.FromSeconds(30);
-
-    public static bool IsCliInvocation(string[] args) => args.Length > 0;
 
     public static int Run(string[] args)
     {
@@ -49,7 +48,7 @@ internal static class CliRunner
                 return Apply(log, apply!, confirm);
             }
 
-            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}{WatchCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
+            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe [{StartupArgs.Tray}]   (GUI; --tray ile yalnızca tepside){Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}{WatchCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
             return ExitUsage;
         }
         catch (Exception ex)

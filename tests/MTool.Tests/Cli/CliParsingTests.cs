@@ -1,4 +1,5 @@
 using MTool.App.Cli;
+using MTool.App.Startup;
 using MTool.Core.Device;
 using MTool.Core.Ec;
 
@@ -69,5 +70,32 @@ public class CliParsingTests
         {
             parsed.Should().Be(seconds);
         }
+    }
+
+    // --- start-up mode ---
+
+    [Fact]
+    public void No_arguments_open_the_window()
+    {
+        StartupArgs.Parse([]).Should().Be(StartupMode.Window);
+    }
+
+    [Fact]
+    public void Tray_starts_hidden_in_the_tray()
+    {
+        StartupArgs.Parse(["--tray"]).Should().Be(StartupMode.TrayOnly);
+    }
+
+    [Theory]
+    [InlineData("--dump")]
+    [InlineData("--tray", "--dump")]
+    [InlineData("--dump", "--tray")]
+    [InlineData("--tray", "--tray")]
+    [InlineData("")]
+    [InlineData("--TRAY")]
+    [InlineData("tray")]
+    public void Anything_else_is_the_command_line(params string[] args)
+    {
+        StartupArgs.Parse(args).Should().Be(StartupMode.CommandLine);
     }
 }
