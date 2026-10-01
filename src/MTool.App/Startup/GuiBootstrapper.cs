@@ -135,7 +135,10 @@ internal sealed class GuiBootstrapper : IDisposable
         });
 
         await viewModel.InitializeAsync(warnings);
-        tray.Attach(viewModel); // Only now does the icon appear.
+        var signInStart = new SignInStartViewModel(
+            new StartupTask(), CurrentExe, Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), viewModel.Status, log);
+        tray.Attach(viewModel, signInStart); // Only now does the icon appear.
+        _ = signInStart.LoadAsync(); // Off the UI thread; the menu item stays disabled until it answers.
 
         // After Attach, so a failure balloon has a visible icon and the start-up refresh is done.
         reapplier.Start();
@@ -183,6 +186,9 @@ internal sealed class GuiBootstrapper : IDisposable
 
         return (sanitized.Settings, warnings);
     }
+
+    private static string CurrentExe =>
+        Environment.ProcessPath ?? throw new InvalidOperationException("Çalışan exe'nin yolu bulunamadı.");
 
     private static string AppVersion =>
         typeof(GuiBootstrapper).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "sürüm yok";

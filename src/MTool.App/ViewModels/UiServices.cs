@@ -19,3 +19,14 @@ public enum MessageKind
     Warning,
     Error,
 }
+
+/// <summary>The sign-in task Windows keeps for M-Tool; the task itself is the source of truth.</summary>
+public interface IStartupTask
+{
+    /// <summary>The exe the task starts; "" if it starts none; null when there is no task.</summary>
+    string? QueryRegisteredExe();
+
+    void Enable(string exePath);
+
+    void Disable();
+}

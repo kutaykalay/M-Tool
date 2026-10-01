@@ -78,6 +78,12 @@ public sealed partial class StatusViewModel(INotifier notifier) : ObservableObje
 
     public void ShowWarning(string text) => (Message, MessageKind) = (text, MessageKind.Warning);
 
+    /// <summary>Adds to the message instead of replacing it; an error stays an error.</summary>
+    public void AddWarning(string text) =>
+        (Message, MessageKind) = Message is null
+            ? (text, MessageKind.Warning)
+            : ($"{Message} {text}", MessageKind == MessageKind.Error ? MessageKind.Error : MessageKind.Warning);
+
     /// <summary>Clears the message only if it is still this one; a newer message stays.</summary>
     public void ClearMessage(string ifShowing)
     {

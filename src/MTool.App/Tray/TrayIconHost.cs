@@ -23,6 +23,7 @@ internal sealed class TrayIconHost : INotifier, IDisposable
     private readonly Action _showWindow;
     private readonly Action _exit;
     private MainViewModel? _viewModel;
+    private SignInStartViewModel? _signInStart;
 
     public TrayIconHost(ThemeManager theme, Action toggleWindow, Action showWindow, Action exit)
     {
@@ -47,9 +48,10 @@ internal sealed class TrayIconHost : INotifier, IDisposable
         _theme.Changed += OnThemeChanged;
     }
 
-    public void Attach(MainViewModel viewModel)
+    public void Attach(MainViewModel viewModel, SignInStartViewModel signInStart)
     {
         _viewModel = viewModel;
+        _signInStart = signInStart;
         viewModel.PropertyChanged += OnViewModelChanged;
         _icon.Text = viewModel.TrayTooltip;
         _icon.Visible = true;
@@ -107,6 +109,12 @@ internal sealed class TrayIconHost : INotifier, IDisposable
             () => Run(controls.SetCoolerBoostCommand, controls.CoolerBoostOn != true)));
         _menu.Items.Add(PerformanceMenu(controls));
         _menu.Items.Add(new ToolStripSeparator());
+        if (_signInStart is { } signInStart)
+        {
+            _menu.Items.Add(Item("Oturum açılışında başlat", signInStart.IsEnabled, signInStart.ToggleCommand.CanExecute(null),
+                () => Run(signInStart.ToggleCommand, null)));
+        }
+
         _menu.Items.Add(Item("Pencereyi aç", isChecked: false, enabled: true, _showWindow));
         _menu.Items.Add(Item("Çıkış", isChecked: false, enabled: true, _exit));
         e.Cancel = false;
@@ -125,7 +133,7 @@ internal sealed class TrayIconHost : INotifier, IDisposable
     }
 
     /// <summary>The menu was built when it opened; the state may have changed since (a write started, writes locked).</summary>
-    private static void Run(System.Windows.Input.ICommand command, object parameter)
+    private static void Run(System.Windows.Input.ICommand command, object? parameter)
     {
         if (command.CanExecute(parameter))
         {
