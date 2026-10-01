@@ -18,7 +18,9 @@ public sealed class ControlsViewModelTests : IDisposable
 
     public ControlsViewModelTests()
     {
-        _service = new ProfileService(_control, ProfileCatalog.BuiltIn, new SettingsStore(_folder), AppSettings.Default, new ListLog());
+        // No performance or charge choice: the drift band then follows the fan table alone.
+        var noChoices = AppSettings.Default with { Desired = new DesiredState(DesiredState.DefaultProfileName) };
+        _service = new ProfileService(_control, ProfileCatalog.BuiltIn, new SettingsStore(_folder), noChoices, new ListLog());
         _status = new StatusViewModel(_notifier);
         _controls = new ControlsViewModel(_service, _control, ProfileCatalog.BuiltIn, _status);
     }

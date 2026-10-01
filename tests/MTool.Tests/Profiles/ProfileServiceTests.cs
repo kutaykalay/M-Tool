@@ -127,7 +127,7 @@ public sealed class ProfileServiceTests : IDisposable
         _control.Calls.Should().Equal("fan Cool", "performance Balanced");
         _control.MaxWritesRunning.Should().Be(1);
         service.IsBusy.Should().BeFalse();
-        service.Desired.Should().Be(new DesiredState("Cool", PerformanceMode.Balanced));
+        service.Desired.Should().Be(DesiredState.Default with { FanProfile = "Cool", Performance = PerformanceMode.Balanced });
     }
 
     [Fact]
@@ -175,7 +175,7 @@ public sealed class ProfileServiceTests : IDisposable
         _control.WriteGate.SetResult();
         await Task.WhenAll(command, reapply);
 
-        _control.Calls.Should().HaveCount(2).And.HaveElementAt(1, $"desired {new DesiredState("Cool")}");
+        _control.Calls.Should().HaveCount(2).And.HaveElementAt(1, $"desired {(DesiredState.Default with { FanProfile = "Cool" }).WithoutPortParts()}");
         _control.MaxWritesRunning.Should().Be(1);
         service.IsBusy.Should().BeFalse();
     }
@@ -225,7 +225,8 @@ public sealed class ProfileServiceTests : IDisposable
 
         await service.ReapplyAsync(PortUse.Allowed);
 
-        service.Desired.Should().Be(DesiredState.Default);
-        _control.Calls.Should().Equal($"desired {DesiredState.Default}");
+        var dropped = new DesiredState("Default");
+        service.Desired.Should().Be(dropped);
+        _control.Calls.Should().Equal($"desired {dropped}");
     }
 }

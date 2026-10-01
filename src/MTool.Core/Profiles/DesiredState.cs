@@ -16,7 +16,14 @@ public sealed record DesiredState(
 {
     public const string DefaultProfileName = "Default";
 
-    public static DesiredState Default { get; } = new();
+    public const int FullChargePercent = 100;
+
+    /// <summary>
+    /// First run (no settings.json, or no desired state in it). A saved choice, even an explicit
+    /// null, always wins over these.
+    /// </summary>
+    public static DesiredState Default { get; } = new(
+        DefaultProfileName, PerformanceMode.Balanced, ChargeLimitPercent: FullChargePercent);
 
     /// <summary>
     /// Fan table first: it is the part that keeps the laptop cool if a later write fails. The charge

@@ -16,9 +16,23 @@ public class DesiredStateTests
         Port: new PortState(CoolerBoostRaw: 0x02, ChargeLimitRaw: 0xD0));
 
     [Fact]
-    public void Default_wants_only_the_default_fan_table()
+    public void First_run_default_is_default_fan_table_balanced_and_full_charge()
     {
         var plans = DesiredState.Default.ToPlans(Catalog);
+
+        plans.Should().BeEquivalentTo(
+            [
+                WritePlans.FanCurves(FactoryDefaults.FanCurves, "Default"),
+                WritePlans.Performance(PerformanceMode.Balanced),
+                WritePlans.ChargeLimit(100),
+            ],
+            options => options.WithStrictOrdering());
+    }
+
+    [Fact]
+    public void A_state_without_choices_wants_only_its_fan_table()
+    {
+        var plans = new DesiredState("Default").ToPlans(Catalog);
 
         plans.Should().ContainSingle().Which.Should().BeEquivalentTo(WritePlans.FanCurves(FactoryDefaults.FanCurves, "Default"));
     }
@@ -103,7 +117,7 @@ public class DesiredStateTests
     [Fact]
     public void An_unknown_port_state_is_no_drift_when_no_charge_limit_is_wanted()
     {
-        DesiredState.Default.DriftFrom(FactoryState with { Port = null }, Catalog).Any.Should().BeFalse();
+        new DesiredState("Default").DriftFrom(FactoryState with { Port = null }, Catalog).Any.Should().BeFalse();
     }
 
     [Fact]

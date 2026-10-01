@@ -108,6 +108,26 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void Missing_file_wants_default_fan_table_balanced_and_full_charge()
+    {
+        var desired = new SettingsStore(_folder).Load().Settings.Desired;
+
+        desired.Should().Be(new DesiredState("Default", PerformanceMode.Balanced, ChargeLimitPercent: 100));
+    }
+
+    [Fact]
+    public void Saved_choices_win_over_first_run_defaults()
+    {
+        File.WriteAllText(
+            SettingsPath,
+            """{ "desired": { "fanProfile": "Silent", "performance": null, "chargeLimitPercent": 60 } }""");
+
+        var desired = new SettingsStore(_folder).Load().Settings.Desired;
+
+        desired.Should().Be(new DesiredState("Silent", Performance: null, ChargeLimitPercent: 60));
+    }
+
+    [Fact]
     public void Desired_state_cannot_be_set_to_null()
     {
         (AppSettings.Default with { Desired = null! }).Desired.Should().Be(DesiredState.Default);
