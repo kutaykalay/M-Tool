@@ -122,9 +122,17 @@ public class EcWorkerTests
     public async Task Dispose_fails_work_that_has_not_started()
     {
         using var gate = new ManualResetEventSlim();
+        using var started = new ManualResetEventSlim();
         var worker = new EcWorker(new FakeEcRegisters(), new FakeEcLock(), LockTimeout);
-        var running = worker.RunAsync(_ => gate.Wait(TimeSpan.FromSeconds(5)));
+        var running = worker.RunAsync(_ =>
+        {
+            started.Set();
+            return gate.Wait(TimeSpan.FromSeconds(5));
+        });
         var pending = worker.RunAsync(_ => 2);
+
+        // Dispose before the first operation began would fail it too, as work not yet started.
+        started.Wait(TimeSpan.FromSeconds(5)).Should().BeTrue();
 
         // Open the gate only once Dispose is blocked in Join, i.e. after it marked the worker
         // disposed; a fixed delay was flaky when the thread pool was busy with other tests.
