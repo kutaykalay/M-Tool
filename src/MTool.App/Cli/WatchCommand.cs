@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.Text;
 using MTool.App.Hardware;
+using MTool.App.Services;
 using MTool.Core.Device;
 using MTool.Core.Ec;
+using MTool.Core.Power;
 
 namespace MTool.App.Cli;
 
@@ -11,8 +13,10 @@ namespace MTool.App.Cli;
 /// used). Polls the performance mode, the fan mode and both fan tables every
 /// <see cref="PollInterval"/> and records only the bytes that change, with their time: the tool to
 /// see whether a mode write elsewhere disturbs a table. Never writes to the EC. Each register is
-/// its own EC operation, so the Access_EC lock is released between reads. Ctrl+C stops early, and
-/// the report is saved however the watch ends.
+/// its own EC operation, so the Access_EC lock is released between reads. Like the GUI, it does not
+/// touch the EC from sleep until <see cref="AutoReapplyOptions.GateDelay"/> after wake; that pause is
+/// recorded once, not counted as unreadable. Ctrl+C stops early, and the report is saved however the
+/// watch ends.
 /// </summary>
 internal static class WatchCommand
 {
@@ -64,7 +68,11 @@ internal static class WatchCommand
 
     private static void Watch(FileLog log, int seconds, StringBuilder report, Stopwatch clock, CancellationToken stop)
     {
-        using var session = EcSession.Open(log, EcBackends.WmiOnly);
+        var gate = new PowerStateCoordinator(TimeProvider.System, AutoReapplyOptions.Default.GateDelay);
+        // Built off this STA thread, which blocks below: SystemEvents then pumps on a thread of its own.
+        using var powerEvents = Task.Run(() => new SystemPowerEvents(log)).GetAwaiter().GetResult();
+        using var following = gate.Follow(powerEvents);
+        using var session = EcSession.Open(log, EcBackends.WmiOnly, () => gate.IsEcAccessAllowed);
 
         void Line(string text)
         {
@@ -78,12 +86,19 @@ internal static class WatchCommand
         byte[]? previous = null;
         var samples = 0;
         var failures = 0;
+        var paused = false;
         while (clock.Elapsed < TimeSpan.FromSeconds(seconds) && !stop.IsCancellationRequested)
         {
             try
             {
                 var current = Registers.Select(r => CliRunner.Wait(session.Worker.RunAsync(ec => ec.Read(r)))).ToArray();
                 samples++;
+                if (paused)
+                {
+                    Line("Sürdü: EC'ye yeniden erişiliyor.");
+                    paused = false;
+                }
+
                 if (previous is null)
                 {
                     Line($"İlk durum: {Describe(current, _ => true)}");
@@ -94,6 +109,14 @@ internal static class WatchCommand
                 }
 
                 previous = current;
+            }
+            catch (EcAccessException ex) when (ex.IsAccessPaused)
+            {
+                if (!paused)
+                {
+                    Line($"Duraklatıldı: {ex.Message}");
+                    paused = true;
+                }
             }
             catch (EcAccessException ex)
             {

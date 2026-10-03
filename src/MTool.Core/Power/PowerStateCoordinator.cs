@@ -41,4 +41,25 @@ public sealed class PowerStateCoordinator(TimeProvider time, TimeSpan resumeDela
             _resumedAt = time.GetTimestamp();
         }
     }
+
+    /// <summary>
+    /// Feeds <paramref name="events"/> straight into the gate until disposed. For a reader with no
+    /// reapply to schedule (<c>--watch</c>); the GUI's <see cref="AutoReapplier"/> drives the gate itself.
+    /// </summary>
+    public IDisposable Follow(IPowerEvents events)
+    {
+        ArgumentNullException.ThrowIfNull(events);
+        events.Suspending += OnSuspend;
+        events.Resumed += OnResume;
+        return new Subscription(events, this);
+    }
+
+    private sealed class Subscription(IPowerEvents events, PowerStateCoordinator coordinator) : IDisposable
+    {
+        public void Dispose()
+        {
+            events.Suspending -= coordinator.OnSuspend;
+            events.Resumed -= coordinator.OnResume;
+        }
+    }
 }

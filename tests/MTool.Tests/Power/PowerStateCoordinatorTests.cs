@@ -18,6 +18,38 @@ public class PowerStateCoordinatorTests
     }
 
     [Fact]
+    public void Following_power_events_closes_the_gate_on_sleep_and_opens_it_after_the_delay()
+    {
+        var time = new FakeTimeProvider();
+        var events = new FakePowerEvents();
+        var coordinator = new PowerStateCoordinator(time, ResumeDelay);
+        using var following = coordinator.Follow(events);
+
+        events.Suspend();
+        var asleep = coordinator.IsEcAccessAllowed;
+        events.Resume();
+        var justAwake = coordinator.IsEcAccessAllowed;
+        time.Advance(ResumeDelay);
+
+        asleep.Should().BeFalse();
+        justAwake.Should().BeFalse();
+        coordinator.IsEcAccessAllowed.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Disposing_the_follow_stops_listening()
+    {
+        var events = new FakePowerEvents();
+        var coordinator = new PowerStateCoordinator(new FakeTimeProvider(), ResumeDelay);
+
+        coordinator.Follow(events).Dispose();
+        events.Suspend();
+
+        events.HasSubscribers.Should().BeFalse();
+        coordinator.IsEcAccessAllowed.Should().BeTrue();
+    }
+
+    [Fact]
     public void A_wall_clock_step_does_not_open_the_gate_early()
     {
         var time = new SteppedWallClock();
