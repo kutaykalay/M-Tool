@@ -197,6 +197,43 @@ public sealed class P65ControlTests : IDisposable
     }
 
     [Fact]
+    public async Task A_cooler_boost_while_ec_access_is_paused_keeps_the_cached_port_state()
+    {
+        var accessAllowed = true;
+        using var worker = new EcWorker(_ec, new FakeEcLock(), TimeSpan.FromMilliseconds(50), accessGate: () => accessAllowed);
+        var control = new P65Control(worker, new WriteAccessSetup(Firmware, new EcGateway(worker, Live, _log, retry: Retry)), _log, Retry);
+        await control.ReadControlStateAsync(PortUse.Allowed);
+
+        accessAllowed = false; // just after a wake
+        var outcome = await control.SetCoolerBoostAsync(true);
+        accessAllowed = true;
+        var portReads = RecordPortReads();
+        var state = await control.ReadControlStateAsync(PortUse.Allowed);
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        state.Port.Should().Be(new PortState(0x02, 0xD0));
+        portReads.Should().BeEmpty(); // the pause was no failed read: the port is not read again
+        _log.Lines.Should().NotContain(l => l.StartsWith("ERROR"));
+    }
+
+    [Fact]
+    public async Task A_first_port_read_while_ec_access_is_paused_is_tried_again_later_without_an_error()
+    {
+        var accessAllowed = false;
+        using var worker = new EcWorker(_ec, new FakeEcLock(), TimeSpan.FromMilliseconds(50), accessGate: () => accessAllowed);
+        var control = new P65Control(worker, new WriteAccessSetup(Firmware, new EcGateway(worker, Live, _log, retry: Retry)), _log, Retry);
+
+        var outcome = await control.SetCoolerBoostAsync(true);
+        accessAllowed = true;
+        var state = await control.ReadControlStateAsync(PortUse.Allowed);
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        state.Port.Should().Be(new PortState(0x02, 0xD0));
+        _log.Lines.Should().NotContain(l => l.StartsWith("ERROR"));
+        _ec.Writes.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Locked_writes_never_read_the_port_for_a_write()
     {
         var control = Control(Live with { PreStateSaved = false });

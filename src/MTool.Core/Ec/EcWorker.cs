@@ -130,7 +130,7 @@ public sealed class EcWorker : IDisposable
 
         if (_accessGate is { } gate && !gate())
         {
-            completion.TrySetException(new EcAccessException("EC erişimi uyku/uyanış nedeniyle duraklatıldı."));
+            completion.TrySetException(new EcAccessException("EC erişimi uyku/uyanış nedeniyle duraklatıldı.") { IsAccessPaused = true });
             return;
         }
 

@@ -53,8 +53,22 @@ public class EcWorkerTests
 
         var act = () => worker.RunAsync(_ => ran = true);
 
-        await act.Should().ThrowAsync<EcAccessException>();
+        (await act.Should().ThrowAsync<EcAccessException>()).Which.IsAccessPaused.Should().BeFalse();
         ran.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task A_closed_access_gate_fails_as_paused_without_touching_the_ec()
+    {
+        var ran = false;
+        var ecLock = new FakeEcLock();
+        using var worker = new EcWorker(new FakeEcRegisters(), ecLock, LockTimeout, accessGate: () => false);
+
+        var act = () => worker.RunAsync(_ => ran = true);
+
+        (await act.Should().ThrowAsync<EcAccessException>()).Which.IsAccessPaused.Should().BeTrue();
+        ran.Should().BeFalse();
+        ecLock.Events.Should().BeEmpty();
     }
 
     [Fact]

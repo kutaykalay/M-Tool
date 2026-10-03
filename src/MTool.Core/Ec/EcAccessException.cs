@@ -11,4 +11,10 @@ public sealed class EcAccessException : Exception
         : base(message, innerException)
     {
     }
+
+    /// <summary>
+    /// True when the access gate refused the operation (sleep, or just after a wake) before any EC
+    /// access: nothing was read or written, so it says nothing about the EC.
+    /// </summary>
+    public bool IsAccessPaused { get; init; }
 }

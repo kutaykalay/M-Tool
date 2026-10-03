@@ -205,7 +205,8 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
 
     /// <summary>
     /// Call holding <see cref="_portGate"/>. Reads 0x98 and 0xEF through the port into the cache.
-    /// On failure the cache becomes unknown (logged) and the next refresh tries again.
+    /// On failure the cache becomes unknown (logged) and the next refresh tries again. A paused EC
+    /// (sleep, or just after a wake) was never reached, so the cache stays as it was.
     /// </summary>
     private async Task<(PortState? State, string? Error)> FreshReadLockedAsync(string what, CancellationToken cancellationToken)
     {
@@ -216,6 +217,11 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
             (_port, _portSettled) = (state, true);
             log.Info($"{what}: port okundu, 0x{EcMap.CoolerBoost:X2}=0x{state.CoolerBoostRaw:X2} 0x{EcMap.ChargeLimit:X2}=0x{state.ChargeLimitRaw:X2}");
             return (state, null);
+        }
+        catch (EcAccessException ex) when (ex.IsAccessPaused)
+        {
+            log.Warn($"{what}: port okunmadı, {ex.Message}");
+            return (null, ex.Message);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
