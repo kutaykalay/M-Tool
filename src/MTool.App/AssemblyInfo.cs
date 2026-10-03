@@ -1,4 +1,9 @@
+using System.Runtime.InteropServices;
 using System.Windows;
+
+// Every P/Invoke target (kernel32, dwmapi) is a system DLL; a copy next to the exe or in the
+// current folder must never be loaded into an elevated process.
+[assembly: DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
 
 [assembly: ThemeInfo(
     ResourceDictionaryLocation.None,            //where theme specific resource dictionaries are located
