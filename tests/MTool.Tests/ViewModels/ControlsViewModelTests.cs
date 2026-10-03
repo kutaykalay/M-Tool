@@ -187,6 +187,31 @@ public sealed class ControlsViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task Commands_that_only_use_wmi_refresh_without_the_port()
+    {
+        await _controls.RefreshAsync(PortUse.Allowed);
+        _control.StateReadPortUses.Clear();
+
+        await _controls.SelectProfileCommand.ExecuteAsync("Cool");
+        await _controls.SetPerformanceCommand.ExecuteAsync(PerformanceMode.Balanced);
+
+        _control.StateReadPortUses.Should().Equal(PortUse.None, PortUse.None);
+    }
+
+    [Fact]
+    public async Task Commands_that_use_the_port_refresh_with_it()
+    {
+        await _controls.RefreshAsync(PortUse.Allowed);
+        _control.StateReadPortUses.Clear();
+
+        await _controls.SetCoolerBoostCommand.ExecuteAsync(true);
+        await _controls.ApplyChargeLimitCommand.ExecuteAsync(null);
+        await _controls.ReapplyCommand.ExecuteAsync(null);
+
+        _control.StateReadPortUses.Should().Equal(PortUse.Allowed, PortUse.Allowed, PortUse.Allowed);
+    }
+
+    [Fact]
     public async Task Drift_from_the_desired_state_offers_reapply()
     {
         await _service.SelectProfileAsync("Cool");

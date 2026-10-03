@@ -138,26 +138,30 @@ public sealed partial class ControlsViewModel : ObservableObject
     }
 
     [RelayCommand(CanExecute = nameof(CanWrite))]
-    private Task SelectProfileAsync(string name) => RunAsync(() => _service.SelectProfileAsync(name));
+    private Task SelectProfileAsync(string name) => RunAsync(PortUse.None, () => _service.SelectProfileAsync(name));
 
     [RelayCommand(CanExecute = nameof(CanWrite))]
-    private Task SetPerformanceAsync(PerformanceMode mode) => RunAsync(() => _service.SetPerformanceAsync(mode));
+    private Task SetPerformanceAsync(PerformanceMode mode) => RunAsync(PortUse.None, () => _service.SetPerformanceAsync(mode));
 
     [RelayCommand(CanExecute = nameof(CanWritePort))]
-    private Task SetCoolerBoostAsync(bool on) => RunAsync(() => _service.SetCoolerBoostAsync(on));
+    private Task SetCoolerBoostAsync(bool on) => RunAsync(PortUse.Allowed, () => _service.SetCoolerBoostAsync(on));
 
     [RelayCommand(CanExecute = nameof(CanWritePort))]
-    private Task ApplyChargeLimitAsync() => RunAsync(() => _service.SetChargeLimitAsync(ChargeLimitDraft));
+    private Task ApplyChargeLimitAsync() => RunAsync(PortUse.Allowed, () => _service.SetChargeLimitAsync(ChargeLimitDraft));
 
     [RelayCommand(CanExecute = nameof(CanWrite))]
-    private Task ReapplyAsync() => RunAsync(async () =>
+    private Task ReapplyAsync() => RunAsync(PortUse.Allowed, async () =>
     {
         var outcomes = await _service.ReapplyAsync(PortUse.Allowed);
         return new CommandResult(ReapplySummary.Worst(outcomes) ?? new WriteOutcome(WriteStatus.Rejected, [], "Yeniden uygulanacak bir şey yok."));
     });
 
-    /// <summary>One command at a time: the tray menu can start one while the window's is running.</summary>
-    private async Task RunAsync(Func<Task<CommandResult>> command)
+    /// <summary>
+    /// One command at a time: the tray menu can start one while the window's is running. The
+    /// refresh after it may use the port only when the command did (<paramref name="portUse"/>):
+    /// a fan or performance change must not bring on a port read the user did not ask for.
+    /// </summary>
+    private async Task RunAsync(PortUse portUse, Func<Task<CommandResult>> command)
     {
         if (IsBusy)
         {
@@ -168,7 +172,7 @@ public sealed partial class ControlsViewModel : ObservableObject
         try
         {
             _status.Report(await command());
-            await RefreshAsync(updateDrift: true, PortUse.Allowed);
+            await RefreshAsync(updateDrift: true, portUse);
         }
         finally
         {
