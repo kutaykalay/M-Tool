@@ -35,6 +35,34 @@ speed. Each new model needs its own map, tested on that laptop.
 - [PawnIO](https://pawnio.eu) (`winget install namazso.PawnIO`)
 - Administrator rights (the app asks through UAC)
 
+## Install
+
+1. Put `M-Tool.exe` in any folder and run it. There is no installer; the exe keeps nothing next to
+   itself.
+2. The first start is a **dry run**: M-Tool checks and logs your choices but writes nothing. When
+   the values look right, close M-Tool, set `"dryRun": false` in
+   `%AppData%\M-Tool\settings.json` and start it again.
+3. Optional: tray menu → **Oturum açılışında başlat** (start at sign-in). M-Tool then starts
+   hidden in the tray when you sign in, without a UAC prompt, and applies your fan profile and
+   performance mode.
+
+Start at sign-in uses a Task Scheduler task that runs the exe as administrator, from the folder it
+was in when you turned the option on. If you move the exe or start another copy, M-Tool shows a
+warning; turn the option off and on again from the exe you want to keep. Because the task runs
+the exe as administrator, keep it in a folder only administrators can change, such as
+`C:\Program Files\M-Tool`: in Downloads or on the desktop, any program you run could swap it.
+
+M-Tool does not touch the EC while the laptop sleeps. A few seconds after waking it applies your
+fan profile and performance mode again. The charge limit is not rewritten automatically; the
+laptop keeps it across sleep and restarts.
+
+## Uninstall
+
+1. Tray menu → turn off **Oturum açılışında başlat** (this removes the task).
+2. Tray menu → **Çıkış** (exit) and delete `M-Tool.exe`.
+3. Optional: delete `%AppData%\M-Tool` (settings, logs, dumps). M-Tool writes nothing to the
+   registry.
+
 ## How it works
 
 - Almost everything goes through MSI's own WMI interface, which uses Windows' EC driver.
@@ -57,7 +85,7 @@ dotnet test
 dotnet publish src/MTool.App -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:DebugType=embedded
 ```
 
-The result is a single `M-Tool.exe`, about 1 MB.
+The result is a single `M-Tool.exe`, about 1.5 MB.
 
 ## Command line
 
