@@ -5,8 +5,6 @@ namespace MTool.Tests.Services;
 
 public class StartupTaskSpecTests
 {
-    private const string ProgramFiles = @"C:\Program Files";
-
     [Fact]
     public void The_task_starts_the_app_hidden_in_the_tray_shortly_after_sign_in()
     {
@@ -35,26 +33,5 @@ public class StartupTaskSpecTests
     public void Another_or_a_missing_exe_needs_repair(string? registered)
     {
         StartupTaskSpec.NeedsRepair(registered, @"C:\Program Files\M-Tool\M-Tool.exe").Should().BeTrue();
-    }
-
-    [Theory]
-    [InlineData(@"C:\Program Files\M-Tool\M-Tool.exe", true)]
-    [InlineData(@"c:\PROGRAM FILES\M-Tool\M-Tool.exe", true)]
-    [InlineData(@"C:\Program Files\M-Tool.exe", true)]
-    [InlineData(@"C:\Program Files Evil\M-Tool.exe", false)]
-    [InlineData(@"C:\Program Files\..\Users\PC\M-Tool.exe", false)]
-    [InlineData(@"C:\Users\PC\AppData\Local\M-Tool\M-Tool.exe", false)]
-    [InlineData(@"C:\Users\PC\Downloads\M-Tool.exe", false)]
-    [InlineData(@"C:\Program Files (x86)\M-Tool\M-Tool.exe", false)]
-    [InlineData("C:\\Program Files\\bad\0path.exe", false)]
-    public void Only_exes_under_program_files_are_trusted(string exe, bool trusted)
-    {
-        StartupTaskSpec.IsTrustedLocation(exe, ProgramFiles).Should().Be(trusted);
-    }
-
-    [Fact]
-    public void A_trailing_separator_on_program_files_changes_nothing()
-    {
-        StartupTaskSpec.IsTrustedLocation(@"C:\Program Files\M-Tool\M-Tool.exe", ProgramFiles + @"\").Should().BeTrue();
     }
 }

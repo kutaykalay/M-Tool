@@ -135,8 +135,7 @@ internal sealed class GuiBootstrapper : IDisposable
         });
 
         await viewModel.InitializeAsync(warnings);
-        var signInStart = new SignInStartViewModel(
-            new StartupTask(), CurrentExe, Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), viewModel.Status, log);
+        var signInStart = new SignInStartViewModel(new StartupTask(), CurrentExe, viewModel.Status, log);
         tray.Attach(viewModel, signInStart); // Only now does the icon appear.
         _ = signInStart.LoadAsync(); // Off the UI thread; the menu item stays disabled until it answers.
 

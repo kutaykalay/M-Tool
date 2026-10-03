@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MTool.App.Services;
@@ -9,11 +8,12 @@ namespace MTool.App.ViewModels;
 /// <summary>
 /// The tray's "start at sign-in" switch. A task that starts another exe, or a task by this name
 /// that M-Tool did not make, is reported and never repaired silently: the task runs elevated, so it
-/// changes only when the user switches it off and on again. Task Scheduler calls run off the UI
-/// thread; until the first query answers, the state is unknown and the switch is disabled.
+/// changes only when the user switches it off and on again. The exe may live anywhere: switching on
+/// registers it where it is now. Task Scheduler calls run off the UI thread; until the first query
+/// answers, the state is unknown and the switch is disabled.
 /// </summary>
 public sealed partial class SignInStartViewModel(
-    IStartupTask task, string exePath, string programFiles, StatusViewModel status, IAppLog log) : ObservableObject
+    IStartupTask task, string exePath, StatusViewModel status, IAppLog log) : ObservableObject
 {
     private string? _repairWarning;
 
@@ -57,10 +57,6 @@ public sealed partial class SignInStartViewModel(
             });
             log.Info(enable ? $"Oturum açılışında başlatma açıldı: {exePath}" : "Oturum açılışında başlatma kapatıldı.");
             ClearRepairWarning();
-            if (enable)
-            {
-                WarnIfUntrusted();
-            }
         }
         catch (Exception ex)
         {
@@ -97,16 +93,6 @@ public sealed partial class SignInStartViewModel(
         {
             status.ClearMessage(ifShowing: text);
             _repairWarning = null;
-        }
-    }
-
-    private void WarnIfUntrusted()
-    {
-        if (!StartupTaskSpec.IsTrustedLocation(exePath, programFiles))
-        {
-            status.ShowWarning("Otomatik başlatma açıldı, ama exe Program Files dışında: oradaki dosyayı yönetici " +
-                "olmayan bir program da değiştirebilir ve görev onu UAC sormadan yönetici olarak başlatır. " +
-                $"Exe'yi {Path.Combine(programFiles, "M-Tool")} altına taşıyıp yeniden açmanız önerilir.");
         }
     }
 }

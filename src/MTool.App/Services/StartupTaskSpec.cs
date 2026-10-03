@@ -19,21 +19,6 @@ internal static class StartupTaskSpec
         Normalize(registeredExe) is not { } registered
         || !string.Equals(registered, Normalize(currentExe), StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// The task runs elevated without a UAC prompt, so the exe should sit where only administrators
-    /// can replace it. Lexical only: junctions, links, 8.3 names and the folder's ACL are not checked
-    /// (the ACL of the install folder is checked by hand when installing). A warning, not a gate.
-    /// </summary>
-    public static bool IsTrustedLocation(string exePath, string programFiles)
-    {
-        if (Normalize(exePath) is not { } exe || Normalize(programFiles) is not { } folder)
-        {
-            return false;
-        }
-
-        return exe.StartsWith(Path.TrimEndingDirectorySeparator(folder) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
-    }
-
     /// <summary>Full path, or null for an empty or invalid one (a task path is outside data).</summary>
     private static string? Normalize(string? path)
     {

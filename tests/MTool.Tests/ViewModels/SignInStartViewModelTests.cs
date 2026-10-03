@@ -5,7 +5,6 @@ namespace MTool.Tests.ViewModels;
 
 public class SignInStartViewModelTests
 {
-    private const string ProgramFiles = @"C:\Program Files";
     private const string InstalledExe = @"C:\Program Files\M-Tool\M-Tool.exe";
     private const string DownloadedExe = @"C:\Users\PC\Downloads\M-Tool.exe";
 
@@ -13,7 +12,7 @@ public class SignInStartViewModelTests
     private readonly StatusViewModel _status = new(new FakeNotifier());
     private readonly ListLog _log = new();
 
-    private SignInStartViewModel ViewModel(string exe = InstalledExe) => new(_task, exe, ProgramFiles, _status, _log);
+    private SignInStartViewModel ViewModel(string exe = InstalledExe) => new(_task, exe, _status, _log);
 
     private async Task<SignInStartViewModel> Loaded(string exe = InstalledExe)
     {
@@ -144,15 +143,15 @@ public class SignInStartViewModelTests
     }
 
     [Fact]
-    public async Task Toggle_on_from_outside_program_files_works_but_warns()
+    public async Task Toggle_on_registers_the_exe_wherever_it_is_without_a_warning()
     {
         var vm = await Loaded(DownloadedExe);
 
         await vm.ToggleCommand.ExecuteAsync(null);
 
+        _task.Calls.Should().Contain($"enable {DownloadedExe}");
         vm.IsEnabled.Should().BeTrue();
-        _status.MessageKind.Should().Be(MessageKind.Warning);
-        _status.Message.Should().Contain("Program Files");
+        _status.Message.Should().BeNull();
     }
 
     [Fact]
