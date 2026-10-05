@@ -6,6 +6,12 @@ public interface IUiDispatcher
     void Post(Action action);
 }
 
+/// <summary>A yes/no question to the user (a message box in the app).</summary>
+public interface IConfirm
+{
+    bool Ask(string question);
+}
+
 /// <summary>Tray balloon for problems the user must see even with the window closed.</summary>
 public interface INotifier
 {

@@ -32,3 +32,17 @@ internal sealed class QueuedDispatcher : IUiDispatcher
         }
     }
 }
+
+/// <summary>Answers every question with <see cref="Answer"/> and records it.</summary>
+internal sealed class FakeConfirm : IConfirm
+{
+    public bool Answer { get; set; } = true;
+
+    public List<string> Questions { get; } = [];
+
+    public bool Ask(string question)
+    {
+        Questions.Add(question);
+        return Answer;
+    }
+}
