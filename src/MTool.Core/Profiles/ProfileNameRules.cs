@@ -49,6 +49,34 @@ public static class ProfileNameRules
         return IsTaken(trimmed, catalog, except) ? $"\"{trimmed}\" adında bir profil zaten var." : null;
     }
 
+    /// <summary>
+    /// A name from outside input made safe for a warning or log line: forbidden characters become "?"
+    /// and long names are cut. Never use it to repair a name that is stored.
+    /// </summary>
+    public static string Printable(string? name)
+    {
+        if (name is null)
+        {
+            return "(adsız)";
+        }
+
+        var text = new StringBuilder(Math.Min(name.Length, MaxLength + 1));
+        var i = 0;
+        for (; i < name.Length && text.Length < MaxLength; i++)
+        {
+            if (char.IsSurrogatePair(name, i))
+            {
+                text.Append(name, i++, 2);
+            }
+            else
+            {
+                text.Append(IsForbidden(name[i]) || char.IsSurrogate(name[i]) ? '?' : name[i]);
+            }
+        }
+
+        return i < name.Length ? text.Append('…').ToString() : text.ToString();
+    }
+
     /// <summary>A free name for a copy of <paramref name="source"/>: "Cool kopya", then "Cool kopya 2", ….</summary>
     /// <param name="source">The name of a profile in <paramref name="catalog"/>, so already valid.</param>
     public static string NextCopyName(string source, ProfileCatalog catalog)

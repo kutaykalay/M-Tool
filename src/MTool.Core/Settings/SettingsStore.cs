@@ -5,10 +5,15 @@ namespace MTool.Core.Settings;
 
 /// <param name="DryRun">When true the gateway validates and logs but never writes. Default: on.</param>
 /// <param name="Desired">What the user wants the EC to hold; missing or null means <see cref="DesiredState.Default"/>.</param>
+/// <param name="CustomProfiles">
+/// The user's own fan profiles in creation order; missing or null means none. Outside input like the
+/// rest of the file: <see cref="SettingsSanitizer"/> checks them before they reach the catalog.
+/// </param>
 public sealed record AppSettings(
     int SchemaVersion = AppSettings.CurrentSchemaVersion,
     bool DryRun = true,
-    DesiredState? Desired = null)
+    DesiredState? Desired = null,
+    IReadOnlyList<FanProfile>? CustomProfiles = null)
 {
     public const int CurrentSchemaVersion = 1;
 
@@ -20,7 +25,25 @@ public sealed record AppSettings(
 
     = Desired ?? DesiredState.Default;
 
+    public IReadOnlyList<FanProfile> CustomProfiles
+    {
+        get;
+        init => field = value ?? [];
+    }
+
+    = CustomProfiles ?? [];
+
     public static AppSettings Default { get; } = new();
+
+    /// <summary>Custom profiles by content, not by list reference: loaded settings equal the saved ones.</summary>
+    public bool Equals(AppSettings? other) =>
+        other is not null
+        && SchemaVersion == other.SchemaVersion
+        && DryRun == other.DryRun
+        && Desired == other.Desired
+        && CustomProfiles.SequenceEqual(other.CustomProfiles);
+
+    public override int GetHashCode() => HashCode.Combine(SchemaVersion, DryRun, Desired, CustomProfiles.Count);
 }
 
 /// <param name="Warning">Set when the file was unusable and defaults were loaded instead.</param>
@@ -29,6 +52,12 @@ public sealed record SettingsLoadResult(AppSettings Settings, string? Warning);
 /// <summary><c>settings.json</c> under the app folder. Corrupt files are set aside, never silently lost.</summary>
 public sealed class SettingsStore(string directory)
 {
+    /// <summary>
+    /// A real settings file is a few kilobytes. Anything larger is set aside unread, so a planted file
+    /// cannot slow start-up, flood the log with warnings or be copied over and over.
+    /// </summary>
+    public const int MaxFileBytes = 1024 * 1024;
+
     private const string FileName = "settings.json";
 
     private string FilePath => Path.Combine(directory, FileName);
@@ -42,6 +71,11 @@ public sealed class SettingsStore(string directory)
 
         try
         {
+            if (new FileInfo(FilePath).Length > MaxFileBytes)
+            {
+                return SetAside($"{MaxFileBytes / 1024} KB'tan büyük");
+            }
+
             var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath), JsonDefaults.Options);
             return settings is not null
                 ? new SettingsLoadResult(settings, null)
@@ -67,9 +101,46 @@ public sealed class SettingsStore(string directory)
         File.Move(temporary, FilePath, overwrite: true);
     }
 
+    /// <summary>
+    /// Copies the file aside before the app saves over it, e.g. after custom profiles were dropped at load.
+    /// An identical copy kept earlier is reused, so starting again without a save adds no new file.
+    /// Returns a message for the user, or null when there is no file to copy.
+    /// </summary>
+    public string? PreserveCopy()
+    {
+        if (!File.Exists(FilePath))
+        {
+            return null;
+        }
+
+        try
+        {
+            var content = File.ReadAllBytes(FilePath);
+            var copyPath = ExistingCopyOf(content) ?? BadPath();
+            if (!File.Exists(copyPath))
+            {
+                // CreateNew: never overwrite or follow something already at the new name.
+                using var copy = new FileStream(copyPath, FileMode.CreateNew, FileAccess.Write);
+                copy.Write(content);
+            }
+
+            return $"{FileName} dosyasının önceki hali {Path.GetFileName(copyPath)} olarak saklandı.";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return $"{FileName} dosyasının kopyası saklanamadı ({ex.Message}); kenara ayrılan profiller sonraki kaydetmede kaybolur.";
+        }
+    }
+
+    private string? ExistingCopyOf(byte[] content) =>
+        Directory.EnumerateFiles(directory, $"{FileName}.bad-*")
+            .FirstOrDefault(path => new FileInfo(path).Length == content.Length && File.ReadAllBytes(path).AsSpan().SequenceEqual(content));
+
+    private string BadPath() => $"{FilePath}.bad-{DateTime.Now:yyyyMMdd-HHmmss}-{Guid.NewGuid():N}";
+
     private SettingsLoadResult SetAside(string reason)
     {
-        var badPath = $"{FilePath}.bad-{DateTime.Now:yyyyMMdd-HHmmss}-{Guid.NewGuid():N}";
+        var badPath = BadPath();
         File.Move(FilePath, badPath, overwrite: false);
         return new SettingsLoadResult(
             AppSettings.Default,

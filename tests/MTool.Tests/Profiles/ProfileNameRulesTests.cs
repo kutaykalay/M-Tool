@@ -162,6 +162,29 @@ public class ProfileNameRulesTests
     }
 
     [Fact]
+    public void Printable_replaces_control_format_and_unpaired_characters()
+    {
+        var name = "a\r\nb" + (char)0x202E + "c" + (char)0xD800 + "d";
+
+        ProfileNameRules.Printable(name).Should().Be("a??b?c?d");
+    }
+
+    [Fact]
+    public void Printable_keeps_valid_names_and_emoji()
+    {
+        var name = "Işık " + char.ConvertFromUtf32(0x1F3AE);
+
+        ProfileNameRules.Printable(name).Should().Be(name);
+    }
+
+    [Fact]
+    public void Printable_shortens_long_names_and_names_null()
+    {
+        ProfileNameRules.Printable(new string('a', 100)).Should().Be(new string('a', ProfileNameRules.MaxLength) + "…");
+        ProfileNameRules.Printable(null).Should().Be("(adsız)");
+    }
+
+    [Fact]
     public void The_first_copy_is_named_kopya()
     {
         ProfileNameRules.NextCopyName("Cool", Catalog).Should().Be("Cool kopya");

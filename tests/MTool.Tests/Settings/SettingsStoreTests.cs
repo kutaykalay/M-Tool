@@ -132,4 +132,174 @@ public sealed class SettingsStoreTests : IDisposable
     {
         (AppSettings.Default with { Desired = null! }).Desired.Should().Be(DesiredState.Default);
     }
+
+    private static FanProfile Custom(string name) => new(name, Presets.Silent.Curves with
+    {
+        Cpu = FanCurve.Of((0, 30), (60, 45), (68, 55), (75, 65), (80, 75), (85, 85), (90, 100)),
+    });
+
+    [Fact]
+    public void Custom_profiles_round_trip_with_turkish_names()
+    {
+        var store = new SettingsStore(_folder);
+        var settings = AppSettings.Default with
+        {
+            Desired = new DesiredState("Işıklı gece"),
+            CustomProfiles = [Custom("Işıklı gece"), Custom("Öğle İşi ğüş")],
+        };
+
+        store.Save(settings);
+
+        store.Load().Settings.Should().Be(settings);
+        File.ReadAllText(SettingsPath).Should().Contain("\"customProfiles\"").And.Contain("\"schemaVersion\": 1");
+    }
+
+    [Fact]
+    public void Settings_with_equal_custom_profiles_in_different_lists_are_equal()
+    {
+        var first = AppSettings.Default with { CustomProfiles = [Custom("Gece")] };
+        var second = AppSettings.Default with { CustomProfiles = new List<FanProfile> { Custom("Gece") } };
+
+        first.Should().Be(second);
+        first.GetHashCode().Should().Be(second.GetHashCode());
+        first.Should().NotBe(AppSettings.Default);
+    }
+
+    [Fact]
+    public void The_order_of_custom_profiles_matters_for_equality()
+    {
+        var ab = AppSettings.Default with { CustomProfiles = [Custom("A"), Custom("B")] };
+        var ba = AppSettings.Default with { CustomProfiles = [Custom("B"), Custom("A")] };
+
+        ab.Should().NotBe(ba);
+    }
+
+    [Theory]
+    [InlineData("""{ "schemaVersion": 1, "dryRun": false }""")]
+    [InlineData("""{ "schemaVersion": 1, "dryRun": false, "customProfiles": null }""")]
+    public void Missing_custom_profiles_load_as_an_empty_list(string json)
+    {
+        File.WriteAllText(SettingsPath, json);
+
+        new SettingsStore(_folder).Load().Settings.CustomProfiles.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Custom_profiles_cannot_be_set_to_null()
+    {
+        (AppSettings.Default with { CustomProfiles = null! }).CustomProfiles.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Text_in_a_number_field_of_a_custom_profile_sets_the_file_aside()
+    {
+        File.WriteAllText(
+            SettingsPath,
+            """{ "customProfiles": [ { "name": "Gece", "curves": { "cpu": { "points": [ { "upThresholdC": 0, "speedPercent": "x" } ] } } } ] }""");
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Settings.Should().Be(AppSettings.Default);
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().ContainSingle();
+    }
+
+    [Fact]
+    public void A_hand_written_file_with_null_parts_and_repeated_names_loads_and_sanitizes_without_an_exception()
+    {
+        File.WriteAllText(SettingsPath, """
+            { "desired": { "fanProfile": "Gece" },
+              "customProfiles": [
+                { "name": "Gece", "curves": { "cpu": { "points": null }, "gpu": { "points": [] } } },
+                { "name": "gece" },
+                null,
+                { "name": "Gece", "curves": { "cpu": { "points": [ null ] }, "gpu": null } } ] }
+            """);
+
+        var loaded = new SettingsStore(_folder).Load();
+        var act = () => SettingsSanitizer.Sanitize(loaded.Settings, ProfileCatalog.BuiltIn);
+
+        loaded.Warning.Should().BeNull();
+        var result = act.Should().NotThrow().Subject;
+        result.Settings.CustomProfiles.Should().BeEmpty();
+        result.DroppedProfiles.Should().Be(4);
+        result.Settings.Desired.FanProfile.Should().Be("Default");
+    }
+
+    [Fact]
+    public void Preserve_copy_keeps_a_copy_and_leaves_the_file_alone()
+    {
+        const string json = """{ "schemaVersion": 1, "customProfiles": [ { "name": "Gece" } ] }""";
+        File.WriteAllText(SettingsPath, json);
+
+        var message = new SettingsStore(_folder).PreserveCopy();
+
+        File.ReadAllText(SettingsPath).Should().Be(json);
+        var copy = Directory.GetFiles(_folder, "settings.json.bad-*").Should().ContainSingle().Subject;
+        File.ReadAllText(copy).Should().Be(json);
+        message.Should().Contain(Path.GetFileName(copy));
+    }
+
+    [Fact]
+    public void An_oversized_file_is_set_aside_without_being_read()
+    {
+        File.WriteAllText(SettingsPath, "{ \"dryRun\": false, \"pad\": \"" + new string('x', SettingsStore.MaxFileBytes) + "\" }");
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Settings.Should().Be(AppSettings.Default);
+        result.Warning.Should().Contain("büyük");
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Preserve_copy_does_not_pile_up_copies_of_an_unchanged_file()
+    {
+        File.WriteAllText(SettingsPath, """{ "customProfiles": [ { "name": "Gece" } ] }""");
+        var store = new SettingsStore(_folder);
+
+        var first = store.PreserveCopy();
+        var second = store.PreserveCopy();
+
+        var copy = Path.GetFileName(Directory.GetFiles(_folder, "settings.json.bad-*").Should().ContainSingle().Subject);
+        first.Should().Contain(copy);
+        second.Should().Contain(copy);
+    }
+
+    [Fact]
+    public void Preserve_copy_keeps_a_new_copy_when_the_file_changed()
+    {
+        var store = new SettingsStore(_folder);
+        File.WriteAllText(SettingsPath, """{ "customProfiles": [ { "name": "Gece" } ] }""");
+        store.PreserveCopy();
+        File.WriteAllText(SettingsPath, """{ "customProfiles": [ { "name": "Oyun" } ] }""");
+
+        store.PreserveCopy();
+
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void Preserve_copy_of_a_locked_file_says_the_copy_was_not_kept()
+    {
+        File.WriteAllText(SettingsPath, "{}");
+        using var locked = new FileStream(SettingsPath, FileMode.Open, FileAccess.Read, FileShare.None);
+
+        var message = new SettingsStore(_folder).PreserveCopy();
+
+        message.Should().Contain("saklanamadı");
+    }
+
+    [Fact]
+    public void Settings_are_not_equal_to_null()
+    {
+        AppSettings.Default.Equals(null).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Preserve_copy_without_a_file_does_nothing()
+    {
+        new SettingsStore(_folder).PreserveCopy().Should().BeNull();
+
+        Directory.GetFiles(_folder).Should().BeEmpty();
+    }
 }

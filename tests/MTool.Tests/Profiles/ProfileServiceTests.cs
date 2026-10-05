@@ -144,6 +144,36 @@ public sealed class ProfileServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task A_saved_custom_profile_is_written_back_on_reapply_and_can_be_selected()
+    {
+        var night = new FanProfile("Gece", Presets.Silent.Curves with
+        {
+            Cpu = FanCurve.Of((0, 30), (60, 45), (68, 55), (75, 65), (80, 75), (85, 85), (90, 100)),
+        });
+        var service = Service(AppSettings.Default with { Desired = new DesiredState("Gece"), CustomProfiles = [night] });
+
+        await service.ReapplyAsync(PortUse.None);
+        _control.State = _control.State with { FanCurves = FactoryDefaults.FanCurves };
+        var selected = await service.SelectProfileAsync("gece");
+
+        service.Desired.FanProfile.Should().Be("Gece");
+        selected.Outcome.Status.Should().Be(WriteStatus.Applied);
+        _control.State.FanCurves.Should().Be(night.Curves);
+    }
+
+    [Fact]
+    public async Task A_dropped_custom_profile_is_not_reapplied()
+    {
+        var broken = new FanProfile("Gece", null!);
+        var service = Service(AppSettings.Default with { Desired = new DesiredState("Gece"), CustomProfiles = [broken] });
+
+        await service.ReapplyAsync(PortUse.None);
+
+        service.Desired.FanProfile.Should().Be("Default");
+        _control.State.FanCurves.Should().Be(FactoryDefaults.FanCurves);
+    }
+
+    [Fact]
     public async Task Reapply_without_the_port_leaves_the_charge_limit_out_and_keeps_the_desired_state()
     {
         var desired = new DesiredState("Cool", PerformanceMode.High, ChargeLimitPercent: 60);

@@ -175,9 +175,13 @@ internal sealed class GuiBootstrapper : IDisposable
 
     private static (AppSettings Settings, IReadOnlyList<string> Warnings) LoadSettings(ProfileCatalog catalog, FileLog log)
     {
-        var loaded = new SettingsStore(AppPaths.Root).Load();
+        var store = new SettingsStore(AppPaths.Root);
+        var loaded = store.Load();
         var sanitized = SettingsSanitizer.Sanitize(loaded.Settings, catalog);
-        var warnings = new[] { loaded.Warning }.OfType<string>().Concat(sanitized.Warnings).ToArray();
+
+        // The next save writes the file without the dropped profiles, so keep the user's original first.
+        var copied = sanitized.DroppedProfiles > 0 ? store.PreserveCopy() : null;
+        var warnings = new[] { loaded.Warning }.Concat(sanitized.Warnings).Append(copied).OfType<string>().ToArray();
         foreach (var warning in warnings)
         {
             log.Warn(warning);

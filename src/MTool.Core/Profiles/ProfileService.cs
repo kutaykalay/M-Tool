@@ -14,14 +14,34 @@ public sealed record CommandResult(WriteOutcome Outcome, string? SaveWarning = n
 /// This is the only writer of settings.json while the app runs: a later settings screen must go
 /// through it, or it would overwrite that screen's changes with its own copy.
 /// </summary>
-public sealed class ProfileService(
-    IP65Control control, ProfileCatalog catalog, SettingsStore store, AppSettings settings, IAppLog log)
+public sealed class ProfileService
 {
     private readonly SemaphoreSlim _oneAtATime = new(1, 1);
+    private readonly IP65Control _control;
+    private readonly SettingsStore _store;
+    private readonly IAppLog _log;
 
-    // Sanitized here too, not only at load: this is the path from settings.json to EC writes.
-    private AppSettings _settings = SettingsSanitizer.Sanitize(settings, catalog).Settings;
+    // The built-in profiles plus the saved custom ones; a desired custom profile must resolve here.
+    private readonly ProfileCatalog _catalog;
+    private AppSettings _settings;
     private int _commands;
+
+    /// <param name="catalog">The built-in profiles; the custom profiles in <paramref name="settings"/> are added.</param>
+    /// <param name="settings">
+    /// Already sanitized by the caller, which also keeps a copy of the file when profiles were dropped
+    /// (<see cref="SettingsStore.PreserveCopy"/>); the warnings of the second pass here are not shown.
+    /// </param>
+    public ProfileService(IP65Control control, ProfileCatalog catalog, SettingsStore store, AppSettings settings, IAppLog log)
+    {
+        _control = control;
+        _store = store;
+        _log = log;
+
+        // Sanitized here too, not only at load: this is the path from settings.json to EC writes.
+        var sanitized = SettingsSanitizer.Sanitize(settings, catalog);
+        _catalog = sanitized.Catalog;
+        _settings = sanitized.Settings;
+    }
 
     /// <summary>Raised on a thread-pool thread after the desired state changed (saved, or tried to be).</summary>
     public event Action<DesiredState>? DesiredChanged;
@@ -33,18 +53,18 @@ public sealed class ProfileService(
 
     public Task<CommandResult> SelectProfileAsync(string name)
     {
-        if (catalog.Find(name) is not { } profile)
+        if (_catalog.Find(name) is not { } profile)
         {
             return Task.FromResult(Rejected($"Bilinmeyen fan profili: {name}"));
         }
 
         return RunAsync(
-            () => control.ApplyFanProfileAsync(profile),
+            () => _control.ApplyFanProfileAsync(profile),
             desired => desired with { FanProfile = profile.Name });
     }
 
     public Task<CommandResult> SetPerformanceAsync(PerformanceMode mode) => RunAsync(
-        () => control.SetPerformanceAsync(mode),
+        () => _control.SetPerformanceAsync(mode),
         desired => desired with { Performance = mode });
 
     public Task<CommandResult> SetChargeLimitAsync(int percent)
@@ -56,12 +76,12 @@ public sealed class ProfileService(
         }
 
         return RunAsync(
-            () => control.SetChargeLimitAsync(percent),
+            () => _control.SetChargeLimitAsync(percent),
             desired => desired with { ChargeLimitPercent = percent });
     }
 
     /// <summary>Temporary switch: never part of the desired state.</summary>
-    public Task<CommandResult> SetCoolerBoostAsync(bool on) => RunAsync(() => control.SetCoolerBoostAsync(on), update: null);
+    public Task<CommandResult> SetCoolerBoostAsync(bool on) => RunAsync(() => _control.SetCoolerBoostAsync(on), update: null);
 
     /// <param name="portUse">
     /// <see cref="PortUse.None"/> for automatic reapplying (start-up, resume): the charge limit is
@@ -74,7 +94,7 @@ public sealed class ProfileService(
         try
         {
             var desired = portUse == PortUse.Allowed ? Desired : Desired.WithoutPortParts();
-            return await control.ApplyDesiredAsync(desired, catalog).ConfigureAwait(false);
+            return await _control.ApplyDesiredAsync(desired, _catalog).ConfigureAwait(false);
         }
         finally
         {
@@ -126,7 +146,7 @@ public sealed class ProfileService(
         catch (Exception ex)
         {
             // The EC was written and the choice saved; a subscriber's bug must not hide that.
-            log.Error("İstenen durum abonesi hata verdi", ex);
+            _log.Error("İstenen durum abonesi hata verdi", ex);
         }
     }
 
@@ -136,12 +156,12 @@ public sealed class ProfileService(
         Volatile.Write(ref _settings, updated);
         try
         {
-            store.Save(updated);
+            _store.Save(updated);
             return null;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            log.Error("settings.json yazılamadı", ex);
+            _log.Error("settings.json yazılamadı", ex);
             return $"Ayar kaydedilemedi (settings.json: {ex.Message}); yeniden başlatınca eski seçim geri gelir.";
         }
     }

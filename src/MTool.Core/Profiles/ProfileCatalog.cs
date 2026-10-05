@@ -7,6 +7,9 @@ public sealed class ProfileCatalog(IReadOnlyList<FanProfile> profiles)
 {
     public static ProfileCatalog BuiltIn { get; } = new([FactoryDefaults.Profile, Presets.Cool, Presets.Silent]);
 
+    /// <summary>The most custom profiles the user can keep, so the window and tray menu stay usable.</summary>
+    public const int MaxCustomProfiles = 10;
+
     public IReadOnlyList<FanProfile> Profiles { get; } = profiles;
 
     public FanProfile? Find(string name) =>
