@@ -11,30 +11,35 @@ namespace MTool.App.ViewModels;
 /// what was clicked: after every command the EC is read back, so a refused write snaps back.
 /// Cooler Boost and the charge limit come from the port cache (<see cref="ControlState.Port"/>):
 /// null there is shown as unknown, and without a port their commands are disabled.
+/// The profile list follows <see cref="ProfileService.Catalog"/>: a change there relabels the last EC state.
 /// </summary>
 public sealed partial class ControlsViewModel : ObservableObject
 {
     private readonly ProfileService _service;
     private readonly IP65Control _control;
-    private readonly ProfileCatalog _catalog;
     private readonly StatusViewModel _status;
+    private ControlState? _shown;
     private byte _performanceRaw;
     private bool _portStateKnown;
     private int _refreshes;
 
-    public ControlsViewModel(ProfileService service, IP65Control control, ProfileCatalog catalog, StatusViewModel status)
+    public ControlsViewModel(ProfileService service, IP65Control control, StatusViewModel status, IUiDispatcher ui)
     {
-        (_service, _control, _catalog, _status) = (service, control, catalog, status);
-        ProfileNames = catalog.Profiles.Select(p => p.Name).ToArray();
+        (_service, _control, _status) = (service, control, status);
+        ProfileNames = NamesOf(service.Catalog);
         ChargeLimitDraft = ChargeLimitMax;
+        service.CatalogChanged += () => ui.Post(OnCatalogChanged);
     }
 
-    public IReadOnlyList<string> ProfileNames { get; }
+    /// <summary>The built-in profiles first (<see cref="ProfileCatalog.BuiltIn"/>), then the custom ones.</summary>
+    [ObservableProperty]
+    public partial IReadOnlyList<string> ProfileNames { get; private set; }
 
     public int ChargeLimitMin => EcWriteRules.MinChargeLimitPercent;
 
     public int ChargeLimitMax => EcWriteRules.MaxChargeLimitPercent;
 
+    /// <summary>The profile whose tables the EC holds; the desired one when several have the same tables.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ActiveProfileLabel))]
     public partial string? ActiveProfile { get; private set; }
@@ -133,9 +138,40 @@ public sealed partial class ControlsViewModel : ObservableObject
         Show(state);
         if (updateDrift)
         {
-            _status.SetDrift(_service.Desired.DriftFrom(state, _catalog), dryRun: access.WriteMode == WriteMode.DryRun);
+            ShowDrift(state);
         }
     }
+
+    /// <summary>No EC read: the profiles changed, the EC did not. A running command shows the drift when it is done.</summary>
+    private void OnCatalogChanged()
+    {
+        ProfileNames = NamesOf(_service.Catalog);
+        if (_shown is not { } state)
+        {
+            return;
+        }
+
+        ActiveProfile = MatchedProfileName(state);
+        if (!IsBusy)
+        {
+            ShowDrift(state);
+        }
+    }
+
+    private void ShowDrift(ControlState state)
+    {
+        var (desired, catalog) = _service.DesiredWithCatalog;
+        _status.SetDrift(desired.DriftFrom(state, catalog), dryRun: WriteMode == WriteMode.DryRun);
+    }
+
+    // With equal tables (an unchanged copy) the label names the profile the user asked for.
+    private string? MatchedProfileName(ControlState state)
+    {
+        var (desired, catalog) = _service.DesiredWithCatalog;
+        return catalog.Match(state.FanCurves, desired.FanProfile)?.Name;
+    }
+
+    private static string[] NamesOf(ProfileCatalog catalog) => [.. catalog.Profiles.Select(p => p.Name)];
 
     [RelayCommand(CanExecute = nameof(CanWrite))]
     private Task SelectProfileAsync(string name) => RunAsync(PortUse.None, () => _service.SelectProfileAsync(name));
@@ -182,8 +218,9 @@ public sealed partial class ControlsViewModel : ObservableObject
 
     private void Show(ControlState state)
     {
+        _shown = state;
         _performanceRaw = state.PerformanceRaw;
-        ActiveProfile = _catalog.Match(state.FanCurves)?.Name;
+        ActiveProfile = MatchedProfileName(state);
         ActivePerformance = state.Performance;
         OnPropertyChanged(nameof(PerformanceLabel));
         _portStateKnown = state.Port is not null;

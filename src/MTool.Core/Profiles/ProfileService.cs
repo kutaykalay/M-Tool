@@ -63,6 +63,19 @@ public sealed class ProfileService
     /// <summary>The built-in and custom profiles; a new instance after every change, never changed in place.</summary>
     public ProfileCatalog Catalog => Current.Catalog;
 
+    /// <summary>
+    /// Both from the same version: reading <see cref="Desired"/> and <see cref="Catalog"/> one after the
+    /// other can straddle a rename, and the desired name would then be missing from the catalog.
+    /// </summary>
+    public (DesiredState Desired, ProfileCatalog Catalog) DesiredWithCatalog
+    {
+        get
+        {
+            var current = Current;
+            return (current.Settings.Desired, current.Catalog);
+        }
+    }
+
     /// <summary>True while a command is queued or writing; sensor polls missed meanwhile are expected.</summary>
     public bool IsBusy => Volatile.Read(ref _commands) > 0;
 

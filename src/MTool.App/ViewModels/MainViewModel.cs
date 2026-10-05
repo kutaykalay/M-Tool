@@ -20,11 +20,11 @@ public sealed partial class MainViewModel : ObservableObject
     private string? _autoReapplyMessage;
 
     public MainViewModel(
-        SensorPoller poller, ProfileService service, IP65Control control, ProfileCatalog catalog, INotifier notifier, IUiDispatcher ui)
+        SensorPoller poller, ProfileService service, IP65Control control, INotifier notifier, IUiDispatcher ui)
     {
         _poller = poller;
         Status = new StatusViewModel(notifier);
-        Controls = new ControlsViewModel(service, control, catalog, Status);
+        Controls = new ControlsViewModel(service, control, Status, ui);
         TrayTooltip = TooltipText.Format(poller.Latest, Controls.ActiveProfileLabel);
 
         poller.ReadingChanged += reading => ui.Post(() =>

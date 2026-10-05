@@ -25,7 +25,7 @@ public sealed class MainViewModelTests : IDisposable
         var log = new ListLog();
         _service = new ProfileService(_control, ProfileCatalog.BuiltIn, new SettingsStore(_folder), AppSettings.Default, log);
         _poller = new SensorPoller(_control.ReadSensorsAsync, () => true, () => _service.IsBusy, _time, log, MainViewModel.HiddenInterval);
-        _main = new MainViewModel(_poller, _service, _control, ProfileCatalog.BuiltIn, _notifier, new ImmediateDispatcher());
+        _main = new MainViewModel(_poller, _service, _control, _notifier, new ImmediateDispatcher());
     }
 
     public void Dispose()
@@ -227,5 +227,17 @@ public sealed class MainViewModelTests : IDisposable
     {
         MainViewModel.VisibleInterval.Should().Be(TimeSpan.FromSeconds(1));
         MainViewModel.HiddenInterval.Should().Be(TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public async Task The_tooltip_follows_a_renamed_custom_profile()
+    {
+        await _service.AddProfileAsync("Gece", TestCurves.Night);
+        await _main.Controls.SelectProfileCommand.ExecuteAsync("Gece");
+        _main.TrayTooltip.Should().Contain("Gece");
+
+        await _service.RenameProfileAsync("Gece", "Uyku");
+
+        _main.TrayTooltip.Should().Contain("Uyku").And.NotContain("Gece");
     }
 }

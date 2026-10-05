@@ -100,7 +100,7 @@ internal sealed class GuiBootstrapper : IDisposable
         teardown.Push(("tepsi ikonu", tray.Dispose));
 
         var ui = new DispatcherUi(app);
-        var viewModel = new MainViewModel(poller, service, control, catalog, tray, ui);
+        var viewModel = new MainViewModel(poller, service, control, tray, ui);
         window = new MainWindow(viewModel);
         teardown.Push(("pencere", window.CloseForExit));
         window.SourceInitialized += (_, _) => window.ApplyTitleBarTheme(theme.IsDark);

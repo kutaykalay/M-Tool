@@ -22,7 +22,7 @@ public sealed class ControlsViewModelTests : IDisposable
         var noChoices = AppSettings.Default with { Desired = new DesiredState(DesiredState.DefaultProfileName) };
         _service = new ProfileService(_control, ProfileCatalog.BuiltIn, new SettingsStore(_folder), noChoices, new ListLog());
         _status = new StatusViewModel(_notifier);
-        _controls = new ControlsViewModel(_service, _control, ProfileCatalog.BuiltIn, _status);
+        _controls = new ControlsViewModel(_service, _control, _status, new ImmediateDispatcher());
     }
 
     public void Dispose() => Directory.Delete(_folder, recursive: true);
@@ -31,6 +31,120 @@ public sealed class ControlsViewModelTests : IDisposable
     public void Lists_the_profiles()
     {
         _controls.ProfileNames.Should().Equal("Default", "Cool", "Silent");
+    }
+
+    [Fact]
+    public async Task The_profile_list_follows_added_and_renamed_profiles()
+    {
+        var changed = new List<string?>();
+        _controls.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        await _service.AddProfileAsync("Gece", TestCurves.Night);
+        _controls.ProfileNames.Should().Equal("Default", "Cool", "Silent", "Gece");
+
+        await _service.RenameProfileAsync("Gece", "Uyku");
+        _controls.ProfileNames.Should().Equal("Default", "Cool", "Silent", "Uyku");
+        changed.Should().Contain(nameof(ControlsViewModel.ProfileNames));
+    }
+
+    [Fact]
+    public async Task A_catalog_change_is_shown_on_the_ui_thread()
+    {
+        var ui = new QueuedDispatcher();
+        var controls = new ControlsViewModel(_service, _control, _status, ui);
+
+        await _service.AddProfileAsync("Gece", TestCurves.Night);
+        controls.ProfileNames.Should().NotContain("Gece", "the event arrives on a pool thread");
+
+        ui.RunAll();
+        controls.ProfileNames.Should().Contain("Gece");
+    }
+
+    [Fact]
+    public async Task A_catalog_change_before_the_first_ec_read_only_updates_the_list()
+    {
+        await _service.AddProfileAsync("Gece", TestCurves.Night);
+
+        _controls.ProfileNames.Should().Contain("Gece");
+        _controls.ActiveProfile.Should().BeNull();
+        _control.Calls.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task A_catalog_change_while_a_command_runs_leaves_the_drift_band_to_the_command()
+    {
+        var ui = new QueuedDispatcher();
+        var controls = new ControlsViewModel(_service, _control, _status, ui);
+        await _service.AddProfileAsync("Gece", TestCurves.Night);
+        await _service.SelectProfileAsync("Gece");
+        await controls.RefreshAsync(PortUse.None);
+        ui.RunAll();
+        _status.ShowReapply.Should().BeFalse();
+
+        var refreshAfterCommand = new TaskCompletionSource();
+        _control.NextReadGate = refreshAfterCommand;
+        var command = controls.SetPerformanceCommand.ExecuteAsync(PerformanceMode.Eco);
+        await _service.SaveCurvesAsync("Gece", TestCurves.QuieterNight);
+        ui.RunAll();
+
+        controls.IsBusy.Should().BeTrue();
+        _status.ShowReapply.Should().BeFalse("the EC is between states while the command runs");
+
+        refreshAfterCommand.SetResult();
+        await command;
+        _status.ShowReapply.Should().BeTrue("the EC still holds the curve saved before");
+    }
+
+    [Fact]
+    public async Task A_custom_profile_can_be_selected_from_the_list()
+    {
+        await _service.AddProfileAsync("Gece", TestCurves.Night);
+
+        await _controls.SelectProfileCommand.ExecuteAsync("Gece");
+
+        _control.Calls.Should().Contain("fan Gece");
+        _controls.ActiveProfile.Should().Be("Gece");
+    }
+
+    [Fact]
+    public async Task The_label_names_the_desired_profile_when_a_copy_has_the_same_tables()
+    {
+        await _service.AddProfileAsync("Cool kopya", Presets.Cool.Curves);
+
+        await _controls.SelectProfileCommand.ExecuteAsync("Cool kopya");
+        _controls.ActiveProfile.Should().Be("Cool kopya");
+
+        await _controls.SelectProfileCommand.ExecuteAsync("Cool");
+        _controls.ActiveProfile.Should().Be("Cool");
+    }
+
+    [Fact]
+    public async Task A_deleted_profile_whose_table_stays_in_the_ec_is_labelled_unknown()
+    {
+        await _service.AddProfileAsync("Gece", TestCurves.Night);
+        _control.State = _control.State with { FanCurves = TestCurves.Night };
+        await _controls.RefreshAsync(PortUse.None);
+        _controls.ActiveProfile.Should().Be("Gece");
+
+        await _service.DeleteProfileAsync("Gece");
+
+        _controls.ActiveProfile.Should().BeNull();
+        _controls.ActiveProfileLabel.Should().Be("Özel/bilinmeyen tablo");
+    }
+
+    [Fact]
+    public async Task Saving_the_desired_profile_shows_the_drift_from_the_ec_at_once()
+    {
+        await _service.AddProfileAsync("Gece", TestCurves.Night);
+        await _controls.SelectProfileCommand.ExecuteAsync("Gece");
+        _status.ShowReapply.Should().BeFalse();
+        var calls = _control.Calls.Count;
+
+        await _service.SaveCurvesAsync("Gece", TestCurves.QuieterNight);
+
+        _control.Calls.Should().HaveCount(calls, "saving neither writes nor reads the EC");
+        _status.ShowReapply.Should().BeTrue("the EC still holds the old curve");
+        _controls.ActiveProfile.Should().BeNull("the EC table no longer matches a saved profile");
     }
 
     [Fact]
@@ -229,7 +343,7 @@ public sealed class ControlsViewModelTests : IDisposable
     public async Task A_state_read_failure_is_reported_not_thrown()
     {
         var failing = new ThrowingStateControl(_control);
-        var controls = new ControlsViewModel(_service, failing, ProfileCatalog.BuiltIn, _status);
+        var controls = new ControlsViewModel(_service, failing, _status, new ImmediateDispatcher());
 
         await controls.RefreshAsync(PortUse.Allowed);
 
@@ -250,7 +364,7 @@ public sealed class ControlsViewModelTests : IDisposable
     {
         _control.NextStatus = WriteStatus.FailedRecovered;
         var failing = new ThrowingStateControl(_control);
-        var controls = new ControlsViewModel(_service, failing, ProfileCatalog.BuiltIn, _status);
+        var controls = new ControlsViewModel(_service, failing, _status, new ImmediateDispatcher());
 
         await controls.SetPerformanceCommand.ExecuteAsync(PerformanceMode.Eco);
 

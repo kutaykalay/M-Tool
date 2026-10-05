@@ -262,15 +262,9 @@ public sealed class ProfileServiceTests : IDisposable
 
     // --- custom profiles ---
 
-    private static readonly FanCurves NightCurves = Presets.Silent.Curves with
-    {
-        Cpu = FanCurve.Of((0, 30), (60, 45), (68, 55), (75, 65), (80, 75), (85, 85), (90, 100)),
-    };
+    private static readonly FanCurves NightCurves = TestCurves.Night;
 
-    private static readonly FanCurves QuieterNightCurves = Presets.Silent.Curves with
-    {
-        Cpu = FanCurve.Of((0, 25), (60, 40), (68, 55), (75, 65), (80, 75), (85, 85), (90, 100)),
-    };
+    private static readonly FanCurves QuieterNightCurves = TestCurves.QuieterNight;
 
     // The last step below the 80 % floor.
     private static readonly FanCurves UnsafeCurves = Presets.Silent.Curves with
@@ -305,6 +299,18 @@ public sealed class ProfileServiceTests : IDisposable
         service.Catalog.Profiles.Should().Equal(ProfileCatalog.BuiltIn.Profiles);
         service.Desired.Should().Be(DesiredState.Default);
         _changes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task The_desired_profile_and_the_catalog_are_read_from_the_same_version()
+    {
+        var service = Service(WithNight(desired: "Gece"));
+
+        await service.RenameProfileAsync("Gece", "Uyku");
+        var (desired, catalog) = service.DesiredWithCatalog;
+
+        desired.FanProfile.Should().Be("Uyku");
+        catalog.Find(desired.FanProfile).Should().NotBeNull();
     }
 
     [Fact]

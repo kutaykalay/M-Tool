@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using MTool.App.Theme;
 using MTool.App.ViewModels;
 using MTool.Core.Device;
+using MTool.Core.Profiles;
 
 namespace MTool.App.Tray;
 
@@ -98,9 +99,16 @@ internal sealed class TrayIconHost : INotifier, IDisposable
             return;
         }
 
+        var firstCustom = controls.ProfileNames.FirstOrDefault(n => !ProfileCatalog.IsBuiltIn(n));
         foreach (var name in controls.ProfileNames)
         {
-            _menu.Items.Add(Item(name, name == controls.ActiveProfile, controls.CanWrite,
+            if (name == firstCustom)
+            {
+                _menu.Items.Add(new ToolStripSeparator()); // the user's own profiles after the built-in ones
+            }
+
+            // "&" marks a mnemonic in a menu; a profile named "A&B" must show as written.
+            _menu.Items.Add(Item(name.Replace("&", "&&", StringComparison.Ordinal), name == controls.ActiveProfile, controls.CanWrite,
                 () => Run(controls.SelectProfileCommand, name)));
         }
 
