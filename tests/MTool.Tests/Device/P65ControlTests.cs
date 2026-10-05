@@ -363,6 +363,22 @@ public sealed class P65ControlTests : IDisposable
         new P65Device(_ec).ReadFanCurves().Should().Be(Presets.Cool.Curves);
     }
 
+    [Fact]
+    public async Task A_fan_profile_that_skipped_the_curve_rules_is_rejected_without_a_write()
+    {
+        // Settings and the profile library check curves first; this is the last line behind them.
+        var unsafeProfile = new FanProfile("Elle", Presets.Cool.Curves with
+        {
+            Cpu = FanCurve.Of((0, 30), (60, 45), (68, 55), (75, 65), (80, 75), (85, 85), (90, 70)),
+        });
+
+        var outcome = await Control().ApplyFanProfileAsync(unsafeProfile);
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        _ec.Writes.Should().BeEmpty();
+        new P65Device(_ec).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
+    }
+
     [Theory]
     [InlineData(true, 0x82)]
     [InlineData(false, 0x02)]

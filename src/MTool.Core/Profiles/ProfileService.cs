@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MTool.Core.Device;
 using MTool.Core.Ec;
 using MTool.Core.Settings;
@@ -7,10 +8,16 @@ namespace MTool.Core.Profiles;
 /// <param name="SaveWarning">Set when the EC changed but settings.json could not be written.</param>
 public sealed record CommandResult(WriteOutcome Outcome, string? SaveWarning = null);
 
+/// <summary>The result of a change to the custom profiles; these never write the EC.</summary>
+/// <param name="Error">Why nothing changed (Turkish, for the user); null on success.</param>
+/// <param name="SaveWarning">Set when the change is kept in memory but settings.json could not be written.</param>
+public sealed record ProfileCommandResult(string? Error, string? SaveWarning = null);
+
 /// <summary>
 /// Runs the user's commands one at a time. A write that happened (or was validated in dry-run)
 /// becomes the new <see cref="DesiredState"/> and is saved; anything else leaves it unchanged.
 /// <see cref="ReapplyAsync"/> writes the saved state back after the EC reset it (reboot, resume).
+/// Changes to the custom profiles take the same turn, so a write never sees half of one.
 /// This is the only writer of settings.json while the app runs: a later settings screen must go
 /// through it, or it would overwrite that screen's changes with its own copy.
 /// </summary>
@@ -21,9 +28,8 @@ public sealed class ProfileService
     private readonly SettingsStore _store;
     private readonly IAppLog _log;
 
-    // The built-in profiles plus the saved custom ones; a desired custom profile must resolve here.
-    private readonly ProfileCatalog _catalog;
-    private AppSettings _settings;
+    // Settings and the catalog built from them, replaced together so a reader never mixes two versions.
+    private Snapshot _current;
     private int _commands;
 
     /// <param name="catalog">The built-in profiles; the custom profiles in <paramref name="settings"/> are added.</param>
@@ -39,28 +45,38 @@ public sealed class ProfileService
 
         // Sanitized here too, not only at load: this is the path from settings.json to EC writes.
         var sanitized = SettingsSanitizer.Sanitize(settings, catalog);
-        _catalog = sanitized.Catalog;
-        _settings = sanitized.Settings;
+        _current = new Snapshot(sanitized.Settings, sanitized.Catalog);
     }
 
     /// <summary>Raised on a thread-pool thread after the desired state changed (saved, or tried to be).</summary>
+    /// <remarks>
+    /// Raised after the turn ends, so two changes close together can arrive out of order: the payload
+    /// may already be stale. A subscriber that keeps state reads <see cref="Desired"/> instead.
+    /// </remarks>
     public event Action<DesiredState>? DesiredChanged;
 
-    public DesiredState Desired => Volatile.Read(ref _settings).Desired;
+    /// <summary>Raised on a thread-pool thread after a custom profile was added, renamed, deleted or saved; read <see cref="Catalog"/>.</summary>
+    public event Action? CatalogChanged;
+
+    public DesiredState Desired => Current.Settings.Desired;
+
+    /// <summary>The built-in and custom profiles; a new instance after every change, never changed in place.</summary>
+    public ProfileCatalog Catalog => Current.Catalog;
 
     /// <summary>True while a command is queued or writing; sensor polls missed meanwhile are expected.</summary>
     public bool IsBusy => Volatile.Read(ref _commands) > 0;
 
+    private Snapshot Current => Volatile.Read(ref _current);
+
     public Task<CommandResult> SelectProfileAsync(string name)
     {
-        if (_catalog.Find(name) is not { } profile)
-        {
-            return Task.FromResult(Rejected($"Bilinmeyen fan profili: {name}"));
-        }
-
+        // Looked up inside the turn: a rename or delete queued before it must not leave an unknown name in the desired state.
+        FanProfile? profile = null;
         return RunAsync(
-            () => _control.ApplyFanProfileAsync(profile),
-            desired => desired with { FanProfile = profile.Name });
+            () => (profile = Catalog.Find(name)) is null
+                ? Task.FromResult(RejectedOutcome($"Bilinmeyen fan profili: {ProfileNameRules.Printable(name)}"))
+                : _control.ApplyFanProfileAsync(profile),
+            desired => desired with { FanProfile = profile!.Name });
     }
 
     public Task<CommandResult> SetPerformanceAsync(PerformanceMode mode) => RunAsync(
@@ -71,8 +87,8 @@ public sealed class ProfileService
     {
         if (percent is < EcWriteRules.MinChargeLimitPercent or > EcWriteRules.MaxChargeLimitPercent)
         {
-            return Task.FromResult(Rejected(
-                $"Şarj limiti %{EcWriteRules.MinChargeLimitPercent}-{EcWriteRules.MaxChargeLimitPercent} olmalı (%{percent})."));
+            return Task.FromResult(new CommandResult(RejectedOutcome(
+                $"Şarj limiti %{EcWriteRules.MinChargeLimitPercent}-{EcWriteRules.MaxChargeLimitPercent} olmalı (%{percent}).")));
         }
 
         return RunAsync(
@@ -93,14 +109,64 @@ public sealed class ProfileService
         await _oneAtATime.WaitAsync().ConfigureAwait(false);
         try
         {
-            var desired = portUse == PortUse.Allowed ? Desired : Desired.WithoutPortParts();
-            return await _control.ApplyDesiredAsync(desired, _catalog).ConfigureAwait(false);
+            var current = Current;
+            var desired = portUse == PortUse.Allowed ? current.Settings.Desired : current.Settings.Desired.WithoutPortParts();
+            return await _control.ApplyDesiredAsync(desired, current.Catalog).ConfigureAwait(false);
         }
         finally
         {
             _oneAtATime.Release();
             Interlocked.Decrement(ref _commands);
         }
+    }
+
+    public Task<ProfileCommandResult> AddProfileAsync(string name, FanCurves curves) =>
+        ChangeLibraryAsync(settings => ProfileLibrary.Add(settings, name, curves));
+
+    /// <summary>When it is the desired profile, the desired state follows the new name; the EC is not written.</summary>
+    public Task<ProfileCommandResult> RenameProfileAsync(string oldName, string newName) =>
+        ChangeLibraryAsync(settings => ProfileLibrary.Rename(settings, oldName, newName));
+
+    /// <summary>The desired profile cannot be deleted; pick another one first.</summary>
+    public Task<ProfileCommandResult> DeleteProfileAsync(string name) =>
+        ChangeLibraryAsync(settings => ProfileLibrary.Delete(settings, name));
+
+    /// <summary>Saving does not write the EC, even for the desired profile; reapplying does.</summary>
+    public Task<ProfileCommandResult> SaveCurvesAsync(string name, FanCurves curves) =>
+        ChangeLibraryAsync(settings => ProfileLibrary.SaveCurves(settings, name, curves));
+
+    private async Task<ProfileCommandResult> ChangeLibraryAsync(Func<AppSettings, LibraryResult> change)
+    {
+        // Not counted in IsBusy: nothing here talks to the EC.
+        DesiredState desiredBefore;
+        DesiredState desiredAfter;
+        string? saveWarning;
+        await _oneAtATime.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            var before = Current.Settings;
+            var result = change(before);
+            if (result.Updated is not { } updated)
+            {
+                return new ProfileCommandResult(result.Error ?? "Profil değiştirilemedi.");
+            }
+
+            saveWarning = Remember(updated);
+            desiredBefore = before.Desired;
+            desiredAfter = updated.Desired;
+        }
+        finally
+        {
+            _oneAtATime.Release();
+        }
+
+        Raise(CatalogChanged, "Profil listesi abonesi hata verdi");
+        if (desiredAfter != desiredBefore)
+        {
+            RaiseDesiredChanged(desiredAfter);
+        }
+
+        return new ProfileCommandResult(null, saveWarning);
     }
 
     private async Task<CommandResult> RunAsync(Func<Task<WriteOutcome>> write, Func<DesiredState, DesiredState>? update)
@@ -127,7 +193,7 @@ public sealed class ProfileService
                 return (new CommandResult(outcome), null);
             }
 
-            var saveWarning = Remember(update(Desired));
+            var saveWarning = Remember(Current.Settings with { Desired = update(Desired) });
             return (new CommandResult(outcome, saveWarning), Desired);
         }
         finally
@@ -137,34 +203,41 @@ public sealed class ProfileService
         }
     }
 
-    private void RaiseDesiredChanged(DesiredState desired)
+    // The EC was written or the profiles changed; a subscriber's bug must not hide that.
+    private void RaiseDesiredChanged(DesiredState desired) =>
+        Raise(() => DesiredChanged?.Invoke(desired), "İstenen durum abonesi hata verdi");
+
+    private void Raise(Action? handler, string failure)
     {
         try
         {
-            DesiredChanged?.Invoke(desired);
+            handler?.Invoke();
         }
         catch (Exception ex)
         {
-            // The EC was written and the choice saved; a subscriber's bug must not hide that.
-            _log.Error("İstenen durum abonesi hata verdi", ex);
+            _log.Error(failure, ex);
         }
     }
 
-    private string? Remember(DesiredState desired)
+    /// <summary>Called inside the turn. The change is kept in memory even when the file cannot be written.</summary>
+    private string? Remember(AppSettings updated)
     {
-        var updated = Volatile.Read(ref _settings) with { Desired = desired };
-        Volatile.Write(ref _settings, updated);
+        Volatile.Write(ref _current, new Snapshot(updated, Current.Catalog.WithCustom(updated.CustomProfiles)));
         try
         {
             _store.Save(updated);
             return null;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        // Every way the save can fail; an escaping exception would skip the events after the state changed.
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException
+            or System.Security.SecurityException or JsonException)
         {
             _log.Error("settings.json yazılamadı", ex);
-            return $"Ayar kaydedilemedi (settings.json: {ex.Message}); yeniden başlatınca eski seçim geri gelir.";
+            return $"Ayar kaydedilemedi (settings.json: {ex.Message}); yeniden başlatınca eski hali geri gelir.";
         }
     }
 
-    private static CommandResult Rejected(string message) => new(new WriteOutcome(WriteStatus.Rejected, [], message));
+    private static WriteOutcome RejectedOutcome(string message) => new(WriteStatus.Rejected, [], message);
+
+    private sealed record Snapshot(AppSettings Settings, ProfileCatalog Catalog);
 }

@@ -68,7 +68,7 @@ public sealed record DesiredState(
         FanMode: FanMode is not null && FanMode != actual.FanMode);
 
     private FanProfile ProfileOf(ProfileCatalog catalog) =>
-        catalog.Find(FanProfile) ?? throw new ArgumentException($"Bilinmeyen fan profili: {FanProfile}", nameof(catalog));
+        catalog.Find(FanProfile) ?? throw new ArgumentException($"Bilinmeyen fan profili: {ProfileNameRules.Printable(FanProfile)}", nameof(catalog));
 }
 
 /// <summary>Which parts of the EC differ from <see cref="DesiredState"/>.</summary>
