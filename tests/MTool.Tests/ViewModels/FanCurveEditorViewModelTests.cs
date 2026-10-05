@@ -100,6 +100,8 @@ public sealed class FanCurveEditorViewModelTests : IDisposable
         editor.Draft.Cpu.Points[6].Should().Be(new FanPoint(CurveValidator.SafetyFloorMaxLastThresholdC, 85));
         editor.Draft.Gpu.Should().Be(TestCurves.Night.Gpu);
         editor.IsDirty.Should().BeTrue();
+        editor.HasErrors.Should().BeFalse();
+        editor.Points[6].Number.Should().Be(7);
         editor.Points[6].SpeedPercent.Should().Be(85);
 
         editor.RevertCommand.Execute(null);
@@ -117,6 +119,7 @@ public sealed class FanCurveEditorViewModelTests : IDisposable
         BreakTheEnvelope(editor);
 
         editor.Errors.Should().NotBeEmpty().And.AllSatisfy(e => e.Should().StartWith("CPU: "));
+        editor.HasErrors.Should().BeTrue();
         editor.SaveCommand.CanExecute(null).Should().BeFalse();
         editor.SaveAndApplyCommand.CanExecute(null).Should().BeFalse();
     }
@@ -495,5 +498,21 @@ public sealed class FanCurveEditorViewModelTests : IDisposable
 
         editor.IsBusy.Should().BeFalse();
         editor.CopyCommand.CanExecute(null).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task A_disposed_editor_no_longer_follows_the_catalog_or_the_write_mode()
+    {
+        var editor = EditorOnNight();
+        var changes = 0;
+        editor.ApplyCommand.CanExecuteChanged += (_, _) => changes++;
+
+        editor.Dispose();
+        await _service.AddProfileAsync("Yeni", TestCurves.QuieterNight);
+        _control.Access = _control.Access with { WriteMode = WriteMode.Locked, LockReason = "test" };
+        await _controls.RefreshAsync(PortUse.None);
+
+        editor.Profiles.Select(p => p.Name).Should().NotContain("Yeni");
+        changes.Should().Be(0);
     }
 }

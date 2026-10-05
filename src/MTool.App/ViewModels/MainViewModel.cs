@@ -17,12 +17,14 @@ public sealed partial class MainViewModel : ObservableObject
     public static readonly TimeSpan HiddenInterval = TimeSpan.FromSeconds(5);
 
     private readonly SensorPoller _poller;
+    private readonly ProfileService _service;
+    private readonly IUiDispatcher _ui;
     private string? _autoReapplyMessage;
 
     public MainViewModel(
         SensorPoller poller, ProfileService service, IP65Control control, INotifier notifier, IUiDispatcher ui)
     {
-        _poller = poller;
+        (_poller, _service, _ui) = (poller, service, ui);
         Status = new StatusViewModel(notifier);
         Controls = new ControlsViewModel(service, control, Status, ui);
         TrayTooltip = TooltipText.Format(poller.Latest, Controls.ActiveProfileLabel);
@@ -99,6 +101,9 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     public void OnWindowHidden() => _poller.SetInterval(HiddenInterval);
+
+    /// <summary>A new editor for one editor window; the window disposes it when it closes.</summary>
+    public FanCurveEditorViewModel CreateEditor(IConfirm confirm) => new(_service, Controls, Status, confirm, _ui);
 
     private static string TriggerName(ReapplyTrigger trigger) => trigger switch
     {

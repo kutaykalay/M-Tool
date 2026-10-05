@@ -1,7 +1,5 @@
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Interop;
 using MTool.App.ViewModels;
 
 namespace MTool.App.Views;
@@ -10,17 +8,18 @@ namespace MTool.App.Views;
 /// Compact window next to the tray. Closing only hides it; <see cref="CloseForExit"/> really closes.
 /// Tells the view model when it is shown or hidden so sensor polling speeds up or slows down.
 /// </summary>
-public partial class MainWindow : Window
+internal partial class MainWindow : Window
 {
     private const int ScreenMargin = 12;
-    private const int DwmUseImmersiveDarkMode = 20;
 
     private readonly MainViewModel _viewModel;
+    private readonly Func<FanCurveEditorWindow> _createEditor;
+    private FanCurveEditorWindow? _editor;
     private bool _exiting;
 
-    public MainWindow(MainViewModel viewModel)
+    public MainWindow(MainViewModel viewModel, Func<FanCurveEditorWindow> createEditor)
     {
-        _viewModel = viewModel;
+        (_viewModel, _createEditor) = (viewModel, createEditor);
         DataContext = viewModel;
         InitializeComponent();
         IsVisibleChanged += OnIsVisibleChanged;
@@ -61,21 +60,29 @@ public partial class MainWindow : Window
         }
 
         _exiting = true;
+        _editor?.CloseForExit();
         Close();
     }
 
-    /// <summary>Matches the title bar to the app theme (Windows 11 honours this attribute).</summary>
-    public void ApplyTitleBarTheme(bool dark)
+    /// <summary>One editor at a time: a second click brings the open one to the front.</summary>
+    private void OnEditCurvesClick(object sender, RoutedEventArgs e)
     {
-        var handle = new WindowInteropHelper(this).Handle;
-        if (handle == IntPtr.Zero)
+        if (_editor is null)
         {
-            return;
+            _editor = _createEditor();
+            _editor.Closed += (_, _) => _editor = null;
         }
 
-        var value = dark ? 1 : 0;
-        _ = DwmSetWindowAttribute(handle, DwmUseImmersiveDarkMode, ref value, sizeof(int));
+        if (_editor.WindowState == WindowState.Minimized)
+        {
+            _editor.WindowState = WindowState.Normal;
+        }
+
+        _editor.Show();
+        _editor.Activate();
     }
+
+    public void ApplyTitleBarTheme(bool dark) => TitleBar.ApplyTheme(this, dark);
 
     protected override void OnClosing(CancelEventArgs e)
     {
@@ -106,7 +113,4 @@ public partial class MainWindow : Window
         Left = area.Right - ActualWidth - ScreenMargin;
         Top = area.Bottom - ActualHeight - ScreenMargin;
     }
-
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
 }

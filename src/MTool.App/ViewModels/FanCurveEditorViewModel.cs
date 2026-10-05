@@ -9,8 +9,9 @@ namespace MTool.App.ViewModels;
 /// The fan curve editor: a list of profiles and a draft of the selected one. Moving a point only
 /// changes the draft; saving writes settings.json, never the EC. Only a saved profile is applied,
 /// through <see cref="ControlsViewModel.SelectProfileCommand"/> like a click in the main window.
+/// One per editor window: disposed when the window closes, so it stops following the service.
 /// </summary>
-public sealed partial class FanCurveEditorViewModel : ObservableObject
+public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposable
 {
     private const string DiscardQuestion = "Kaydedilmemiş değişiklikler atılsın mı?";
 
@@ -19,6 +20,8 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject
     private readonly StatusViewModel _status;
     private readonly IConfirm _confirm;
     private readonly IUiDispatcher _ui;
+    private readonly Action _onCatalogChanged;
+    private readonly System.ComponentModel.PropertyChangedEventHandler _onControlsChanged;
     private ProfileItem _selectedProfile;
     private FanCurves _saved;
 
@@ -34,14 +37,16 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject
         Draft = start.Curves;
         NewName = start.Name;
 
-        service.CatalogChanged += () => ui.Post(OnCatalogChanged);
-        controls.PropertyChanged += (_, e) =>
+        _onCatalogChanged = () => ui.Post(OnCatalogChanged);
+        _onControlsChanged = (_, e) =>
         {
             if (e.PropertyName == nameof(ControlsViewModel.CanWrite))
             {
                 NotifyCommands();
             }
         };
+        service.CatalogChanged += _onCatalogChanged;
+        controls.PropertyChanged += _onControlsChanged;
     }
 
     /// <summary>The built-in profiles first, then the custom ones.</summary>
@@ -80,6 +85,9 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject
     /// <summary>What the gateway would refuse, e.g. the envelope rule that spans several points.</summary>
     public IReadOnlyList<string> Errors => CurveValidator.ValidateWithFactoryOffsets(Draft);
 
+    /// <summary>For the view: the list's runtime type may not have a bindable Count.</summary>
+    public bool HasErrors => Errors.Count > 0;
+
     public IReadOnlyList<PointViewModel> Points
     {
         get
@@ -109,6 +117,13 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject
         }
 
         Draft = draft;
+    }
+
+    /// <summary>An event already posted may still run; it only updates this unused view model.</summary>
+    public void Dispose()
+    {
+        _service.CatalogChanged -= _onCatalogChanged;
+        _controls.PropertyChanged -= _onControlsChanged;
     }
 
     /// <summary>Before the window closes; the draft is lost when the app exits from the tray.</summary>
@@ -304,6 +319,7 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(IsDirty));
         OnPropertyChanged(nameof(Errors));
+        OnPropertyChanged(nameof(HasErrors));
         OnPropertyChanged(nameof(Points));
         NotifyCommands();
     }

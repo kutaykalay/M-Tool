@@ -1,4 +1,4 @@
-<Window x:Class="MTool.App.Views.MainWindow"
+<Window x:Class="MTool.App.Views.MainWindow" x:ClassModifier="internal"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -48,6 +48,9 @@
         <!-- Fan profile -->
         <DockPanel Margin="0,12,0,6">
             <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="FAN PROFİLİ" />
+            <TextBlock DockPanel.Dock="Right" Margin="10,0,0,0" FontSize="11">
+                <Hyperlink Click="OnEditCurvesClick" Foreground="{DynamicResource Brush.Accent}">Düzenle…</Hyperlink>
+            </TextBlock>
             <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" Text="{Binding Controls.ActiveProfileLabel}" />
         </DockPanel>
         <!-- Three a row: the built-in profiles fill the first, custom ones wrap below. -->

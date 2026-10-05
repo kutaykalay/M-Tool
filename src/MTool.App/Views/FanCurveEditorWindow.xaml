@@ -1,0 +1,161 @@
+<Window x:Class="MTool.App.Views.FanCurveEditorWindow" x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:MTool.App.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:FanCurveEditorViewModel}"
+        Title="M-Tool · Fan eğrileri" Width="780" SizeToContent="Height" ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
+        FontFamily="Segoe UI" FontSize="13" UseLayoutRounding="True"
+        PreviewMouseDown="OnWindowPreviewMouseDown">
+    <Window.Resources>
+        <Style x:Key="Field" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource Brush.Text}" />
+            <Setter Property="Padding" Value="4,3" />
+            <Style.Triggers>
+                <Trigger Property="IsReadOnly" Value="True">
+                    <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="14,10,14,14">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Profiles -->
+        <StackPanel>
+            <TextBlock Style="{StaticResource Section}" Text="PROFİLLER" />
+            <ListBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile, Mode=TwoWay}" Height="260"
+                     Background="{DynamicResource Brush.Surface}" BorderBrush="{DynamicResource Brush.Border}"
+                     Foreground="{DynamicResource Brush.Text}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:ProfileItem}">
+                        <DockPanel ToolTip="{Binding Name}">
+                            <TextBlock DockPanel.Dock="Right" Margin="6,0,0,0" Style="{StaticResource Muted}" Text="hazır"
+                                       Visibility="{Binding IsBuiltIn, Converter={StaticResource BoolToVisible}}" />
+                            <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <UniformGrid Rows="1" Margin="0,8,0,0">
+                <Button Style="{StaticResource Choice}" Content="Kopyala" Command="{Binding CopyCommand}" />
+                <Button Style="{StaticResource Choice}" Margin="0" Content="Sil" Command="{Binding DeleteCommand}" />
+            </UniformGrid>
+            <TextBlock Style="{StaticResource Section}" Text="AD" />
+            <TextBox Style="{StaticResource Field}" MaxLength="40"
+                     Text="{Binding NewName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     IsReadOnly="{Binding IsBuiltIn}" />
+            <Button Style="{StaticResource Choice}" Margin="0,6,0,0" Content="Yeniden adlandır" Command="{Binding RenameCommand}" />
+        </StackPanel>
+
+        <!-- Curve of the selected fan -->
+        <StackPanel Grid.Column="2">
+            <DockPanel Margin="0,12,0,6">
+                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="FAN" />
+                <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right"
+                           Text="Hazır profiller salt okunur; değiştirmek için kopyalayın."
+                           Visibility="{Binding IsBuiltIn, Converter={StaticResource BoolToVisible}}" />
+            </DockPanel>
+            <UniformGrid Rows="1" Width="200" HorizontalAlignment="Left">
+                <Button Style="{StaticResource Choice}" Content="CPU" Click="OnCpuClick">
+                    <Button.Tag>
+                        <MultiBinding Converter="{StaticResource Equal}">
+                            <Binding Source="{x:Static vm:CurveFan.Cpu}" />
+                            <Binding Path="SelectedFan" />
+                        </MultiBinding>
+                    </Button.Tag>
+                </Button>
+                <Button Style="{StaticResource Choice}" Margin="0" Content="GPU" Click="OnGpuClick">
+                    <Button.Tag>
+                        <MultiBinding Converter="{StaticResource Equal}">
+                            <Binding Source="{x:Static vm:CurveFan.Gpu}" />
+                            <Binding Path="SelectedFan" />
+                        </MultiBinding>
+                    </Button.Tag>
+                </Button>
+            </UniformGrid>
+
+            <!-- Number table: a value is taken on Enter or when the box loses focus. -->
+            <Grid Margin="0,10,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource Muted}" Text="Nokta" />
+                <TextBlock Grid.Column="1" Style="{StaticResource Muted}" Text="Eşik °C" />
+                <TextBlock Grid.Column="2" Style="{StaticResource Muted}" Text="Hız %" />
+                <TextBlock Grid.Column="3" Style="{StaticResource Muted}" Text="İzin verilen" />
+            </Grid>
+            <ItemsControl x:Name="PointRows" ItemsSource="{Binding Points}" KeyboardNavigation.TabNavigation="Continue">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:PointViewModel}">
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60" />
+                                <ColumnDefinition Width="90" />
+                                <ColumnDefinition Width="90" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center" Text="{Binding Number, StringFormat='{}{0}'}" />
+                            <TextBox Grid.Column="1" Margin="0,0,8,0" Style="{StaticResource Field}" Tag="up"
+                                     Text="{Binding UpC, Mode=OneWay}" LostKeyboardFocus="OnPointLostFocus" KeyDown="OnPointKeyDown">
+                                <TextBox.IsReadOnly>
+                                    <MultiBinding Converter="{StaticResource AnyTrue}">
+                                        <Binding Path="IsIdle" />
+                                        <Binding Path="DataContext.IsBuiltIn" RelativeSource="{RelativeSource AncestorType=Window}" />
+                                    </MultiBinding>
+                                </TextBox.IsReadOnly>
+                            </TextBox>
+                            <TextBox Grid.Column="2" Margin="0,0,8,0" Style="{StaticResource Field}" Tag="speed"
+                                     Text="{Binding SpeedPercent, Mode=OneWay}" LostKeyboardFocus="OnPointLostFocus" KeyDown="OnPointKeyDown"
+                                     IsReadOnly="{Binding DataContext.IsBuiltIn, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            <TextBlock Grid.Column="3" VerticalAlignment="Center" Style="{StaticResource Muted}">
+                                <Run Text="{Binding Limits.MinUpC, Mode=OneWay}" /><Run Text="–" /><Run Text="{Binding Limits.MaxUpC, Mode=OneWay}" />
+                                <Run Text="°C," />
+                                <Run Text="%" /><Run Text="{Binding Limits.MinSpeedPercent, Mode=OneWay}" /><Run Text="–" /><Run Text="{Binding Limits.MaxSpeedPercent, Mode=OneWay}" />
+                            </TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Rules that span several points -->
+            <Border Style="{StaticResource Band}" Tag="{x:Static vm:MessageKind.Warning}"
+                    Visibility="{Binding HasErrors, Converter={StaticResource BoolToVisible}}">
+                <ItemsControl ItemsSource="{Binding Errors}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+
+            <!-- Result of the last command -->
+            <Border Style="{StaticResource Band}" Visibility="{Binding Message, Converter={StaticResource NotNullToVisible}}">
+                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+            </Border>
+
+            <UniformGrid Rows="1" Margin="0,12,0,0">
+                <Button Style="{StaticResource Choice}" Content="Geri al" Command="{Binding RevertCommand}" />
+                <Button Style="{StaticResource Choice}" Content="Kaydet" Command="{Binding SaveCommand}" />
+                <Button Style="{StaticResource Choice}" Content="Kaydet ve uygula" Command="{Binding SaveAndApplyCommand}" />
+                <Button Style="{StaticResource Choice}" Margin="0" Content="Uygula" Command="{Binding ApplyCommand}" />
+            </UniformGrid>
+        </StackPanel>
+    </Grid>
+</Window>

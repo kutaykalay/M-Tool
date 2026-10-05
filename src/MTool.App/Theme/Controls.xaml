@@ -9,6 +9,7 @@
     <theme:EqualityConverter x:Key="Equal" />
     <theme:NotNullToVisibilityConverter x:Key="NotNullToVisible" />
     <theme:InverseBooleanConverter x:Key="Not" />
+    <theme:AnyTrueConverter x:Key="AnyTrue" />
     <BooleanToVisibilityConverter x:Key="BoolToVisible" />
 
     <Style x:Key="Section" TargetType="TextBlock">

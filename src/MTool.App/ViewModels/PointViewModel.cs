@@ -15,4 +15,7 @@ public sealed record ProfileItem(string Name, bool IsBuiltIn);
 public sealed record PointViewModel(int Index, int UpC, int SpeedPercent, PointLimits Limits)
 {
     public bool IsIdle => Index == 0;
+
+    /// <summary>1-based, as shown to the user.</summary>
+    public int Number => Index + 1;
 }

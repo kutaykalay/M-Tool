@@ -101,7 +101,7 @@ internal sealed class GuiBootstrapper : IDisposable
 
         var ui = new DispatcherUi(app);
         var viewModel = new MainViewModel(poller, service, control, tray, ui);
-        window = new MainWindow(viewModel);
+        window = new MainWindow(viewModel, () => new FanCurveEditorWindow(viewModel.CreateEditor(new MessageBoxConfirm()), theme));
         teardown.Push(("pencere", window.CloseForExit));
         window.SourceInitialized += (_, _) => window.ApplyTitleBarTheme(theme.IsDark);
         theme.Changed += () => window.ApplyTitleBarTheme(theme.IsDark);
@@ -226,5 +226,11 @@ internal sealed class GuiBootstrapper : IDisposable
     private sealed class DispatcherUi(Application app) : IUiDispatcher
     {
         public void Post(Action action) => app.Dispatcher.BeginInvoke(action);
+    }
+
+    private sealed class MessageBoxConfirm : IConfirm
+    {
+        public bool Ask(string question) =>
+            MessageBox.Show(question, "M-Tool", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
     }
 }

@@ -240,4 +240,13 @@ public sealed class MainViewModelTests : IDisposable
 
         _main.TrayTooltip.Should().Contain("Uyku").And.NotContain("Gece");
     }
+
+    [Fact]
+    public void The_editor_opens_on_the_desired_profile_and_applies_through_the_window_controls()
+    {
+        using var editor = _main.CreateEditor(new FakeConfirm());
+
+        editor.SelectedProfile!.Name.Should().Be(_service.Desired.FanProfile);
+        editor.ApplyCommand.CanExecute(null).Should().BeTrue();
+    }
 }
