@@ -1,4 +1,3 @@
-using MTool.Core.Device;
 using MTool.Core.Ec;
 using MTool.Core.Profiles;
 
@@ -81,10 +80,7 @@ public static class SettingsSanitizer
     }
 
     private static string? MissingPart(FanProfile? profile) =>
-        profile?.Name is null || profile.Curves?.Cpu?.Points is null || profile.Curves.Gpu?.Points is null
-        || profile.Curves.Cpu.Points.Any(p => p is null) || profile.Curves.Gpu.Points.Any(p => p is null)
-            ? "eksik alan."
-            : null;
+        profile?.Name is null || !CurveValidator.IsComplete(profile.Curves) ? "eksik alan." : null;
 
     private static string? NameProblem(string name, ProfileCatalog catalog)
     {
@@ -97,14 +93,8 @@ public static class SettingsSanitizer
     }
 
     /// <summary>The same check the gateway makes; a rule tightened in a later version also lands here.</summary>
-    private static string? CurveProblem(FanCurves curves)
-    {
-        var cpu = CurveValidator.Validate(curves.Cpu, FactoryDefaults.CpuDownOffsets);
-        var gpu = CurveValidator.Validate(curves.Gpu, FactoryDefaults.GpuDownOffsets);
-        return cpu.Count > 0 ? $"CPU eğrisi fan kurallarına uymuyor ({cpu[0]})"
-            : gpu.Count > 0 ? $"GPU eğrisi fan kurallarına uymuyor ({gpu[0]})"
-            : null;
-    }
+    private static string? CurveProblem(FanCurves curves) =>
+        CurveValidator.ValidateWithFactoryOffsets(curves) is [var first, ..] ? $"fan kurallarına uymuyor ({first.TrimEnd('.')})" : null;
 
     private static T? Defined<T>(T? value, string name, List<string> warnings)
         where T : struct, Enum

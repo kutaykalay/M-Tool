@@ -31,6 +31,22 @@ public class CurveValidatorTests
     }
 
     [Fact]
+    public void Both_fans_are_checked_with_their_factory_offsets_and_labelled()
+    {
+        // 87 - 5 = 82 is not above 83 with the GPU's last offset; with the CPU's 3 (84) it passes.
+        var gpu = FanCurve.Of((0, 0), (60, 40), (67, 50), (73, 60), (78, 70), (83, 85), (87, 100));
+        var cpu = FanCurve.Of((0, 30), (60, 45), (68, 55), (75, 65), (80, 70), (85, 70), (90, 70));
+
+        var errors = CurveValidator.ValidateWithFactoryOffsets(new FanCurves(cpu, gpu));
+
+        errors.Should().HaveCount(2);
+        errors[0].Should().StartWith("CPU: Güvenlik tabanı");
+        errors[1].Should().StartWith("GPU: Adım 6");
+        CurveValidator.ValidateWithFactoryOffsets(FactoryDefaults.FanCurves).Should().BeEmpty();
+        CurveValidator.ValidateWithFactoryOffsets(new FanCurves(gpu, FactoryDefaults.FanCurves.Gpu)).Should().BeEmpty();
+    }
+
+    [Fact]
     public void A_curve_with_no_point_at_or_below_the_envelope_temperature_is_reported_not_thrown()
     {
         var curve = FanCurve.Of((100, 100), (100, 100), (100, 100), (100, 100), (100, 100), (100, 100), (100, 100));

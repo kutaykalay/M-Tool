@@ -56,6 +56,24 @@ public static class CurveValidator
         return errors.AsReadOnly();
     }
 
+    /// <summary>
+    /// Whether every part of <paramref name="curves"/> is there. Curves from settings.json or a caller
+    /// may have nulls the type does not show; check this before validating or comparing them.
+    /// </summary>
+    public static bool IsComplete(FanCurves? curves) =>
+        curves?.Cpu?.Points is { } cpu && curves.Gpu?.Points is { } gpu
+        && cpu.All(p => p is not null) && gpu.All(p => p is not null);
+
+    /// <summary>
+    /// Both fans of a profile with the factory down offsets M-Tool never changes, the same check the
+    /// gateway makes. Problems start with "CPU: " or "GPU: "; empty when both curves are valid.
+    /// </summary>
+    public static IReadOnlyList<string> ValidateWithFactoryOffsets(FanCurves curves) =>
+    [
+        .. Validate(curves.Cpu, Device.FactoryDefaults.CpuDownOffsets).Select(e => $"CPU: {e}"),
+        .. Validate(curves.Gpu, Device.FactoryDefaults.GpuDownOffsets).Select(e => $"GPU: {e}"),
+    ];
+
     /// <summary>Stops curves that keep the fan idle or slow until the last step (e.g. 0 % up to 84 °C).</summary>
     private static void CheckEnvelope(IReadOnlyList<FanPoint> points, List<string> errors)
     {
