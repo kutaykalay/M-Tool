@@ -36,8 +36,8 @@ internal partial class FanCurveEditorWindow : Window
     /// <summary>The app is exiting: close without asking, the draft is lost.</summary>
     public void CloseForExit()
     {
-        _exiting = true;
-        if (!_closing) // the discard question may be open; answering it finishes the close
+        CloseQuestionForExit();
+        if (!_closing) // otherwise the closed question returns to OnClosing, which finishes the close
         {
             Close();
         }
@@ -70,7 +70,20 @@ internal partial class FanCurveEditorWindow : Window
         base.OnClosed(e);
     }
 
-    private void OnSessionEnding(object? sender, SessionEndingCancelEventArgs e) => _exiting = true;
+    private void OnSessionEnding(object? sender, SessionEndingCancelEventArgs e) => CloseQuestionForExit();
+
+    /// <summary>
+    /// An open question is closed as "no". WPF's shutdown cannot close a window that is still in
+    /// <see cref="OnClosing"/>, so the question must not keep the close waiting.
+    /// </summary>
+    private void CloseQuestionForExit()
+    {
+        _exiting = true;
+        foreach (var question in OwnedWindows.OfType<ConfirmDialog>().ToList())
+        {
+            question.Close();
+        }
+    }
 
     private void ApplyTheme() => TitleBar.ApplyTheme(this, _theme.IsDark);
 

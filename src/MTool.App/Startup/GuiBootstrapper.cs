@@ -101,7 +101,12 @@ internal sealed class GuiBootstrapper : IDisposable
 
         var ui = new DispatcherUi(app);
         var viewModel = new MainViewModel(poller, service, control, tray, ui);
-        window = new MainWindow(viewModel, () => new FanCurveEditorWindow(viewModel.CreateEditor(new MessageBoxConfirm()), theme));
+        window = new MainWindow(viewModel, () =>
+        {
+            FanCurveEditorWindow? editor = null;
+            editor = new FanCurveEditorWindow(viewModel.CreateEditor(new DialogConfirm(() => editor, theme)), theme);
+            return editor;
+        });
         teardown.Push(("pencere", window.CloseForExit));
         window.SourceInitialized += (_, _) => window.ApplyTitleBarTheme(theme.IsDark);
         theme.Changed += () => window.ApplyTitleBarTheme(theme.IsDark);
@@ -228,9 +233,12 @@ internal sealed class GuiBootstrapper : IDisposable
         public void Post(Action action) => app.Dispatcher.BeginInvoke(action);
     }
 
-    private sealed class MessageBoxConfirm : IConfirm
+    /// <summary>Asks over the window that is asking, so that window can close the question on exit.</summary>
+    private sealed class DialogConfirm(Func<Window?> owner, ThemeManager theme) : IConfirm
     {
         public bool Ask(string question) =>
-            MessageBox.Show(question, "M-Tool", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+            // A window not shown yet or already closed cannot own the question; it then opens on its own.
+            new ConfirmDialog(question, theme.IsDark) { Owner = owner() is { IsLoaded: true } shown ? shown : null }
+                .ShowDialog() == true;
     }
 }
