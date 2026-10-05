@@ -31,6 +31,31 @@ public class CurveValidatorTests
     }
 
     [Fact]
+    public void A_curve_with_no_point_at_or_below_the_envelope_temperature_is_reported_not_thrown()
+    {
+        var curve = FanCurve.Of((100, 100), (100, 100), (100, 100), (100, 100), (100, 100), (100, 100), (100, 100));
+
+        var act = () => ValidateCpu(curve);
+
+        act.Should().NotThrow().Which.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void Validation_never_throws_on_any_seven_point_curve()
+    {
+        var random = new Random(20261005);
+        for (var run = 0; run < 20_000; run++)
+        {
+            var curve = new FanCurve([.. Enumerable.Range(0, CurveValidator.PointCount)
+                .Select(_ => new FanPoint(random.Next(-300, 300), random.Next(-300, 300)))]);
+
+            var act = () => ValidateCpu(curve);
+
+            act.Should().NotThrow($"curve {string.Join(", ", curve.Points)}");
+        }
+    }
+
+    [Fact]
     public void Factory_down_offsets_are_the_ones_read_from_the_laptop()
     {
         FactoryDefaults.CpuDownOffsets.Should().Equal(8, 3, 3, 3, 3, 3);

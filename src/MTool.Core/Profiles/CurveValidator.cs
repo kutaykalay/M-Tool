@@ -64,7 +64,9 @@ public static class CurveValidator
             errors.Add($"Güvenlik zarfı: ilk kademe en geç {MaxFirstStepThresholdC} °C'de başlamalı.");
         }
 
-        var speedAtEnvelope = points.Last(p => p.UpThresholdC <= EnvelopeTemperatureC).SpeedPercent;
+        // Below its first threshold the fan runs at the idle speed. A curve from settings.json may break
+        // the idle-threshold rule too, so no point may be at or below this temperature; never throw.
+        var speedAtEnvelope = (points.LastOrDefault(p => p.UpThresholdC <= EnvelopeTemperatureC) ?? points[0]).SpeedPercent;
         if (speedAtEnvelope < EnvelopeMinSpeedPercent)
         {
             errors.Add($"Güvenlik zarfı: {EnvelopeTemperatureC} °C'de fan en az %{EnvelopeMinSpeedPercent} dönmeli (şu an %{speedAtEnvelope}).");
