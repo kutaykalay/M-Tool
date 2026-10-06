@@ -7,7 +7,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>MTool.App</RootNamespace>
     <AssemblyName>M-Tool</AssemblyName>
-    <Version>0.7.0</Version>
+    <Version>0.7.1</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Resources\m-tool.ico</ApplicationIcon>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
