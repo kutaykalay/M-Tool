@@ -14,14 +14,20 @@ namespace MTool.App.Services;
 internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposable
 {
     private readonly IAppLog _log;
+    private readonly Func<PowerLineStatus> _readStatus;
     private PowerSource? _lastSource;
 
     public SystemPowerEvents(IAppLog log)
+        : this(log, () => SystemInformation.PowerStatus.PowerLineStatus) =>
+        SystemEvents.PowerModeChanged += OnPowerModeChanged;
+
+    /// <summary>For tests: reads the line status from <paramref name="readStatus"/> and does not listen to Windows.</summary>
+    internal SystemPowerEvents(IAppLog log, Func<PowerLineStatus> readStatus)
     {
         _log = log;
+        _readStatus = readStatus;
         _lastSource = Current;
         _log.Info($"Güç: kaynak {Name(_lastSource)}");
-        SystemEvents.PowerModeChanged += OnPowerModeChanged;
     }
 
     public event Action? Suspending;
@@ -37,7 +43,7 @@ internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposabl
         {
             try
             {
-                return From(SystemInformation.PowerStatus.PowerLineStatus);
+                return From(_readStatus());
             }
             catch (Exception ex)
             {
@@ -59,7 +65,7 @@ internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposabl
     private static string Name(PowerSource? source) => source?.ToString() ?? "bilinmiyor";
 
     // Runs on the SystemEvents thread: anything thrown here would end the process.
-    private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
+    internal void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
     {
         try
         {
