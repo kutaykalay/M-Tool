@@ -11,6 +11,9 @@ mode and battery charge limit. One exe, no background service.
 ## Features
 
 - **Fan profiles:** Default (factory), Cool and Silent, for the CPU and GPU fans.
+- **Custom fan profiles:** copy a profile and edit its CPU and GPU curves in a curve editor, up to
+  10 profiles. Every point is kept within safe limits while you edit, and a curve that would cool
+  too little cannot be saved.
 - **Cooler Boost** on and off.
 - **Performance mode:** high, balanced or eco.
 - **Charge limit** between 50 and 100 %.
