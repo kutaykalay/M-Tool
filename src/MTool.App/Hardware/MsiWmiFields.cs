@@ -167,7 +167,7 @@ internal sealed class MsiWmiFields : IWmiFields
         }
     }
 
-    private static ManagementScope Connect()
+    internal static ManagementScope Connect()
     {
         var scope = new ManagementScope(Namespace, new ConnectionOptions { Timeout = CallTimeout });
         scope.Connect();

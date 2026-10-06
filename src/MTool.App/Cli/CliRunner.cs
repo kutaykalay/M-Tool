@@ -51,6 +51,13 @@ internal static class CliRunner
             Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe [{StartupArgs.Tray}]   (GUI; --tray ile yalnızca tepside){Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}{WatchCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
             return ExitUsage;
         }
+        catch (UnsupportedDeviceException ex)
+        {
+            // An expected answer about the laptop, not a fault: no stack trace in the log.
+            log.Warn($"Desteklenmeyen model: {string.Join(' ', args)}. {ex.Message}");
+            Console.Error.WriteLine(ex.Message);
+            return ExitError;
+        }
         catch (Exception ex)
         {
             log.Error($"Komut başarısız: {string.Join(' ', args)}", ex);
@@ -65,7 +72,7 @@ internal static class CliRunner
     {
         using var session = EcSession.Open(log, EcBackends.Hybrid);
         var report = Wait(session.Worker.RunAsync(ec =>
-            DumpFormatter.Format(new Core.Device.P65Device(ec, session.Layout), session.Layout, ec, session.Controller?.RecoveredFailures ?? 0)));
+            DumpFormatter.Format(new Core.Device.P65Device(ec, session.Layout), session.Layout, session.Match, ec, session.Controller?.RecoveredFailures ?? 0)));
         Console.WriteLine(report);
         Console.WriteLine($"Kaydedildi: {SaveDump(report)}");
         return ExitOk;
@@ -98,7 +105,7 @@ internal static class CliRunner
         try
         {
             return Wait(session.Worker.RunAsync(ec =>
-                DumpFormatter.Format(new Core.Device.P65Device(ec, session.Layout), session.Layout, ec, session.Controller?.RecoveredFailures ?? 0)));
+                DumpFormatter.Format(new Core.Device.P65Device(ec, session.Layout), session.Layout, session.Match, ec, session.Controller?.RecoveredFailures ?? 0)));
         }
         catch (Exception ex)
         {

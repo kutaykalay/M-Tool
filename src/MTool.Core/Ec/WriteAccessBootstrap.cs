@@ -4,7 +4,8 @@ using MTool.Core.Settings;
 namespace MTool.Core.Ec;
 
 /// <param name="Firmware">Null when the firmware could not be read; writes are then locked.</param>
-public sealed record WriteAccessSetup(FirmwareInfo? Firmware, EcGateway Gateway);
+/// <param name="Match">Which device record the firmware matched; informational, writes follow <see cref="FirmwareInfo.IsSupported"/>.</param>
+public sealed record WriteAccessSetup(FirmwareInfo? Firmware, EcGateway Gateway, Device.Config.DeviceMatch? Match = null);
 
 /// <summary>
 /// Opens the write path for a session: reads the firmware, takes the pre-M-Tool backup once on

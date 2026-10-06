@@ -1,5 +1,6 @@
 using System.Text;
 using MTool.Core.Device;
+using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 using MTool.Core.Profiles;
 
@@ -7,7 +8,9 @@ namespace MTool.App.Cli;
 
 internal static class DumpFormatter
 {
-    public static string Format(P65Device device, DeviceLayout layout, IEcRegisters ec, int recoveredFailures)
+    /// <param name="match">Finds (and logs) the record the firmware matches.</param>
+    public static string Format(
+        P65Device device, DeviceLayout layout, Func<FirmwareInfo?, DeviceMatch> match, IEcRegisters ec, int recoveredFailures)
     {
         var firmware = device.ReadFirmware();
         var sensors = device.ReadSensors();
@@ -15,7 +18,7 @@ internal static class DumpFormatter
 
         var text = new StringBuilder()
             .AppendLine($"M-Tool EC dump  {DateTime.Now:yyyy-MM-dd HH:mm:ss}")
-            .AppendLine($"Firmware   : {firmware.Version} ({firmware.Date}) {(firmware.IsSupported ? "destekleniyor" : "TANINMIYOR, salt okunur")}")
+            .AppendLine($"Firmware   : {firmware.Version} ({firmware.Date}) {FirmwareStatus(firmware, match(firmware))}")
             .AppendLine($"CPU        : {Temp(sensors.CpuTempC)}, fan %{sensors.CpuFanPercent}, {sensors.CpuRpm} RPM")
             .AppendLine($"GPU        : {Temp(sensors.GpuTempC)}, fan %{sensors.GpuFanPercent}, {sensors.GpuRpm} RPM")
             .AppendLine($"Registers  : {Pair(ec, layout.CoolerBoost)} {Pair(ec, layout.ChargeLimit)} " +
@@ -34,6 +37,11 @@ internal static class DumpFormatter
             : $"{p.UpThresholdC}/{downs[i - 1]}C->%{p.SpeedPercent}");
         text.AppendLine($"{title} : {string.Join("  ", steps)}");
     }
+
+    private static string FirmwareStatus(FirmwareInfo firmware, DeviceMatch match) =>
+        firmware.IsSupported ? "destekleniyor"
+        : match.Kind == MatchKind.Family ? $"{match.DisplayName} ailesinden, dogrulanmadi, salt okunur"
+        : "TANINMIYOR, salt okunur";
 
     private static string Temp(int? celsius) => celsius is { } value ? $"{value} C" : "gecersiz okuma";
 

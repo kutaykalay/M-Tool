@@ -10,7 +10,8 @@ public static class EmbeddedDevices
     /// <exception cref="InvalidOperationException">The embedded P65 record did not load (the reason is logged).</exception>
     public static DeviceLayout LoadP65(IAppLog log) => Find(DeviceConfigLoader.LoadEmbedded(log), P65Id);
 
-    internal static DeviceLayout Find(IEnumerable<DeviceConfig> configs, string id)
+    /// <exception cref="InvalidOperationException">No record with this id, or it has no layout yet.</exception>
+    public static DeviceLayout Find(IEnumerable<DeviceConfig> configs, string id)
     {
         if (configs.FirstOrDefault(c => c.Id == id) is not { } config)
         {

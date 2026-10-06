@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Time.Testing;
 using MTool.App.ViewModels;
 using MTool.Core.Device;
+using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 using MTool.Core.Profiles;
 using MTool.Tests.Fakes;
@@ -42,6 +43,19 @@ public class StatusViewModelTests
 
         status.AccessBanner.Should().Contain("Deneme modu").And.NotContain("EC");
         status.AccessBannerKind.Should().Be(MessageKind.Info);
+    }
+
+    [Fact]
+    public void A_firmware_of_a_known_family_names_the_model_in_the_banner()
+    {
+        var status = Status();
+        var match = new DeviceMatch(MatchKind.Family, "msi-p65-creator-9se", "MSI P65 Creator 9SE");
+
+        status.SetAccess(new DeviceAccess(new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true, match));
+
+        status.AccessBanner.Should().Contain("16Q4EMS2.108").And.Contain("MSI P65 Creator 9SE").And.Contain("doğrulanmadı")
+            .And.Contain("yalnızca izleme");
+        status.AccessBannerKind.Should().Be(MessageKind.Warning);
     }
 
     [Fact]

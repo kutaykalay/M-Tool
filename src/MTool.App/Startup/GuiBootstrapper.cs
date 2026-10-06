@@ -85,6 +85,7 @@ internal sealed class GuiBootstrapper : IDisposable
     {
         var setup = await WriteAccessBootstrap.CreateAsync(
             session.Worker, session.Layout, AppPaths.Root, settings.Settings.DryRun, session.PortAvailable, log);
+        setup = setup with { Match = session.Match(setup.Firmware) };
         var control = new P65Control(session.Worker, setup, session.Layout, log);
         var service = new ProfileService(control, catalog, settings.Store, settings.Settings, log);
 
@@ -240,6 +241,18 @@ internal sealed class GuiBootstrapper : IDisposable
 
     private static EcSession? OpenSession(FileLog log, Func<bool> accessGate)
     {
+        try
+        {
+            // Before the PawnIO check: installing PawnIO would not help a model M-Tool cannot read.
+            WmiInterfaceCheck.Default.EnsureWmi1(log);
+        }
+        catch (UnsupportedDeviceException ex)
+        {
+            log.Warn($"Desteklenmeyen model; GUI açılmadı. {ex.Message}");
+            StartupProblem($"{ex.Message}\n\nAyrıntı: {AppPaths.Logs}");
+            return null;
+        }
+
         if (PawnIoInstallation.InstalledVersion() is null)
         {
             log.Error("PawnIO kurulu değil; GUI açılmadı.");

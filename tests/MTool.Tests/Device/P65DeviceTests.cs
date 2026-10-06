@@ -36,6 +36,15 @@ public class P65DeviceTests
     }
 
     [Fact]
+    public void Control_characters_in_the_firmware_text_cannot_forge_a_log_line()
+    {
+        var ec = new FakeEcRegisters();
+        ec.LoadAscii(0xA0, "16Q4\nERROR x\0");
+
+        new P65Device(ec, TestLayouts.P65).ReadFirmware().Version.Should().Be("16Q4?ERROR x");
+    }
+
+    [Fact]
     public void Reads_sensors()
     {
         var device = new P65Device(P65Memory.FactorySnapshot(), TestLayouts.P65);

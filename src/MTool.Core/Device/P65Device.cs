@@ -64,6 +64,9 @@ public sealed class P65Device
     {
         var bytes = _ec.ReadBlock(start, length).ToArray();
         var end = Array.IndexOf(bytes, (byte)0);
-        return Encoding.ASCII.GetString(bytes, 0, end < 0 ? bytes.Length : end);
+        var text = Encoding.ASCII.GetString(bytes, 0, end < 0 ? bytes.Length : end);
+
+        // EC bytes reach the log, the window and dump files: no line breaks or escape sequences.
+        return new string([.. text.Select(c => char.IsControl(c) ? '?' : c)]);
     }
 }

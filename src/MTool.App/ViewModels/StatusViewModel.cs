@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using MTool.Core.Device;
+using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 using MTool.Core.Profiles;
 
@@ -49,6 +50,9 @@ public sealed partial class StatusViewModel(INotifier notifier, IUiDispatcher ui
                 ("Deneme modu: seçimler kontrol ediliyor ama dizüstüne uygulanmıyor. Gerçek uygulama için " +
                     "settings.json'da \"dryRun\": false yapın.", MessageKind.Info),
             { Firmware: null } => ($"Firmware sürümü okunamadı. {ReadOnlyNote}", MessageKind.Warning),
+            { Firmware.IsSupported: false, Match: { Kind: MatchKind.Family } match } =>
+                ($"Bu firmware ({access.Firmware.Version}) {match.DisplayName} ailesinden, ama ayar değiştirme için doğrulanmadı. {ReadOnlyNote}",
+                    MessageKind.Warning),
             { Firmware.IsSupported: false } =>
                 ($"Bu firmware ({access.Firmware.Version}) desteklenmiyor. {ReadOnlyNote}", MessageKind.Warning),
             _ => ($"Ayar değiştirme kapalı, M-Tool yalnızca izleme modunda. Sebep: {access.LockReason}", MessageKind.Warning),

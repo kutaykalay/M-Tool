@@ -1,5 +1,6 @@
 using MTool.Core;
 using MTool.Core.Device;
+using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 
 namespace MTool.App.Hardware;
@@ -29,9 +30,10 @@ internal sealed class EcSession : IDisposable
     private readonly EcTroubleLog? _troubleLog;
 
     private EcSession(
-        PawnIoPortIo? ports, AccessEcMutex ecLock, EcController? controller, EcWorker worker, DeviceLayout layout, IAppLog log,
-        EcTroubleLog? troubleLog)
+        PawnIoPortIo? ports, AccessEcMutex ecLock, EcController? controller, EcWorker worker, IReadOnlyList<DeviceConfig> catalog,
+        DeviceLayout layout, IAppLog log, EcTroubleLog? troubleLog)
     {
+        Catalog = catalog;
         Layout = layout;
         _ports = ports;
         _ecLock = ecLock;
@@ -47,22 +49,29 @@ internal sealed class EcSession : IDisposable
     public EcWorker Worker { get; }
 
     /// <summary>How this model's registers are read (sensors, tables, firmware, dump).</summary>
+    /// <remarks>Always the P65's: an unmatched WMI1 model is read with it, read-only, as before.</remarks>
     public DeviceLayout Layout { get; }
+
+    /// <summary>Every embedded device record that loaded.</summary>
+    public IReadOnlyList<DeviceConfig> Catalog { get; }
 
     /// <summary>Derived from the port the router was given, so the gateway's policy cannot disagree with it.</summary>
     public bool PortAvailable => Controller is not null;
 
     /// <param name="accessGate">When it returns false, EC operations fail without touching the EC (sleep/resume).</param>
+    /// <exception cref="UnsupportedDeviceException">The laptop has no MSI WMI1 interface (WMI2 only, or none).</exception>
     /// <exception cref="EcAccessException">PawnIO (Hybrid) or WMI1 is missing or does not answer.</exception>
     /// <exception cref="InvalidOperationException">The embedded device record did not load.</exception>
     public static EcSession Open(IAppLog log, EcBackends backend, Func<bool>? accessGate = null)
     {
+        WmiInterfaceCheck.Default.EnsureWmi1(log);
         if (backend == EcBackends.Hybrid && PawnIoInstallation.InstalledVersion() is null)
         {
             throw new EcAccessException($"PawnIO kurulu değil. Kurmak için: {PawnIoInstallation.InstallCommand}");
         }
 
-        var layout = EmbeddedDevices.LoadP65(log);
+        var catalog = DeviceConfigLoader.LoadEmbedded(log);
+        var layout = EmbeddedDevices.Find(catalog, EmbeddedDevices.P65Id);
         var wmi = MsiWmiFields.Open(layout.Wmi);
         var ecLock = new AccessEcMutex();
         PawnIoPortIo? ports = null;
@@ -80,7 +89,7 @@ internal sealed class EcSession : IDisposable
             var registers = RoutedEcRegisters.Create(wmi, controller, layout.Wmi);
             var worker = new EcWorker(registers, ecLock, LockTimeout, (message, ex) => log.Error(message, ex), accessGate);
             log.Info($"EC oturumu: {backend}, cihaz kaydı {layout.Id}");
-            return new EcSession(ports, ecLock, controller, worker, layout, log, troubleLog);
+            return new EcSession(ports, ecLock, controller, worker, catalog, layout, log, troubleLog);
         }
         catch
         {
@@ -96,6 +105,14 @@ internal sealed class EcSession : IDisposable
     /// </summary>
     public async Task<EcGateway> CreateGatewayAsync(bool dryRun) =>
         (await WriteAccessBootstrap.CreateAsync(Worker, Layout, AppPaths.Root, dryRun, PortAvailable, _log).ConfigureAwait(false)).Gateway;
+
+    /// <summary>Which record the firmware matched, logged once per call.</summary>
+    public DeviceMatch Match(FirmwareInfo? firmware)
+    {
+        var match = FirmwareMatcher.Match(firmware, Catalog);
+        _log.Info($"Cihaz eşleşmesi: {match}, firmware {firmware?.Version ?? "okunamadı"}");
+        return match;
+    }
 
     public void Dispose()
     {

@@ -13,7 +13,9 @@ public enum WriteMode
 /// <param name="Firmware">Null when it could not be read.</param>
 /// <param name="LockReason">Why writes are refused; null unless <see cref="WriteMode.Locked"/>.</param>
 /// <param name="PortFeaturesAvailable">Cooler Boost and the charge limit can be read and written (the raw port is open).</param>
-public sealed record DeviceAccess(FirmwareInfo? Firmware, WriteMode WriteMode, string? LockReason, bool PortFeaturesAvailable);
+/// <param name="Match">Which device record the firmware matched; informational, writes still follow <see cref="FirmwareInfo.IsSupported"/>.</param>
+public sealed record DeviceAccess(
+    FirmwareInfo? Firmware, WriteMode WriteMode, string? LockReason, bool PortFeaturesAvailable, Config.DeviceMatch? Match = null);
 
 /// <summary>
 /// Everything the UI may do with the laptop. No register addresses, no write plans: every write
