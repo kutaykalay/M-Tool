@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using MTool.Core.Profiles;
 
@@ -58,18 +59,29 @@ public sealed class SettingsStore(string directory)
     /// </summary>
     public const int MaxFileBytes = 1024 * 1024;
 
+    /// <summary>
+    /// Set-aside copies kept; older ones are deleted, so a file that keeps breaking cannot fill the
+    /// folder. Ten bad starts in a row is far beyond what a user would let pass unnoticed.
+    /// </summary>
+    public const int MaxKeptCopies = 10;
+
     private const string FileName = "settings.json";
 
     private string FilePath => Path.Combine(directory, FileName);
 
     /// <summary>
-    /// Set when the file existed but could not be read (locked, no permission). Saving over it would
-    /// replace the user's custom profiles with the defaults this session started on.
+    /// Set at load when the file is kept but this session must not save over it: it could not be read
+    /// (locked, no permission), or a newer M-Tool wrote it. Saving would replace the user's custom
+    /// profiles with the defaults this session started on. The text is the reason Save gives.
     /// </summary>
-    private volatile bool _unreadAtLoad;
+    private volatile string? _saveRefusal;
 
+    private static string UnreadRefusal => $"{FileName} açılışta okunamadığı için üzerine yazılmıyor; M-Tool'u yeniden başlatın";
+
+    /// <summary>Each load decides afresh whether this session may save.</summary>
     public SettingsLoadResult Load()
     {
+        _saveRefusal = null;
         if (!File.Exists(FilePath))
         {
             return new SettingsLoadResult(AppSettings.Default, null);
@@ -77,15 +89,18 @@ public sealed class SettingsStore(string directory)
 
         try
         {
-            if (new FileInfo(FilePath).Length > MaxFileBytes)
+            if (ReadAtMost(MaxFileBytes) is not { } content)
             {
                 return SetAside($"{MaxFileBytes / 1024} KB'tan büyük");
             }
 
-            var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath), JsonDefaults.Options);
-            return settings is not null
-                ? new SettingsLoadResult(settings, null)
-                : SetAside("boş ya da eksik");
+            return JsonSerializer.Deserialize<AppSettings>(WithoutByteOrderMark(content), JsonDefaults.Options) switch
+            {
+                null => SetAside("boş ya da eksik"),
+                { SchemaVersion: < 1 } settings => SetAside($"geçersiz sürüm numarası: {settings.SchemaVersion}"),
+                { SchemaVersion: > AppSettings.CurrentSchemaVersion } => FromNewerVersion(),
+                var settings => new SettingsLoadResult(settings, null),
+            };
         }
         catch (JsonException ex)
         {
@@ -94,18 +109,20 @@ public sealed class SettingsStore(string directory)
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             // Unreadable (locked, no permission): leave the file alone and run on safe defaults.
-            _unreadAtLoad = true;
+            _saveRefusal = UnreadRefusal;
             return new SettingsLoadResult(AppSettings.Default, $"{FileName} okunamadı ({ex.Message}); varsayılanlar kullanılıyor.");
         }
     }
 
     /// <summary>Writes to a temporary file first so a crash never leaves a half-written settings file.</summary>
-    /// <exception cref="IOException">The file could not be read at load; it is kept as it is.</exception>
+    /// <exception cref="IOException">
+    /// The file could not be read at load, or a newer M-Tool wrote it; it is kept as it is.
+    /// </exception>
     public void Save(AppSettings settings)
     {
-        if (_unreadAtLoad)
+        if (_saveRefusal is { } refusal)
         {
-            throw new IOException($"{FileName} açılışta okunamadığı için üzerine yazılmıyor; M-Tool'u yeniden başlatın");
+            throw new IOException(refusal);
         }
 
         Directory.CreateDirectory(directory);
@@ -133,8 +150,12 @@ public sealed class SettingsStore(string directory)
             if (!File.Exists(copyPath))
             {
                 // CreateNew: never overwrite or follow something already at the new name.
-                using var copy = new FileStream(copyPath, FileMode.CreateNew, FileAccess.Write);
-                copy.Write(content);
+                using (var copy = new FileStream(copyPath, FileMode.CreateNew, FileAccess.Write))
+                {
+                    copy.Write(content);
+                }
+
+                DeleteOldCopies(kept: copyPath);
             }
 
             return $"{FileName} dosyasının önceki hali {Path.GetFileName(copyPath)} olarak saklandı.";
@@ -149,7 +170,60 @@ public sealed class SettingsStore(string directory)
         Directory.EnumerateFiles(directory, $"{FileName}.bad-*")
             .FirstOrDefault(path => new FileInfo(path).Length == content.Length && File.ReadAllBytes(path).AsSpan().SequenceEqual(content));
 
+    /// <summary>The time stamp leads the name, so name order is age order.</summary>
     private string BadPath() => $"{FilePath}.bad-{DateTime.Now:yyyyMMdd-HHmmss}-{Guid.NewGuid():N}";
+
+    /// <summary>
+    /// One open handle from the size check to the last byte, so the file cannot grow in between.
+    /// Null when it is larger than <paramref name="limit"/>; at most one byte past it is read.
+    /// </summary>
+    private byte[]? ReadAtMost(int limit)
+    {
+        using var stream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var buffer = new byte[limit + 1];
+        var length = stream.ReadAtLeast(buffer, buffer.Length, throwOnEndOfStream: false);
+        return length > limit ? null : buffer[..length];
+    }
+
+    /// <summary>Notepad may save with one; the JSON reader does not expect it.</summary>
+    private static ReadOnlySpan<byte> WithoutByteOrderMark(byte[] content) =>
+        content.AsSpan().StartsWith(Encoding.UTF8.Preamble) ? content.AsSpan(Encoding.UTF8.Preamble.Length) : content;
+
+    /// <summary>
+    /// Its fields may mean something this version does not know, and saving would drop the ones it
+    /// does not read. So run on safe defaults and leave the file to the version that wrote it.
+    /// </summary>
+    private SettingsLoadResult FromNewerVersion()
+    {
+        _saveRefusal = $"{FileName} M-Tool'un daha yeni bir sürümüne ait, bu sürüm üzerine yazmıyor; yeni sürümü kurun";
+        return new SettingsLoadResult(
+            AppSettings.Default,
+            $"{FileName} M-Tool'un daha yeni bir sürümüne ait; varsayılanlar kullanılıyor ve değişiklikler kaydedilmiyor. Yeni sürümü kurun.");
+    }
+
+    /// <summary>
+    /// Keeps the newest <see cref="MaxKeptCopies"/>. Best effort: called after a copy was kept, which
+    /// must still be reported as kept, and a copy left behind now is deleted on the next try.
+    /// </summary>
+    /// <param name="kept">The copy just made; never deleted, even when a clock set back made its name sort oldest.</param>
+    private void DeleteOldCopies(string kept)
+    {
+        try
+        {
+            var others = Directory.GetFiles(directory, $"{FileName}.bad-*")
+                .Where(path => !string.Equals(Path.GetFileName(path), Path.GetFileName(kept), StringComparison.OrdinalIgnoreCase))
+                .Order(StringComparer.Ordinal)
+                .ToArray();
+            foreach (var old in others.Take(others.Length - (MaxKeptCopies - 1)))
+            {
+                File.Delete(old);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Nothing to tell the user: the new copy is safe, only the folder is untidier.
+        }
+    }
 
     /// <summary>Also called from a catch block in <see cref="Load"/>, so it handles its own failure.</summary>
     private SettingsLoadResult SetAside(string reason)
@@ -161,12 +235,15 @@ public sealed class SettingsStore(string directory)
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            // Held by another process: leave it where it is and run on safe defaults.
+            // Held by another process: leave it where it is and run on safe defaults. Saving would
+            // replace it while no copy of it exists.
+            _saveRefusal = UnreadRefusal;
             return new SettingsLoadResult(
                 AppSettings.Default,
                 $"{FileName} okunamadı ({reason}) ve kenara alınamadı ({ex.Message}); varsayılanlar kullanılıyor.");
         }
 
+        DeleteOldCopies(kept: badPath);
         return new SettingsLoadResult(
             AppSettings.Default,
             $"{FileName} okunamadı ({reason}); {Path.GetFileName(badPath)} olarak saklandı, varsayılanlar kullanılıyor.");

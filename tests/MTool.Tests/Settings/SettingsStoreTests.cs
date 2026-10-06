@@ -336,4 +336,174 @@ public sealed class SettingsStoreTests : IDisposable
 
         Directory.GetFiles(_folder).Should().BeEmpty();
     }
+
+    [Fact]
+    public void A_file_of_exactly_the_size_limit_is_read()
+    {
+        const string json = """{ "dryRun": false }""";
+        File.WriteAllText(SettingsPath, json + new string(' ', SettingsStore.MaxFileBytes - json.Length));
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Warning.Should().BeNull();
+        result.Settings.DryRun.Should().BeFalse();
+    }
+
+    [Fact]
+    public void A_file_with_a_byte_order_mark_is_read()
+    {
+        File.WriteAllText(SettingsPath, """{ "dryRun": false, "desired": { "fanProfile": "Işıklı" } }""", new System.Text.UTF8Encoding(true));
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Warning.Should().BeNull();
+        result.Settings.Desired.FanProfile.Should().Be("Işıklı");
+    }
+
+    [Fact]
+    public void A_file_from_a_newer_version_loads_defaults_and_is_never_saved_over()
+    {
+        const string json = """{ "schemaVersion": 2, "dryRun": false, "customProfiles": [ { "name": "Gece" } ] }""";
+        File.WriteAllText(SettingsPath, json);
+        var store = new SettingsStore(_folder);
+
+        var result = store.Load();
+        var save = () => store.Save(result.Settings);
+
+        result.Settings.Should().Be(AppSettings.Default);
+        result.Warning.Should().Contain("daha yeni");
+        save.Should().Throw<IOException>().WithMessage("*daha yeni*");
+        File.ReadAllText(SettingsPath).Should().Be(json);
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void A_schema_version_below_one_sets_the_file_aside(int version)
+    {
+        File.WriteAllText(SettingsPath, $$"""{ "schemaVersion": {{version}}, "dryRun": false }""");
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Settings.Should().Be(AppSettings.Default);
+        result.Warning.Should().Contain("sürüm");
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Setting_a_file_aside_keeps_only_the_newest_copies()
+    {
+        var old = OldCopies(SettingsStore.MaxKeptCopies + 2);
+        File.WriteAllText(SettingsPath, "{ not json");
+
+        new SettingsStore(_folder).Load();
+
+        var left = Directory.GetFiles(_folder, "settings.json.bad-*").Select(Path.GetFileName).ToArray();
+        left.Should().HaveCount(SettingsStore.MaxKeptCopies);
+        left.Should().NotContain(old.Take(3));
+        left.Should().Contain(old.Skip(3));
+    }
+
+    [Fact]
+    public void Preserve_copy_keeps_only_the_newest_copies()
+    {
+        var old = OldCopies(SettingsStore.MaxKeptCopies);
+        File.WriteAllText(SettingsPath, """{ "customProfiles": [ { "name": "Gece" } ] }""");
+
+        var message = new SettingsStore(_folder).PreserveCopy();
+
+        var left = Directory.GetFiles(_folder, "settings.json.bad-*").Select(Path.GetFileName).ToArray();
+        left.Should().HaveCount(SettingsStore.MaxKeptCopies);
+        left.Should().NotContain(old[0]);
+        message.Should().Contain("saklandı");
+    }
+
+    [Fact]
+    public void An_old_copy_that_cannot_be_deleted_does_not_stop_the_new_one_being_kept()
+    {
+        var old = OldCopies(SettingsStore.MaxKeptCopies);
+        File.WriteAllText(SettingsPath, "{ not json");
+        using var held = new FileStream(Path.Combine(_folder, old[0]), FileMode.Open, FileAccess.Read, FileShare.None);
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Warning.Should().Contain("olarak saklandı");
+        File.Exists(SettingsPath).Should().BeFalse();
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().HaveCount(SettingsStore.MaxKeptCopies + 1);
+    }
+
+    [Fact]
+    public void A_file_holding_only_null_is_set_aside()
+    {
+        File.WriteAllText(SettingsPath, "null");
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Settings.Should().Be(AppSettings.Default);
+        result.Warning.Should().Contain("boş ya da eksik");
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().ContainSingle();
+    }
+
+    [Fact]
+    public void The_new_copy_is_kept_even_when_the_clock_went_back()
+    {
+        // Named as if made in the future: the clock was set back since, so the new copy sorts first.
+        OldCopies(SettingsStore.MaxKeptCopies, year: 2099);
+        const string json = "{ not json";
+        File.WriteAllText(SettingsPath, json);
+
+        var result = new SettingsStore(_folder).Load();
+
+        var copies = Directory.GetFiles(_folder, "settings.json.bad-*");
+        copies.Should().HaveCount(SettingsStore.MaxKeptCopies);
+        copies.Select(File.ReadAllText).Should().Contain(json);
+        result.Warning.Should().Contain("olarak saklandı");
+    }
+
+    [Fact]
+    public void A_corrupt_file_that_could_not_be_moved_aside_is_never_saved_over()
+    {
+        const string json = "{ not json";
+        File.WriteAllText(SettingsPath, json);
+        var store = new SettingsStore(_folder);
+        using (new FileStream(SettingsPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+        {
+            store.Load();
+        }
+
+        var save = () => store.Save(AppSettings.Default);
+
+        save.Should().Throw<IOException>().WithMessage("*yeniden başlatın*");
+        File.ReadAllText(SettingsPath).Should().Be(json);
+    }
+
+    [Fact]
+    public void Loading_again_after_the_file_became_readable_allows_saving()
+    {
+        var store = new SettingsStore(_folder);
+        store.Save(AppSettings.Default);
+        using (new FileStream(SettingsPath, FileMode.Open, FileAccess.Read, FileShare.None))
+        {
+            store.Load();
+        }
+
+        store.Load();
+        var save = () => store.Save(AppSettings.Default with { DryRun = false });
+
+        save.Should().NotThrow();
+        store.Load().Settings.DryRun.Should().BeFalse();
+    }
+
+    /// <summary>Copies named like the store names them, from long ago; oldest first.</summary>
+    private string[] OldCopies(int count, int year = 2020)
+    {
+        var names = Enumerable.Range(0, count).Select(i => $"settings.json.bad-{year}0101-0000{i:00}-old").ToArray();
+        foreach (var name in names)
+        {
+            File.WriteAllText(Path.Combine(_folder, name), $"eski {name}");
+        }
+
+        return names;
+    }
 }
