@@ -42,7 +42,7 @@ internal sealed class GuiBootstrapper : IDisposable
     public static async Task<GuiBootstrapper?> StartAsync(Application app, FileLog log, Action exit)
     {
         var catalog = ProfileCatalog.BuiltIn;
-        var (settings, warnings) = LoadSettings(catalog, log);
+        var settings = LoadSettings(catalog, log);
         var reapplyOptions = AutoReapplyOptions.Default;
         var coordinator = new PowerStateCoordinator(TimeProvider.System, reapplyOptions.GateDelay);
         if (OpenSession(log, () => coordinator.IsEcAccessAllowed) is not { } session)
@@ -54,7 +54,7 @@ internal sealed class GuiBootstrapper : IDisposable
         teardown.Push(("EC oturumu", session.Dispose));
         try
         {
-            return await BuildAsync(app, log, exit, catalog, settings, warnings, session, coordinator, reapplyOptions, teardown);
+            return await BuildAsync(app, log, exit, catalog, settings, session, coordinator, reapplyOptions, teardown);
         }
         catch
         {
@@ -79,13 +79,14 @@ internal sealed class GuiBootstrapper : IDisposable
     }
 
     private static async Task<GuiBootstrapper> BuildAsync(
-        Application app, FileLog log, Action exit, ProfileCatalog catalog, AppSettings settings,
-        IReadOnlyList<string> warnings, EcSession session, PowerStateCoordinator coordinator,
+        Application app, FileLog log, Action exit, ProfileCatalog catalog, LoadedSettings settings,
+        EcSession session, PowerStateCoordinator coordinator,
         AutoReapplyOptions reapplyOptions, Stack<(string Name, Action Dispose)> teardown)
     {
-        var setup = await WriteAccessBootstrap.CreateAsync(session.Worker, AppPaths.Root, settings.DryRun, session.PortAvailable, log);
+        var setup = await WriteAccessBootstrap.CreateAsync(
+            session.Worker, AppPaths.Root, settings.Settings.DryRun, session.PortAvailable, log);
         var control = new P65Control(session.Worker, setup, log);
-        var service = new ProfileService(control, catalog, new SettingsStore(AppPaths.Root), settings, log);
+        var service = new ProfileService(control, catalog, settings.Store, settings.Settings, log);
 
         var poller = new SensorPoller(
             control.ReadSensorsAsync, () => coordinator.IsEcAccessAllowed, () => service.IsBusy, TimeProvider.System, log,
@@ -139,7 +140,7 @@ internal sealed class GuiBootstrapper : IDisposable
             }
         });
 
-        await viewModel.InitializeAsync(warnings);
+        await viewModel.InitializeAsync(settings.Warnings);
         var signInStart = new SignInStartViewModel(new StartupTask(), CurrentExe, viewModel.Status, log);
         tray.Attach(viewModel, signInStart); // Only now does the icon appear.
         _ = signInStart.LoadAsync(); // Off the UI thread; the menu item stays disabled until it answers.
@@ -178,7 +179,7 @@ internal sealed class GuiBootstrapper : IDisposable
         }
     }
 
-    private static (AppSettings Settings, IReadOnlyList<string> Warnings) LoadSettings(ProfileCatalog catalog, FileLog log)
+    private static LoadedSettings LoadSettings(ProfileCatalog catalog, FileLog log)
     {
         var store = new SettingsStore(AppPaths.Root);
         var loaded = store.Load();
@@ -192,8 +193,14 @@ internal sealed class GuiBootstrapper : IDisposable
             log.Warn(warning);
         }
 
-        return (sanitized.Settings, warnings);
+        return new LoadedSettings(store, sanitized.Settings, warnings);
     }
+
+    /// <param name="Store">
+    /// The store that read the file. Saves must go through this same store: it remembers that the file
+    /// could not be read and then refuses to save over it, which a new store would not know.
+    /// </param>
+    private sealed record LoadedSettings(SettingsStore Store, AppSettings Settings, IReadOnlyList<string> Warnings);
 
     private static string CurrentExe =>
         Environment.ProcessPath ?? throw new InvalidOperationException("Çalışan exe'nin yolu bulunamadı.");
