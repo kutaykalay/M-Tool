@@ -80,12 +80,67 @@ public sealed class ProfileServicePowerSwitchTests : IDisposable
     {
         var service = await OnAc(On(battery: SilentEco));
         await service.SwitchPowerSourceAsync(PowerSource.Battery, write: true);
+        // Make the pair differ from the desired state, so only the same-source rule can stop a write.
+        await service.SetPowerSwitchAsync(false);
+        await service.SelectProfileAsync("Default");
+        await service.SetPowerSwitchAsync(true);
         _control.Calls.Clear();
+        _changes.Clear();
 
         var again = await service.SwitchPowerSourceAsync(PowerSource.Battery, write: true);
 
         again.Should().BeNull();
         _control.Calls.Should().BeEmpty();
+        _changes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Choices_by_hand_come_back_when_the_cable_goes_out_and_in_again()
+    {
+        var service = await OnAc(On());
+        await service.SelectProfileAsync("Silent");
+        await service.SwitchPowerSourceAsync(PowerSource.Battery, write: true);
+        await service.SetPerformanceAsync(PerformanceMode.Eco);
+        await service.SelectProfileAsync("Default");
+
+        await service.SwitchPowerSourceAsync(PowerSource.Ac, write: true);
+        service.Desired.Should().Be(new DesiredState("Silent", PerformanceMode.High, ChargeLimitPercent: 80));
+
+        await service.SwitchPowerSourceAsync(PowerSource.Battery, write: true);
+        service.Desired.Should().Be(new DesiredState("Default", PerformanceMode.Eco, ChargeLimitPercent: 80));
+    }
+
+    [Fact]
+    public async Task A_switch_raises_desired_changed_once_after_the_turn_ends()
+    {
+        var service = await OnAc(On(battery: SilentEco));
+        var raised = new List<DesiredState>();
+        Task? reentered = null;
+        service.DesiredChanged += desired =>
+        {
+            raised.Add(desired);
+            reentered ??= service.SetChargeLimitAsync(70);
+        };
+
+        await service.SwitchPowerSourceAsync(PowerSource.Battery, write: true);
+
+        var finished = await Task.WhenAny(reentered!, Task.Delay(TimeSpan.FromSeconds(5)));
+        finished.Should().BeSameAs(reentered, "a subscriber may call back into the service once the turn is free");
+        // One event from the switch, then one from the charge limit set by the subscriber.
+        raised.Select(d => (d.FanProfile, d.ChargeLimitPercent)).Should().Equal(("Silent", 80), ("Silent", 70));
+    }
+
+    [Fact]
+    public async Task After_the_battery_profile_is_deleted_switching_to_battery_keeps_what_is_set()
+    {
+        var gece = new FanProfile("Gece", Presets.Silent.Curves);
+        var service = await OnAc(On(battery: new PowerProfilePair("Gece")) with { CustomProfiles = [gece] });
+
+        (await service.DeleteProfileAsync("Gece")).Error.Should().BeNull();
+        var outcomes = await service.SwitchPowerSourceAsync(PowerSource.Battery, write: true);
+
+        outcomes.Should().BeNull();
+        service.Desired.FanProfile.Should().Be("Cool");
     }
 
     [Fact]

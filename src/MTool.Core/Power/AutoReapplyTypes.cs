@@ -7,6 +7,9 @@ public enum ReapplyTrigger
     Startup,
     Resume,
     Retry,
+
+    /// <summary>The laptop moved between AC and battery; see <see cref="PowerSourceSwitcher"/>.</summary>
+    PowerSource,
 }
 
 /// <param name="GateDelay">How long the EC access gate stays shut after wake; see <see cref="PowerStateCoordinator"/>.</param>
