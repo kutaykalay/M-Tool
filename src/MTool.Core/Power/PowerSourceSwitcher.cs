@@ -81,7 +81,7 @@ public sealed class PowerSourceSwitcher(
         }
     }
 
-    private void OnChanged()
+    private void OnChanged() => Guarded("kaynak değişimi", () =>
     {
         lock (_sync)
         {
@@ -94,17 +94,17 @@ public sealed class PowerSourceSwitcher(
             var generation = _generation;
             _waiting = time.CreateTimer(_ => _ = RunAsync(generation, mayWrite: true), null, _options.Debounce, Timeout.InfiniteTimeSpan);
         }
-    }
+    });
 
-    private void OnSuspending()
+    private void OnSuspending() => Guarded("uyku", () =>
     {
         lock (_sync)
         {
             CancelWaitingLocked();
         }
-    }
+    });
 
-    private void OnResumed()
+    private void OnResumed() => Guarded("uyanış", () =>
     {
         long generation;
         lock (_sync)
@@ -114,7 +114,7 @@ public sealed class PowerSourceSwitcher(
         }
 
         _ = RunAsync(generation, mayWrite: false);
-    }
+    });
 
     /// <summary>A new generation makes a waiting change stale: it does not run.</summary>
     private void CancelWaitingLocked()
@@ -155,19 +155,12 @@ public sealed class PowerSourceSwitcher(
             var outcomes = await @switch(current, mayWrite && coordinator.IsEcAccessAllowed).ConfigureAwait(false);
             if (outcomes is not null)
             {
-                Switched?.Invoke(new AutoReapplyResult(ReapplyTrigger.PowerSource, outcomes));
+                Report(new AutoReapplyResult(ReapplyTrigger.PowerSource, outcomes));
             }
         }
         catch (Exception ex)
         {
-            try
-            {
-                log.Error("Güç kaynağı geçişi hata verdi", ex);
-            }
-            catch
-            {
-                // The log itself failed; there is nowhere left to report.
-            }
+            Log("Güç kaynağı geçişi hata verdi", ex);
         }
         finally
         {
@@ -175,6 +168,52 @@ public sealed class PowerSourceSwitcher(
             {
                 _running--;
             }
+        }
+    }
+
+    /// <summary>Not after <see cref="Dispose"/>: the window that would show it may be gone.</summary>
+    private void Report(AutoReapplyResult result)
+    {
+        lock (_sync)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+        }
+
+        try
+        {
+            Switched?.Invoke(result);
+        }
+        catch (Exception ex)
+        {
+            Log("Güç kaynağı geçişinin sonucu bildirilemedi", ex);
+        }
+    }
+
+    /// <summary>Power events arrive on system threads: nothing may escape to them.</summary>
+    private void Guarded(string what, Action action)
+    {
+        try
+        {
+            action();
+        }
+        catch (Exception ex)
+        {
+            Log($"Güç kaynağı geçişi: {what} işlenemedi", ex);
+        }
+    }
+
+    private void Log(string message, Exception ex)
+    {
+        try
+        {
+            log.Error(message, ex);
+        }
+        catch
+        {
+            // The log itself failed; there is nowhere left to report.
         }
     }
 

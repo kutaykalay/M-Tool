@@ -171,7 +171,7 @@ public sealed class PowerSourceSwitcherTests : IDisposable
     }
 
     [Fact]
-    public void A_subscriber_that_throws_is_logged()
+    public void A_subscriber_that_throws_is_logged_apart_from_a_failed_switch()
     {
         Started();
         _switcher!.Switched += _ => throw new InvalidOperationException("abone");
@@ -179,7 +179,35 @@ public sealed class PowerSourceSwitcherTests : IDisposable
         _source.Set(PowerSource.Battery);
         _time.Advance(Debounce);
 
-        _log.Lines.Should().Contain(l => l.StartsWith("ERROR") && l.Contains("abone"));
+        _log.Lines.Should().Contain(l => l.StartsWith("ERROR") && l.Contains("bildirilemedi") && l.Contains("abone"));
+        _log.Lines.Should().NotContain(l => l.Contains("hata verdi"));
+    }
+
+    [Fact]
+    public void A_result_arriving_after_dispose_is_not_reported()
+    {
+        var pending = new TaskCompletionSource<IReadOnlyList<WriteOutcome>?>();
+        var switcher = Started((_, _) => pending.Task);
+        _source.Set(PowerSource.Battery);
+        _time.Advance(Debounce);
+
+        switcher.Dispose();
+        pending.SetResult(Outcomes(WriteStatus.Applied));
+        SpinWait.SpinUntil(() => !switcher.IsRunning, TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+        _results.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_timer_that_cannot_be_created_is_logged_not_thrown_to_the_event_thread()
+    {
+        _switcher = new PowerSourceSwitcher(Switch, _source, _events, _coordinator, new NoTimers(_time), _log, Options);
+        _switcher.Start();
+
+        var change = () => _source.Set(PowerSource.Battery);
+
+        change.Should().NotThrow();
+        _log.Lines.Should().Contain(l => l.StartsWith("ERROR") && l.Contains("zamanlayıcı yok"));
     }
 
     [Fact]
@@ -236,15 +264,26 @@ public sealed class PowerSourceSwitcherTests : IDisposable
     }
 
     [Fact]
-    public void Nothing_escapes_even_when_the_log_fails()
+    public void A_change_still_runs_after_a_failed_switch_that_could_not_be_logged()
     {
+        var failing = true;
         _switcher = new PowerSourceSwitcher(
-            (_, _) => Task.FromException<IReadOnlyList<WriteOutcome>?>(new InvalidOperationException("boom")),
+            (source, write) =>
+            {
+                _calls.Add((source, write));
+                return failing
+                    ? Task.FromException<IReadOnlyList<WriteOutcome>?>(new InvalidOperationException("boom"))
+                    : Task.FromResult<IReadOnlyList<WriteOutcome>?>(null);
+            },
             _source, _events, _coordinator, _time, new ThrowingLog(), Options);
+        _switcher.Start();
+        failing = false;
 
-        var start = () => _switcher.Start();
+        _source.Set(PowerSource.Battery);
+        _time.Advance(Debounce);
 
-        start.Should().NotThrow();
+        _calls.Should().Equal((PowerSource.Ac, true), (PowerSource.Battery, true));
+        _switcher.IsRunning.Should().BeFalse();
     }
 
     [Fact]
@@ -280,6 +319,9 @@ public sealed class PowerSourceSwitcherTests : IDisposable
             _events.Resume();
             _time.Advance(AutoReapplyOptions.Default.ResumeDelay);
             SpinWait.SpinUntil(() => !control.Calls.IsEmpty, TimeSpan.FromSeconds(5));
+            // Long past the debounce and the retry delay: a second write would show up by now.
+            _time.Advance(TimeSpan.FromMinutes(1));
+            SpinWait.SpinUntil(() => !reapplier.IsRunning && !service.IsBusy, TimeSpan.FromSeconds(5));
 
             control.Calls.Should().Equal($"desired {new DesiredState("Silent", PerformanceMode.Eco)}");
         }
@@ -287,6 +329,17 @@ public sealed class PowerSourceSwitcherTests : IDisposable
         {
             Directory.Delete(folder, recursive: true);
         }
+    }
+
+    /// <summary>Real time otherwise, but no timer can be created.</summary>
+    private sealed class NoTimers(TimeProvider inner) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => inner.GetUtcNow();
+
+        public override long GetTimestamp() => inner.GetTimestamp();
+
+        public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period) =>
+            throw new InvalidOperationException("zamanlayıcı yok");
     }
 
     private sealed class ThrowingLog : MTool.Core.IAppLog
