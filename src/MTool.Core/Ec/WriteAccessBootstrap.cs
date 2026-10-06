@@ -13,8 +13,10 @@ public sealed record WriteAccessSetup(FirmwareInfo? Firmware, EcGateway Gateway)
 /// </summary>
 public static class WriteAccessBootstrap
 {
+    /// <param name="layout">How the firmware is read; the write path itself stays on the verified P65 map.</param>
     public static async Task<WriteAccessSetup> CreateAsync(
         EcWorker worker,
+        DeviceLayout layout,
         string dataDirectory,
         bool dryRun,
         bool portAvailable,
@@ -23,7 +25,7 @@ public static class WriteAccessBootstrap
         Func<DateTimeOffset>? now = null)
     {
         retry ??= EcAccessRetry.Default;
-        var firmware = await ReadFirmwareAsync(worker, retry, log).ConfigureAwait(false);
+        var firmware = await ReadFirmwareAsync(worker, layout, retry, log).ConfigureAwait(false);
         var store = new PreStateStore(dataDirectory);
         if (firmware is { IsSupported: true })
         {
@@ -39,11 +41,11 @@ public static class WriteAccessBootstrap
         return new WriteAccessSetup(firmware, new EcGateway(worker, policy, log, writeLock.Lock, retry));
     }
 
-    private static async Task<FirmwareInfo?> ReadFirmwareAsync(EcWorker worker, EcAccessRetry retry, IAppLog log)
+    private static async Task<FirmwareInfo?> ReadFirmwareAsync(EcWorker worker, DeviceLayout layout, EcAccessRetry retry, IAppLog log)
     {
         try
         {
-            return await worker.RunRetryingAsync(ec => new P65Device(ec).ReadFirmware(), retry, log.Warn).ConfigureAwait(false);
+            return await worker.RunRetryingAsync(ec => new P65Device(ec, layout).ReadFirmware(), retry, log.Warn).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

@@ -27,7 +27,7 @@ public sealed class SleepGateTests : IDisposable
         _coordinator = new PowerStateCoordinator(_time, AutoReapplyOptions.Default.GateDelay);
         _worker = new EcWorker(_ec, new FakeEcLock(), TimeSpan.FromMilliseconds(50), accessGate: () => _coordinator.IsEcAccessAllowed);
         var retry = EcAccessRetry.Default with { Sleep = _ => { } };
-        _control = new P65Control(_worker, new WriteAccessSetup(Firmware, new EcGateway(_worker, Live, _log, retry: retry)), _log, retry);
+        _control = new P65Control(_worker, new WriteAccessSetup(Firmware, new EcGateway(_worker, Live, _log, retry: retry)), TestLayouts.P65, _log, retry);
     }
 
     public void Dispose()

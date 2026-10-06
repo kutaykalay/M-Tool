@@ -156,8 +156,8 @@ public sealed class EcGatewayTests : IDisposable
         var outcome = await Gateway().ApplyAsync(WritePlans.FanCurves(Presets.Cool.Curves, "Cool"));
 
         outcome.Status.Should().Be(WriteStatus.Applied);
-        new P65Device(_ec).ReadFanCurves().Cpu.Points.Should().Equal(Presets.Cool.Curves.Cpu.Points);
-        new P65Device(_ec).ReadFanCurves().Gpu.Points.Should().Equal(Presets.Cool.Curves.Gpu.Points);
+        new P65Device(_ec, TestLayouts.P65).ReadFanCurves().Cpu.Points.Should().Equal(Presets.Cool.Curves.Cpu.Points);
+        new P65Device(_ec, TestLayouts.P65).ReadFanCurves().Gpu.Points.Should().Equal(Presets.Cool.Curves.Gpu.Points);
         _log.Lines.Should().Contain(l => l.Contains("Applied") || l.Contains("uygulandı"));
     }
 
@@ -225,8 +225,8 @@ public sealed class EcGatewayTests : IDisposable
 
         outcome.Status.Should().Be(WriteStatus.FailedRecovered);
         outcome.Message.Should().StartWith("Ayar uygulanamadı").And.Contain("0x72").And.Contain("geri okunduğunda farklı");
-        new P65Device(_ec).ReadFanCurves().Cpu.Points.Should().Equal(FactoryDefaults.FanCurves.Cpu.Points);
-        new P65Device(_ec).ReadFanCurves().Gpu.Points.Should().Equal(FactoryDefaults.FanCurves.Gpu.Points);
+        new P65Device(_ec, TestLayouts.P65).ReadFanCurves().Cpu.Points.Should().Equal(FactoryDefaults.FanCurves.Cpu.Points);
+        new P65Device(_ec, TestLayouts.P65).ReadFanCurves().Gpu.Points.Should().Equal(FactoryDefaults.FanCurves.Gpu.Points);
         gateway.IsWriteEnabled.Should().BeFalse();
         (await gateway.ApplyAsync(WritePlans.ChargeLimit(80))).Status.Should().Be(WriteStatus.Rejected);
     }
@@ -473,7 +473,7 @@ public sealed class EcGatewayTests : IDisposable
 
         outcome.Status.Should().Be(WriteStatus.FailedRecovered);
         outcome.Message.Should().StartWith("Ayar uygulanamadı").And.Contain("0x72").And.Contain("geri okunduğunda farklı");
-        new P65Device(_ec).ReadFanCurves().Cpu.Points.Should().Equal(FactoryDefaults.FanCurves.Cpu.Points);
+        new P65Device(_ec, TestLayouts.P65).ReadFanCurves().Cpu.Points.Should().Equal(FactoryDefaults.FanCurves.Cpu.Points);
     }
 
     [Fact]

@@ -8,10 +8,13 @@ public static partial class DeviceConfigValidator
     /// <summary>The only register Cooler Boost may use through the port.</summary>
     public const byte CoolerBoostPortRegister = 0x98;
 
-    /// <summary>The only registers the charge limit may use through the port: WMI1 (0xEF) and WMI2 (0xD7) models.</summary>
-    public static IReadOnlySet<byte> ChargeLimitPortRegisters { get; } = new byte[] { 0xEF, 0xD7 }.ToFrozenSet();
+    /// <summary>
+    /// The only register the charge limit may use through the port. The WMI2 charge register (0xD7)
+    /// stays off the port until the project's port rule says otherwise.
+    /// </summary>
+    public static IReadOnlySet<byte> ChargeLimitPortRegisters { get; } = new byte[] { 0xEF }.ToFrozenSet();
 
-    /// <summary>Every register any config may send to the port. Fan tables never go through the port.</summary>
+    /// <summary>Every register any config may send to the port: 0x98 and 0xEF. Fan tables never go through the port.</summary>
     public static IReadOnlySet<byte> PortCeiling { get; } = ChargeLimitPortRegisters.Append(CoolerBoostPortRegister).ToFrozenSet();
 
     /// <summary>Firmware strings, fan values and tables, and feature registers may not share a byte.</summary>
@@ -152,7 +155,7 @@ public static partial class DeviceConfigValidator
         {
             if (!ChargeLimitPortRegisters.Contains(register))
             {
-                errors.Add($"chargeLimit porttan yalnızca 0xEF ya da 0xD7 olabilir (0x{register:X2}).");
+                errors.Add($"chargeLimit porttan yalnızca {string.Join(" ya da ", ChargeLimitPortRegisters.Order().Select(r => $"0x{r:X2}"))} olabilir (0x{register:X2}).");
             }
         }
         else

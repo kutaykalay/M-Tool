@@ -2,6 +2,7 @@ using MTool.App.Cli;
 using MTool.App.Startup;
 using MTool.Core.Device;
 using MTool.Core.Ec;
+using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Cli;
 
@@ -53,7 +54,7 @@ public class CliParsingTests
     [Fact]
     public void Watch_reads_only_registers_wmi_reaches()
     {
-        WatchCommand.Registers.Should().OnlyContain(r => WmiMap.Fields.ContainsKey(r))
+        WatchCommand.RegistersOf(TestLayouts.P65).Should().OnlyContain(r => WmiMap.Fields.ContainsKey(r))
             .And.Contain([EcMap.PerformanceMode, EcMap.FanMode, EcMap.CpuFan.UpThresholdsStart, EcMap.GpuFan.SpeedsStart])
             .And.NotContain([EcMap.CoolerBoost, EcMap.ChargeLimit]);
     }

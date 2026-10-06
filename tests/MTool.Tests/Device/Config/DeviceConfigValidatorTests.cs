@@ -288,9 +288,17 @@ public class DeviceConfigValidatorTests
     }
 
     [Fact]
-    public void The_port_ceiling_is_cooler_boost_charge_limit_and_the_wmi2_charge_register()
+    public void The_port_ceiling_is_cooler_boost_and_the_charge_limit_only()
     {
-        DeviceConfigValidator.PortCeiling.Order().Should().Equal(0x98, 0xD7, 0xEF);
+        DeviceConfigValidator.PortCeiling.Order().Should().Equal(0x98, 0xEF);
+    }
+
+    [Fact]
+    public void Rejects_the_wmi2_charge_register_on_the_port()
+    {
+        var features = P65().Features with { ChargeLimit = new ChargeLimitFeature(0xD7, 7, 50, 100) };
+
+        Rejects(P65() with { Features = features, PortRegisters = [0x98, 0xD7] }, "*0xD7 port tavanında değil*");
     }
 
     [Fact]
@@ -550,7 +558,9 @@ public class DeviceConfigValidatorTests
     [Fact]
     public void Rejects_a_port_register_that_belongs_to_no_feature()
     {
-        Rejects(P65() with { PortRegisters = [0x98, 0xEF, 0xD7] }, "*0xD7 hiçbir özelliğe ait değil*");
+        var features = P65().Features with { ChargeLimit = null };
+
+        Rejects(P65() with { Features = features }, "*0xEF hiçbir özelliğe ait değil*");
     }
 
     [Fact]

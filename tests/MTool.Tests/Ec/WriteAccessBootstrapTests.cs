@@ -27,7 +27,7 @@ public sealed class WriteAccessBootstrapTests : IDisposable
     private string PreStatePath => Path.Combine(_folder, "pre-mtool-state.json");
 
     private Task<WriteAccessSetup> CreateAsync(bool dryRun = false, bool portAvailable = true) => WriteAccessBootstrap.CreateAsync(
-        _worker, _folder, dryRun, portAvailable, _log, EcAccessRetry.Default with { Sleep = _sleeps.Add }, () => Now);
+        _worker, TestLayouts.P65, _folder, dryRun, portAvailable, _log, EcAccessRetry.Default with { Sleep = _sleeps.Add }, () => Now);
 
     [Fact]
     public async Task Without_a_port_the_gateway_opens_but_refuses_port_plans()

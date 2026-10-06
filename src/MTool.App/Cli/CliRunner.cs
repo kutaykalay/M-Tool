@@ -65,7 +65,7 @@ internal static class CliRunner
     {
         using var session = EcSession.Open(log, EcBackends.Hybrid);
         var report = Wait(session.Worker.RunAsync(ec =>
-            DumpFormatter.Format(new Core.Device.P65Device(ec), ec, session.Controller?.RecoveredFailures ?? 0)));
+            DumpFormatter.Format(new Core.Device.P65Device(ec, session.Layout), session.Layout, ec, session.Controller?.RecoveredFailures ?? 0)));
         Console.WriteLine(report);
         Console.WriteLine($"Kaydedildi: {SaveDump(report)}");
         return ExitOk;
@@ -98,7 +98,7 @@ internal static class CliRunner
         try
         {
             return Wait(session.Worker.RunAsync(ec =>
-                DumpFormatter.Format(new Core.Device.P65Device(ec), ec, session.Controller?.RecoveredFailures ?? 0)));
+                DumpFormatter.Format(new Core.Device.P65Device(ec, session.Layout), session.Layout, ec, session.Controller?.RecoveredFailures ?? 0)));
         }
         catch (Exception ex)
         {

@@ -9,7 +9,7 @@ public class P65DeviceTests
     [Fact]
     public void Reads_firmware_version_and_date()
     {
-        var device = new P65Device(P65Memory.FactorySnapshot());
+        var device = new P65Device(P65Memory.FactorySnapshot(), TestLayouts.P65);
 
         var firmware = device.ReadFirmware();
 
@@ -32,13 +32,13 @@ public class P65DeviceTests
         var ec = new FakeEcRegisters();
         ec.LoadAscii(0xA0, "16Q4EMS2.1\0\0");
 
-        new P65Device(ec).ReadFirmware().Version.Should().Be("16Q4EMS2.1");
+        new P65Device(ec, TestLayouts.P65).ReadFirmware().Version.Should().Be("16Q4EMS2.1");
     }
 
     [Fact]
     public void Reads_sensors()
     {
-        var device = new P65Device(P65Memory.FactorySnapshot());
+        var device = new P65Device(P65Memory.FactorySnapshot(), TestLayouts.P65);
 
         var sensors = device.ReadSensors();
 
@@ -55,13 +55,13 @@ public class P65DeviceTests
         var ec = P65Memory.FactorySnapshot();
         ec.Load(0x68, raw);
 
-        new P65Device(ec).ReadSensors().CpuTempC.Should().BeNull();
+        new P65Device(ec, TestLayouts.P65).ReadSensors().CpuTempC.Should().BeNull();
     }
 
     [Fact]
     public void Reads_both_fan_curves()
     {
-        var device = new P65Device(P65Memory.FactorySnapshot());
+        var device = new P65Device(P65Memory.FactorySnapshot(), TestLayouts.P65);
 
         var curves = device.ReadFanCurves();
 

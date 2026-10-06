@@ -9,9 +9,9 @@ namespace MTool.App.Hardware;
 /// <summary>
 /// <see cref="IWmiFields"/> over MSI's WMI1 classes in <c>root\WMI</c>, through System.Management.
 /// Each field is one instance (<c>InstanceName</c> = prefix + index) with one byte-sized value
-/// property named after the class (<c>MSI_CPU.CPU</c>). Only the (class, index) pairs in
-/// <see cref="WmiMap"/> are read, and only those of writable registers are written, so no caller
-/// can build another WMI path.
+/// property named after the class (<c>MSI_CPU.CPU</c>). Only the (class, index) pairs in the
+/// session's <see cref="WmiFieldMap"/> are read, and only those of the verified P65 map's writable
+/// registers (<see cref="WmiMap"/>) are written, so no caller can build another WMI path.
 /// <para>
 /// Every WMI call runs on a thread-pool (MTA) thread with a hard <see cref="CallTimeout"/>: the
 /// options' own timeouts do not bound synchronous calls, and a hung call would hold the Access_EC
@@ -29,45 +29,49 @@ internal sealed class MsiWmiFields : IWmiFields
     // A prefix that cannot break out of the quoted InstanceName key, e.g. ACPI\PNP0C14\0_
     private static readonly Regex SafePrefix = new(@"^[A-Za-z0-9\\]+_$", RegexOptions.CultureInvariant);
 
-    private static readonly FrozenSet<WmiField> Mapped = WmiMap.Fields.Values.ToFrozenSet();
-
     private static readonly FrozenSet<WmiField> Writable = EcWriteRules.WritableRegisters
         .Where(WmiMap.Fields.ContainsKey)
         .Select(r => WmiMap.Fields[r])
         .ToFrozenSet();
 
     private readonly string _instancePrefix;
+    private readonly WmiFieldMap _map;
     private ManagementScope _scope;
     private bool _reconnect;
 
-    private MsiWmiFields(ManagementScope scope, string instancePrefix) =>
-        (_scope, _instancePrefix) = (scope, instancePrefix);
+    private MsiWmiFields(ManagementScope scope, string instancePrefix, WmiFieldMap map) =>
+        (_scope, _instancePrefix, _map) = (scope, instancePrefix, map);
 
     /// <summary>Connects and finds the instance prefix from the firmware class.</summary>
+    /// <param name="map">The only fields this session may read.</param>
     /// <exception cref="EcAccessException">WMI1 is missing or does not answer.</exception>
-    public static MsiWmiFields Open() => Bounded("bağlantı", CallTimeout, () =>
+    public static MsiWmiFields Open(WmiFieldMap map) => Bounded("bağlantı", CallTimeout, () =>
     {
         var scope = Connect();
         using var searcher = new ManagementObjectSearcher(
             scope, new SelectQuery(WmiMap.SoftwareClass), new EnumerationOptions { Timeout = CallTimeout });
         using var instances = searcher.Get();
         var names = instances.Cast<ManagementObject>().Select(InstanceNameOf).ToArray();
-        return new MsiWmiFields(scope, PrefixOf(names));
+        return new MsiWmiFields(scope, PrefixOf(names), map);
     });
 
     public IReadOnlyList<int> Read(string className, IReadOnlyList<int> indices)
     {
         foreach (var index in indices)
         {
-            EnsureMapped(className, index);
+            EnsureMapped(_map, className, index);
         }
 
         return Call($"{className} okuma", scope => indices.Select(i => ReadOne(scope, className, i)).ToArray());
     }
 
+    /// <summary>
+    /// The static <see cref="Writable"/> set (verified P65 map, writable registers) is the authority;
+    /// the session map only narrows what may be touched at all.
+    /// </summary>
     public void Write(string className, int index, byte value)
     {
-        EnsureMapped(className, index);
+        EnsureMapped(_map, className, index);
         if (!Writable.Contains(new WmiField(className, index)))
         {
             throw new InvalidOperationException($"{className}[{index}] yazılabilir bir register'a ait değil.");
@@ -83,9 +87,9 @@ internal sealed class MsiWmiFields : IWmiFields
     }
 
     /// <summary>Programming errors, not WMI trouble: never retried.</summary>
-    internal static void EnsureMapped(string className, int index)
+    internal static void EnsureMapped(WmiFieldMap map, string className, int index)
     {
-        if (!Mapped.Contains(new WmiField(className, index)))
+        if (!map.FieldSet.Contains(new WmiField(className, index)))
         {
             throw new InvalidOperationException($"{className}[{index}] WMI haritasında yok.");
         }

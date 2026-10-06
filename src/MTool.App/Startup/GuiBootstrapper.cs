@@ -84,8 +84,8 @@ internal sealed class GuiBootstrapper : IDisposable
         AutoReapplyOptions reapplyOptions, Stack<(string Name, Action Dispose)> teardown)
     {
         var setup = await WriteAccessBootstrap.CreateAsync(
-            session.Worker, AppPaths.Root, settings.Settings.DryRun, session.PortAvailable, log);
-        var control = new P65Control(session.Worker, setup, log);
+            session.Worker, session.Layout, AppPaths.Root, settings.Settings.DryRun, session.PortAvailable, log);
+        var control = new P65Control(session.Worker, setup, session.Layout, log);
         var service = new ProfileService(control, catalog, settings.Store, settings.Settings, log);
 
         var poller = new SensorPoller(

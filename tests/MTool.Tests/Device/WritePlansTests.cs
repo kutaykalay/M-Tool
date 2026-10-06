@@ -21,7 +21,7 @@ public class WritePlansTests
     [Fact]
     public void Factory_defaults_match_the_table_read_from_the_laptop()
     {
-        var fromEc = new P65Device(P65Memory.FactorySnapshot()).ReadFanCurves();
+        var fromEc = new P65Device(P65Memory.FactorySnapshot(), TestLayouts.P65).ReadFanCurves();
 
         FactoryDefaults.FanCurves.Cpu.Points.Should().Equal(fromEc.Cpu.Points);
         FactoryDefaults.FanCurves.Gpu.Points.Should().Equal(fromEc.Gpu.Points);

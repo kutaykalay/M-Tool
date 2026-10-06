@@ -72,7 +72,7 @@ public class WmiMapTests
     public void Every_register_the_device_reads_is_reachable_through_wmi_or_the_port()
     {
         var ec = new RecordingRegisters(P65Memory.FactorySnapshot());
-        var device = new P65Device(ec);
+        var device = new P65Device(ec, TestLayouts.P65);
 
         device.ReadFirmware();
         device.ReadSensors();
@@ -87,7 +87,7 @@ public class WmiMapTests
     public void Everything_but_the_port_state_is_read_through_wmi()
     {
         var ec = new RecordingRegisters(P65Memory.FactorySnapshot());
-        var device = new P65Device(ec);
+        var device = new P65Device(ec, TestLayouts.P65);
 
         device.ReadFirmware();
         device.ReadSensors();

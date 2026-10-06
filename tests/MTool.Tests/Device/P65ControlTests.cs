@@ -23,7 +23,7 @@ public sealed class P65ControlTests : IDisposable
     private EcAccessRetry Retry => EcAccessRetry.Default with { Sleep = _sleeps.Add };
 
     private P65Control Control(WritePolicy? policy = null, FirmwareInfo? firmware = null) =>
-        new(_worker, new WriteAccessSetup(firmware ?? Firmware, new EcGateway(_worker, policy ?? Live, _log, retry: Retry)), _log, Retry);
+        new(_worker, new WriteAccessSetup(firmware ?? Firmware, new EcGateway(_worker, policy ?? Live, _log, retry: Retry)), TestLayouts.P65, _log, Retry);
 
     // --- access ---
 
@@ -201,7 +201,7 @@ public sealed class P65ControlTests : IDisposable
     {
         var accessAllowed = true;
         using var worker = new EcWorker(_ec, new FakeEcLock(), TimeSpan.FromMilliseconds(50), accessGate: () => accessAllowed);
-        var control = new P65Control(worker, new WriteAccessSetup(Firmware, new EcGateway(worker, Live, _log, retry: Retry)), _log, Retry);
+        var control = new P65Control(worker, new WriteAccessSetup(Firmware, new EcGateway(worker, Live, _log, retry: Retry)), TestLayouts.P65, _log, Retry);
         await control.ReadControlStateAsync(PortUse.Allowed);
 
         accessAllowed = false; // just after a wake
@@ -221,7 +221,7 @@ public sealed class P65ControlTests : IDisposable
     {
         var accessAllowed = false;
         using var worker = new EcWorker(_ec, new FakeEcLock(), TimeSpan.FromMilliseconds(50), accessGate: () => accessAllowed);
-        var control = new P65Control(worker, new WriteAccessSetup(Firmware, new EcGateway(worker, Live, _log, retry: Retry)), _log, Retry);
+        var control = new P65Control(worker, new WriteAccessSetup(Firmware, new EcGateway(worker, Live, _log, retry: Retry)), TestLayouts.P65, _log, Retry);
 
         var outcome = await control.SetCoolerBoostAsync(true);
         accessAllowed = true;
@@ -360,7 +360,7 @@ public sealed class P65ControlTests : IDisposable
         var outcome = await Control().ApplyFanProfileAsync(Presets.Cool);
 
         outcome.Status.Should().Be(WriteStatus.Applied);
-        new P65Device(_ec).ReadFanCurves().Should().Be(Presets.Cool.Curves);
+        new P65Device(_ec, TestLayouts.P65).ReadFanCurves().Should().Be(Presets.Cool.Curves);
     }
 
     [Fact]
@@ -376,7 +376,7 @@ public sealed class P65ControlTests : IDisposable
 
         outcome.Status.Should().Be(WriteStatus.Rejected);
         _ec.Writes.Should().BeEmpty();
-        new P65Device(_ec).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
+        new P65Device(_ec, TestLayouts.P65).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
     }
 
     [Theory]
@@ -443,7 +443,7 @@ public sealed class P65ControlTests : IDisposable
         var outcomes = await Control().ApplyDesiredAsync(desired, ProfileCatalog.BuiltIn);
 
         outcomes.Should().HaveCount(3).And.OnlyContain(o => o.Status == WriteStatus.Applied);
-        var device = new P65Device(_ec);
+        var device = new P65Device(_ec, TestLayouts.P65);
         device.ReadControlState().Should().BeEquivalentTo(new { FanCurves = Presets.Cool.Curves, Performance = PerformanceMode.Balanced });
         device.ReadPortState().ChargeLimitPercent.Should().Be(60);
     }

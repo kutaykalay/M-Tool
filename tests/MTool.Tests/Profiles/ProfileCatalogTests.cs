@@ -26,7 +26,7 @@ public class ProfileCatalogTests
     [Fact]
     public void Factory_tables_read_from_the_ec_match_default()
     {
-        var curves = new P65Device(P65Memory.FactorySnapshot()).ReadFanCurves();
+        var curves = new P65Device(P65Memory.FactorySnapshot(), TestLayouts.P65).ReadFanCurves();
 
         Catalog.Match(curves)!.Name.Should().Be("Default");
     }

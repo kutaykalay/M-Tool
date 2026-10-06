@@ -12,7 +12,7 @@ namespace MTool.Core.Device;
 /// then, and reading the port again would only add risk. Changes made outside M-Tool (an Fn key,
 /// a resume) are not seen until the next fresh read.
 /// </summary>
-public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog log, EcAccessRetry? retry = null) : IP65Control
+public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLayout layout, IAppLog log, EcAccessRetry? retry = null) : IP65Control
 {
     private readonly EcAccessRetry _retry = retry ?? EcAccessRetry.Default;
 
@@ -28,11 +28,11 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
         : new DeviceAccess(setup.Firmware, setup.Gateway.IsDryRun ? WriteMode.DryRun : WriteMode.Enabled, null, PortAvailable);
 
     public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default) =>
-        worker.RunAsync(ec => new P65Device(ec).ReadSensors(), cancellationToken);
+        worker.RunAsync(ec => new P65Device(ec, layout).ReadSensors(), cancellationToken);
 
     public async Task<ControlState> ReadControlStateAsync(PortUse portUse, CancellationToken cancellationToken = default)
     {
-        var state = await worker.RunRetryingAsync(ec => new P65Device(ec).ReadControlState(), _retry, log.Warn, cancellationToken)
+        var state = await worker.RunRetryingAsync(ec => new P65Device(ec, layout).ReadControlState(), _retry, log.Warn, cancellationToken)
             .ConfigureAwait(false);
         return state with { Port = await CachedPortStateAsync(portUse, cancellationToken).ConfigureAwait(false) };
     }
@@ -212,10 +212,10 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
     {
         try
         {
-            var state = await worker.RunRetryingAsync(ec => new P65Device(ec).ReadPortState(), _retry, log.Warn, cancellationToken)
+            var state = await worker.RunRetryingAsync(ec => new P65Device(ec, layout).ReadPortState(), _retry, log.Warn, cancellationToken)
                 .ConfigureAwait(false);
             (_port, _portSettled) = (state, true);
-            log.Info($"{what}: port okundu, 0x{EcMap.CoolerBoost:X2}=0x{state.CoolerBoostRaw:X2} 0x{EcMap.ChargeLimit:X2}=0x{state.ChargeLimitRaw:X2}");
+            log.Info($"{what}: port okundu, 0x{layout.CoolerBoost:X2}=0x{state.CoolerBoostRaw:X2} 0x{layout.ChargeLimit:X2}=0x{state.ChargeLimitRaw:X2}");
             return (state, null);
         }
         catch (EcAccessException ex) when (ex.IsAccessPaused)

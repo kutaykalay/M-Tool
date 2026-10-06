@@ -29,8 +29,10 @@ internal sealed class EcSession : IDisposable
     private readonly EcTroubleLog? _troubleLog;
 
     private EcSession(
-        PawnIoPortIo? ports, AccessEcMutex ecLock, EcController? controller, EcWorker worker, IAppLog log, EcTroubleLog? troubleLog)
+        PawnIoPortIo? ports, AccessEcMutex ecLock, EcController? controller, EcWorker worker, DeviceLayout layout, IAppLog log,
+        EcTroubleLog? troubleLog)
     {
+        Layout = layout;
         _ports = ports;
         _ecLock = ecLock;
         Controller = controller;
@@ -44,11 +46,15 @@ internal sealed class EcSession : IDisposable
 
     public EcWorker Worker { get; }
 
+    /// <summary>How this model's registers are read (sensors, tables, firmware, dump).</summary>
+    public DeviceLayout Layout { get; }
+
     /// <summary>Derived from the port the router was given, so the gateway's policy cannot disagree with it.</summary>
     public bool PortAvailable => Controller is not null;
 
     /// <param name="accessGate">When it returns false, EC operations fail without touching the EC (sleep/resume).</param>
     /// <exception cref="EcAccessException">PawnIO (Hybrid) or WMI1 is missing or does not answer.</exception>
+    /// <exception cref="InvalidOperationException">The embedded device record did not load.</exception>
     public static EcSession Open(IAppLog log, EcBackends backend, Func<bool>? accessGate = null)
     {
         if (backend == EcBackends.Hybrid && PawnIoInstallation.InstalledVersion() is null)
@@ -56,7 +62,8 @@ internal sealed class EcSession : IDisposable
             throw new EcAccessException($"PawnIO kurulu değil. Kurmak için: {PawnIoInstallation.InstallCommand}");
         }
 
-        var wmi = MsiWmiFields.Open();
+        var layout = EmbeddedDevices.LoadP65(log);
+        var wmi = MsiWmiFields.Open(layout.Wmi);
         var ecLock = new AccessEcMutex();
         PawnIoPortIo? ports = null;
         try
@@ -70,10 +77,10 @@ internal sealed class EcSession : IDisposable
                 controller = new EcController(ports, EcProtocolOptions.Default, troubleLog.Report);
             }
 
-            var registers = RoutedEcRegisters.Create(wmi, controller);
+            var registers = RoutedEcRegisters.Create(wmi, controller, layout.Wmi);
             var worker = new EcWorker(registers, ecLock, LockTimeout, (message, ex) => log.Error(message, ex), accessGate);
-            log.Info($"EC oturumu: {backend}");
-            return new EcSession(ports, ecLock, controller, worker, log, troubleLog);
+            log.Info($"EC oturumu: {backend}, cihaz kaydı {layout.Id}");
+            return new EcSession(ports, ecLock, controller, worker, layout, log, troubleLog);
         }
         catch
         {
@@ -88,7 +95,7 @@ internal sealed class EcSession : IDisposable
     /// does not exist yet; without it (or on any EC/file trouble) the gateway stays locked.
     /// </summary>
     public async Task<EcGateway> CreateGatewayAsync(bool dryRun) =>
-        (await WriteAccessBootstrap.CreateAsync(Worker, AppPaths.Root, dryRun, PortAvailable, _log).ConfigureAwait(false)).Gateway;
+        (await WriteAccessBootstrap.CreateAsync(Worker, Layout, AppPaths.Root, dryRun, PortAvailable, _log).ConfigureAwait(false)).Gateway;
 
     public void Dispose()
     {

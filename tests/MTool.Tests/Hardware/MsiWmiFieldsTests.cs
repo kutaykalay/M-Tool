@@ -1,5 +1,7 @@
 using MTool.App.Hardware;
 using MTool.Core.Device;
+using MTool.Core.Device.Config;
+using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Hardware;
 
@@ -28,7 +30,7 @@ public class MsiWmiFieldsTests
     [InlineData(WmiMap.ApClass, 2)]
     public void Mapped_fields_are_allowed(string className, int index)
     {
-        ((Action)(() => MsiWmiFields.EnsureMapped(className, index))).Should().NotThrow();
+        ((Action)(() => MsiWmiFields.EnsureMapped(TestLayouts.P65.Wmi, className, index))).Should().NotThrow();
     }
 
     [Theory]
@@ -39,7 +41,18 @@ public class MsiWmiFieldsTests
     [InlineData("MSI_CPU.InstanceName=\"x\" or 1", 1)]
     public void Anything_outside_the_map_is_refused(string className, int index)
     {
-        ((Action)(() => MsiWmiFields.EnsureMapped(className, index))).Should().Throw<InvalidOperationException>();
+        ((Action)(() => MsiWmiFields.EnsureMapped(TestLayouts.P65.Wmi, className, index))).Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void The_allowed_fields_follow_the_session_map()
+    {
+        var p65 = TestLayouts.P65Config;
+        var fields = p65.Wmi1!.Fields.Where(f => f.Register != 0x68).Append(new WmiFieldSpec(0x68, WmiMap.CpuClass, 3));
+        var map = DeviceLayout.From(p65 with { Wmi1 = new Wmi1Layout([.. fields]) }).Wmi;
+
+        ((Action)(() => MsiWmiFields.EnsureMapped(map, WmiMap.CpuClass, 3))).Should().NotThrow();
+        ((Action)(() => MsiWmiFields.EnsureMapped(map, WmiMap.CpuClass, 1))).Should().Throw<InvalidOperationException>();
     }
 
     // --- every WMI failure is an EC access error (retried, read back), never a hard failure ---

@@ -27,9 +27,8 @@ internal static class WatchCommand
     private const int MaxSeconds = 600;
     private static readonly TimeSpan PollInterval = TimeSpan.FromMilliseconds(500);
 
-    /// <summary>Performance mode, fan mode and both fan tables, in register order.</summary>
-    internal static IReadOnlyList<byte> Registers { get; } =
-        [.. EcMap.FanTableRegisters.Append(EcMap.PerformanceMode).Append(EcMap.FanMode).Order()];
+    /// <summary>Performance mode, fan mode and both fan tables of the session's model, in register order.</summary>
+    internal static IReadOnlyList<byte> RegistersOf(DeviceLayout layout) => layout.WatchedRegisters;
 
     public static bool TryParse(string[] args, out int seconds)
     {
@@ -74,6 +73,8 @@ internal static class WatchCommand
         using var following = gate.Follow(powerEvents);
         using var session = EcSession.Open(log, EcBackends.WmiOnly, () => gate.IsEcAccessAllowed);
 
+        var registers = RegistersOf(session.Layout);
+
         void Line(string text)
         {
             var stamped = $"{DateTime.Now:HH:mm:ss.fff} (t+{clock.Elapsed.TotalSeconds:F2}s) {text}";
@@ -82,7 +83,7 @@ internal static class WatchCommand
         }
 
         Line($"İzleme başladı: {seconds} sn, {PollInterval.TotalMilliseconds} ms aralık, salt okuma, yalnızca WMI, " +
-             $"{Registers.Count} register.");
+             $"{registers.Count} register.");
         byte[]? previous = null;
         var samples = 0;
         var failures = 0;
@@ -91,7 +92,7 @@ internal static class WatchCommand
         {
             try
             {
-                var current = Registers.Select(r => CliRunner.Wait(session.Worker.RunAsync(ec => ec.Read(r)))).ToArray();
+                var current = registers.Select(r => CliRunner.Wait(session.Worker.RunAsync(ec => ec.Read(r)))).ToArray();
                 samples++;
                 if (paused)
                 {
@@ -101,11 +102,11 @@ internal static class WatchCommand
 
                 if (previous is null)
                 {
-                    Line($"İlk durum: {Describe(current, _ => true)}");
+                    Line($"İlk durum: {Describe(registers, current, _ => true)}");
                 }
                 else if (!current.AsSpan().SequenceEqual(previous))
                 {
-                    Line($"Değişti: {Describe(current, i => current[i] != previous[i], previous)}");
+                    Line($"Değişti: {Describe(registers, current, i => current[i] != previous[i], previous)}");
                 }
 
                 previous = current;
@@ -130,9 +131,9 @@ internal static class WatchCommand
         Line($"Bitti: {samples} örnek, {failures} okunamayan{(stop.IsCancellationRequested ? " (Ctrl+C)" : "")}.");
     }
 
-    private static string Describe(byte[] current, Func<int, bool> include, byte[]? previous = null) =>
+    private static string Describe(IReadOnlyList<byte> registers, byte[] current, Func<int, bool> include, byte[]? previous = null) =>
         string.Join(' ', Enumerable.Range(0, current.Length).Where(include).Select(i =>
             previous is null
-                ? $"0x{Registers[i]:X2}={current[i]:X2}"
-                : $"0x{Registers[i]:X2}:{previous[i]:X2}->{current[i]:X2}"));
+                ? $"0x{registers[i]:X2}={current[i]:X2}"
+                : $"0x{registers[i]:X2}:{previous[i]:X2}->{current[i]:X2}"));
 }

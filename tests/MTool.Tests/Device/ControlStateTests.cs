@@ -8,7 +8,7 @@ public class ControlStateTests
     [Fact]
     public void Reads_control_state_of_the_factory_snapshot()
     {
-        var state = new P65Device(P65Memory.FactorySnapshot()).ReadControlState();
+        var state = new P65Device(P65Memory.FactorySnapshot(), TestLayouts.P65).ReadControlState();
 
         state.FanCurves.Should().BeEquivalentTo(FactoryDefaults.FanCurves);
         state.Performance.Should().Be(PerformanceMode.High);
@@ -28,7 +28,7 @@ public class ControlStateTests
             return null;
         };
 
-        new P65Device(ec).ReadControlState();
+        new P65Device(ec, TestLayouts.P65).ReadControlState();
 
         reads.Should().NotContain([0x98, 0xEF]);
     }
@@ -44,7 +44,7 @@ public class ControlStateTests
             return null;
         };
 
-        var port = new P65Device(ec).ReadPortState();
+        var port = new P65Device(ec, TestLayouts.P65).ReadPortState();
 
         port.Should().Be(new PortState(CoolerBoostRaw: 0x02, ChargeLimitRaw: 0xD0));
         port.CoolerBoostOn.Should().BeFalse();
@@ -63,7 +63,7 @@ public class ControlStateTests
         var ec = P65Memory.FactorySnapshot();
         ec.Load(0xF2, raw);
 
-        var state = new P65Device(ec).ReadControlState();
+        var state = new P65Device(ec, TestLayouts.P65).ReadControlState();
 
         state.Performance.Should().Be(expected);
         state.PerformanceRaw.Should().Be(raw);
@@ -78,7 +78,7 @@ public class ControlStateTests
         var ec = P65Memory.FactorySnapshot();
         ec.Load(0x98, raw);
 
-        new P65Device(ec).ReadPortState().CoolerBoostOn.Should().Be(expected);
+        new P65Device(ec, TestLayouts.P65).ReadPortState().CoolerBoostOn.Should().Be(expected);
     }
 
     [Theory]
@@ -93,7 +93,7 @@ public class ControlStateTests
         var ec = P65Memory.FactorySnapshot();
         ec.Load(0xEF, raw);
 
-        new P65Device(ec).ReadPortState().ChargeLimitPercent.Should().Be(expected);
+        new P65Device(ec, TestLayouts.P65).ReadPortState().ChargeLimitPercent.Should().Be(expected);
     }
 
     [Theory]
@@ -105,7 +105,7 @@ public class ControlStateTests
         var ec = P65Memory.FactorySnapshot();
         ec.Load(0xF4, raw);
 
-        new P65Device(ec).ReadControlState().FanMode.Should().Be(expected);
+        new P65Device(ec, TestLayouts.P65).ReadControlState().FanMode.Should().Be(expected);
     }
 
     [Theory]

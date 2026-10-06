@@ -4,44 +4,45 @@ using MTool.Core.Profiles;
 
 namespace MTool.Core.Device;
 
-/// <summary>Typed read access to the P65's EC. Knows the register map, never the protocol.</summary>
+/// <summary>Typed read access to the EC through a <see cref="DeviceLayout"/>. Knows the register map, never the protocol.</summary>
 public sealed class P65Device
 {
     private const int MinPlausibleTempC = 1;
     private const int MaxPlausibleTempC = 110;
 
     private readonly IEcRegisters _ec;
+    private readonly DeviceLayout _layout;
 
-    public P65Device(IEcRegisters ec) => _ec = ec;
+    public P65Device(IEcRegisters ec, DeviceLayout layout) => (_ec, _layout) = (ec, layout);
 
     public FirmwareInfo ReadFirmware() => new(
-        ReadAscii(EcMap.FirmwareVersion, EcMap.FirmwareVersionLength),
-        ReadAscii(EcMap.FirmwareDate, EcMap.FirmwareDateLength));
+        ReadAscii(_layout.Firmware.Version, _layout.Firmware.VersionLength),
+        ReadAscii(_layout.Firmware.Date, _layout.Firmware.DateLength));
 
     public SensorSnapshot ReadSensors() => new(
-        CpuTempC: ReadTemperature(EcMap.CpuFan),
-        GpuTempC: ReadTemperature(EcMap.GpuFan),
-        CpuFanPercent: _ec.Read(EcMap.CpuFan.SpeedPercent),
-        GpuFanPercent: _ec.Read(EcMap.GpuFan.SpeedPercent),
-        CpuRpm: ReadRpm(EcMap.CpuFan),
-        GpuRpm: ReadRpm(EcMap.GpuFan));
+        CpuTempC: ReadTemperature(_layout.CpuFan),
+        GpuTempC: ReadTemperature(_layout.GpuFan),
+        CpuFanPercent: _ec.Read(_layout.CpuFan.SpeedPercent),
+        GpuFanPercent: _ec.Read(_layout.GpuFan.SpeedPercent),
+        CpuRpm: ReadRpm(_layout.CpuFan),
+        GpuRpm: ReadRpm(_layout.GpuFan));
 
-    public FanCurves ReadFanCurves() => new(ReadFanCurve(EcMap.CpuFan), ReadFanCurve(EcMap.GpuFan));
+    public FanCurves ReadFanCurves() => new(ReadFanCurve(_layout.CpuFan), ReadFanCurve(_layout.GpuFan));
 
     /// <summary>Everything but the port-only registers: <see cref="ControlState.Port"/> is null.</summary>
     public ControlState ReadControlState()
     {
-        var performance = _ec.Read(EcMap.PerformanceMode);
+        var performance = _ec.Read(_layout.PerformanceMode);
         return new ControlState(
             FanCurves: ReadFanCurves(),
             Performance: ModeCodes.ToPerformance(performance),
             PerformanceRaw: performance,
-            FanMode: ModeCodes.ToFanMode(_ec.Read(EcMap.FanMode)),
+            FanMode: ModeCodes.ToFanMode(_ec.Read(_layout.FanMode)),
             Port: null);
     }
 
     /// <summary>Cooler Boost and the charge limit: two raw port accesses, so read them only when needed.</summary>
-    public PortState ReadPortState() => new(_ec.Read(EcMap.CoolerBoost), _ec.Read(EcMap.ChargeLimit));
+    public PortState ReadPortState() => new(_ec.Read(_layout.CoolerBoost), _ec.Read(_layout.ChargeLimit));
 
     private FanCurve ReadFanCurve(FanRegisters fan) => FanTableCodec.Decode(
         _ec.ReadBlock(fan.UpThresholdsStart, EcMap.ThresholdCount),

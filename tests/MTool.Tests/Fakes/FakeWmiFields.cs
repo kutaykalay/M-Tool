@@ -5,12 +5,12 @@ namespace MTool.Tests.Fakes;
 
 /// <summary>
 /// MSI WMI1 over a <see cref="FakeEcRegisters"/> memory: each field reads and writes the EC register
-/// that <see cref="WmiMap"/> assigns to it, like the BIOS methods do.
+/// that the map (by default <see cref="WmiMap"/>) assigns to it, like the BIOS methods do.
 /// </summary>
-internal sealed class FakeWmiFields(FakeEcRegisters memory) : IWmiFields
+internal sealed class FakeWmiFields(FakeEcRegisters memory, IReadOnlyDictionary<byte, WmiField>? fields = null) : IWmiFields
 {
-    private static readonly IReadOnlyDictionary<WmiField, byte> Registers =
-        WmiMap.Fields.ToDictionary(f => f.Value, f => f.Key);
+    private readonly IReadOnlyDictionary<WmiField, byte> _registers =
+        (fields ?? WmiMap.Fields).ToDictionary(f => f.Value, f => f.Key);
 
     /// <summary>Every call in order, e.g. "read MSI_CPU[5,11]" or "write MSI_System[7]=0xC1".</summary>
     public List<string> Calls { get; } = [];
@@ -45,8 +45,8 @@ internal sealed class FakeWmiFields(FakeEcRegisters memory) : IWmiFields
         }
     }
 
-    private static byte RegisterOf(WmiField field) =>
-        Registers.TryGetValue(field, out var register)
+    private byte RegisterOf(WmiField field) =>
+        _registers.TryGetValue(field, out var register)
             ? register
             : throw new InvalidOperationException($"{field} is not mapped in this fake.");
 

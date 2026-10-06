@@ -1,4 +1,5 @@
 using MTool.Core.Device;
+using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 using MTool.Core.Profiles;
 using MTool.Tests.Fakes;
@@ -27,16 +28,16 @@ public sealed class RoutedEcRegistersTests : IDisposable
 
     public void Dispose() => _worker?.Dispose();
 
-    private RoutedEcRegisters Hybrid() => new(_wmi, _ec);
+    private RoutedEcRegisters Hybrid() => new(_wmi, _ec, TestLayouts.P65.Wmi);
 
-    private RoutedEcRegisters WmiOnly() => new(_wmi, port: null);
+    private RoutedEcRegisters WmiOnly() => new(_wmi, port: null, TestLayouts.P65.Wmi);
 
     private IEnumerable<byte> PortWrites => _ec.Writes.Select(w => w.Register);
 
     [Fact]
     public void Firmware_sensors_and_fan_tables_never_touch_the_port()
     {
-        var device = new P65Device(Hybrid());
+        var device = new P65Device(Hybrid(), TestLayouts.P65);
 
         device.ReadFirmware().Version.Should().Be("16Q4EMS2.107");
         device.ReadSensors().CpuTempC.Should().Be(60);
@@ -125,7 +126,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
     [Fact]
     public void A_wmi_answer_with_the_wrong_field_count_is_an_access_error()
     {
-        var routed = new RoutedEcRegisters(new ShortAnswerWmi(), port: null);
+        var routed = new RoutedEcRegisters(new ShortAnswerWmi(), port: null, TestLayouts.P65.Wmi);
 
         ((Action)(() => routed.ReadBlock(0x6A, 6))).Should().Throw<EcAccessException>();
     }
@@ -139,6 +140,82 @@ public sealed class RoutedEcRegistersTests : IDisposable
 
         reader.Read(0xF2).Should().Be(0xC0);
         warnings.Should().HaveCount(2);
+    }
+
+    // --- session map (read side) against the verified P65 map (write side) ---
+
+    private static WmiFieldMap SessionMap(DeviceConfig config) => DeviceLayout.From(config).Wmi;
+
+    private static DeviceConfig WithFields(Func<IReadOnlyList<WmiFieldSpec>, IEnumerable<WmiFieldSpec>> change) =>
+        TestLayouts.P65Config with { Wmi1 = new Wmi1Layout([.. change(TestLayouts.P65Config.Wmi1!.Fields)]) };
+
+    private static IEnumerable<WmiFieldSpec> Moved(IReadOnlyList<WmiFieldSpec> fields, byte register, WmiFieldSpec to) =>
+        fields.Where(f => f.Register != register).Append(to);
+
+    [Fact]
+    public void Reads_follow_the_session_map()
+    {
+        var map = SessionMap(WithFields(f => Moved(f, 0x68, new WmiFieldSpec(0x68, "MSI_CPU", 3))));
+        var wmi = new FakeWmiFields(_ec, map.Fields);
+
+        new RoutedEcRegisters(wmi, _ec, map).Read(0x68).Should().Be(60);
+
+        wmi.Calls.Should().Equal("read MSI_CPU[3]");
+    }
+
+    [Fact]
+    public void A_register_outside_the_session_map_is_refused_even_though_the_p65_map_has_it()
+    {
+        var p65 = TestLayouts.P65Config;
+        var config = WithFields(f => Moved(f, 0x89, new WmiFieldSpec(0x91, "MSI_VGA", 2))) with
+        {
+            Fans = [p65.Fans[0], p65.Fans[1] with { SpeedPercent = 0x91 }],
+        };
+        var routed = new RoutedEcRegisters(_wmi, _ec, SessionMap(config));
+
+        ((Action)(() => routed.Read(0x89))).Should().Throw<InvalidOperationException>().WithMessage("*0x89 WMI haritasında yok*");
+        _wmi.Calls.Should().BeEmpty();
+        _portReads.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_write_is_refused_where_the_session_map_differs_from_the_verified_map()
+    {
+        var map = SessionMap(WithFields(f => Moved(f, 0x72, new WmiFieldSpec(0x72, "MSI_CPU", 30))));
+        IEcWritableRegisters routed = new RoutedEcRegisters(new FakeWmiFields(_ec, map.Fields), _ec, map);
+
+        ((Action)(() => routed.Write(0x72, 50))).Should().Throw<InvalidOperationException>().WithMessage("*0x72*doğrulanmış*");
+        _ec[0x72].Should().Be(45);
+    }
+
+    [Fact]
+    public void A_port_register_the_session_reads_through_wmi_is_never_written()
+    {
+        var config = WithFields(f => f.Append(new WmiFieldSpec(0xEF, "MSI_System", 3))) with { PortRegisters = [0x98] };
+        var map = SessionMap(config);
+        var wmi = new FakeWmiFields(_ec, map.Fields);
+        IEcWritableRegisters routed = new RoutedEcRegisters(wmi, _ec, map);
+
+        ((IEcRegisters)routed).Read(0xEF).Should().Be(0xD0);
+        ((Action)(() => routed.Write(0xEF, 0xD1))).Should().Throw<InvalidOperationException>().WithMessage("*0xEF*doğrulanmış*");
+
+        wmi.Calls.Should().Equal("read MSI_System[3]");
+        _portReads.Should().BeEmpty();
+        _ec.Writes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void The_port_is_never_used_beyond_0x98_and_0xEF_whatever_the_session_map_says()
+    {
+        // Bypasses the validator on purpose: the router must hold the line on its own.
+        var config = TestLayouts.P65Config with { PortRegisters = [0x98, 0xEF, 0xD7] };
+        var map = WmiFieldMap.From(config, config.Wmi1!);
+        IEcWritableRegisters routed = new RoutedEcRegisters(_wmi, _ec, map);
+
+        ((Action)(() => ((IEcRegisters)routed).Read(0xD7))).Should().Throw<InvalidOperationException>().WithMessage("*0xD7*port*");
+        ((Action)(() => routed.Write(0xD7, 0xD0))).Should().Throw<InvalidOperationException>();
+        _portReads.Should().BeEmpty();
+        _ec.Writes.Should().BeEmpty();
     }
 
     private sealed class ShortAnswerWmi : IWmiFields
@@ -184,7 +261,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
         var outcome = await gateway.ApplyAsync(WritePlans.FanCurves(Presets.Cool.Curves, "Cool"));
 
         outcome.Status.Should().Be(WriteStatus.Applied);
-        new P65Device(Hybrid()).ReadFanCurves().Should().Be(Presets.Cool.Curves);
+        new P65Device(Hybrid(), TestLayouts.P65).ReadFanCurves().Should().Be(Presets.Cool.Curves);
         _portReads.Should().BeEmpty();
         _ec.Writes.Should().BeEmpty();
     }
@@ -200,7 +277,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
 
         outcome.Status.Should().Be(WriteStatus.FailedRecovered);
         gateway.IsWriteEnabled.Should().BeFalse();
-        new P65Device(Hybrid()).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
+        new P65Device(Hybrid(), TestLayouts.P65).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
         _portReads.Should().BeEmpty();
     }
 
@@ -257,7 +334,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
         var outcome = await gateway.ApplyAsync(WritePlans.FanCurves(Presets.Cool.Curves, "Cool"));
 
         outcome.Status.Should().Be(WriteStatus.Applied);
-        new P65Device(WmiOnly()).ReadFanCurves().Should().Be(Presets.Cool.Curves);
+        new P65Device(WmiOnly(), TestLayouts.P65).ReadFanCurves().Should().Be(Presets.Cool.Curves);
     }
 
     [Theory]
@@ -295,7 +372,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
         var outcome = await gateway.ApplyAsync(WritePlans.ChargeLimit(79));
 
         outcome.Status.Should().Be(WriteStatus.FailedRecovered);
-        new P65Device(Hybrid()).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
+        new P65Device(Hybrid(), TestLayouts.P65).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
     }
 
     [Fact]
@@ -315,7 +392,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
 
         outcome.Status.Should().Be(WriteStatus.FailedRecovered);
         outcome.Message.Should().Contain("0x6A");
-        new P65Device(Hybrid()).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
+        new P65Device(Hybrid(), TestLayouts.P65).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
     }
 
     [Fact]
@@ -350,7 +427,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
 
         outcome.Status.Should().Be(WriteStatus.FailedRecovered);
         outcome.Message.Should().Contain("0x6A");
-        new P65Device(Hybrid()).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
+        new P65Device(Hybrid(), TestLayouts.P65).ReadFanCurves().Should().Be(FactoryDefaults.FanCurves);
     }
 
     [Fact]
