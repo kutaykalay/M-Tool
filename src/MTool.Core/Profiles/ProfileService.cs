@@ -1,6 +1,7 @@
 using System.Text.Json;
 using MTool.Core.Device;
 using MTool.Core.Ec;
+using MTool.Core.Power;
 using MTool.Core.Settings;
 
 namespace MTool.Core.Profiles;
@@ -31,6 +32,10 @@ public sealed class ProfileService
     // Settings and the catalog built from them, replaced together so a reader never mixes two versions.
     private Snapshot _current;
     private int _commands;
+
+    // Where the laptop draws power from as last told; read and written only inside the turn. Null until
+    // the first SwitchPowerSourceAsync: a choice by hand before that updates no pair.
+    private PowerSource? _source;
 
     /// <param name="catalog">The built-in profiles; the custom profiles in <paramref name="settings"/> are added.</param>
     /// <param name="settings">
@@ -133,6 +138,82 @@ public sealed class ProfileService
         }
     }
 
+    public PowerSwitchSettings PowerSwitch => Current.Settings.PowerSwitch;
+
+    /// <summary>
+    /// The laptop now runs on <paramref name="source"/> (also at start-up and on wake). While switching
+    /// is on, the desired state takes that source's pair and is saved. Only the WMI parts are written,
+    /// and only when <paramref name="write"/> and the desired state changed. Null when nothing was
+    /// written: switching off, the same source as before, no pair yet, equal pairs, or no write asked.
+    /// </summary>
+    /// <param name="write">False while the EC access gate is shut; the next reapply writes the new state.</param>
+    public async Task<IReadOnlyList<WriteOutcome>?> SwitchPowerSourceAsync(PowerSource source, bool write)
+    {
+        // Counted in IsBusy only when it may write: polls and shutdown wait for EC traffic, not file saves.
+        if (write)
+        {
+            Interlocked.Increment(ref _commands);
+        }
+
+        DesiredState? changed = null;
+        await _oneAtATime.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            var before = Current.Settings;
+            var sourceBefore = _source;
+            _source = source;
+            if (sourceBefore == source)
+            {
+                return null;
+            }
+
+            var aligned = PowerSwitchRules.Align(before, source);
+            if (aligned == before)
+            {
+                return null;
+            }
+
+            Remember(aligned);
+            if (aligned.Desired == before.Desired)
+            {
+                return null;
+            }
+
+            changed = aligned.Desired;
+            _log.Info($"Güç kaynağı geçişi ({source}): {aligned.Desired.FanProfile} + {aligned.Desired.Performance?.ToString() ?? "-"} (yazma: {(write ? "evet" : "hayır, kapı kapalı")})");
+            return write
+                ? await _control.ApplyDesiredAsync(aligned.Desired.WithoutPortParts(), Current.Catalog).ConfigureAwait(false)
+                : null;
+        }
+        finally
+        {
+            _oneAtATime.Release();
+            if (write)
+            {
+                Interlocked.Decrement(ref _commands);
+            }
+
+            if (changed is not null)
+            {
+                RaiseDesiredChanged(changed);
+            }
+        }
+    }
+
+    /// <summary>Turning it on remembers what is set now for the current source; neither way writes the EC.</summary>
+    public async Task<ProfileCommandResult> SetPowerSwitchAsync(bool enabled)
+    {
+        await _oneAtATime.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            return new ProfileCommandResult(null, Remember(PowerSwitchRules.Enable(Current.Settings, enabled, _source)));
+        }
+        finally
+        {
+            _oneAtATime.Release();
+        }
+    }
+
     public Task<ProfileCommandResult> AddProfileAsync(string name, FanCurves curves) =>
         ChangeLibraryAsync(settings => ProfileLibrary.Add(settings, name, curves));
 
@@ -206,7 +287,7 @@ public sealed class ProfileService
                 return (new CommandResult(outcome), null);
             }
 
-            var saveWarning = Remember(Current.Settings with { Desired = update(Desired) });
+            var saveWarning = Remember(WithChoice(Current.Settings, update(Desired)));
             return (new CommandResult(outcome, saveWarning), Desired);
         }
         finally
@@ -214,6 +295,17 @@ public sealed class ProfileService
             _oneAtATime.Release();
             Interlocked.Decrement(ref _commands);
         }
+    }
+
+    /// <summary>
+    /// A new fan profile or performance mode chosen by hand also becomes the pair of the current power
+    /// source; the charge limit is not part of a pair, so changing it leaves the pairs alone.
+    /// </summary>
+    private AppSettings WithChoice(AppSettings settings, DesiredState desired)
+    {
+        var updated = settings with { Desired = desired };
+        var pairPartsChanged = desired.FanProfile != settings.Desired.FanProfile || desired.Performance != settings.Desired.Performance;
+        return pairPartsChanged && _source is { } source ? PowerSwitchRules.Record(updated, source) : updated;
     }
 
     // The EC was written or the profiles changed; a subscriber's bug must not hide that.
