@@ -93,9 +93,9 @@ public sealed class EcController : IEcRegisters, IEcWritableRegisters
         }
 
         Report(operation, register, succeeded: false, failures);
-        var verb = operation == EcOperation.Read ? "read" : "written";
+        var verb = operation == EcOperation.Read ? "okunamadı" : "yazılamadı";
         throw new EcAccessException(
-            $"EC register 0x{register:X2} could not be {verb} after {_options.MaxAttempts} attempts " +
+            $"EC register 0x{register:X2} {_options.MaxAttempts} denemede {verb} " +
             $"({string.Join(", ", failures!.Select(f => f.Kind))}).");
     }
 

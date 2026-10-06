@@ -106,7 +106,7 @@ public sealed class EcWorker : IDisposable
             }
             catch (Exception ex)
             {
-                _reportError?.Invoke("EC worker operation failed unexpectedly", ex);
+                _reportError?.Invoke("EC işleminde beklenmeyen hata", ex);
             }
         }
     }
@@ -141,7 +141,7 @@ public sealed class EcWorker : IDisposable
             if (!acquired)
             {
                 completion.TrySetException(new EcAccessException(
-                    $"EC lock (Access_EC) was not available within {_lockTimeout.TotalMilliseconds} ms."));
+                    $"EC kilidi (Access_EC) {_lockTimeout.TotalMilliseconds} ms içinde alınamadı; başka bir program EC'yi kullanıyor olabilir."));
                 return;
             }
 
@@ -168,7 +168,7 @@ public sealed class EcWorker : IDisposable
         }
         catch (Exception ex)
         {
-            _reportError?.Invoke("EC lock release failed", ex);
+            _reportError?.Invoke("EC kilidi bırakılamadı", ex);
         }
     }
 }

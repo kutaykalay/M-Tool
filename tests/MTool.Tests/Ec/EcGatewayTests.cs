@@ -331,6 +331,22 @@ public sealed class EcGatewayTests : IDisposable
         gateway.IsWriteEnabled.Should().BeFalse();
     }
 
+    // Measured 2026-10-06 under full CPU load: Access_EC was occasionally not free within 500 ms.
+    [Fact]
+    public async Task A_busy_EC_lock_rejects_the_plan_without_writing_or_locking()
+    {
+        using var worker = new EcWorker(_ec, new FakeEcLock { Available = false }, TimeSpan.FromMilliseconds(50));
+        var gateway = new EcGateway(worker, Live, _log, _persistedLocks.Add, EcAccessRetry.Default with { Sleep = _sleeps.Add });
+
+        var outcome = await gateway.ApplyAsync(WritePlans.Performance(PerformanceMode.Balanced));
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        outcome.Message.Should().Contain("Access_EC").And.Contain("alınamadı");
+        _ec.Writes.Should().BeEmpty();
+        gateway.IsWriteEnabled.Should().BeTrue();
+        _persistedLocks.Should().BeEmpty();
+    }
+
     // --- silent EC periods (stress measurement 2026-09-30: up to ~250 ms without an answer) ---
 
     [Fact]

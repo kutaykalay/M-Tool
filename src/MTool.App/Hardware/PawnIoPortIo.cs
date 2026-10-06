@@ -34,7 +34,7 @@ internal sealed class PawnIoPortIo : IPortIo, IDisposable
         if (handle.IsInvalid)
         {
             throw new EcAccessException(
-                "PawnIO driver could not be opened. Is PawnIO installed and M-Tool running as administrator?",
+                "PawnIO sürücüsü açılamadı. PawnIO kurulu mu ve M-Tool yönetici olarak mı çalışıyor?",
                 new Win32Exception(Marshal.GetLastWin32Error()));
         }
 
@@ -44,7 +44,7 @@ internal sealed class PawnIoPortIo : IPortIo, IDisposable
             if (!DeviceIoControl(handle, IoctlLoadBinary, module, module.Length, null, 0, out _, IntPtr.Zero))
             {
                 throw new EcAccessException(
-                    "PawnIO rejected the LpcACPIEC module.", new Win32Exception(Marshal.GetLastWin32Error()));
+                    "PawnIO, LpcACPIEC modülünü yüklemedi.", new Win32Exception(Marshal.GetLastWin32Error()));
             }
 
             return new PawnIoPortIo(handle);
@@ -61,7 +61,7 @@ internal sealed class PawnIoPortIo : IPortIo, IDisposable
         var value = Execute("ioctl_pio_read", [port], 1)[0];
         return value is >= byte.MinValue and <= byte.MaxValue
             ? (byte)value
-            : throw new EcAccessException($"PawnIO returned out-of-range port value {value}.");
+            : throw new EcAccessException($"PawnIO geçersiz bir port değeri döndürdü: {value}.");
     }
 
     public void Out(byte port, byte value) => Execute("ioctl_pio_write", [port, value], 0);
@@ -78,14 +78,14 @@ internal sealed class PawnIoPortIo : IPortIo, IDisposable
         if (!DeviceIoControl(_handle, IoctlExecute, request, request.Length, response, response.Length, out var written, IntPtr.Zero))
         {
             throw new EcAccessException(
-                $"PawnIO call {function} failed.", new Win32Exception(Marshal.GetLastWin32Error()));
+                $"PawnIO çağrısı başarısız: {function}.", new Win32Exception(Marshal.GetLastWin32Error()));
         }
 
         // A short reply must not turn into a valid-looking zero ("IBF clear", register value 0).
         if (written != response.Length)
         {
             throw new EcAccessException(
-                $"PawnIO call {function} returned {written} bytes, expected {response.Length}.");
+                $"PawnIO çağrısı {function} {written} bayt döndürdü, {response.Length} bekleniyordu.");
         }
 
         var result = new long[outputCount];
