@@ -100,8 +100,14 @@ internal sealed class GuiBootstrapper : IDisposable
         var tray = new TrayIconHost(theme, () => window?.ToggleFromTray(), () => window?.ShowNearTray(), exit);
         teardown.Push(("tepsi ikonu", tray.Dispose));
 
+        // Before the view model: with switching on, the window must first show the current source's pair,
+        // and the start-up reapply below writes that pair.
+        var powerEvents = new SystemPowerEvents(log);
+        teardown.Push(("güç olayları", powerEvents.Dispose));
+        await AlignToStartSourceAsync(service, powerEvents.Current, log);
+
         var ui = new DispatcherUi(app);
-        var viewModel = new MainViewModel(poller, service, control, tray, ui);
+        var viewModel = new MainViewModel(poller, service, control, powerEvents, tray, ui);
         window = new MainWindow(viewModel, () =>
         {
             FanCurveEditorWindow? editor = null;
@@ -115,30 +121,34 @@ internal sealed class GuiBootstrapper : IDisposable
         log.Info($"GUI başladı ({AppVersion}). Firmware: {setup.Firmware?.Version ?? "okunamadı"}, yazma: {control.Access.WriteMode}" +
                  (control.Access.LockReason is { } reason ? $" ({reason})" : ""));
 
-        var powerEvents = new SystemPowerEvents(log);
-        teardown.Push(("güç olayları", powerEvents.Dispose));
         var reapplier = new AutoReapplier(service.ReapplyAsync, powerEvents, coordinator, TimeProvider.System, log, reapplyOptions);
+        var switcher = new PowerSourceSwitcher(
+            service.SwitchPowerSourceAsync, powerEvents, powerEvents, coordinator, TimeProvider.System, log, PowerSwitchOptions.Default);
         var stopped = false;
 
-        // First to go on shutdown or a failed start-up: no new reapply starts, a running one may
-        // finish before the EC session closes, and a result still queued for the UI is dropped.
+        // First to go on shutdown or a failed start-up: no new reapply or switch starts, a running one
+        // may finish before the EC session closes, and a result still queued for the UI is dropped.
         void StopAutoReapply()
         {
             stopped = true;
+            switcher.Dispose();
             reapplier.Dispose();
-            WaitForRunningWrite(() => reapplier.IsRunning || service.IsBusy, log);
+            WaitForRunningWrite(() => switcher.IsRunning || reapplier.IsRunning || service.IsBusy, log);
         }
 
         teardown.Push(("otomatik yeniden uygulama", StopAutoReapply));
 
         // Results arrive on pool threads and are shown on the UI thread.
-        reapplier.Reapplied += result => ui.Post(() =>
+        void ShowOnUi(AutoReapplyResult result) => ui.Post(() =>
         {
             if (!stopped)
             {
                 _ = ShowAutoReapplyAsync(viewModel, result, log);
             }
         });
+
+        reapplier.Reapplied += ShowOnUi;
+        switcher.Switched += ShowOnUi;
 
         await viewModel.InitializeAsync(settings.Warnings);
         var signInStart = new SignInStartViewModel(new StartupTask(), CurrentExe, viewModel.Status, log);
@@ -147,8 +157,27 @@ internal sealed class GuiBootstrapper : IDisposable
 
         // After Attach, so a failure balloon has a visible icon and the start-up refresh is done.
         reapplier.Start();
+        switcher.Start();
         poller.Start();
         return new GuiBootstrapper(teardown, service, window, log);
+    }
+
+    /// <summary>Best effort: without it the switcher's first check after start-up aligns instead.</summary>
+    private static async Task AlignToStartSourceAsync(ProfileService service, PowerSource? source, IAppLog log)
+    {
+        if (source is not { } current)
+        {
+            return;
+        }
+
+        try
+        {
+            await service.SwitchPowerSourceAsync(current, write: false);
+        }
+        catch (Exception ex)
+        {
+            log.Error("Açılışta güç kaynağına göre ayar seçilemedi", ex);
+        }
     }
 
     private static async Task ShowAutoReapplyAsync(MainViewModel viewModel, AutoReapplyResult result, IAppLog log)

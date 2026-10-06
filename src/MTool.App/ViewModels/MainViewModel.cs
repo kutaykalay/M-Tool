@@ -22,11 +22,12 @@ public sealed partial class MainViewModel : ObservableObject
     private string? _autoReapplyMessage;
 
     public MainViewModel(
-        SensorPoller poller, ProfileService service, IP65Control control, INotifier notifier, IUiDispatcher ui)
+        SensorPoller poller, ProfileService service, IP65Control control, IPowerSource powerSource, INotifier notifier, IUiDispatcher ui)
     {
         (_poller, _service, _ui) = (poller, service, ui);
         Status = new StatusViewModel(notifier);
         Controls = new ControlsViewModel(service, control, Status, ui);
+        PowerSwitch = new PowerSwitchViewModel(service, powerSource, Status, ui);
         TrayTooltip = TooltipText.Format(poller.Latest, Controls.ActiveProfileLabel);
 
         poller.ReadingChanged += reading => ui.Post(() =>
@@ -51,6 +52,8 @@ public sealed partial class MainViewModel : ObservableObject
     public ControlsViewModel Controls { get; }
 
     public StatusViewModel Status { get; }
+
+    public PowerSwitchViewModel PowerSwitch { get; }
 
     [ObservableProperty]
     public partial string TrayTooltip { get; private set; }
@@ -109,6 +112,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         ReapplyTrigger.Startup => "Açılışta",
         ReapplyTrigger.Resume => "Uykudan uyanınca",
+        ReapplyTrigger.PowerSource => "Güç kaynağı değişince",
         _ => "Yeniden denemede",
     };
 

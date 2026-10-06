@@ -118,6 +118,15 @@
             </Button>
         </UniformGrid>
 
+        <!-- AC/battery switching: changes only the settings file, so it is not tied to write access. -->
+        <CheckBox Margin="2,10,0,0" Foreground="{DynamicResource Brush.Text}" ToolTipService.ShowDuration="20000"
+                  IsChecked="{Binding PowerSwitch.IsOn, Mode=OneWay}" Command="{Binding PowerSwitch.ToggleCommand}"
+                  ToolTip="Açıkken fan profili ve performans modu prizde ve pilde ayrı hatırlanır. Kablo takılınca ya da çıkarılınca o kaynakta son seçtiğiniz ayar uygulanır. Şarj limiti ve Cooler Boost değişmez.">
+            <TextBlock Text="Prizde ve pilde ayrı ayarları hatırla" TextWrapping="Wrap" />
+        </CheckBox>
+        <TextBlock Style="{StaticResource Muted}" Margin="22,2,0,0" Text="{Binding PowerSwitch.SourceLabel}"
+                   Visibility="{Binding PowerSwitch.SourceLabel, Converter={StaticResource NotNullToVisible}}" />
+
         <!-- Cooler Boost -->
         <TextBlock Style="{StaticResource Section}" Text="COOLER BOOST" />
         <Button Style="{StaticResource Choice}" Margin="0" HorizontalAlignment="Stretch"

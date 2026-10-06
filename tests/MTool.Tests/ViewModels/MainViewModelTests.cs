@@ -16,6 +16,7 @@ public sealed class MainViewModelTests : IDisposable
     private readonly FakeTimeProvider _time = new();
     private readonly FakeP65Control _control = new();
     private readonly FakeNotifier _notifier = new();
+    private readonly FakePowerSource _source = new();
     private readonly ProfileService _service;
     private readonly SensorPoller _poller;
     private readonly MainViewModel _main;
@@ -25,7 +26,7 @@ public sealed class MainViewModelTests : IDisposable
         var log = new ListLog();
         _service = new ProfileService(_control, ProfileCatalog.BuiltIn, new SettingsStore(_folder), AppSettings.Default, log);
         _poller = new SensorPoller(_control.ReadSensorsAsync, () => true, () => _service.IsBusy, _time, log, MainViewModel.HiddenInterval);
-        _main = new MainViewModel(_poller, _service, _control, _notifier, new ImmediateDispatcher());
+        _main = new MainViewModel(_poller, _service, _control, _source, _notifier, new ImmediateDispatcher());
     }
 
     public void Dispose()
@@ -217,6 +218,51 @@ public sealed class MainViewModelTests : IDisposable
         await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Retry, WriteStatus.Applied));
 
         _main.Status.Message.Should().Be("başka bir uyarı");
+    }
+
+    [Fact]
+    public async Task A_rejected_power_source_switch_names_the_cable_change()
+    {
+        await _main.InitializeAsync([]);
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.PowerSource, WriteStatus.Rejected));
+
+        _main.Status.MessageKind.Should().Be(MessageKind.Warning);
+        _main.Status.Message.Should().StartWith("Güç kaynağı değişince ayarlar uygulanamadı");
+        _notifier.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task A_failed_power_source_switch_shows_an_error_and_a_balloon()
+    {
+        await _main.InitializeAsync([]);
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.PowerSource, WriteStatus.FailedRecovered));
+
+        _main.Status.MessageKind.Should().Be(MessageKind.Error);
+        _main.Status.Message.Should().StartWith("Güç kaynağı değişince ayarlar uygulanamadı");
+        _notifier.Errors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task A_successful_power_source_switch_clears_the_earlier_warning_and_skips_the_port()
+    {
+        await _main.InitializeAsync([]);
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.PowerSource, WriteStatus.Rejected));
+
+        await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.PowerSource, WriteStatus.Applied));
+
+        _main.Status.Message.Should().BeNull();
+        _control.StateReadPortUses.Should().OnlyContain(p => p == PortUse.None);
+    }
+
+    [Fact]
+    public void The_power_switch_follows_the_power_source()
+    {
+        _source.Set(PowerSource.Battery);
+
+        _main.PowerSwitch.SourceLabel.Should().Be("Şu an: pilde.");
+        _main.PowerSwitch.IsOn.Should().BeFalse();
     }
 
     private static AutoReapplyResult Result(ReapplyTrigger trigger, params WriteStatus[] statuses) =>

@@ -9,7 +9,7 @@ namespace MTool.App.Tray;
 
 /// <summary>
 /// The notification-area icon: tooltip with live temperatures, left click toggles the window, the
-/// menu offers profiles, Cooler Boost, the window and exit. Also shows error balloons.
+/// menu offers profiles, Cooler Boost, performance, AC/battery switching, the window and exit. Also shows error balloons.
 /// Created before the view model (which needs it as <see cref="INotifier"/>), then <see cref="Attach"/>ed.
 /// </summary>
 internal sealed class TrayIconHost : INotifier, IDisposable
@@ -116,6 +116,11 @@ internal sealed class TrayIconHost : INotifier, IDisposable
         _menu.Items.Add(Item("Cooler Boost", controls.CoolerBoostOn == true, controls.CanWritePort,
             () => Run(controls.SetCoolerBoostCommand, controls.CoolerBoostOn != true)));
         _menu.Items.Add(PerformanceMenu(controls));
+
+        // Only changes the settings file, so it stays enabled while writing is locked.
+        var powerSwitch = _viewModel.PowerSwitch;
+        _menu.Items.Add(Item("Prizde ve pilde ayrı ayar", powerSwitch.IsOn, powerSwitch.ToggleCommand.CanExecute(null),
+            () => Run(powerSwitch.ToggleCommand, null)));
         _menu.Items.Add(new ToolStripSeparator());
         if (_signInStart is { } signInStart)
         {

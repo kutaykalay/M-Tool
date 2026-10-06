@@ -1,3 +1,4 @@
+using System.Windows.Forms;
 using Microsoft.Win32;
 using MTool.Core;
 using MTool.Core.Power;
@@ -5,16 +6,21 @@ using MTool.Core.Power;
 namespace MTool.App.Services;
 
 /// <summary>
-/// Windows sleep and wake (<see cref="SystemEvents.PowerModeChanged"/>) as <see cref="IPowerEvents"/>.
-/// Every event is logged. The static event roots this object, so <see cref="Dispose"/> must run.
+/// Windows sleep, wake and AC/battery changes (<see cref="SystemEvents.PowerModeChanged"/>) as
+/// <see cref="IPowerEvents"/> and <see cref="IPowerSource"/>. Sleep and wake are always logged; a
+/// status change only when the source changed (battery percentage changes raise it too). The static
+/// event roots this object, so <see cref="Dispose"/> must run.
 /// </summary>
-internal sealed class SystemPowerEvents : IPowerEvents, IDisposable
+internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposable
 {
     private readonly IAppLog _log;
+    private PowerSource? _lastSource;
 
     public SystemPowerEvents(IAppLog log)
     {
         _log = log;
+        _lastSource = Current;
+        _log.Info($"Güç: kaynak {Name(_lastSource)}");
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
     }
 
@@ -22,11 +28,52 @@ internal sealed class SystemPowerEvents : IPowerEvents, IDisposable
 
     public event Action? Resumed;
 
+    public event Action? Changed;
+
+    /// <summary>Null also when Windows cannot be asked; no source means no switch.</summary>
+    public PowerSource? Current
+    {
+        get
+        {
+            try
+            {
+                return From(SystemInformation.PowerStatus.PowerLineStatus);
+            }
+            catch (Exception ex)
+            {
+                _log.Warn($"Güç: kaynak okunamadı ({ex.Message})");
+                return null;
+            }
+        }
+    }
+
     public void Dispose() => SystemEvents.PowerModeChanged -= OnPowerModeChanged;
 
+    internal static PowerSource? From(PowerLineStatus status) => status switch
+    {
+        PowerLineStatus.Online => PowerSource.Ac,
+        PowerLineStatus.Offline => PowerSource.Battery,
+        _ => null,
+    };
+
+    private static string Name(PowerSource? source) => source?.ToString() ?? "bilinmiyor";
+
+    // Runs on the SystemEvents thread: anything thrown here would end the process.
     private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
     {
-        switch (e.Mode)
+        try
+        {
+            Dispatch(e.Mode);
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"Güç olayı ({e.Mode}) işlenemedi", ex);
+        }
+    }
+
+    private void Dispatch(PowerModes mode)
+    {
+        switch (mode)
         {
             case PowerModes.Suspend:
                 _log.Info("Güç: uyku");
@@ -36,6 +83,23 @@ internal sealed class SystemPowerEvents : IPowerEvents, IDisposable
                 _log.Info("Güç: uyanış");
                 Resumed?.Invoke();
                 break;
+            case PowerModes.StatusChange:
+                OnStatusChange();
+                break;
         }
+    }
+
+    // SystemEvents raises its events one at a time on its own thread, so _lastSource needs no lock.
+    private void OnStatusChange()
+    {
+        var source = Current;
+        if (source == _lastSource)
+        {
+            return;
+        }
+
+        _log.Info($"Güç: kaynak {Name(_lastSource)}→{Name(source)}");
+        _lastSource = source;
+        Changed?.Invoke();
     }
 }
