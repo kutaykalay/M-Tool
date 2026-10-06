@@ -180,7 +180,7 @@ public sealed class ProfileService
             }
 
             changed = aligned.Desired;
-            _log.Info($"Güç kaynağı geçişi ({source}): {aligned.Desired.FanProfile} + {aligned.Desired.Performance?.ToString() ?? "-"} (yazma: {(write ? "evet" : "hayır, kapı kapalı")})");
+            _log.Info($"Güç kaynağı geçişi ({source}): {ProfileNameRules.Printable(aligned.Desired.FanProfile)} + {aligned.Desired.Performance?.ToString() ?? "-"} (yazma: {(write ? "evet" : "hayır, kapı kapalı")})");
             return write
                 ? await _control.ApplyDesiredAsync(aligned.Desired.WithoutPortParts(), Current.Catalog).ConfigureAwait(false)
                 : null;
