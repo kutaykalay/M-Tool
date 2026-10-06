@@ -1,4 +1,5 @@
 using MTool.Core.Device;
+using MTool.Core.Power;
 using MTool.Core.Profiles;
 using MTool.Core.Settings;
 
@@ -134,6 +135,48 @@ public class ProfileLibraryTests
         var settings = With(Night("Gece")) with { Desired = new DesiredState("Gece") };
 
         ShouldFail(ProfileLibrary.Delete(settings, "gece"), "başka bir profil seçin");
+    }
+
+    [Fact]
+    public void Renaming_a_profile_renames_it_in_both_power_pairs_too()
+    {
+        var settings = With(Night("Gece"), Night("Oyun")) with
+        {
+            Desired = new DesiredState("Oyun"),
+            PowerSwitch = new PowerSwitchSettings(true, new PowerProfilePair("gece", PerformanceMode.High), new PowerProfilePair("Gece")),
+        };
+
+        var updated = Updated(ProfileLibrary.Rename(settings, "Gece", "Gece 2"));
+
+        updated.PowerSwitch.Should().Be(new PowerSwitchSettings(
+            true, new PowerProfilePair("Gece 2", PerformanceMode.High), new PowerProfilePair("Gece 2")));
+        updated.Desired.Should().Be(settings.Desired);
+    }
+
+    [Fact]
+    public void Renaming_a_profile_leaves_power_pairs_naming_other_profiles_alone()
+    {
+        var settings = With(Night("Gece")) with
+        {
+            PowerSwitch = new PowerSwitchSettings(true, new PowerProfilePair("Cool"), Battery: null),
+        };
+
+        Updated(ProfileLibrary.Rename(settings, "Gece", "Gece 2")).PowerSwitch.Should().Be(settings.PowerSwitch);
+    }
+
+    [Fact]
+    public void Deleting_a_profile_used_by_a_power_pair_empties_that_pair()
+    {
+        var settings = With(Night("Gece"), Night("Oyun")) with
+        {
+            Desired = new DesiredState("Oyun"),
+            PowerSwitch = new PowerSwitchSettings(true, new PowerProfilePair("Oyun"), new PowerProfilePair("GECE", PerformanceMode.Eco)),
+        };
+
+        var updated = Updated(ProfileLibrary.Delete(settings, "Gece"));
+
+        updated.CustomProfiles.Select(p => p.Name).Should().Equal("Oyun");
+        updated.PowerSwitch.Should().Be(new PowerSwitchSettings(true, new PowerProfilePair("Oyun"), Battery: null));
     }
 
     [Fact]

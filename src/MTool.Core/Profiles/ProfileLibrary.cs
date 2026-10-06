@@ -1,3 +1,4 @@
+using MTool.Core.Power;
 using MTool.Core.Settings;
 
 namespace MTool.Core.Profiles;
@@ -50,10 +51,18 @@ public static class ProfileLibrary
         var desired = IsReferenced(settings, current.Name)
             ? settings.Desired with { FanProfile = renamed.Name }
             : settings.Desired;
-        return LibraryResult.Ok(settings with { CustomProfiles = Replace(settings, index, renamed), Desired = desired });
+        return LibraryResult.Ok(settings with
+        {
+            CustomProfiles = Replace(settings, index, renamed),
+            Desired = desired,
+            PowerSwitch = PairsAfter(settings.PowerSwitch, current.Name, renamed.Name),
+        });
     }
 
-    /// <summary>The desired profile cannot be deleted: that would need a fan table write as a side effect.</summary>
+    /// <summary>
+    /// The desired profile cannot be deleted: that would need a fan table write as a side effect. A power
+    /// pair naming it is emptied instead; switching to that source then keeps what is set.
+    /// </summary>
     public static LibraryResult Delete(AppSettings settings, string name)
     {
         if (CustomIndex(settings, name) is not { } index)
@@ -66,7 +75,11 @@ public static class ProfileLibrary
             return LibraryResult.Fail("Bu profil şu an seçili; silmeden önce başka bir profil seçin.");
         }
 
-        return LibraryResult.Ok(settings with { CustomProfiles = [.. settings.CustomProfiles.Where((_, i) => i != index)] });
+        return LibraryResult.Ok(settings with
+        {
+            CustomProfiles = [.. settings.CustomProfiles.Where((_, i) => i != index)],
+            PowerSwitch = PairsAfter(settings.PowerSwitch, settings.CustomProfiles[index].Name, newName: null),
+        });
     }
 
     /// <summary>Saving does not write the EC; when this is the desired profile the caller shows the drift.</summary>
@@ -85,9 +98,23 @@ public static class ProfileLibrary
             });
     }
 
-    /// <summary>Every place that names a profile; today only the desired state, later also automatic rules.</summary>
+    /// <summary>The desired state names the profile; power pairs are handled by <see cref="PairsAfter"/>.</summary>
     private static bool IsReferenced(AppSettings settings, string name) =>
         string.Equals(settings.Desired.FanProfile, name, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Pairs naming <paramref name="name"/> take <paramref name="newName"/>, or are emptied when it is null.</summary>
+    private static PowerSwitchSettings PairsAfter(PowerSwitchSettings powerSwitch, string name, string? newName) =>
+        powerSwitch with { Ac = PairAfter(powerSwitch.Ac, name, newName), Battery = PairAfter(powerSwitch.Battery, name, newName) };
+
+    private static PowerProfilePair? PairAfter(PowerProfilePair? pair, string name, string? newName)
+    {
+        if (pair is null || !string.Equals(pair.FanProfile, name, StringComparison.OrdinalIgnoreCase))
+        {
+            return pair;
+        }
+
+        return newName is null ? null : pair with { FanProfile = newName };
+    }
 
     private static ProfileCatalog CatalogOf(AppSettings settings) => ProfileCatalog.BuiltIn.WithCustom(settings.CustomProfiles);
 
