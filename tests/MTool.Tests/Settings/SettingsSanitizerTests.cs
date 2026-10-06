@@ -142,7 +142,7 @@ public class SettingsSanitizerTests
         var result = SettingsSanitizer.Sanitize(WithProfiles(Night() with { Curves = NightCurves with { Cpu = cpu } }), Catalog);
 
         result.Settings.CustomProfiles.Should().BeEmpty();
-        result.Warnings.Should().ContainSingle().Which.Should().Contain("CPU").And.Contain("Güvenlik tabanı");
+        result.Warnings.Should().ContainSingle().Which.Should().Contain("CPU").And.Contain("Güvenlik kuralı");
     }
 
     [Fact]
@@ -154,7 +154,7 @@ public class SettingsSanitizerTests
         var result = SettingsSanitizer.Sanitize(WithProfiles(Night() with { Curves = NightCurves with { Cpu = cpu } }), Catalog);
 
         result.Settings.CustomProfiles.Should().BeEmpty();
-        result.Warnings.Should().ContainSingle().Which.Should().Contain("CPU").And.Contain("aşağı eşik");
+        result.Warnings.Should().ContainSingle().Which.Should().Contain("CPU").And.Contain("geri iner");
     }
 
     [Theory]

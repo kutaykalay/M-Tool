@@ -136,6 +136,7 @@ public sealed class EcGatewayTests : IDisposable
         outcome.Status.Should().Be(WriteStatus.DryRun);
         outcome.Planned.Should().HaveCount(26);
         _ec.Writes.Should().BeEmpty();
+        outcome.Message.Should().StartWith("Deneme modu");
         _log.Lines.Should().Contain(l => l.Contains("DRY-RUN") && l.Contains("Cool"));
     }
 
@@ -223,6 +224,7 @@ public sealed class EcGatewayTests : IDisposable
         var outcome = await gateway.ApplyAsync(WritePlans.FanCurves(Presets.Cool.Curves, "Cool"));
 
         outcome.Status.Should().Be(WriteStatus.FailedRecovered);
+        outcome.Message.Should().StartWith("Ayar uygulanamadı").And.Contain("0x72").And.Contain("geri okunduğunda farklı");
         new P65Device(_ec).ReadFanCurves().Cpu.Points.Should().Equal(FactoryDefaults.FanCurves.Cpu.Points);
         new P65Device(_ec).ReadFanCurves().Gpu.Points.Should().Equal(FactoryDefaults.FanCurves.Gpu.Points);
         gateway.IsWriteEnabled.Should().BeFalse();
@@ -341,7 +343,7 @@ public sealed class EcGatewayTests : IDisposable
         var outcome = await gateway.ApplyAsync(WritePlans.Performance(PerformanceMode.Balanced));
 
         outcome.Status.Should().Be(WriteStatus.Rejected);
-        outcome.Message.Should().Contain("Access_EC").And.Contain("alınamadı");
+        outcome.Message.Should().Contain("Access_EC").And.Contain("alınamadı").And.Contain("hiçbir ayar değişmedi");
         _ec.Writes.Should().BeEmpty();
         gateway.IsWriteEnabled.Should().BeTrue();
         _persistedLocks.Should().BeEmpty();
@@ -470,6 +472,7 @@ public sealed class EcGatewayTests : IDisposable
         var outcome = await Gateway(log: new ThrowingLog()).ApplyAsync(WritePlans.FanCurves(Presets.Cool.Curves, "Cool"));
 
         outcome.Status.Should().Be(WriteStatus.FailedRecovered);
+        outcome.Message.Should().StartWith("Ayar uygulanamadı").And.Contain("0x72").And.Contain("geri okunduğunda farklı");
         new P65Device(_ec).ReadFanCurves().Cpu.Points.Should().Equal(FactoryDefaults.FanCurves.Cpu.Points);
     }
 

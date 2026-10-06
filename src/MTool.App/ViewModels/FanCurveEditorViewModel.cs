@@ -150,7 +150,7 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
     {
         if (await SaveDraftAsync())
         {
-            Message ??= "Kaydedildi. EC'ye yazmak için Uygula.";
+            Message ??= "Kaydedildi. Fanlara uygulamak için Uygula'ya basın.";
         }
     });
 
@@ -227,7 +227,7 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
         // Checked again: the tray may have started a command while this one was saving.
         if (!_controls.CanWrite)
         {
-            Message = Join(Message, "Başka bir komut sürüyor ya da yazma kapalı; profil uygulanmadı, tekrar deneyin.");
+            Message = Join(Message, "Profil kaydedildi ama uygulanmadı: başka bir işlem sürüyor ya da ayar değiştirme kapalı. Biraz sonra tekrar deneyin.");
             return;
         }
 
@@ -269,7 +269,7 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
 
         if (IsBusy)
         {
-            Message = "Bir komut sürüyor; bitince profil seçilebilir.";
+            Message = "Başka bir işlem sürüyor; bitince profil seçebilirsiniz.";
         }
 
         if (IsBusy || (IsDirty && !_confirm.Ask(DiscardQuestion)))

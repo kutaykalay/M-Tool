@@ -56,7 +56,7 @@ public class ProfileLibraryTests
     [Fact]
     public void Add_rejects_an_unsafe_curve()
     {
-        ShouldFail(ProfileLibrary.Add(With(), "Oyun", UnsafeCurves), "CPU: Güvenlik tabanı");
+        ShouldFail(ProfileLibrary.Add(With(), "Oyun", UnsafeCurves), "CPU: Güvenlik kuralı");
     }
 
     [Fact]

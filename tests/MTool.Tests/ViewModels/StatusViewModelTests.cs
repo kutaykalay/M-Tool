@@ -37,7 +37,7 @@ public class StatusViewModelTests
 
         status.SetAccess(new DeviceAccess(Supported, WriteMode.DryRun, null, PortFeaturesAvailable: true));
 
-        status.AccessBanner.Should().Contain("DRY-RUN");
+        status.AccessBanner.Should().Contain("Deneme modu").And.NotContain("EC");
         status.AccessBannerKind.Should().Be(MessageKind.Info);
     }
 
@@ -48,7 +48,7 @@ public class StatusViewModelTests
 
         status.SetAccess(new DeviceAccess(new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true));
 
-        status.AccessBanner.Should().Contain("16Q4EMS2.108").And.Contain("salt okunur");
+        status.AccessBanner.Should().Contain("16Q4EMS2.108").And.Contain("desteklenmiyor").And.Contain("yalnızca izleme");
         status.AccessBannerKind.Should().Be(MessageKind.Warning);
     }
 
@@ -59,7 +59,7 @@ public class StatusViewModelTests
 
         status.SetAccess(new DeviceAccess(null, WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true));
 
-        status.AccessBanner.Should().Contain("okunamadı");
+        status.AccessBanner.Should().Contain("okunamadı").And.Contain("yalnızca izleme");
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class StatusViewModelTests
 
         status.SetAccess(new DeviceAccess(Supported, WriteMode.Locked, "M-Tool öncesi durum yedeği yok ya da geçersiz", PortFeaturesAvailable: true));
 
-        status.AccessBanner.Should().Contain("yedeği yok");
+        status.AccessBanner.Should().Contain("Ayar değiştirme kapalı").And.Contain("yedeği yok");
         status.AccessBannerKind.Should().Be(MessageKind.Warning);
     }
 
@@ -83,7 +83,7 @@ public class StatusViewModelTests
         status.SetDrift(new StateDrift(FanTable: true, Performance: true, ChargeLimit: false, FanMode: false), dryRun: false);
 
         status.ShowReapply.Should().BeTrue();
-        status.DriftText.Should().Contain("fan tablosu").And.Contain("performans modu");
+        status.DriftText.Should().Contain("fan tablosu").And.Contain("performans modu").And.Contain("Yeniden uygula").And.NotContain("EC");
     }
 
     [Fact]
@@ -141,8 +141,9 @@ public class StatusViewModelTests
         status.Report(Result(WriteStatus.FailedRecovered, "0xF2 doğrulanamadı"));
 
         status.MessageKind.Should().Be(MessageKind.Error);
-        status.Message.Should().Contain("0xF2").And.Contain("--unlock --confirm");
+        status.Message.Should().Contain("0xF2").And.Contain("--unlock --confirm").And.Contain("fabrika ayarına");
         _notifier.Errors.Should().ContainSingle().Which.Message.Should().Contain("--unlock --confirm");
+        _notifier.Errors[0].Title.Should().Be("M-Tool: ayar uygulanamadı");
     }
 
     [Fact]
@@ -152,7 +153,7 @@ public class StatusViewModelTests
 
         status.Report(Result(WriteStatus.FailedUnrecovered));
 
-        status.Message.Should().Contain("yeniden başlatın");
+        status.Message.Should().Contain("yeniden başlatın").And.NotContain("EC");
         _notifier.Errors.Should().ContainSingle();
     }
 

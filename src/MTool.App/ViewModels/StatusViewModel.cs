@@ -8,7 +8,8 @@ namespace MTool.App.ViewModels;
 /// <summary>The window's bands: write access, drift from the desired state, and the last result.</summary>
 public sealed partial class StatusViewModel(INotifier notifier) : ObservableObject
 {
-    private const string FailureTitle = "M-Tool: EC yazması başarısız";
+    private const string FailureTitle = "M-Tool: ayar uygulanamadı";
+    private const string ReadOnlyNote = "M-Tool yalnızca izleme modunda, ayar değiştiremez.";
 
     [ObservableProperty]
     public partial string? AccessBanner { get; private set; }
@@ -34,11 +35,12 @@ public sealed partial class StatusViewModel(INotifier notifier) : ObservableObje
         {
             { WriteMode: WriteMode.Enabled } => ((string?)null, MessageKind.None),
             { WriteMode: WriteMode.DryRun } =>
-                ("DRY-RUN: seçimler doğrulanıyor ama EC'ye yazılmıyor (settings.json → \"dryRun\": false).", MessageKind.Info),
-            { Firmware: null } => ("Firmware okunamadı; salt okunur.", MessageKind.Warning),
+                ("Deneme modu: seçimler kontrol ediliyor ama dizüstüne uygulanmıyor. Gerçek uygulama için " +
+                    "settings.json'da \"dryRun\": false yapın.", MessageKind.Info),
+            { Firmware: null } => ($"Firmware sürümü okunamadı. {ReadOnlyNote}", MessageKind.Warning),
             { Firmware.IsSupported: false } =>
-                ($"Tanınmayan firmware ({access.Firmware.Version}); salt okunur.", MessageKind.Warning),
-            _ => ($"EC yazma kapalı, salt okunur: {access.LockReason}", MessageKind.Warning),
+                ($"Bu firmware ({access.Firmware.Version}) desteklenmiyor. {ReadOnlyNote}", MessageKind.Warning),
+            _ => ($"Ayar değiştirme kapalı, M-Tool yalnızca izleme modunda. Sebep: {access.LockReason}", MessageKind.Warning),
         };
     }
 
@@ -46,7 +48,7 @@ public sealed partial class StatusViewModel(INotifier notifier) : ObservableObje
     public void SetDrift(StateDrift drift, bool dryRun)
     {
         ShowReapply = drift.Any && !dryRun;
-        DriftText = ShowReapply ? $"EC istenen durumda değil ({DriftParts(drift)}). Yeniden başlatma ve uyku EC'yi sıfırlar." : null;
+        DriftText = ShowReapply ? $"Dizüstündeki ayarlar seçtiklerinizden farklı ({DriftParts(drift)}). Geri getirmek için Yeniden uygula'ya basın." : null;
     }
 
     public void Report(CommandResult result)
@@ -56,10 +58,10 @@ public sealed partial class StatusViewModel(INotifier notifier) : ObservableObje
         {
             WriteStatus.Applied or WriteStatus.DryRun => (outcome.Message, MessageKind.Info),
             WriteStatus.Rejected => (outcome.Message, MessageKind.Warning),
-            WriteStatus.FailedRecovered => ($"{outcome.Message} Fanlar fabrika eğrisinde, EC yazma kilitlendi. Kilidi " +
-                "kaldırmak için yönetici olarak: M-Tool.exe --unlock --confirm, sonra M-Tool'u yeniden başlatın.", MessageKind.Error),
-            WriteStatus.FailedUnrecovered => ($"{outcome.Message} Güvenli fan tablosu doğrulanamadı, Cooler Boost denendi. " +
-                "Bilgisayarı yeniden başlatın (EC fabrika tablosuna döner).", MessageKind.Error),
+            WriteStatus.FailedRecovered => ($"{outcome.Message} Güvenlik için fanlar fabrika ayarına alındı ve ayar değiştirme kapatıldı. Yeniden açmak " +
+                "için yönetici komut isteminde M-Tool.exe --unlock --confirm çalıştırın, sonra M-Tool'u yeniden başlatın.", MessageKind.Error),
+            WriteStatus.FailedUnrecovered => ($"{outcome.Message} Fanların güvenli ayarda olduğu doğrulanamadı; önlem olarak Cooler Boost açılmaya " +
+                "çalışıldı. Bilgisayarı yeniden başlatın, fanlar fabrika ayarına döner.", MessageKind.Error),
             _ => throw new ArgumentOutOfRangeException(nameof(result), outcome.Status, "Bilinmeyen yazma sonucu."),
         };
 

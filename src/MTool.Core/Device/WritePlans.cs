@@ -22,10 +22,10 @@ public static class WritePlans
         Single($"Şarj limiti: %{percent}", EcMap.ChargeLimit, ModeCodes.ChargeLimitByte(percent));
 
     public static WritePlan Performance(PerformanceMode mode) =>
-        Single($"Performans modu: {mode}", EcMap.PerformanceMode, ModeCodes.PerformanceByte(mode));
+        Single($"Performans modu: {ModeNames.Of(mode)}", EcMap.PerformanceMode, ModeCodes.PerformanceByte(mode));
 
     public static WritePlan Fan(FanMode mode) =>
-        Single($"Fan modu: {mode}", EcMap.FanMode, ModeCodes.FanModeByte(mode));
+        Single($"Fan modu: {ModeNames.Of(mode)}", EcMap.FanMode, ModeCodes.FanModeByte(mode));
 
     private static WritePlan Single(string description, byte register, byte value) =>
         new(description, [new RegisterWrite(register, value)]);

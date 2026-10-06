@@ -53,7 +53,7 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
         {
             var (current, error) = await FreshReadLockedAsync("Cooler Boost", cancellationToken).ConfigureAwait(false);
             return current is null
-                ? new WriteOutcome(WriteStatus.Rejected, [], $"EC erişilemedi: {error}")
+                ? new WriteOutcome(WriteStatus.Rejected, [], $"Dizüstüne ulaşılamadı, hiçbir ayar değişmedi. Biraz sonra tekrar deneyin. ({error})")
                 : await ApplyPortLockedAsync(WritePlans.CoolerBoost(on, current.CoolerBoostRaw), cancellationToken).ConfigureAwait(false);
         }
         finally
@@ -127,7 +127,7 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
             var (current, error) = await FreshReadLockedAsync(plan.Description, cancellationToken).ConfigureAwait(false);
             if (current is null)
             {
-                return new WriteOutcome(WriteStatus.Rejected, plan.Writes, $"EC erişilemedi: {error}");
+                return new WriteOutcome(WriteStatus.Rejected, plan.Writes, $"Dizüstüne ulaşılamadı, hiçbir ayar değişmedi. Biraz sonra tekrar deneyin. ({error})");
             }
 
             if (current.ChargeLimitRaw == write.Value)
@@ -146,8 +146,8 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, IAppLog 
 
     /// <summary>A refusal that needs no EC access (no port, writes locked), or null.</summary>
     private WriteOutcome? PortRefusal(string what) =>
-        !PortAvailable ? new WriteOutcome(WriteStatus.Rejected, [], $"{what} kullanılamaz: port kapalı (yalnızca WMI).")
-        : setup.Gateway.LockReason is { } reason ? new WriteOutcome(WriteStatus.Rejected, [], $"EC yazma kapalı: {reason}")
+        !PortAvailable ? new WriteOutcome(WriteStatus.Rejected, [], $"{what} bu oturumda kullanılamıyor (PawnIO erişimi yok).")
+        : setup.Gateway.LockReason is { } reason ? new WriteOutcome(WriteStatus.Rejected, [], $"Ayar değiştirme kapalı: {reason}")
         : null;
 
     /// <summary>Call holding <see cref="_portGate"/>. A done write updates the cache, a failed one makes it unknown.</summary>

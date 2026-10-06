@@ -40,8 +40,8 @@ public class CurveValidatorTests
         var errors = CurveValidator.ValidateWithFactoryOffsets(new FanCurves(cpu, gpu));
 
         errors.Should().HaveCount(2);
-        errors[0].Should().StartWith("CPU: Güvenlik tabanı");
-        errors[1].Should().StartWith("GPU: Adım 6");
+        errors[0].Should().StartWith("CPU: Güvenlik kuralı");
+        errors[1].Should().StartWith("GPU: Nokta 7"); // numbered like the editor rows, from 1
         CurveValidator.ValidateWithFactoryOffsets(FactoryDefaults.FanCurves).Should().BeEmpty();
         CurveValidator.ValidateWithFactoryOffsets(new FanCurves(gpu, FactoryDefaults.FanCurves.Gpu)).Should().BeEmpty();
     }
@@ -99,7 +99,7 @@ public class CurveValidatorTests
     {
         var curve = With(FactoryCpu, 3, new FanPoint(64, 70));
 
-        ValidateCpu(curve).Should().Contain(e => e.Contains("artan"));
+        ValidateCpu(curve).Should().Contain(e => e.Contains("önceki noktanınkinden yüksek"));
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class CurveValidatorTests
     {
         var curve = With(FactoryCpu, 2, new FanPoint(up, 60));
 
-        ValidateCpu(curve).Should().Contain(e => e.Contains("aşağı"));
+        ValidateCpu(curve).Should().Contain(e => e.Contains("geri iner"));
     }
 
     [Fact]

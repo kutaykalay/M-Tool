@@ -131,9 +131,9 @@ internal sealed class TrayIconHost : INotifier, IDisposable
     private static ToolStripMenuItem PerformanceMenu(ControlsViewModel controls)
     {
         var menu = new ToolStripMenuItem($"Performans: {controls.PerformanceLabel}");
-        foreach (var (mode, label) in new[] { (PerformanceMode.High, "Yüksek"), (PerformanceMode.Balanced, "Dengeli"), (PerformanceMode.Eco, "Pil") })
+        foreach (var mode in new[] { PerformanceMode.High, PerformanceMode.Balanced, PerformanceMode.Eco })
         {
-            menu.DropDownItems.Add(Item(label, controls.ActivePerformance == mode, controls.CanWrite,
+            menu.DropDownItems.Add(Item(ModeNames.Of(mode), controls.ActivePerformance == mode, controls.CanWrite,
                 () => Run(controls.SetPerformanceCommand, mode)));
         }
 

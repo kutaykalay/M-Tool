@@ -129,7 +129,7 @@ public sealed class ControlsViewModelTests : IDisposable
         await _service.DeleteProfileAsync("Gece");
 
         _controls.ActiveProfile.Should().BeNull();
-        _controls.ActiveProfileLabel.Should().Be("Özel/bilinmeyen tablo");
+        _controls.ActiveProfileLabel.Should().Be("Tanınmayan fan ayarı");
     }
 
     [Fact]
@@ -206,8 +206,8 @@ public sealed class ControlsViewModelTests : IDisposable
         await _controls.RefreshAsync(PortUse.Allowed);
 
         _controls.ActiveProfile.Should().BeNull();
-        _controls.ActiveProfileLabel.Should().Contain("bilinmeyen");
-        _controls.PerformanceLabel.Should().Contain("tanımsız");
+        _controls.ActiveProfileLabel.Should().Contain("Tanınmayan");
+        _controls.PerformanceLabel.Should().Contain("fabrika ayarı");
     }
 
     [Fact]

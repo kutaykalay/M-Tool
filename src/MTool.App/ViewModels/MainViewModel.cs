@@ -93,7 +93,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
         else
         {
-            Status.Report(new CommandResult(worst with { Message = $"Otomatik yeniden uygulama ({TriggerName(result.Trigger)}): {worst.Message}" }));
+            Status.Report(new CommandResult(worst with { Message = $"{TriggerName(result.Trigger)} ayarlar uygulanamadı: {worst.Message}" }));
             _autoReapplyMessage = Status.Message;
         }
 
@@ -107,9 +107,9 @@ public sealed partial class MainViewModel : ObservableObject
 
     private static string TriggerName(ReapplyTrigger trigger) => trigger switch
     {
-        ReapplyTrigger.Startup => "açılış",
-        ReapplyTrigger.Resume => "uyanış",
-        _ => "yeniden deneme",
+        ReapplyTrigger.Startup => "Açılışta",
+        ReapplyTrigger.Resume => "Uykudan uyanınca",
+        _ => "Yeniden denemede",
     };
 
     private void UpdateTooltip() => TrayTooltip = TooltipText.Format(_poller.Latest, Controls.ActiveProfileLabel);

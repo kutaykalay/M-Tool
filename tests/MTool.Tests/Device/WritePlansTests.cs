@@ -92,4 +92,18 @@ public class WritePlansTests
     {
         WritePlans.Fan(mode).Writes.Should().Equal(new RegisterWrite(0xF4, expected));
     }
+
+    // Plan descriptions reach the window through a lock reason, so they use the window's words.
+    [Theory]
+    [InlineData(PerformanceMode.High, "Performans modu: Yüksek")]
+    [InlineData(PerformanceMode.Balanced, "Performans modu: Dengeli")]
+    [InlineData(PerformanceMode.Eco, "Performans modu: Pil")]
+    public void Performance_plans_are_described_in_Turkish(PerformanceMode mode, string expected) =>
+        WritePlans.Performance(mode).Description.Should().Be(expected);
+
+    [Theory]
+    [InlineData(FanMode.Auto, "Fan modu: Otomatik")]
+    [InlineData(FanMode.Advanced, "Fan modu: Gelişmiş")]
+    public void Fan_mode_plans_are_described_in_Turkish(FanMode mode, string expected) =>
+        WritePlans.Fan(mode).Description.Should().Be(expected);
 }

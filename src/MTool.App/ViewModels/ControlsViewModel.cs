@@ -44,19 +44,14 @@ public sealed partial class ControlsViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(ActiveProfileLabel))]
     public partial string? ActiveProfile { get; private set; }
 
-    public string ActiveProfileLabel => ActiveProfile ?? "Özel/bilinmeyen tablo";
+    public string ActiveProfileLabel => ActiveProfile ?? "Tanınmayan fan ayarı";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PerformanceLabel))]
     public partial PerformanceMode? ActivePerformance { get; private set; }
 
-    public string PerformanceLabel => ActivePerformance switch
-    {
-        PerformanceMode.High => "Yüksek",
-        PerformanceMode.Balanced => "Dengeli",
-        PerformanceMode.Eco => "Pil",
-        _ => $"tanımsız (fabrika, 0x{_performanceRaw:X2})",
-    };
+    public string PerformanceLabel =>
+        ActivePerformance is { } mode ? ModeNames.Of(mode) : $"fabrika ayarı (0x{_performanceRaw:X2})";
 
     /// <summary>Null when the port state is not known.</summary>
     [ObservableProperty]
@@ -124,7 +119,7 @@ public sealed partial class ControlsViewModel : ObservableObject
             // A write failure message ("locked, restart") matters more than this one.
             if (_status.MessageKind != MessageKind.Error)
             {
-                _status.ShowWarning($"EC durumu okunamadı, gösterilen değerler eski olabilir: {ex.Message}");
+                _status.ShowWarning($"Güncel ayarlar okunamadı, gösterilen değerler eski olabilir. ({ex.Message})");
             }
 
             return;

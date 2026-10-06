@@ -213,7 +213,7 @@ public class CurveEditingTests
         curve.Points.Last(p => p.UpThresholdC <= CurveValidator.EnvelopeTemperatureC).SpeedPercent < CurveValidator.EnvelopeMinSpeedPercent;
 
     private static IEnumerable<string> EnvelopeSpeedErrors(IEnumerable<string> errors) =>
-        errors.Where(e => e.StartsWith($"Güvenlik zarfı: {CurveValidator.EnvelopeTemperatureC} °C", StringComparison.Ordinal));
+        errors.Where(e => e.StartsWith($"Güvenlik kuralı: {CurveValidator.EnvelopeTemperatureC} °C", StringComparison.Ordinal));
 
     [Fact]
     public void A_move_can_break_the_envelope_speed_and_the_validator_reports_it_once()
@@ -222,7 +222,7 @@ public class CurveEditingTests
 
         BreaksEnvelopeSpeed(moved).Should().BeTrue();
         CurveValidator.Validate(moved, CpuOffsets).Should().ContainSingle()
-            .Which.Should().StartWith($"Güvenlik zarfı: {CurveValidator.EnvelopeTemperatureC} °C");
+            .Which.Should().StartWith($"Güvenlik kuralı: {CurveValidator.EnvelopeTemperatureC} °C");
     }
 
     /// <summary>

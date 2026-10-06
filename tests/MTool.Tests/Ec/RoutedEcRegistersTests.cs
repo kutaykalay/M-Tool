@@ -241,7 +241,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
         var outcome = await gateway.ApplyAsync(PortPlan(plan));
 
         outcome.Status.Should().Be(WriteStatus.Rejected);
-        outcome.Message.Should().Contain("port");
+        outcome.Message.Should().Contain("bu oturumda kullanılamıyor");
         gateway.IsWriteEnabled.Should().BeTrue();
         persistedLocks.Should().BeEmpty();
         _wmi.Calls.Should().BeEmpty();

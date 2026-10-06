@@ -55,7 +55,7 @@ public sealed class EcGateway
 
         if (Volatile.Read(ref _lockReason) is { } reason)
         {
-            return Reject(snapshot, $"EC yazma kapalı: {reason}");
+            return Reject(snapshot, $"Ayar değiştirme kapalı: {reason}");
         }
 
         if (CheckShape(snapshot, _policy.PortAvailable) is { } shapeError)
@@ -72,7 +72,7 @@ public sealed class EcGateway
             // ApplyLocked handles every failure after its first write, so this is a failure before
             // any write (lock busy, sleep, unreadable state): nothing changed.
             SafeLog(log => log.Error($"{snapshot.Description}: yazmadan önce EC erişimi başarısız", ex));
-            return Reject(snapshot, $"EC erişilemedi: {ex.Message}");
+            return Reject(snapshot, $"Dizüstüne ulaşılamadı, hiçbir ayar değişmedi. Biraz sonra tekrar deneyin. ({ex.Message})");
         }
     }
 
@@ -81,8 +81,8 @@ public sealed class EcGateway
         new(ec, _retry, message => SafeLog(log => log.Warn(message)));
 
     private static string? InitialLockReason(WritePolicy policy) =>
-        !policy.FirmwareSupported ? $"tanınmayan firmware (yalnızca {EcMap.SupportedFirmware} destekleniyor)"
-        : !policy.PreStateSaved ? "M-Tool öncesi durum yedeği yok ya da geçersiz"
+        !policy.FirmwareSupported ? $"bu firmware desteklenmiyor (yalnızca {EcMap.SupportedFirmware})."
+        : !policy.PreStateSaved ? "ilk açılışta alınan ayar yedeği bulunamadı ya da bozuk."
         : policy.PersistedLockReason;
 
     private static string? CheckShape(WritePlan plan, bool portAvailable)
@@ -109,7 +109,7 @@ public sealed class EcGateway
             return null;
         }
 
-        return !portAvailable ? $"{portWrite}: port kapalı (yalnızca WMI); Cooler Boost ve şarj limiti yazılamaz."
+        return !portAvailable ? $"{portWrite}: Cooler Boost ve şarj limiti bu oturumda kullanılamıyor (PawnIO erişimi yok)."
             : plan.Writes.Count > 1 ? $"{portWrite}: port register'ı planda tek başına olmalı."
             : null;
     }
@@ -119,7 +119,7 @@ public sealed class EcGateway
         // A plan queued before another one failed must not run on the EC that just failed.
         if (Volatile.Read(ref _lockReason) is { } reason)
         {
-            return Reject(plan, $"EC yazma kapalı: {reason}");
+            return Reject(plan, $"Ayar değiştirme kapalı: {reason}");
         }
 
         // Before the first port access (validation reads 0x98 through it). If this throws,
@@ -134,7 +134,7 @@ public sealed class EcGateway
         if (_policy.DryRun)
         {
             SafeLog(log => log.Info($"DRY-RUN {plan.Description}: {string.Join(' ', ordered)}"));
-            return new WriteOutcome(WriteStatus.DryRun, ordered, "Dry-run: doğrulandı, yazılmadı.");
+            return new WriteOutcome(WriteStatus.DryRun, ordered, "Deneme modu: kontrol edildi, uygulanmadı.");
         }
 
         SafeLog(log => log.Info($"WRITE {plan.Description}: {string.Join(' ', ordered)}"));
@@ -144,12 +144,12 @@ public sealed class EcGateway
                 ?? ordered.FirstOrDefault(w => ec.Read(w.Register) != w.Value);
             if (failed is not null)
             {
-                return Fail(ec, plan, $"{failed} doğrulanamadı.", exception: null, watched);
+                return Fail(ec, plan, $"Ayar yazıldı ama geri okunduğunda farklı çıktı ({failed}).", exception: null, watched);
             }
 
             if (watched is not null && PortWriteGuard.Check(ec, watched).Any)
             {
-                return Fail(ec, plan, "port yazması doğrulandı ama yan etki görüldü.", exception: null, watched);
+                return Fail(ec, plan, "Ayar yazıldı ama başka değerler de değişti; güvenlik için durduruldu.", exception: null, watched);
             }
         }
         catch (Exception ex)
@@ -179,7 +179,7 @@ public sealed class EcGateway
                 throw;
             }
 
-            return Fail(ec, plan, $"doğrulama okuması başarısız: {ex.Message}", ex, watched);
+            return Fail(ec, plan, $"Ayar yazıldı ama geri okunamadı ({ex.Message}).", ex, watched);
         }
     }
 
@@ -248,7 +248,7 @@ public sealed class EcGateway
     private WriteOutcome Fail(
         IEcWritableRegisters ec, WritePlan plan, string reason, Exception? exception, IReadOnlyDictionary<byte, byte>? watched)
     {
-        var lockReason = $"yazma başarısız oldu: {plan.Description}, {reason}";
+        var lockReason = $"önceki bir ayar uygulanamadı ({plan.Description}). Ayrıntı: {reason}";
         Volatile.Write(ref _lockReason, lockReason);
         PersistLock(lockReason);
 
@@ -264,11 +264,11 @@ public sealed class EcGateway
         SafeLog(log => log.Error($"{plan.Description}: yazma başarısız, EC yazma kilitlendi. {details}", exception));
         if (safe)
         {
-            return new WriteOutcome(WriteStatus.FailedRecovered, ordered, $"Yazma başarısız, fan tablosu güvenli. {details}");
+            return new WriteOutcome(WriteStatus.FailedRecovered, ordered, $"Ayar uygulanamadı. {details}");
         }
 
         SafeLog(log => log.Error($"Güvenli fan tablosu doğrulanamadı; Cooler Boost {(boosted ? "açıldı" : "da açılamadı")}."));
-        return new WriteOutcome(WriteStatus.FailedUnrecovered, ordered, $"Yazma başarısız, fan tablosu doğrulanamadı. {details}");
+        return new WriteOutcome(WriteStatus.FailedUnrecovered, ordered, $"Ayar uygulanamadı. {details}");
     }
 
     /// <summary>Puts a disturbed performance or fan mode back to its value before the port access.</summary>

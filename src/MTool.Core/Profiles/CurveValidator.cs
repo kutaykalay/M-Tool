@@ -79,7 +79,7 @@ public static class CurveValidator
     {
         if (points[1].UpThresholdC > MaxFirstStepThresholdC)
         {
-            errors.Add($"Güvenlik zarfı: ilk kademe en geç {MaxFirstStepThresholdC} °C'de başlamalı.");
+            errors.Add($"Güvenlik kuralı: ilk kademe en geç {MaxFirstStepThresholdC} °C'de başlamalı.");
         }
 
         // Below its first threshold the fan runs at the idle speed. A curve from settings.json may break
@@ -87,7 +87,7 @@ public static class CurveValidator
         var speedAtEnvelope = (points.LastOrDefault(p => p.UpThresholdC <= EnvelopeTemperatureC) ?? points[0]).SpeedPercent;
         if (speedAtEnvelope < EnvelopeMinSpeedPercent)
         {
-            errors.Add($"Güvenlik zarfı: {EnvelopeTemperatureC} °C'de fan en az %{EnvelopeMinSpeedPercent} dönmeli (şu an %{speedAtEnvelope}).");
+            errors.Add($"Güvenlik kuralı: {EnvelopeTemperatureC} °C'de fan en az %{EnvelopeMinSpeedPercent} dönmeli (şu an %{speedAtEnvelope}).");
         }
     }
 
@@ -96,12 +96,12 @@ public static class CurveValidator
         var speed = points[i].SpeedPercent;
         if (speed is < 0 or > EcWriteRules.MaxSpeedPercent)
         {
-            errors.Add($"Adım {i}: fan hızı %0-{EcWriteRules.MaxSpeedPercent} aralığında olmalı.");
+            errors.Add($"Nokta {i + 1}: fan hızı %0-{EcWriteRules.MaxSpeedPercent} aralığında olmalı.");
         }
 
         if (i > 0 && speed < points[i - 1].SpeedPercent)
         {
-            errors.Add($"Adım {i}: fan hızı bir önceki adımdan düşük olamaz.");
+            errors.Add($"Nokta {i + 1}: fan hızı önceki noktadan düşük olamaz.");
         }
     }
 
@@ -112,18 +112,18 @@ public static class CurveValidator
 
         if (up is < EcWriteRules.MinUpThresholdC or > EcWriteRules.MaxUpThresholdC)
         {
-            errors.Add($"Adım {i}: yukarı eşik {EcWriteRules.MinUpThresholdC}-{EcWriteRules.MaxUpThresholdC} °C olmalı.");
+            errors.Add($"Nokta {i + 1}: eşik {EcWriteRules.MinUpThresholdC}-{EcWriteRules.MaxUpThresholdC} °C olmalı.");
         }
 
         if (i > 1 && up <= previousUp)
         {
-            errors.Add($"Adım {i}: yukarı eşikler artan olmalı.");
+            errors.Add($"Nokta {i + 1}: eşik önceki noktanınkinden yüksek olmalı.");
         }
 
         // The fixed factory offset decides the down threshold, so only the up threshold can fix this.
         if (down <= previousUp)
         {
-            errors.Add($"Adım {i}: aşağı eşik ({up} °C - fabrika farkı = {down} °C), önceki adımın yukarı eşiğinden ({previousUp} °C) büyük olmalı; yukarı eşiği artırın.");
+            errors.Add($"Nokta {i + 1}: fan bu noktadan {down} °C'de geri iner, bu da önceki noktanın eşiğini ({previousUp} °C) geçmiyor. Bu noktanın eşiğini yükseltin.");
         }
     }
 
@@ -131,12 +131,12 @@ public static class CurveValidator
     {
         if (last.UpThresholdC > SafetyFloorMaxLastThresholdC)
         {
-            errors.Add($"Güvenlik tabanı: son kademe en geç {SafetyFloorMaxLastThresholdC} °C'de başlamalı.");
+            errors.Add($"Güvenlik kuralı: son kademe en geç {SafetyFloorMaxLastThresholdC} °C'de başlamalı.");
         }
 
         if (last.SpeedPercent < SafetyFloorMinLastSpeedPercent)
         {
-            errors.Add($"Güvenlik tabanı: son kademe en az %{SafetyFloorMinLastSpeedPercent} olmalı.");
+            errors.Add($"Güvenlik kuralı: son kademe en az %{SafetyFloorMinLastSpeedPercent} olmalı.");
         }
     }
 }

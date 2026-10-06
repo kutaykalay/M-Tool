@@ -99,7 +99,7 @@ public static class WriteAccessBootstrap
         {
             // Fail closed: an unreadable lock file is treated as a lock.
             log.Error("Yazma kilidi dosyası okunamadı; EC yazma kapalı", ex);
-            return $"write-lock.txt okunamadı ({ex.Message})";
+            return $"kilit dosyası (write-lock.txt) okunamadı ({ex.Message}).";
         }
     }
 }

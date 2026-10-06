@@ -262,7 +262,7 @@ public sealed class P65ControlTests : IDisposable
         state.Port.Should().BeNull();
         state.Performance.Should().Be(PerformanceMode.High);
         boost.Status.Should().Be(WriteStatus.Rejected);
-        boost.Message.Should().Contain("port");
+        boost.Message.Should().Contain("bu oturumda kullanılamıyor");
         charge.Status.Should().Be(WriteStatus.Rejected);
         portReads.Should().BeEmpty();
         _ec.Writes.Should().BeEmpty();

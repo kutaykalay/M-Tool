@@ -41,7 +41,7 @@ public sealed class MainViewModelTests : IDisposable
 
         await _main.InitializeAsync(["settings.json okunamadı"]);
 
-        _main.Status.AccessBanner.Should().Contain("DRY-RUN");
+        _main.Status.AccessBanner.Should().Contain("Deneme modu");
         _main.Status.Message.Should().Contain("settings.json okunamadı");
         _main.Controls.ActiveProfile.Should().Be("Default");
     }
@@ -146,7 +146,7 @@ public sealed class MainViewModelTests : IDisposable
         await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Startup, WriteStatus.Applied, WriteStatus.Rejected));
 
         _main.Status.MessageKind.Should().Be(MessageKind.Warning);
-        _main.Status.Message.Should().Contain("Otomatik yeniden uygulama").And.Contain(nameof(WriteStatus.Rejected));
+        _main.Status.Message.Should().Contain("Açılışta ayarlar uygulanamadı").And.Contain(nameof(WriteStatus.Rejected));
         _notifier.Errors.Should().BeEmpty();
     }
 
@@ -160,7 +160,7 @@ public sealed class MainViewModelTests : IDisposable
         await _main.OnAutoReappliedAsync(Result(ReapplyTrigger.Resume, status));
 
         _main.Status.MessageKind.Should().Be(MessageKind.Error);
-        _main.Status.Message.Should().Contain("Otomatik yeniden uygulama");
+        _main.Status.Message.Should().Contain("Uykudan uyanınca ayarlar uygulanamadı");
         _notifier.Errors.Should().ContainSingle();
     }
 
