@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using MTool.Core.Power;
 using MTool.Core.Profiles;
 
 namespace MTool.Core.Settings;
@@ -10,11 +11,16 @@ namespace MTool.Core.Settings;
 /// The user's own fan profiles in creation order; missing or null means none. Outside input like the
 /// rest of the file: <see cref="SettingsSanitizer"/> checks them before they reach the catalog.
 /// </param>
+/// <param name="PowerSwitch">
+/// Separate choices on AC and on battery; missing or null means off. Added without a new schema
+/// version: an older M-Tool loads the file and only drops this field when it saves.
+/// </param>
 public sealed record AppSettings(
     int SchemaVersion = AppSettings.CurrentSchemaVersion,
     bool DryRun = true,
     DesiredState? Desired = null,
-    IReadOnlyList<FanProfile>? CustomProfiles = null)
+    IReadOnlyList<FanProfile>? CustomProfiles = null,
+    PowerSwitchSettings? PowerSwitch = null)
 {
     public const int CurrentSchemaVersion = 1;
 
@@ -34,6 +40,14 @@ public sealed record AppSettings(
 
     = CustomProfiles ?? [];
 
+    public PowerSwitchSettings PowerSwitch
+    {
+        get;
+        init => field = value ?? PowerSwitchSettings.Default;
+    }
+
+    = PowerSwitch ?? PowerSwitchSettings.Default;
+
     public static AppSettings Default { get; } = new();
 
     /// <summary>Custom profiles by content, not by list reference: loaded settings equal the saved ones.</summary>
@@ -42,9 +56,10 @@ public sealed record AppSettings(
         && SchemaVersion == other.SchemaVersion
         && DryRun == other.DryRun
         && Desired == other.Desired
-        && CustomProfiles.SequenceEqual(other.CustomProfiles);
+        && CustomProfiles.SequenceEqual(other.CustomProfiles)
+        && PowerSwitch == other.PowerSwitch;
 
-    public override int GetHashCode() => HashCode.Combine(SchemaVersion, DryRun, Desired, CustomProfiles.Count);
+    public override int GetHashCode() => HashCode.Combine(SchemaVersion, DryRun, Desired, CustomProfiles.Count, PowerSwitch);
 }
 
 /// <param name="Warning">Set when the file was unusable and defaults were loaded instead.</param>

@@ -1,4 +1,5 @@
 using MTool.Core.Device;
+using MTool.Core.Power;
 using MTool.Core.Profiles;
 using MTool.Core.Settings;
 
@@ -493,6 +494,65 @@ public sealed class SettingsStoreTests : IDisposable
 
         save.Should().NotThrow();
         store.Load().Settings.DryRun.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("""{ "schemaVersion": 1, "dryRun": false }""")]
+    [InlineData("""{ "schemaVersion": 1, "dryRun": false, "powerSwitch": null }""")]
+    public void Missing_power_switch_loads_as_off_without_pairs(string json)
+    {
+        File.WriteAllText(SettingsPath, json);
+
+        var powerSwitch = new SettingsStore(_folder).Load().Settings.PowerSwitch;
+
+        powerSwitch.Should().Be(PowerSwitchSettings.Default);
+        powerSwitch.Enabled.Should().BeFalse();
+        powerSwitch.Ac.Should().BeNull();
+        powerSwitch.Battery.Should().BeNull();
+    }
+
+    [Fact]
+    public void Power_switch_round_trips_with_turkish_names_and_untouched_performance()
+    {
+        var store = new SettingsStore(_folder);
+        var settings = AppSettings.Default with
+        {
+            PowerSwitch = new PowerSwitchSettings(
+                Enabled: true,
+                Ac: new PowerProfilePair("Cool", PerformanceMode.High),
+                Battery: new PowerProfilePair("Işıklı gece", Performance: null)),
+        };
+
+        store.Save(settings);
+
+        store.Load().Settings.Should().Be(settings);
+        File.ReadAllText(SettingsPath).Should().Contain("\"powerSwitch\"").And.Contain("\"battery\"").And.Contain("\"High\"");
+    }
+
+    [Fact]
+    public void Settings_with_different_power_switches_are_not_equal()
+    {
+        var on = AppSettings.Default with { PowerSwitch = new PowerSwitchSettings(Enabled: true) };
+
+        on.Should().NotBe(AppSettings.Default);
+        on.Should().Be(AppSettings.Default with { PowerSwitch = new PowerSwitchSettings(Enabled: true) });
+    }
+
+    [Fact]
+    public void Power_switch_cannot_be_set_to_null()
+    {
+        (AppSettings.Default with { PowerSwitch = null! }).PowerSwitch.Should().Be(PowerSwitchSettings.Default);
+    }
+
+    [Fact]
+    public void An_unknown_performance_name_in_a_power_pair_sets_the_file_aside()
+    {
+        File.WriteAllText(SettingsPath, """{ "powerSwitch": { "enabled": true, "ac": { "fanProfile": "Cool", "performance": "Turbo" } } }""");
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Settings.Should().Be(AppSettings.Default);
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().ContainSingle();
     }
 
     /// <summary>Copies named like the store names them, from long ago; oldest first.</summary>
