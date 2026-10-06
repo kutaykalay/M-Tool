@@ -1,4 +1,5 @@
 using MTool.Core.Device;
+using MTool.Core.Power;
 using MTool.Core.Profiles;
 using MTool.Core.Settings;
 
@@ -294,5 +295,94 @@ public class SettingsSanitizerTests
         var settings = WithProfiles(null!, Night("Default"), Night("Gece"), Night("gece"), Night(""));
 
         SettingsSanitizer.Sanitize(settings, Catalog).DroppedProfiles.Should().Be(4);
+    }
+
+    private static AppSettings WithPairs(PowerProfilePair? ac, PowerProfilePair? battery) =>
+        AppSettings.Default with { PowerSwitch = new PowerSwitchSettings(Enabled: true, ac, battery) };
+
+    [Fact]
+    public void Valid_power_pairs_pass_with_the_catalog_spelling()
+    {
+        var settings = WithProfiles(Night("Gece")) with
+        {
+            PowerSwitch = new PowerSwitchSettings(true, new PowerProfilePair("cool", PerformanceMode.High), new PowerProfilePair("GECE")),
+        };
+
+        var result = SettingsSanitizer.Sanitize(settings, Catalog);
+
+        result.Settings.PowerSwitch.Should().Be(
+            new PowerSwitchSettings(true, new PowerProfilePair("Cool", PerformanceMode.High), new PowerProfilePair("Gece")));
+        result.Warnings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_battery_pair_with_an_unknown_profile_is_dropped_with_a_warning()
+    {
+        var result = SettingsSanitizer.Sanitize(WithPairs(new PowerProfilePair("Cool"), new PowerProfilePair("Turbo", PerformanceMode.Eco)), Catalog);
+
+        result.Settings.PowerSwitch.Battery.Should().BeNull();
+        result.Settings.PowerSwitch.Ac.Should().Be(new PowerProfilePair("Cool"));
+        result.Settings.PowerSwitch.Enabled.Should().BeTrue();
+        result.Warnings.Should().ContainSingle().Which.Should().Contain("Pilde").And.Contain("Turbo").And.Contain("pile geçince");
+    }
+
+    [Fact]
+    public void An_ac_pair_with_an_unknown_profile_is_dropped_with_a_warning()
+    {
+        var result = SettingsSanitizer.Sanitize(WithPairs(new PowerProfilePair("Turbo"), battery: null), Catalog);
+
+        result.Settings.PowerSwitch.Ac.Should().BeNull();
+        result.Warnings.Should().ContainSingle().Which.Should().Contain("Prizde").And.Contain("prize geçince");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void A_power_pair_without_a_profile_name_is_dropped(string? name)
+    {
+        var result = SettingsSanitizer.Sanitize(WithPairs(new PowerProfilePair(name!), battery: null), Catalog);
+
+        result.Settings.PowerSwitch.Ac.Should().BeNull();
+        result.Warnings.Should().ContainSingle().Which.Should().Contain("boş");
+    }
+
+    [Fact]
+    public void An_undefined_performance_in_a_power_pair_is_dropped_but_the_profile_kept()
+    {
+        var result = SettingsSanitizer.Sanitize(WithPairs(new PowerProfilePair("Silent", (PerformanceMode)7), battery: null), Catalog);
+
+        result.Settings.PowerSwitch.Ac.Should().Be(new PowerProfilePair("Silent", Performance: null));
+        result.Warnings.Should().ContainSingle().Which.Should().Contain("performans");
+    }
+
+    [Fact]
+    public void A_power_pair_naming_a_custom_profile_that_was_set_aside_is_dropped()
+    {
+        var broken = new FanProfile("Bozuk", Presets.Silent.Curves with { Cpu = FanCurve.Of((0, 100)) });
+        var settings = WithProfiles(broken) with { PowerSwitch = new PowerSwitchSettings(true, Battery: new PowerProfilePair("Bozuk")) };
+
+        var result = SettingsSanitizer.Sanitize(settings, Catalog);
+
+        result.Settings.PowerSwitch.Battery.Should().BeNull();
+        result.Warnings.Should().Contain(w => w.Contains("Pilde"));
+    }
+
+    [Fact]
+    public void A_control_character_in_a_power_pair_name_is_not_shown_raw()
+    {
+        var result = SettingsSanitizer.Sanitize(WithPairs(new PowerProfilePair("Kötü\u0007ad"), battery: null), Catalog);
+
+        result.Warnings.Should().ContainSingle().Which.Should().NotContain("\u0007").And.Contain("Kötü?ad");
+    }
+
+    [Fact]
+    public void Power_pairs_do_not_change_how_the_desired_state_is_checked()
+    {
+        var settings = WithPairs(new PowerProfilePair("Turbo"), new PowerProfilePair("Silent")) with { Desired = new DesiredState("Cool") };
+
+        var result = SettingsSanitizer.Sanitize(settings, Catalog);
+
+        result.Settings.Desired.Should().Be(new DesiredState("Cool"));
     }
 }

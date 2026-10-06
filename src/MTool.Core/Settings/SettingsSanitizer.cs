@@ -1,4 +1,5 @@
 using MTool.Core.Ec;
+using MTool.Core.Power;
 using MTool.Core.Profiles;
 
 namespace MTool.Core.Settings;
@@ -39,8 +40,36 @@ public static class SettingsSanitizer
             FanMode = Defined(desired.FanMode, "fan modu", warnings),
         };
 
+        var powerSwitch = settings.PowerSwitch with
+        {
+            Ac = KeptPair(settings.PowerSwitch.Ac, PowerSource.Ac, full, warnings),
+            Battery = KeptPair(settings.PowerSwitch.Battery, PowerSource.Battery, full, warnings),
+        };
+
         return new SanitizedSettings(
-            settings with { Desired = desired, CustomProfiles = custom }, warnings.AsReadOnly(), full, dropped);
+            settings with { Desired = desired, CustomProfiles = custom, PowerSwitch = powerSwitch }, warnings.AsReadOnly(), full, dropped);
+    }
+
+    /// <summary>
+    /// A pair whose profile is gone is dropped, not set to Default: switching would then write a table
+    /// the user never chose there. Without a pair, the next switch to that source keeps what is set.
+    /// </summary>
+    private static PowerProfilePair? KeptPair(PowerProfilePair? pair, PowerSource source, ProfileCatalog catalog, List<string> warnings)
+    {
+        if (pair is null)
+        {
+            return null;
+        }
+
+        if ((pair.FanProfile is null ? null : catalog.Find(pair.FanProfile)) is not { } profile)
+        {
+            var name = string.IsNullOrWhiteSpace(pair.FanProfile) ? "boş" : ProfileNameRules.Printable(pair.FanProfile);
+            var (on, to) = source == PowerSource.Ac ? ("Prizde", "prize") : ("Pilde", "pile");
+            warnings.Add($"{on} kullanılan fan profili bulunamadı ({name}); {to} geçince o anki ayar korunacak.");
+            return null;
+        }
+
+        return new PowerProfilePair(profile.Name, Defined(pair.Performance, "performans modu", warnings));
     }
 
     /// <summary>Dropped profiles named one by one; the rest are counted in a single warning.</summary>
