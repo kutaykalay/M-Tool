@@ -116,10 +116,18 @@ public sealed class ProfileServicePowerSwitchTests : IDisposable
         var service = await OnAc(On(battery: SilentEco));
         var raised = new List<DesiredState>();
         Task? reentered = null;
+        var calledBack = false;
         service.DesiredChanged += desired =>
         {
             raised.Add(desired);
-            reentered ??= service.SetChargeLimitAsync(70);
+            // The guard is set before the call: the call raises this event again before it returns.
+            if (calledBack)
+            {
+                return;
+            }
+
+            calledBack = true;
+            reentered = service.SetChargeLimitAsync(70);
         };
 
         await service.SwitchPowerSourceAsync(PowerSource.Battery, write: true);
