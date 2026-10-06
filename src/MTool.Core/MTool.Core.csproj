@@ -9,4 +9,8 @@
     <InternalsVisibleTo Include="MTool.Tests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Devices\*.json" LogicalName="MTool.Devices.%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>
