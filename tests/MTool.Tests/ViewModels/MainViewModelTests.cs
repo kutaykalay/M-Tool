@@ -26,7 +26,7 @@ public sealed class MainViewModelTests : IDisposable
         var log = new ListLog();
         _service = new ProfileService(_control, ProfileCatalog.BuiltIn, new SettingsStore(_folder), AppSettings.Default, log);
         _poller = new SensorPoller(_control.ReadSensorsAsync, () => true, () => _service.IsBusy, _time, log, MainViewModel.HiddenInterval);
-        _main = new MainViewModel(_poller, _service, _control, _source, _notifier, new ImmediateDispatcher());
+        _main = new MainViewModel(_poller, _service, _control, _source, _notifier, new ImmediateDispatcher(), _time);
     }
 
     public void Dispose()
@@ -88,6 +88,18 @@ public sealed class MainViewModelTests : IDisposable
         await _main.Controls.SelectProfileCommand.ExecuteAsync("Silent");
 
         _main.TrayTooltip.Should().Contain("Silent");
+    }
+
+    [Fact]
+    public async Task A_success_from_the_window_disappears_after_ten_seconds()
+    {
+        await _main.InitializeAsync([]);
+        await _main.Controls.SelectProfileCommand.ExecuteAsync("Silent");
+        _main.Status.MessageKind.Should().Be(MessageKind.Info);
+
+        _time.Advance(StatusViewModel.InfoLifetime);
+
+        _main.Status.Message.Should().BeNull();
     }
 
     [Fact]

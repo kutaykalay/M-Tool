@@ -11,7 +11,7 @@ public sealed class PowerSwitchViewModelTests : IDisposable
     private readonly string _folder = Directory.CreateTempSubdirectory("mtool-test-").FullName;
     private readonly FakeP65Control _control = new();
     private readonly FakePowerSource _source = new();
-    private readonly StatusViewModel _status = new(new FakeNotifier());
+    private readonly StatusViewModel _status = new(new FakeNotifier(), new ImmediateDispatcher(), TimeProvider.System);
 
     public void Dispose() => Directory.Delete(_folder, recursive: true);
 

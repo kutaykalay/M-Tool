@@ -5,11 +5,22 @@ using MTool.Core.Profiles;
 
 namespace MTool.App.ViewModels;
 
-/// <summary>The window's bands: write access, drift from the desired state, and the last result.</summary>
-public sealed partial class StatusViewModel(INotifier notifier) : ObservableObject
+/// <summary>
+/// The window's bands: write access, drift from the desired state, and the last result. A success
+/// (<see cref="MessageKind.Info"/>) goes away after <see cref="InfoLifetime"/>; warnings and errors
+/// stay. Every message change starts a new version, so an old timer never clears a newer message, even
+/// one with the same text. The timer only posts; the version is compared on the UI thread.
+/// </summary>
+public sealed partial class StatusViewModel(INotifier notifier, IUiDispatcher ui, TimeProvider time) : ObservableObject, IDisposable
 {
+    public static readonly TimeSpan InfoLifetime = TimeSpan.FromSeconds(10);
+
     private const string FailureTitle = "M-Tool: ayar uygulanamadı";
     private const string ReadOnlyNote = "M-Tool yalnızca izleme modunda, ayar değiştiremez.";
+
+    private long _version;
+    private ITimer? _hideTimer;
+    private bool _disposed;
 
     [ObservableProperty]
     public partial string? AccessBanner { get; private set; }
@@ -75,23 +86,57 @@ public sealed partial class StatusViewModel(INotifier notifier) : ObservableObje
             (text, kind) = ($"{text} {warning}", kind == MessageKind.Error ? kind : MessageKind.Warning);
         }
 
-        (Message, MessageKind) = (text, kind);
+        SetMessage(text, kind);
     }
 
-    public void ShowWarning(string text) => (Message, MessageKind) = (text, MessageKind.Warning);
+    public void ShowWarning(string text) => SetMessage(text, MessageKind.Warning);
 
     /// <summary>Adds to the message instead of replacing it; an error stays an error.</summary>
-    public void AddWarning(string text) =>
-        (Message, MessageKind) = Message is null
-            ? (text, MessageKind.Warning)
-            : ($"{Message} {text}", MessageKind == MessageKind.Error ? MessageKind.Error : MessageKind.Warning);
+    public void AddWarning(string text)
+    {
+        if (Message is null)
+        {
+            SetMessage(text, MessageKind.Warning);
+            return;
+        }
+
+        SetMessage($"{Message} {text}", MessageKind == MessageKind.Error ? MessageKind.Error : MessageKind.Warning);
+    }
 
     /// <summary>Clears the message only if it is still this one; a newer message stays.</summary>
     public void ClearMessage(string ifShowing)
     {
         if (Message == ifShowing)
         {
-            (Message, MessageKind) = (null, MessageKind.None);
+            SetMessage(null, MessageKind.None);
+        }
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+        _hideTimer?.Dispose();
+        _hideTimer = null;
+    }
+
+    private void SetMessage(string? text, MessageKind kind)
+    {
+        var version = ++_version;
+        _hideTimer?.Dispose();
+        _hideTimer = null;
+        (Message, MessageKind) = (text, kind);
+
+        if (kind == MessageKind.Info && text is not null && !_disposed)
+        {
+            _hideTimer = time.CreateTimer(_ => ui.Post(() => HideIfCurrent(version)), null, InfoLifetime, Timeout.InfiniteTimeSpan);
+        }
+    }
+
+    private void HideIfCurrent(long version)
+    {
+        if (!_disposed && version == _version)
+        {
+            SetMessage(null, MessageKind.None);
         }
     }
 

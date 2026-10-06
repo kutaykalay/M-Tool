@@ -107,7 +107,8 @@ internal sealed class GuiBootstrapper : IDisposable
         await AlignToStartSourceAsync(service, powerEvents.Current, log);
 
         var ui = new DispatcherUi(app);
-        var viewModel = new MainViewModel(poller, service, control, powerEvents, tray, ui);
+        var viewModel = new MainViewModel(poller, service, control, powerEvents, tray, ui, TimeProvider.System);
+        teardown.Push(("durum mesajı zamanlayıcısı", viewModel.Status.Dispose));
         window = new MainWindow(viewModel, () =>
         {
             FanCurveEditorWindow? editor = null;

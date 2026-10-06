@@ -9,7 +9,7 @@ public class SignInStartViewModelTests
     private const string DownloadedExe = @"C:\Users\PC\Downloads\M-Tool.exe";
 
     private readonly FakeStartupTask _task = new();
-    private readonly StatusViewModel _status = new(new FakeNotifier());
+    private readonly StatusViewModel _status = new(new FakeNotifier(), new ImmediateDispatcher(), TimeProvider.System);
     private readonly ListLog _log = new();
 
     private SignInStartViewModel ViewModel(string exe = InstalledExe) => new(_task, exe, _status, _log);

@@ -13,7 +13,7 @@ public sealed class FanCurveEditorViewModelTests : IDisposable
     private readonly FakeP65Control _control = new();
     private readonly FakeConfirm _confirm = new();
     private readonly ProfileService _service;
-    private readonly StatusViewModel _status = new(new FakeNotifier());
+    private readonly StatusViewModel _status = new(new FakeNotifier(), new ImmediateDispatcher(), TimeProvider.System);
     private readonly ControlsViewModel _controls;
 
     public FanCurveEditorViewModelTests()

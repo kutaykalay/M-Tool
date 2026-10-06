@@ -22,10 +22,10 @@ public sealed partial class MainViewModel : ObservableObject
     private string? _autoReapplyMessage;
 
     public MainViewModel(
-        SensorPoller poller, ProfileService service, IP65Control control, IPowerSource powerSource, INotifier notifier, IUiDispatcher ui)
+        SensorPoller poller, ProfileService service, IP65Control control, IPowerSource powerSource, INotifier notifier, IUiDispatcher ui, TimeProvider time)
     {
         (_poller, _service, _ui) = (poller, service, ui);
-        Status = new StatusViewModel(notifier);
+        Status = new StatusViewModel(notifier, ui, time);
         Controls = new ControlsViewModel(service, control, Status, ui);
         PowerSwitch = new PowerSwitchViewModel(service, powerSource, Status, ui);
         TrayTooltip = TooltipText.Format(poller.Latest, Controls.ActiveProfileLabel);
