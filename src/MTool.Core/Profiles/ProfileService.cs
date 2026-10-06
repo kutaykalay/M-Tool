@@ -48,14 +48,14 @@ public sealed class ProfileService
         _current = new Snapshot(sanitized.Settings, sanitized.Catalog);
     }
 
-    /// <summary>Raised on a thread-pool thread after the desired state changed (saved, or tried to be).</summary>
+    /// <summary>Raised on any thread (the caller's or a thread-pool one; subscribers marshal to the UI) after the desired state changed (saved, or tried to be).</summary>
     /// <remarks>
     /// Raised after the turn ends, so two changes close together can arrive out of order: the payload
     /// may already be stale. A subscriber that keeps state reads <see cref="Desired"/> instead.
     /// </remarks>
     public event Action<DesiredState>? DesiredChanged;
 
-    /// <summary>Raised on a thread-pool thread after a custom profile was added, renamed, deleted or saved; read <see cref="Catalog"/>.</summary>
+    /// <summary>Raised on any thread (the caller's or a thread-pool one; subscribers marshal to the UI) after a custom profile was added, renamed, deleted or saved; read <see cref="Catalog"/>.</summary>
     public event Action? CatalogChanged;
 
     public DesiredState Desired => Current.Settings.Desired;

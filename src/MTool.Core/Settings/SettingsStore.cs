@@ -62,6 +62,12 @@ public sealed class SettingsStore(string directory)
 
     private string FilePath => Path.Combine(directory, FileName);
 
+    /// <summary>
+    /// Set when the file existed but could not be read (locked, no permission). Saving over it would
+    /// replace the user's custom profiles with the defaults this session started on.
+    /// </summary>
+    private volatile bool _unreadAtLoad;
+
     public SettingsLoadResult Load()
     {
         if (!File.Exists(FilePath))
@@ -88,13 +94,20 @@ public sealed class SettingsStore(string directory)
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             // Unreadable (locked, no permission): leave the file alone and run on safe defaults.
+            _unreadAtLoad = true;
             return new SettingsLoadResult(AppSettings.Default, $"{FileName} okunamadı ({ex.Message}); varsayılanlar kullanılıyor.");
         }
     }
 
     /// <summary>Writes to a temporary file first so a crash never leaves a half-written settings file.</summary>
+    /// <exception cref="IOException">The file could not be read at load; it is kept as it is.</exception>
     public void Save(AppSettings settings)
     {
+        if (_unreadAtLoad)
+        {
+            throw new IOException($"{FileName} açılışta okunamadığı için üzerine yazılmıyor; M-Tool'u yeniden başlatın");
+        }
+
         Directory.CreateDirectory(directory);
         var temporary = FilePath + ".tmp";
         File.WriteAllText(temporary, JsonSerializer.Serialize(settings, JsonDefaults.Options));
@@ -138,10 +151,22 @@ public sealed class SettingsStore(string directory)
 
     private string BadPath() => $"{FilePath}.bad-{DateTime.Now:yyyyMMdd-HHmmss}-{Guid.NewGuid():N}";
 
+    /// <summary>Also called from a catch block in <see cref="Load"/>, so it handles its own failure.</summary>
     private SettingsLoadResult SetAside(string reason)
     {
         var badPath = BadPath();
-        File.Move(FilePath, badPath, overwrite: false);
+        try
+        {
+            File.Move(FilePath, badPath, overwrite: false);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Held by another process: leave it where it is and run on safe defaults.
+            return new SettingsLoadResult(
+                AppSettings.Default,
+                $"{FileName} okunamadı ({reason}) ve kenara alınamadı ({ex.Message}); varsayılanlar kullanılıyor.");
+        }
+
         return new SettingsLoadResult(
             AppSettings.Default,
             $"{FileName} okunamadı ({reason}); {Path.GetFileName(badPath)} olarak saklandı, varsayılanlar kullanılıyor.");

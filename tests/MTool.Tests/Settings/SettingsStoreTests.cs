@@ -53,6 +53,40 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void A_corrupt_file_that_cannot_be_moved_aside_still_loads_defaults()
+    {
+        File.WriteAllText(SettingsPath, "{ not json");
+        // Another process (antivirus, an editor) holds the file: reading works, moving it does not.
+        using var held = new FileStream(SettingsPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Settings.Should().Be(AppSettings.Default);
+        result.Warning.Should().Contain("settings.json").And.Contain("varsayılanlar kullanılıyor");
+        File.Exists(SettingsPath).Should().BeTrue();
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_file_that_was_unreadable_at_load_is_never_saved_over()
+    {
+        var store = new SettingsStore(_folder);
+        var custom = AppSettings.Default with { CustomProfiles = [Custom("Gece")] };
+        store.Save(custom);
+        SettingsLoadResult loaded;
+        using (new FileStream(SettingsPath, FileMode.Open, FileAccess.Read, FileShare.None))
+        {
+            loaded = store.Load();
+        }
+
+        var save = () => store.Save(loaded.Settings);
+
+        loaded.Warning.Should().Contain("okunamadı");
+        save.Should().Throw<IOException>().WithMessage("*yeniden başlatın*");
+        new SettingsStore(_folder).Load().Settings.Should().Be(custom);
+    }
+
+    [Fact]
     public void Unknown_fields_are_ignored()
     {
         File.WriteAllText(SettingsPath, """{ "schemaVersion": 1, "dryRun": false, "futureThing": 3 }""");
