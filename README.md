@@ -17,6 +17,9 @@ mode and battery charge limit. One exe, no background service.
 - **Cooler Boost** on and off.
 - **Performance mode:** high, balanced or eco.
 - **Charge limit** between 50 and 100 %.
+- **Separate AC and battery settings** (off by default): the fan profile and performance mode you
+  pick on AC and on battery are remembered apart, and applied a few seconds after the cable is
+  plugged in or pulled out. The charge limit and Cooler Boost stay as they are.
 - Live temperatures and fan speeds, and a tray menu for quick switching.
 - A drift band when the laptop no longer holds what you chose, with one-click reapply.
 - A command line for dumps and scripted changes.
