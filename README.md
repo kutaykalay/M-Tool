@@ -58,6 +58,9 @@ filter. With `--wmi2`, `report.txt` also holds MSI's raw WMI2 answers as hex byt
 not know what every byte means, so it cannot hide anything in them either. Read `report.txt`
 before you post it.
 
+Writing on a new model needs its owner to test each write step by step on their laptop. How that
+works is in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Requirements
 
 - Windows 10 or 11, x64
