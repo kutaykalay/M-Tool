@@ -236,7 +236,7 @@ internal sealed class GuiBootstrapper : IDisposable
     private static string CurrentExe =>
         Environment.ProcessPath ?? throw new InvalidOperationException("Çalışan exe'nin yolu bulunamadı.");
 
-    private static string AppVersion =>
+    internal static string AppVersion =>
         typeof(GuiBootstrapper).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "sürüm yok";
 
     private static EcSession? OpenSession(FileLog log, Func<bool> accessGate)

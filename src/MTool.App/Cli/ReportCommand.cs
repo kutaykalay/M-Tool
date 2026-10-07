@@ -1,0 +1,111 @@
+using System.Globalization;
+using System.IO;
+using System.IO.Compression;
+using MTool.Core.Device.Config;
+using MTool.Core.Diagnostics;
+
+namespace MTool.App.Cli;
+
+/// <summary>Where each part of the report comes from; every call may throw, and the report goes on.</summary>
+internal interface IReportSources
+{
+    SystemInfo ReadSystem();
+
+    WmiInterface? ReadInterface();
+
+    IReadOnlyList<WmiClassInfo> ReadClasses();
+
+    byte[] ReadDsdt();
+
+    /// <summary>Opens a WMI-only session: the raw port is never used for a report.</summary>
+    EcReadout ReadEc();
+}
+
+/// <param name="Dsdt">Null when it could not be read.</param>
+internal sealed record ReportData(DeviceReportInput Input, byte[]? Dsdt);
+
+/// <summary>
+/// <c>--report</c>: collects what M-Tool needs to learn another MSI model and writes it to a zip
+/// the user attaches to a GitHub issue. Read-only. The EC is read only on WMI1 and only through
+/// WMI; a model M-Tool cannot open still gets a report.
+/// </summary>
+internal static class ReportCommand
+{
+    public const string ReportFileName = "report.txt";
+
+    /// <param name="warn">Gets every part that could not be read, for the log.</param>
+    public static ReportData Collect(IReportSources sources, string appVersion, DateTimeOffset at, Action<string> warn)
+    {
+        var wmi = Read("MSI WMI arayüzü", sources.ReadInterface, warn);
+        var dsdt = Read("DSDT", sources.ReadDsdt, warn);
+        var ec = !wmi.IsOk ? Section.Failed<EcReadout>("not read: MSI WMI interface unknown")
+            : wmi.Value switch
+            {
+                WmiInterface.Wmi1 => Read("EC", sources.ReadEc, warn),
+                WmiInterface.Wmi2 => Section.Failed<EcReadout>("not read: M-Tool reads the EC only through WMI1 so far"),
+                _ => Section.Failed<EcReadout>("not read: no MSI WMI interface on this computer"),
+            };
+
+        var input = new DeviceReportInput(
+            appVersion,
+            at,
+            Read("sistem bilgisi", sources.ReadSystem, warn),
+            wmi,
+            Read("MSI sınıfları", sources.ReadClasses, warn),
+            dsdt.IsOk ? Section.Ok(dsdt.Value!.Length) : Section.Failed<int>(dsdt.Error!),
+            ec);
+        return new ReportData(input, dsdt.Value);
+    }
+
+    /// <returns>The zip's path.</returns>
+    /// <exception cref="IOException">The zip could not be written (it already exists, the disk is full); no partial file is left.</exception>
+    public static string Save(string folder, ReportData data, string text, DateTimeOffset at)
+    {
+        Directory.CreateDirectory(folder);
+        var path = Path.Combine(folder, string.Create(CultureInfo.InvariantCulture, $"m-tool-report-{at:yyyyMMdd-HHmmss}.zip"));
+        using (var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
+        {
+            try
+            {
+                Write(file, data, text);
+            }
+            catch
+            {
+                file.Dispose();
+                File.Delete(path);
+                throw;
+            }
+        }
+
+        return path;
+    }
+
+    private static void Write(Stream file, ReportData data, string text)
+    {
+        using var zip = new ZipArchive(file, ZipArchiveMode.Create, leaveOpen: true);
+        using (var writer = new StreamWriter(zip.CreateEntry(ReportFileName).Open()))
+        {
+            writer.Write(text);
+        }
+
+        if (data.Dsdt is { } dsdt)
+        {
+            using var stream = zip.CreateEntry(DeviceReport.DsdtFileName).Open();
+            stream.Write(dsdt);
+        }
+    }
+
+    /// <summary>Anything but running out of memory becomes a failed part: the report itself must not fail for the laptop's sake.</summary>
+    private static Section<T> Read<T>(string part, Func<T> read, Action<string> warn)
+    {
+        try
+        {
+            return Section.Ok(read());
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            warn($"Rapor: {part} okunamadı: {ex.Message}");
+            return Section.Failed<T>($"{ex.GetType().Name}: {ex.Message}");
+        }
+    }
+}

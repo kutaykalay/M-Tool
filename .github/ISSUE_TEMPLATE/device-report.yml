@@ -1,0 +1,50 @@
+name: Device report
+description: Help M-Tool learn another MSI laptop by sending a read-only device report.
+title: "[Device report] "
+labels: ["device report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping. Run `M-Tool.exe --report` from an administrator terminal. It only reads:
+        it writes nothing to the embedded controller and never opens the raw port. It saves a zip to
+        `%AppData%\M-Tool\reports` with `report.txt` and `dsdt.aml`, a copy of the laptop's ACPI DSDT
+        table. M-Tool does not query the serial number or UUID and hides your user and computer names
+        in `report.txt`. The DSDT is firmware code written by MSI, not personal data, but M-Tool does
+        not filter that binary file.
+  - type: input
+    id: model
+    attributes:
+      label: Laptop model
+      description: As printed on the laptop or its box.
+      placeholder: MSI GS65 Stealth 9SE
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: EC firmware
+      description: The "Firmware" line under "[EC, WMI only, port not opened]" in report.txt, if there is one.
+      placeholder: 16Q4EMS1.110
+  - type: textarea
+    id: report
+    attributes:
+      label: Report
+      description: Drag the zip from `%AppData%\M-Tool\reports` here.
+      placeholder: Attach m-tool-report-YYYYMMDD-HHMMSS.zip
+    validations:
+      required: true
+  - type: textarea
+    id: observations
+    attributes:
+      label: What does M-Tool show?
+      description: |
+        Optional. Do the temperatures and fan speeds in M-Tool match MSI Center or HWiNFO? Which
+        performance modes does MSI Center offer? Is there a GPU fan?
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Before you send
+      options:
+        - label: I looked at report.txt and I am fine with posting the zip (report.txt and dsdt.aml) publicly.
+          required: true

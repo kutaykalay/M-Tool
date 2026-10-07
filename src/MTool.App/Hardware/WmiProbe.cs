@@ -1,5 +1,6 @@
 using System.Management;
 using MTool.Core;
+using MTool.Core.Diagnostics;
 using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 
@@ -24,6 +25,31 @@ internal static class WmiProbe
     {
         var scope = MsiWmiFields.Connect();
         return Classify(HasClass(scope, Wmi1Class), HasClass(scope, Wmi2Class));
+    });
+
+    /// <summary>
+    /// Every MSI class in <c>root\WMI</c> with its property names, from the class definitions only:
+    /// listing instances would run the firmware's ACPI methods, which a report must not do.
+    /// </summary>
+    /// <exception cref="EcAccessException">WMI does not answer.</exception>
+    public static IReadOnlyList<WmiClassInfo> MsiClasses() => MsiWmiFields.Bounded("sınıf listesi", Timeout, () =>
+    {
+        using var searcher = new ManagementObjectSearcher(
+            MsiWmiFields.Connect(), new ObjectQuery("SELECT * FROM meta_class WHERE __CLASS LIKE 'MSI[_]%'"),
+            new EnumerationOptions { Timeout = Timeout });
+        using var classes = searcher.Get();
+        var found = new List<WmiClassInfo>();
+        foreach (var item in classes.Cast<ManagementClass>())
+        {
+            using (item)
+            {
+                found.Add(new WmiClassInfo(
+                    item.ClassPath.ClassName,
+                    Array.AsReadOnly([.. item.Properties.Cast<PropertyData>().Select(p => p.Name).Order(StringComparer.Ordinal)])));
+            }
+        }
+
+        return (IReadOnlyList<WmiClassInfo>)found.OrderBy(c => c.Name, StringComparer.Ordinal).ToList().AsReadOnly();
     });
 
     /// <summary>WMI1 wins when both exist: it is the interface M-Tool was verified on.</summary>

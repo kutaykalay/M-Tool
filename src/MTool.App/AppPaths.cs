@@ -10,4 +10,6 @@ internal static class AppPaths
     public static string Logs { get; } = Path.Combine(Root, "logs");
 
     public static string Dumps { get; } = Path.Combine(Root, "dumps");
+
+    public static string Reports { get; } = Path.Combine(Root, "reports");
 }

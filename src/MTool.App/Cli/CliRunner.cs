@@ -2,14 +2,15 @@ using System.IO;
 using System.Runtime.InteropServices;
 using MTool.App.Hardware;
 using MTool.App.Startup;
+using MTool.Core.Diagnostics;
 using MTool.Core.Ec;
 using MTool.Core.Settings;
 
 namespace MTool.App.Cli;
 
 /// <summary>
-/// Command-line mode: <c>--dump</c>, <c>--watch</c>, <c>--apply</c>, <c>--restore</c>, <c>--unlock</c>.
-/// <c>--watch</c> runs WMI only (PawnIO never opened); the others use the hybrid backend.
+/// Command-line mode: <c>--dump</c>, <c>--watch</c>, <c>--report</c>, <c>--apply</c>, <c>--restore</c>, <c>--unlock</c>.
+/// <c>--watch</c> and <c>--report</c> run WMI only (PawnIO never opened); the others use the hybrid backend.
 /// </summary>
 internal static class CliRunner
 {
@@ -33,6 +34,11 @@ internal static class CliRunner
                 return Dump(log);
             }
 
+            if (args is ["--report"])
+            {
+                return Report(log);
+            }
+
             if (WatchCommand.TryParse(args, out var watchSeconds))
             {
                 return WatchCommand.Run(log, watchSeconds);
@@ -48,7 +54,7 @@ internal static class CliRunner
                 return Apply(log, apply!, confirm);
             }
 
-            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe [{StartupArgs.Tray}]   (GUI; --tray ile yalnızca tepside){Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}{WatchCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
+            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe [{StartupArgs.Tray}]   (GUI; --tray ile yalnızca tepside){Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}  M-Tool.exe --report   (başka bir MSI modeli için rapor; yalnızca okur){Environment.NewLine}{WatchCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
             return ExitUsage;
         }
         catch (UnsupportedDeviceException ex)
@@ -75,6 +81,26 @@ internal static class CliRunner
             DumpFormatter.Format(new Core.Device.P65Device(ec, session.Layout), session.Layout, session.Match, ec, session.Controller?.RecoveredFailures ?? 0)));
         Console.WriteLine(report);
         Console.WriteLine($"Kaydedildi: {SaveDump(report)}");
+        return ExitOk;
+    }
+
+    /// <summary>
+    /// A part the laptop cannot give is written as such and does not fail the command; only saving
+    /// the zip can (the error path below reports it).
+    /// </summary>
+    private static int Report(FileLog log)
+    {
+        var at = DateTimeOffset.Now;
+        var data = ReportCommand.Collect(new LiveReportSources(log), GuiBootstrapper.AppVersion, at, log.Warn);
+        var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var text = DeviceReport.Format(data.Input,
+            [Environment.UserName, Environment.MachineName, Environment.UserDomainName, profile, Path.GetFileName(profile)]);
+        var path = ReportCommand.Save(AppPaths.Reports, data, text, at);
+        Console.WriteLine(text);
+        Console.WriteLine($"Kaydedildi: {path}");
+        Console.WriteLine("Bu dosyayı GitHub'da \"Device report\" issue'suna ekleyin. Seri numarası sorgulanmadı, kullanıcı ve bilgisayar adı " +
+            "report.txt'de gizlendi. dsdt.aml MSI'ın firmware tablosudur ve filtrelenmez. Göndermeden önce report.txt'ye göz atın.");
+        log.Info($"Rapor yazıldı: {path}");
         return ExitOk;
     }
 
