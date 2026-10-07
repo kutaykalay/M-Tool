@@ -131,9 +131,11 @@ Without `--confirm`, `--apply` and `--restore` only show what they would write.
 
 ## Credits
 
-[YAMDCC](https://github.com/Sparronator9999/YAMDCC) and the Linux
+[YAMDCC](https://codeberg.org/Sparronator9999/YAMDCC) and the Linux
 [msi-ec](https://github.com/BeardOverflow/msi-ec) driver were used as references for the register
-map. No code was copied. EC access goes through [PawnIO](https://github.com/namazso/PawnIO).
+map, the other models' records and the WMI2 report. Only facts were taken, by hand; no code was
+copied. See "Data sources" in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). EC access goes
+through [PawnIO](https://github.com/namazso/PawnIO).
 
 ## License
 
