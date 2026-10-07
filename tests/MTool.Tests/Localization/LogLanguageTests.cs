@@ -28,7 +28,7 @@ public sealed partial class LogLanguageTests
     [Fact]
     public void Log_calls_in_the_source_carry_no_Turkish_text()
     {
-        var offenders = SourceFiles()
+        var offenders = RepoFiles.Under("src", "*.cs")
             .SelectMany(file => LogCall().Matches(File.ReadAllText(file))
                 .Where(call => TurkishLetter().IsMatch(call.Value))
                 .Select(call => $"{Path.GetFileName(file)}: {call.Value.Split('\n')[0].Trim()}"))
@@ -59,19 +59,6 @@ public sealed partial class LogLanguageTests
         {
             (CultureInfo.CurrentUICulture, CultureInfo.CurrentCulture) = (ui, format);
         }
-    }
-
-    private static IEnumerable<string> SourceFiles()
-    {
-        var root = new DirectoryInfo(AppContext.BaseDirectory);
-        while (root is not null && !File.Exists(Path.Combine(root.FullName, "MTool.slnx")))
-        {
-            root = root.Parent;
-        }
-
-        root.Should().NotBeNull("the tests run inside the repository");
-        return Directory.EnumerateFiles(Path.Combine(root!.FullName, "src"), "*.cs", SearchOption.AllDirectories)
-            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"));
     }
 
     // A call on an IAppLog (log, _log, or a lambda's log) up to the first ";". A guard against new
