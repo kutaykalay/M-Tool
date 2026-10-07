@@ -24,6 +24,7 @@ public sealed class DeviceLayout
         PerformanceMode = features.PerformanceMode!.Register;
         FanMode = features.FanMode!.Register;
         Wmi = WmiFieldMap.From(config, wmi);
+        Capabilities = DeviceCapabilities.From(config);
         WatchedRegisters = Array.AsReadOnly(
             [.. new[] { cpu, gpu }.SelectMany(TableRegisters).Append(PerformanceMode).Append(FanMode).Order()]);
     }
@@ -46,6 +47,9 @@ public sealed class DeviceLayout
     public byte FanMode { get; }
 
     public WmiFieldMap Wmi { get; }
+
+    /// <summary>The controls the record has, for the UI.</summary>
+    public DeviceCapabilities Capabilities { get; }
 
     /// <summary>Both fan tables, performance mode and fan mode, in register order: what a watch compares.</summary>
     public IReadOnlyList<byte> WatchedRegisters { get; }

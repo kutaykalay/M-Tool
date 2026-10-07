@@ -28,12 +28,31 @@ public sealed partial class ControlsViewModel : ObservableObject
         (_service, _control, _status) = (service, control, status);
         ProfileNames = NamesOf(service.Catalog);
         ChargeLimitDraft = ChargeLimitMax;
+        var capabilities = control.Access.Capabilities;
+        (ShowGpu, ShowFanProfiles, ShowCoolerBoost, ShowChargeLimit) =
+            (capabilities.GpuFan, capabilities.FanCurve, capabilities.CoolerBoost, capabilities.ChargeLimit);
+        PerformanceOptions = Array.AsReadOnly([.. capabilities.PerformanceModes.Select(m => new PerformanceOption(m, ModeNames.Of(m)))]);
         service.CatalogChanged += () => ui.Post(OnCatalogChanged);
     }
 
     /// <summary>The built-in profiles first (<see cref="ProfileCatalog.BuiltIn"/>), then the custom ones.</summary>
     [ObservableProperty]
     public partial IReadOnlyList<string> ProfileNames { get; private set; }
+
+    // What the device record has (fixed for the session). A missing control is hidden; a locked one
+    // stays visible and disabled.
+    public bool ShowGpu { get; }
+
+    public bool ShowFanProfiles { get; }
+
+    public bool ShowCoolerBoost { get; }
+
+    public bool ShowChargeLimit { get; }
+
+    public bool ShowPerformance => PerformanceOptions.Count > 0;
+
+    /// <summary>The performance buttons, in the record's order.</summary>
+    public IReadOnlyList<PerformanceOption> PerformanceOptions { get; }
 
     public int ChargeLimitMin => EcWriteRules.MinChargeLimitPercent;
 
@@ -155,8 +174,10 @@ public sealed partial class ControlsViewModel : ObservableObject
 
     private void ShowDrift(ControlState state)
     {
+        // A part the device lacks is never written (P65Control.ApplyDesiredAsync), so it is no drift either.
         var (desired, catalog) = _service.DesiredWithCatalog;
-        _status.SetDrift(desired.DriftFrom(state, catalog), dryRun: WriteMode == WriteMode.DryRun);
+        var supported = _control.Access.Capabilities.Restrict(desired);
+        _status.SetDrift(supported.DriftFrom(state, catalog), dryRun: WriteMode == WriteMode.DryRun);
     }
 
     // With equal tables (an unchanged copy) the label names the profile the user asked for.
@@ -228,3 +249,6 @@ public sealed partial class ControlsViewModel : ObservableObject
         }
     }
 }
+
+/// <summary>One performance button: the mode it writes and its label.</summary>
+public sealed record PerformanceOption(PerformanceMode Mode, string Name);

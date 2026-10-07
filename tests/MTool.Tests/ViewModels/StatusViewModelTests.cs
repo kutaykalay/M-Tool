@@ -28,7 +28,7 @@ public class StatusViewModelTests
     {
         var status = Status();
 
-        status.SetAccess(new DeviceAccess(Supported, WriteMode.Enabled, null, PortFeaturesAvailable: true));
+        status.SetAccess(new DeviceAccess(Supported, WriteMode.Enabled, null, PortFeaturesAvailable: true, TestLayouts.P65.Capabilities));
 
         status.AccessBanner.Should().BeNull();
         status.AccessBannerKind.Should().Be(MessageKind.None);
@@ -39,7 +39,7 @@ public class StatusViewModelTests
     {
         var status = Status();
 
-        status.SetAccess(new DeviceAccess(Supported, WriteMode.DryRun, null, PortFeaturesAvailable: true));
+        status.SetAccess(new DeviceAccess(Supported, WriteMode.DryRun, null, PortFeaturesAvailable: true, TestLayouts.P65.Capabilities));
 
         status.AccessBanner.Should().Contain("Deneme modu").And.NotContain("EC");
         status.AccessBannerKind.Should().Be(MessageKind.Info);
@@ -51,7 +51,7 @@ public class StatusViewModelTests
         var status = Status();
         var match = new DeviceMatch(MatchKind.Family, "msi-p65-creator-9se", "MSI P65 Creator 9SE");
 
-        status.SetAccess(new DeviceAccess(new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true, match));
+        status.SetAccess(new DeviceAccess(new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true, TestLayouts.P65.Capabilities, match));
 
         status.AccessBanner.Should().Contain("16Q4EMS2.108").And.Contain("MSI P65 Creator 9SE").And.Contain("doğrulanmadı")
             .And.Contain("yalnızca izleme");
@@ -63,7 +63,7 @@ public class StatusViewModelTests
     {
         var status = Status();
 
-        status.SetAccess(new DeviceAccess(new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true));
+        status.SetAccess(new DeviceAccess(new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true, TestLayouts.P65.Capabilities));
 
         status.AccessBanner.Should().Contain("16Q4EMS2.108").And.Contain("desteklenmiyor").And.Contain("yalnızca izleme");
         status.AccessBannerKind.Should().Be(MessageKind.Warning);
@@ -74,7 +74,7 @@ public class StatusViewModelTests
     {
         var status = Status();
 
-        status.SetAccess(new DeviceAccess(null, WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true));
+        status.SetAccess(new DeviceAccess(null, WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true, TestLayouts.P65.Capabilities));
 
         status.AccessBanner.Should().Contain("okunamadı").And.Contain("yalnızca izleme");
     }
@@ -84,7 +84,7 @@ public class StatusViewModelTests
     {
         var status = Status();
 
-        status.SetAccess(new DeviceAccess(Supported, WriteMode.Locked, "M-Tool öncesi durum yedeği yok ya da geçersiz", PortFeaturesAvailable: true));
+        status.SetAccess(new DeviceAccess(Supported, WriteMode.Locked, "M-Tool öncesi durum yedeği yok ya da geçersiz", PortFeaturesAvailable: true, TestLayouts.P65.Capabilities));
 
         status.AccessBanner.Should().Contain("Ayar değiştirme kapalı").And.Contain("yedeği yok");
         status.AccessBannerKind.Should().Be(MessageKind.Warning);
@@ -390,7 +390,7 @@ public class StatusViewModelTests
     public void The_banners_do_not_expire()
     {
         var status = Status();
-        status.SetAccess(new DeviceAccess(Supported, WriteMode.DryRun, null, PortFeaturesAvailable: true));
+        status.SetAccess(new DeviceAccess(Supported, WriteMode.DryRun, null, PortFeaturesAvailable: true, TestLayouts.P65.Capabilities));
         status.SetDrift(new StateDrift(true, false, false, false), dryRun: false);
 
         _time.Advance(TimeSpan.FromMinutes(10));

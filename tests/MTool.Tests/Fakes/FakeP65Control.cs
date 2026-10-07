@@ -13,7 +13,7 @@ internal sealed class FakeP65Control : IP65Control
 {
     public static readonly FirmwareInfo SupportedFirmware = new("16Q4EMS2.107", "05132019");
 
-    public DeviceAccess Access { get; set; } = new(SupportedFirmware, WriteMode.Enabled, null, PortFeaturesAvailable: true);
+    public DeviceAccess Access { get; set; } = new(SupportedFirmware, WriteMode.Enabled, null, PortFeaturesAvailable: true, TestLayouts.P65.Capabilities);
 
     public ControlState State { get; set; } = new(
         FactoryDefaults.FanCurves, PerformanceMode.High, 0xC0, FanMode.Advanced, new PortState(CoolerBoostRaw: 0x02, ChargeLimitRaw: 0xD0));

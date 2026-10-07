@@ -24,8 +24,9 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
     private bool PortAvailable => setup.Gateway.IsPortAvailable;
 
     public DeviceAccess Access => setup.Gateway.LockReason is { } reason
-        ? new DeviceAccess(setup.Firmware, WriteMode.Locked, reason, PortAvailable, setup.Match)
-        : new DeviceAccess(setup.Firmware, setup.Gateway.IsDryRun ? WriteMode.DryRun : WriteMode.Enabled, null, PortAvailable, setup.Match);
+        ? new DeviceAccess(setup.Firmware, WriteMode.Locked, reason, PortAvailable, layout.Capabilities, setup.Match)
+        : new DeviceAccess(
+            setup.Firmware, setup.Gateway.IsDryRun ? WriteMode.DryRun : WriteMode.Enabled, null, PortAvailable, layout.Capabilities, setup.Match);
 
     public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default) =>
         worker.RunAsync(ec => new P65Device(ec, layout).ReadSensors(), cancellationToken);
@@ -89,8 +90,12 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
     public async Task<IReadOnlyList<WriteOutcome>> ApplyDesiredAsync(
         DesiredState desired, ProfileCatalog catalog, CancellationToken cancellationToken = default)
     {
+        var warnings = new List<string>();
+        var supported = layout.Capabilities.Restrict(desired, warnings);
+        warnings.ForEach(log.Warn);
+
         var outcomes = new List<WriteOutcome>();
-        foreach (var plan in desired.ToPlans(catalog))
+        foreach (var plan in supported.ToPlans(catalog))
         {
             if (await ApplyDesiredPartAsync(plan, cancellationToken).ConfigureAwait(false) is not { } outcome)
             {

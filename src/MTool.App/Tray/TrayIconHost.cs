@@ -2,8 +2,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using MTool.App.Theme;
 using MTool.App.ViewModels;
-using MTool.Core.Device;
-using MTool.Core.Profiles;
+using static MTool.App.Tray.TrayDeviceItems;
 
 namespace MTool.App.Tray;
 
@@ -99,23 +98,7 @@ internal sealed class TrayIconHost : INotifier, IDisposable
             return;
         }
 
-        var firstCustom = controls.ProfileNames.FirstOrDefault(n => !ProfileCatalog.IsBuiltIn(n));
-        foreach (var name in controls.ProfileNames)
-        {
-            if (name == firstCustom)
-            {
-                _menu.Items.Add(new ToolStripSeparator()); // the user's own profiles after the built-in ones
-            }
-
-            // "&" marks a mnemonic in a menu; a profile named "A&B" must show as written.
-            _menu.Items.Add(Item(name.Replace("&", "&&", StringComparison.Ordinal), name == controls.ActiveProfile, controls.CanWrite,
-                () => Run(controls.SelectProfileCommand, name)));
-        }
-
-        _menu.Items.Add(new ToolStripSeparator());
-        _menu.Items.Add(Item("Cooler Boost", controls.CoolerBoostOn == true, controls.CanWritePort,
-            () => Run(controls.SetCoolerBoostCommand, controls.CoolerBoostOn != true)));
-        _menu.Items.Add(PerformanceMenu(controls));
+        _menu.Items.AddRange([.. TrayDeviceItems.For(controls)]);
 
         // Only changes the settings file, so it stays enabled while writing is locked.
         var powerSwitch = _viewModel.PowerSwitch;
@@ -131,34 +114,6 @@ internal sealed class TrayIconHost : INotifier, IDisposable
         _menu.Items.Add(Item("Pencereyi aç", isChecked: false, enabled: true, _showWindow));
         _menu.Items.Add(Item("Çıkış", isChecked: false, enabled: true, _exit));
         e.Cancel = false;
-    }
-
-    private static ToolStripMenuItem PerformanceMenu(ControlsViewModel controls)
-    {
-        var menu = new ToolStripMenuItem($"Performans: {controls.PerformanceLabel}");
-        foreach (var mode in new[] { PerformanceMode.High, PerformanceMode.Balanced, PerformanceMode.Eco })
-        {
-            menu.DropDownItems.Add(Item(ModeNames.Of(mode), controls.ActivePerformance == mode, controls.CanWrite,
-                () => Run(controls.SetPerformanceCommand, mode)));
-        }
-
-        return menu;
-    }
-
-    /// <summary>The menu was built when it opened; the state may have changed since (a write started, writes locked).</summary>
-    private static void Run(System.Windows.Input.ICommand command, object? parameter)
-    {
-        if (command.CanExecute(parameter))
-        {
-            command.Execute(parameter);
-        }
-    }
-
-    private static ToolStripMenuItem Item(string text, bool isChecked, bool enabled, Action onClick)
-    {
-        var item = new ToolStripMenuItem(text) { Checked = isChecked, Enabled = enabled };
-        item.Click += (_, _) => onClick();
-        return item;
     }
 
     private static string Truncate(string text) =>

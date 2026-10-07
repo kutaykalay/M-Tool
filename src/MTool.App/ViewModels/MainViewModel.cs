@@ -28,7 +28,7 @@ public sealed partial class MainViewModel : ObservableObject
         Status = new StatusViewModel(notifier, ui, time);
         Controls = new ControlsViewModel(service, control, Status, ui);
         PowerSwitch = new PowerSwitchViewModel(service, powerSource, Status, ui);
-        TrayTooltip = TooltipText.Format(poller.Latest, Controls.ActiveProfileLabel);
+        TrayTooltip = TooltipText.Format(poller.Latest, Controls.ActiveProfileLabel, Controls.ShowGpu);
 
         poller.ReadingChanged += reading => ui.Post(() =>
         {
@@ -116,5 +116,5 @@ public sealed partial class MainViewModel : ObservableObject
         _ => "Yeniden denemede",
     };
 
-    private void UpdateTooltip() => TrayTooltip = TooltipText.Format(_poller.Latest, Controls.ActiveProfileLabel);
+    private void UpdateTooltip() => TrayTooltip = TooltipText.Format(_poller.Latest, Controls.ActiveProfileLabel, Controls.ShowGpu);
 }

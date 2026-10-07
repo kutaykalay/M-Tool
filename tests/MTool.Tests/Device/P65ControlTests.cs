@@ -22,15 +22,30 @@ public sealed class P65ControlTests : IDisposable
 
     private EcAccessRetry Retry => EcAccessRetry.Default with { Sleep = _sleeps.Add };
 
-    private P65Control Control(WritePolicy? policy = null, FirmwareInfo? firmware = null) =>
-        new(_worker, new WriteAccessSetup(firmware ?? Firmware, new EcGateway(_worker, policy ?? Live, _log, retry: Retry)), TestLayouts.P65, _log, Retry);
+    private P65Control Control(WritePolicy? policy = null, FirmwareInfo? firmware = null, DeviceLayout? layout = null) =>
+        new(_worker, new WriteAccessSetup(firmware ?? Firmware, new EcGateway(_worker, policy ?? Live, _log, retry: Retry)), layout ?? TestLayouts.P65, _log, Retry);
 
     // --- access ---
 
     [Fact]
     public void Open_gateway_means_writes_enabled()
     {
-        Control().Access.Should().Be(new DeviceAccess(Firmware, WriteMode.Enabled, LockReason: null, PortFeaturesAvailable: true));
+        Control().Access.Should().Be(
+            new DeviceAccess(Firmware, WriteMode.Enabled, LockReason: null, PortFeaturesAvailable: true, TestLayouts.P65.Capabilities));
+    }
+
+    [Fact]
+    public void Access_carries_the_capabilities_of_the_layout()
+    {
+        var layout = DeviceLayout.From(TestLayouts.P65Config with
+        {
+            Features = TestLayouts.P65Config.Features with
+            {
+                PerformanceMode = new Core.Device.Config.PerformanceModeFeature(0xF2, [new Core.Device.Config.ModeValue("balanced", 0xC1)]),
+            },
+        });
+
+        Control(layout: layout).Access.Capabilities.Should().BeSameAs(layout.Capabilities);
     }
 
     [Fact]
@@ -446,6 +461,25 @@ public sealed class P65ControlTests : IDisposable
         var device = new P65Device(_ec, TestLayouts.P65);
         device.ReadControlState().Should().BeEquivalentTo(new { FanCurves = Presets.Cool.Curves, Performance = PerformanceMode.Balanced });
         device.ReadPortState().ChargeLimitPercent.Should().Be(60);
+    }
+
+    [Fact]
+    public async Task A_desired_mode_the_device_lacks_is_not_written_and_is_logged()
+    {
+        var layout = DeviceLayout.From(TestLayouts.P65Config with
+        {
+            Features = TestLayouts.P65Config.Features with
+            {
+                PerformanceMode = new Core.Device.Config.PerformanceModeFeature(0xF2, [new Core.Device.Config.ModeValue("balanced", 0xC1)]),
+            },
+        });
+
+        var outcomes = await Control(layout: layout).ApplyDesiredAsync(new DesiredState("Cool", PerformanceMode.High), ProfileCatalog.BuiltIn);
+
+        outcomes.Should().OnlyContain(o => o.Status == WriteStatus.Applied)
+            .And.NotContain(o => o.Planned.Any(w => w.Register == 0xF2));
+        _ec.Writes.Should().NotContain(w => w.Register == 0xF2);
+        _log.Lines.Should().Contain(l => l.StartsWith("WARN") && l.Contains("Yüksek"));
     }
 
     [Fact]

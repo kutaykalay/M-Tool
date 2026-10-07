@@ -12,7 +12,8 @@ internal static class TrayTooltip
 
     private const string Prefix = "M-Tool · ";
 
-    public static string Format(SensorReading reading, string profileName)
+    /// <param name="showGpu">False on a single-fan model: no GPU line.</param>
+    public static string Format(SensorReading reading, string profileName, bool showGpu)
     {
         var marker = reading.Status switch
         {
@@ -21,7 +22,7 @@ internal static class TrayTooltip
             _ => "",
         };
         var body = reading.Snapshot is { } s
-            ? $"\n{FanLine("CPU", s.CpuTempC, s.CpuRpm)}\n{FanLine("GPU", s.GpuTempC, s.GpuRpm)}"
+            ? $"\n{FanLine("CPU", s.CpuTempC, s.CpuRpm)}" + (showGpu ? $"\n{FanLine("GPU", s.GpuTempC, s.GpuRpm)}" : "")
             : "\nSensörler okunuyor…";
 
         var room = MaxLength - Prefix.Length - marker.Length - body.Length;
