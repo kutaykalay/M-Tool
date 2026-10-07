@@ -45,7 +45,9 @@ internal sealed class LiveReportSources(IAppLog log) : IReportSources
         var fields = FieldScan.Run(
             [.. layout.Wmi.Fields.OrderBy(f => f.Key).Select(f => (f.Key, $"{f.Value.ClassName}[{f.Value.Index}]"))],
             register => TryRead(session, register));
-        return new EcReadout(firmware, session.Match(firmware), layout.Id, layout.Capabilities, fields);
+        // The record's capabilities, not this WMI-only session's: the report describes the model.
+        var record = session.Catalog.First(c => c.Id == layout.Id);
+        return new EcReadout(firmware, session.Match(firmware), layout.Id, DeviceCapabilities.From(record), fields);
     }
 
     private FirmwareInfo? ReadFirmware(EcSession session, DeviceLayout layout)
