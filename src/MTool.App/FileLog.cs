@@ -1,13 +1,30 @@
 using System.Diagnostics;
 using System.IO;
 using MTool.Core;
+using MTool.Core.Diagnostics;
 
 namespace MTool.App;
 
-/// <summary>Daily log file under <c>%AppData%\M-Tool\logs</c>. Every EC write request lands here.</summary>
+/// <summary>
+/// Daily log file under <c>%AppData%\M-Tool\logs</c>. Every EC write request lands here. The user's
+/// profile folder is masked, so the file can be attached to a public issue.
+/// </summary>
 internal sealed class FileLog : IAppLog
 {
     private readonly Lock _sync = new();
+    private readonly string _folder;
+    private readonly PrivatePaths _privatePaths;
+
+    public FileLog()
+        : this(AppPaths.Logs, PrivatePaths.ForCurrentUser())
+    {
+    }
+
+    internal FileLog(string folder, PrivatePaths privatePaths)
+    {
+        _folder = folder;
+        _privatePaths = privatePaths;
+    }
 
     public void Info(string message) => Append("INFO ", message);
 
@@ -18,13 +35,14 @@ internal sealed class FileLog : IAppLog
 
     private void Append(string level, string message)
     {
-        var line = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} {level} {message}{Environment.NewLine}";
+        string? line = null;
         try
         {
+            line = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} {level} {_privatePaths.Mask(message)}{Environment.NewLine}";
             lock (_sync)
             {
-                Directory.CreateDirectory(AppPaths.Logs);
-                File.AppendAllText(Path.Combine(AppPaths.Logs, $"m-tool-{DateTime.Now:yyyyMMdd}.log"), line);
+                Directory.CreateDirectory(_folder);
+                File.AppendAllText(Path.Combine(_folder, $"m-tool-{DateTime.Now:yyyyMMdd}.log"), line);
             }
         }
         catch (Exception ex)
