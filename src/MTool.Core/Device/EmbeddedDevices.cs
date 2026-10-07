@@ -2,7 +2,7 @@ using MTool.Core.Device.Config;
 
 namespace MTool.Core.Device;
 
-/// <summary>The device layouts built into M-Tool. Today only the P65; picking one by firmware comes later.</summary>
+/// <summary>The device layouts built into M-Tool. The session picks one by firmware (<see cref="DeviceSelection"/>).</summary>
 public static class EmbeddedDevices
 {
     public const string P65Id = "msi-p65-creator-9se";
@@ -18,6 +18,12 @@ public static class EmbeddedDevices
             throw new InvalidOperationException($"Gömülü cihaz kaydı {id} yüklenemedi; ayrıntı log'da.");
         }
 
+        return LayoutOf(config);
+    }
+
+    /// <exception cref="InvalidOperationException">The record has no layout yet; the message is meant for people.</exception>
+    public static DeviceLayout LayoutOf(DeviceConfig config)
+    {
         try
         {
             return DeviceLayout.From(config);

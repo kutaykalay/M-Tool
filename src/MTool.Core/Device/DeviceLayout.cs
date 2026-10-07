@@ -5,8 +5,9 @@ namespace MTool.Core.Device;
 /// <summary>
 /// The registers M-Tool reads on one model, taken from its validated <see cref="DeviceConfig"/>.
 /// The read side (router, device reader, dump) uses this; the write side keeps the P65's verified
-/// statics (<see cref="EcMap"/>, <see cref="WmiMap"/>, <see cref="Ec.EcWriteRules"/>). For now a
-/// layout needs two fans, a WMI1 map and all four features; other models come later.
+/// statics (<see cref="EcMap"/>, <see cref="WmiMap"/>, <see cref="Ec.EcWriteRules"/>). A layout
+/// needs two fans, a WMI1 map, the performance mode and the fan mode; Cooler Boost and the charge
+/// limit are optional. A single-fan layout comes with the first single-fan record.
 /// </summary>
 public sealed class DeviceLayout
 {
@@ -19,14 +20,23 @@ public sealed class DeviceLayout
         Firmware = config.FirmwareLocation;
         CpuFan = cpu;
         GpuFan = gpu;
-        CoolerBoost = features.CoolerBoost!.Register;
-        ChargeLimit = features.ChargeLimit!.Register;
+        CoolerBoost = features.CoolerBoost?.Register;
+        ChargeLimit = features.ChargeLimit?.Register;
         PerformanceMode = features.PerformanceMode!.Register;
         FanMode = features.FanMode!.Register;
         Wmi = WmiFieldMap.From(config, wmi);
         Capabilities = DeviceCapabilities.From(config);
         WatchedRegisters = Array.AsReadOnly(
             [.. new[] { cpu, gpu }.SelectMany(TableRegisters).Append(PerformanceMode).Append(FanMode).Order()]);
+    }
+
+    /// <summary>A copy with other capabilities; registers and maps are shared, both are immutable.</summary>
+    private DeviceLayout(DeviceLayout source, DeviceCapabilities capabilities)
+    {
+        (Id, Firmware, CpuFan, GpuFan) = (source.Id, source.Firmware, source.CpuFan, source.GpuFan);
+        (CoolerBoost, ChargeLimit, PerformanceMode, FanMode) = (source.CoolerBoost, source.ChargeLimit, source.PerformanceMode, source.FanMode);
+        (Wmi, WatchedRegisters) = (source.Wmi, source.WatchedRegisters);
+        Capabilities = capabilities;
     }
 
     /// <summary>The record this layout came from, for the log.</summary>
@@ -38,9 +48,11 @@ public sealed class DeviceLayout
 
     public FanRegisters GpuFan { get; }
 
-    public byte CoolerBoost { get; }
+    /// <summary>Null when the model has no Cooler Boost.</summary>
+    public byte? CoolerBoost { get; }
 
-    public byte ChargeLimit { get; }
+    /// <summary>Null when the model has no charge limit.</summary>
+    public byte? ChargeLimit { get; }
 
     public byte PerformanceMode { get; }
 
@@ -54,8 +66,15 @@ public sealed class DeviceLayout
     /// <summary>Both fan tables, performance mode and fan mode, in register order: what a watch compares.</summary>
     public IReadOnlyList<byte> WatchedRegisters { get; }
 
+    /// <summary>
+    /// For a session without the raw port (an unverified model or firmware): Cooler Boost and the
+    /// charge limit sit behind the port, so they are hidden, not shown as unknown.
+    /// </summary>
+    public DeviceLayout WithoutPortFeatures() =>
+        new(this, Capabilities with { CoolerBoost = false, ChargeLimit = false });
+
     /// <exception cref="ArgumentException">
-    /// The record is invalid or has no layout yet (one fan, no WMI1, a missing feature). The message is
+    /// The record is invalid or has no layout yet (one fan, no WMI1, no performance or fan mode). The message is
     /// meant for people, so it carries no parameter name.
     /// </exception>
     public static DeviceLayout From(DeviceConfig config)
@@ -75,8 +94,6 @@ public sealed class DeviceLayout
         var f = config.Features;
         string?[] missing =
         [
-            f.CoolerBoost is null ? "coolerBoost" : null,
-            f.ChargeLimit is null ? "chargeLimit" : null,
             f.PerformanceMode is null ? "performanceMode" : null,
             f.FanMode is null ? "fanMode" : null,
         ];

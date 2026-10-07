@@ -152,7 +152,7 @@ internal sealed class GuiBootstrapper : IDisposable
         reapplier.Reapplied += ShowOnUi;
         switcher.Switched += ShowOnUi;
 
-        await viewModel.InitializeAsync(settings.Warnings);
+        await viewModel.InitializeAsync([.. settings.Warnings, .. session.StartupWarnings]);
         var signInStart = new SignInStartViewModel(new StartupTask(), CurrentExe, viewModel.Status, log);
         tray.Attach(viewModel, signInStart); // Only now does the icon appear.
         _ = signInStart.LoadAsync(); // Off the UI thread; the menu item stays disabled until it answers.
@@ -243,7 +243,7 @@ internal sealed class GuiBootstrapper : IDisposable
     {
         try
         {
-            // Before the PawnIO check: installing PawnIO would not help a model M-Tool cannot read.
+            // First: no PawnIO question for a model M-Tool cannot read at all.
             WmiInterfaceCheck.Default.EnsureWmi1(log);
         }
         catch (UnsupportedDeviceException ex)
@@ -253,19 +253,18 @@ internal sealed class GuiBootstrapper : IDisposable
             return null;
         }
 
-        if (PawnIoInstallation.InstalledVersion() is null)
+        try
+        {
+            // Hybrid only where writes are verified; elsewhere the session opens WMI only, without PawnIO.
+            return EcSession.Open(log, EcBackends.Hybrid, accessGate);
+        }
+        catch (PawnIoMissingException)
         {
             log.Error("PawnIO kurulu değil; GUI açılmadı.");
             StartupProblem(
                 $"PawnIO kurulu değil. M-Tool EC'ye PawnIO sürücüsüyle erişir.\n\nKurmak için (yönetici komut isteminde):\n" +
                 $"{PawnIoInstallation.InstallCommand}\n\nAyrıntı: {AppPaths.Logs}");
             return null;
-        }
-
-        try
-        {
-            // A GUI without PawnIO (WMI only) is deferred; until then the set-up screen above stays.
-            return EcSession.Open(log, EcBackends.Hybrid, accessGate);
         }
         catch (Exception ex)
         {

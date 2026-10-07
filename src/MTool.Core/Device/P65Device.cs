@@ -42,7 +42,11 @@ public sealed class P65Device
     }
 
     /// <summary>Cooler Boost and the charge limit: two raw port accesses, so read them only when needed.</summary>
-    public PortState ReadPortState() => new(_ec.Read(_layout.CoolerBoost), _ec.Read(_layout.ChargeLimit));
+    /// <exception cref="InvalidOperationException">The model has no Cooler Boost or no charge limit: a port session is only opened for a record with both.</exception>
+    public PortState ReadPortState() =>
+        _layout is { CoolerBoost: { } boost, ChargeLimit: { } charge }
+            ? new(_ec.Read(boost), _ec.Read(charge))
+            : throw new InvalidOperationException($"{_layout.Id}: Cooler Boost ya da şarj limiti yok; port durumu okunamaz.");
 
     private FanCurve ReadFanCurve(FanRegisters fan) => FanTableCodec.Decode(
         _ec.ReadBlock(fan.UpThresholdsStart, EcMap.ThresholdCount),

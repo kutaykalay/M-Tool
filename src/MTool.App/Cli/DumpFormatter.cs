@@ -9,8 +9,9 @@ namespace MTool.App.Cli;
 internal static class DumpFormatter
 {
     /// <param name="match">Finds (and logs) the record the firmware matches.</param>
+    /// <param name="portOpen">False in a WMI-only session: Cooler Boost and the charge limit are not read then.</param>
     public static string Format(
-        P65Device device, DeviceLayout layout, Func<FirmwareInfo?, DeviceMatch> match, IEcRegisters ec, int recoveredFailures)
+        P65Device device, DeviceLayout layout, Func<FirmwareInfo?, DeviceMatch> match, IEcRegisters ec, int recoveredFailures, bool portOpen)
     {
         var firmware = device.ReadFirmware();
         var sensors = device.ReadSensors();
@@ -21,8 +22,7 @@ internal static class DumpFormatter
             .AppendLine($"Firmware   : {firmware.Version} ({firmware.Date}) {FirmwareStatus(firmware, match(firmware))}")
             .AppendLine($"CPU        : {Temp(sensors.CpuTempC)}, fan %{sensors.CpuFanPercent}, {sensors.CpuRpm} RPM")
             .AppendLine($"GPU        : {Temp(sensors.GpuTempC)}, fan %{sensors.GpuFanPercent}, {sensors.GpuRpm} RPM")
-            .AppendLine($"Registers  : {Pair(ec, layout.CoolerBoost)} {Pair(ec, layout.ChargeLimit)} " +
-                        $"{Pair(ec, layout.PerformanceMode)} {Pair(ec, layout.FanMode)}");
+            .AppendLine($"Registers  : {string.Join(' ', PortPairs(ec, layout, portOpen).Append(Pair(ec, layout.PerformanceMode)).Append(Pair(ec, layout.FanMode)))}");
         AppendCurve(text, "CPU egrisi", curves.Cpu, FactoryDefaults.CpuDownOffsets);
         AppendCurve(text, "GPU egrisi", curves.Gpu, FactoryDefaults.GpuDownOffsets);
         text.AppendLine("             (esik/inis; inis = esik - fabrika farki, EC'den okunmaz)");
@@ -46,4 +46,9 @@ internal static class DumpFormatter
     private static string Temp(int? celsius) => celsius is { } value ? $"{value} C" : "gecersiz okuma";
 
     private static string Pair(IEcRegisters ec, byte register) => $"0x{register:X2}=0x{ec.Read(register):X2}";
+
+    /// <summary>The port registers the model has; without the port they are named but not read.</summary>
+    private static IEnumerable<string> PortPairs(IEcRegisters ec, DeviceLayout layout, bool portOpen) =>
+        new[] { layout.CoolerBoost, layout.ChargeLimit }.OfType<byte>()
+            .Select(register => portOpen ? Pair(ec, register) : $"0x{register:X2}=port kapali");
 }
