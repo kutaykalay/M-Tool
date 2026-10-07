@@ -25,7 +25,7 @@ public class SystemPowerEventsTests
     {
         using var events = Create();
 
-        _log.Lines.Should().Equal("INFO Güç: kaynak Ac");
+        _log.Lines.Should().Equal("INFO Power: source Ac");
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public class SystemPowerEventsTests
         Raise(events, PowerModes.StatusChange);
 
         _changes.Should().Be(0);
-        _log.Lines.Should().Equal("INFO Güç: kaynak Ac");
+        _log.Lines.Should().Equal("INFO Power: source Ac");
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class SystemPowerEventsTests
         Raise(events, PowerModes.StatusChange);
 
         _changes.Should().Be(1);
-        _log.Lines.Should().Equal("INFO Güç: kaynak Ac", "INFO Güç: kaynak Ac→Battery");
+        _log.Lines.Should().Equal("INFO Power: source Ac", "INFO Power: source Ac→Battery");
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class SystemPowerEventsTests
         Raise(events, PowerModes.StatusChange);
 
         _changes.Should().Be(2);
-        _log.Lines.Should().EndWith("INFO Güç: kaynak Battery→Ac");
+        _log.Lines.Should().EndWith("INFO Power: source Battery→Ac");
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class SystemPowerEventsTests
         using var events = new SystemPowerEvents(_log, () => throw new InvalidOperationException("yok"));
 
         events.Current.Should().BeNull();
-        _log.Lines.Should().Contain("WARN Güç: kaynak okunamadı (yok)");
+        _log.Lines.Should().Contain("WARN Power: source unreadable (yok)");
     }
 
     [Fact]
@@ -91,7 +91,7 @@ public class SystemPowerEventsTests
 
         raised.Should().Equal("uyku", "uyanış");
         _changes.Should().Be(0);
-        _log.Lines.Should().EndWith(["INFO Güç: uyku", "INFO Güç: uyanış"]);
+        _log.Lines.Should().EndWith(["INFO Power: sleep", "INFO Power: resume"]);
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public class SystemPowerEventsTests
         var raise = () => Raise(events, PowerModes.StatusChange);
 
         raise.Should().NotThrow();
-        _log.Lines.Should().EndWith("ERROR Güç olayı (StatusChange) işlenemedi abone");
+        _log.Lines.Should().EndWith("ERROR Power event (StatusChange) not handled abone");
     }
 
     private SystemPowerEvents Create()

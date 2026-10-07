@@ -41,7 +41,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            _log.Error("GUI başlatılamadı", ex);
+            _log.Error("GUI failed to start", ex);
             MessageBox.Show($"M-Tool başlatılamadı: {ex.Message}\n\nAyrıntı: {AppPaths.Logs}", "M-Tool",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -59,7 +59,7 @@ public partial class App : Application
         }
         else
         {
-            _log.Info("Tepside gizli başladı (--tray); pencere açılana kadar port okunmaz.");
+            _log.Info("Started hidden in the tray (--tray); the port is not read until the window opens.");
         }
     }
 
@@ -88,17 +88,17 @@ public partial class App : Application
         DispatcherUnhandledException += OnDispatcherUnhandledException;
         TaskScheduler.UnobservedTaskException += (_, e) =>
         {
-            _log.Error("Gözlenmeyen görev hatası", e.Exception);
+            _log.Error("Unobserved task error", e.Exception);
             e.SetObserved();
         };
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
-            _log.Error("İşlenmeyen hata (uygulama kapanıyor)", e.ExceptionObject as Exception);
+            _log.Error("Unhandled error (app is closing)", e.ExceptionObject as Exception);
     }
 
     /// <summary>UI-thread errors are logged and shown; the app keeps running (the EC keeps its last table).</summary>
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        _log.Error("Arayüz hatası", e.Exception);
+        _log.Error("UI error", e.Exception);
         MessageBox.Show($"Beklenmeyen hata: {e.Exception.Message}\n\nAyrıntı: {AppPaths.Logs}", "M-Tool",
             MessageBoxButton.OK, MessageBoxImage.Warning);
         e.Handled = true;

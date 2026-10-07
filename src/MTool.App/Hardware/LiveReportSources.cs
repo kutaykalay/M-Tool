@@ -63,7 +63,7 @@ internal sealed class LiveReportSources(IAppLog log) : IReportSources
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            log.Warn($"Rapor: firmware okunamadı: {ex.Message}");
+            log.Warn($"Report: firmware unreadable: {ex.Message}");
             return null;
         }
     }
@@ -113,7 +113,7 @@ internal sealed class LiveReportSources(IAppLog log) : IReportSources
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            log.Warn($"Rapor: \"{query}\" okunamadı: {ex.Message}");
+            log.Warn($"Report: \"{query}\" unreadable: {ex.Message}");
             return new string?[properties.Length];
         }
     }

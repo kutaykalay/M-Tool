@@ -60,13 +60,13 @@ internal static class CliRunner
         catch (UnsupportedDeviceException ex)
         {
             // An expected answer about the laptop, not a fault: no stack trace in the log.
-            log.Warn($"Desteklenmeyen model: {string.Join(' ', args)}. {ex.Message}");
+            log.Warn($"Unsupported model: {string.Join(' ', args)}. {ex.Message}");
             Console.Error.WriteLine(ex.Message);
             return ExitError;
         }
         catch (Exception ex)
         {
-            log.Error($"Komut başarısız: {string.Join(' ', args)}", ex);
+            log.Error($"Command failed: {string.Join(' ', args)}", ex);
             Console.Error.WriteLine($"HATA: {ex.Message}");
             Console.Error.WriteLine($"Ayrıntı: {AppPaths.Logs}");
             return ExitError;
@@ -100,7 +100,7 @@ internal static class CliRunner
         Console.WriteLine($"Kaydedildi: {path}");
         Console.WriteLine("Bu dosyayı GitHub'da \"Device report\" issue'suna ekleyin. Seri numarası sorgulanmadı, kullanıcı ve bilgisayar adı " +
             "report.txt'de gizlendi. dsdt.aml MSI'ın firmware tablosudur ve filtrelenmez. Göndermeden önce report.txt'ye göz atın.");
-        log.Info($"Rapor yazıldı: {path}");
+        log.Info($"Report written: {path}");
         return ExitOk;
     }
 
@@ -135,7 +135,7 @@ internal static class CliRunner
         }
         catch (Exception ex)
         {
-            log.Error("Yazma sonrası döküm alınamadı", ex);
+            log.Error("Could not take the dump after writing", ex);
             return $"Yazma sonrası döküm alınamadı: {ex.Message}";
         }
     }
@@ -150,7 +150,7 @@ internal static class CliRunner
         }
 
         store.Clear();
-        log.Warn($"Yazma kilidi elle kaldırıldı. Önceki neden: {reason}");
+        log.Warn($"Write lock removed by hand. Previous reason: {reason}");
         Console.WriteLine($"Kilit kaldırıldı. Önceki neden: {reason}");
         return ExitOk;
     }

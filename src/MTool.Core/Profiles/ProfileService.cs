@@ -180,7 +180,7 @@ public sealed class ProfileService
             }
 
             changed = aligned.Desired;
-            _log.Info($"Güç kaynağı geçişi ({source}): {ProfileNameRules.Printable(aligned.Desired.FanProfile)} + {aligned.Desired.Performance?.ToString() ?? "-"} (yazma: {(write ? "evet" : "hayır, kapı kapalı")})");
+            _log.Info($"Power source switch ({source}): {ProfileNameRules.Printable(aligned.Desired.FanProfile)} + {aligned.Desired.Performance?.ToString() ?? "-"} (write: {(write ? "yes" : "no, gate closed")})");
             return write
                 ? await _control.ApplyDesiredAsync(aligned.Desired.WithoutPortParts(), Current.Catalog).ConfigureAwait(false)
                 : null;
@@ -254,7 +254,7 @@ public sealed class ProfileService
             _oneAtATime.Release();
         }
 
-        Raise(CatalogChanged, "Profil listesi abonesi hata verdi");
+        Raise(CatalogChanged, "Profile list subscriber failed");
         if (desiredAfter != desiredBefore)
         {
             RaiseDesiredChanged(desiredAfter);
@@ -310,7 +310,7 @@ public sealed class ProfileService
 
     // The EC was written or the profiles changed; a subscriber's bug must not hide that.
     private void RaiseDesiredChanged(DesiredState desired) =>
-        Raise(() => DesiredChanged?.Invoke(desired), "İstenen durum abonesi hata verdi");
+        Raise(() => DesiredChanged?.Invoke(desired), "Desired state subscriber failed");
 
     private void Raise(Action? handler, string failure)
     {
@@ -337,7 +337,7 @@ public sealed class ProfileService
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException
             or System.Security.SecurityException or JsonException)
         {
-            _log.Error("settings.json yazılamadı", ex);
+            _log.Error("Could not write settings.json", ex);
             return $"Ayar kaydedilemedi (settings.json: {ex.Message}); yeniden başlatınca eski hali geri gelir.";
         }
     }

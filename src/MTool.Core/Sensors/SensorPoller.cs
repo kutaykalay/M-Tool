@@ -109,7 +109,7 @@ public sealed class SensorPoller(
         }
         catch (Exception ex)
         {
-            log.Error("Sensör yoklama döngüsü durdu", ex);
+            log.Error("Sensor polling stopped", ex);
         }
     }
 
@@ -129,7 +129,7 @@ public sealed class SensorPoller(
             var snapshot = await _pendingRead.WaitAsync(ReadTimeout, time, _stop.Token).ConfigureAwait(false);
             if (previous.ConsecutiveMisses > 0)
             {
-                log.Info($"Sensör okuma düzeldi ({previous.ConsecutiveMisses} örnek kaçtı).");
+                log.Info($"Sensor reads recovered ({previous.ConsecutiveMisses} samples missed).");
             }
 
             reading = new SensorReading(SensorReading.Merge(previous.Snapshot, snapshot), SensorStatus.Live, 0, time.GetUtcNow());
@@ -161,11 +161,11 @@ public sealed class SensorPoller(
             : previous.Status;
         if (misses == 1)
         {
-            log.Warn($"Sensör okuma başarısız, örnek atlandı: {error.Message}");
+            log.Warn($"Sensor read failed, sample skipped: {error.Message}");
         }
         else if (misses == StaleAfterMisses)
         {
-            log.Warn($"Sensör verisi eski: {misses} okuma üst üste başarısız ({error.Message}).");
+            log.Warn($"Sensor data stale: {misses} reads failed in a row ({error.Message}).");
         }
 
         Publish(previous with { Status = status, ConsecutiveMisses = misses });
@@ -186,7 +186,7 @@ public sealed class SensorPoller(
         catch (Exception ex)
         {
             // A subscriber's bug must not stop polling or be mistaken for an EC miss.
-            log.Error("Sensör verisi abonesi hata verdi", ex);
+            log.Error("Sensor data subscriber failed", ex);
         }
     }
 }

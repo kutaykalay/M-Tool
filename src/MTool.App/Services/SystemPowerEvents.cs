@@ -27,7 +27,7 @@ internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposabl
         _log = log;
         _readStatus = readStatus;
         _lastSource = Current;
-        _log.Info($"Güç: kaynak {Name(_lastSource)}");
+        _log.Info($"Power: source {Name(_lastSource)}");
     }
 
     public event Action? Suspending;
@@ -47,7 +47,7 @@ internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposabl
             }
             catch (Exception ex)
             {
-                _log.Warn($"Güç: kaynak okunamadı ({ex.Message})");
+                _log.Warn($"Power: source unreadable ({ex.Message})");
                 return null;
             }
         }
@@ -62,7 +62,7 @@ internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposabl
         _ => null,
     };
 
-    private static string Name(PowerSource? source) => source?.ToString() ?? "bilinmiyor";
+    private static string Name(PowerSource? source) => source?.ToString() ?? "unknown";
 
     // Runs on the SystemEvents thread: anything thrown here would end the process.
     internal void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
@@ -73,7 +73,7 @@ internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposabl
         }
         catch (Exception ex)
         {
-            _log.Error($"Güç olayı ({e.Mode}) işlenemedi", ex);
+            _log.Error($"Power event ({e.Mode}) not handled", ex);
         }
     }
 
@@ -82,11 +82,11 @@ internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposabl
         switch (mode)
         {
             case PowerModes.Suspend:
-                _log.Info("Güç: uyku");
+                _log.Info("Power: sleep");
                 Suspending?.Invoke();
                 break;
             case PowerModes.Resume:
-                _log.Info("Güç: uyanış");
+                _log.Info("Power: resume");
                 Resumed?.Invoke();
                 break;
             case PowerModes.StatusChange:
@@ -104,7 +104,7 @@ internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposabl
             return;
         }
 
-        _log.Info($"Güç: kaynak {Name(_lastSource)}→{Name(source)}");
+        _log.Info($"Power: source {Name(_lastSource)}→{Name(source)}");
         _lastSource = source;
         Changed?.Invoke();
     }

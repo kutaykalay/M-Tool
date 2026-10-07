@@ -52,7 +52,7 @@ public static class DeviceConfigLoader
         var conflicts = DeviceConfigValidator.FindConflicts([.. valid.Select(v => v.Config)]).ToDictionary(c => c.Id);
         foreach (var (name, config) in valid.Where(v => conflicts.ContainsKey(v.Config.Id)))
         {
-            log.Warn($"Cihaz kaydı {name} atlandı: {conflicts[config.Id].Reason}");
+            log.Warn($"Device record {name} skipped: {conflicts[config.Id].Reason}");
         }
 
         return [.. valid.Where(v => !conflicts.ContainsKey(v.Config.Id)).Select(v => v.Config)];
@@ -73,16 +73,16 @@ public static class DeviceConfigLoader
                 return config;
             }
 
-            log.Warn($"Cihaz kaydı {name} geçersiz: {string.Join(" ", errors)}");
+            log.Warn($"Device record {name} invalid: {string.Join(" ", errors)}");
         }
         catch (JsonException ex)
         {
-            log.Warn($"Cihaz kaydı {name} okunamadı: {ex.Message}");
+            log.Warn($"Device record {name} unreadable: {ex.Message}");
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             // A converter or rule that throws something unexpected must not take the app down with it.
-            log.Error($"Cihaz kaydı {name} beklenmeyen bir hatayla atlandı.", ex);
+            log.Error($"Device record {name} skipped after an unexpected error.", ex);
         }
 
         return null;
@@ -96,7 +96,7 @@ public static class DeviceConfigLoader
             using var stream = assembly.GetManifestResourceStream(name);
             if (stream is null)
             {
-                log.Warn($"Cihaz kaydı {name} açılamadı.");
+                log.Warn($"Device record {name} could not be opened.");
                 continue;
             }
 

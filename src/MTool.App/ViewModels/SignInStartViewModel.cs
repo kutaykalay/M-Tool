@@ -55,12 +55,12 @@ public sealed partial class SignInStartViewModel(
                     task.Disable();
                 }
             });
-            log.Info(enable ? $"Oturum açılışında başlatma açıldı: {exePath}" : "Oturum açılışında başlatma kapatıldı.");
+            log.Info(enable ? $"Start at sign-in turned on: {exePath}" : "Start at sign-in turned off.");
             ClearRepairWarning();
         }
         catch (Exception ex)
         {
-            log.Error("Oturum açılışında başlatma değiştirilemedi", ex);
+            log.Error("Start at sign-in could not be changed", ex);
             status.ShowWarning($"Oturum açılışında başlatma değiştirilemedi: {ex.Message}");
         }
 
@@ -81,7 +81,7 @@ public sealed partial class SignInStartViewModel(
         }
         catch (Exception ex)
         {
-            log.Warn($"Oturum açılışı görevi okunamadı: {ex.Message}");
+            log.Warn($"Sign-in task unreadable: {ex.Message}");
             IsKnown = false;
             return null;
         }

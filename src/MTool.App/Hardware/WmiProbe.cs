@@ -97,7 +97,7 @@ internal sealed class WmiInterfaceCheck(Func<WmiInterface?> detect)
         }
         catch (EcAccessException ex)
         {
-            log.Warn($"MSI WMI arayüzü algılanamadı, oturum yine de açılmaya çalışılıyor: {ex.Message}");
+            log.Warn($"MSI WMI interface not detected, trying to open the session anyway: {ex.Message}");
             return;
         }
 

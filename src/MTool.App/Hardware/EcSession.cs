@@ -113,8 +113,8 @@ internal sealed class EcSession : IDisposable
 
             var registers = RoutedEcRegisters.Create(wmi, controller, layout.Wmi);
             var worker = new EcWorker(registers, ecLock, LockTimeout, (message, ex) => log.Error(message, ex), accessGate);
-            var fallback = backend == EcBackends.Hybrid && !usePort ? " (doğrulanmış firmware değil: port kapalı)" : "";
-            log.Info($"EC oturumu: {(usePort ? EcBackends.Hybrid : EcBackends.WmiOnly)}, cihaz kaydı {layout.Id}{fallback}");
+            var fallback = backend == EcBackends.Hybrid && !usePort ? " (unverified firmware: port closed)" : "";
+            log.Info($"EC session: {(usePort ? EcBackends.Hybrid : EcBackends.WmiOnly)}, device record {layout.Id}{fallback}");
             string[] warnings = firmware is null && backend == EcBackends.Hybrid ? [FirmwareUnreadWarning] : [];
             return new EcSession(ports, ecLock, controller, worker, catalog, layout, log, troubleLog, warnings);
         }
@@ -150,12 +150,12 @@ internal sealed class EcSession : IDisposable
             }
             catch (Exception ex) when (ex is not OutOfMemoryException && attempt < FirmwareAttempts)
             {
-                log.Warn($"Firmware okunamadı ({attempt}. deneme), yeniden deneniyor: {ex.Message}");
+                log.Warn($"Firmware unreadable (attempt {attempt}), retrying: {ex.Message}");
                 Thread.Sleep(FirmwareRetryDelay);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
-                log.Warn($"Firmware okunamadı; cihaz kaydı seçilemedi, port kapalı açılıyor: {ex.Message}");
+                log.Warn($"Firmware unreadable; no device record chosen, opening with the port closed: {ex.Message}");
                 return null;
             }
         }
@@ -172,7 +172,7 @@ internal sealed class EcSession : IDisposable
     public DeviceMatch Match(FirmwareInfo? firmware)
     {
         var match = FirmwareMatcher.Match(firmware, Catalog);
-        _log.Info($"Cihaz eşleşmesi: {match}, firmware {firmware?.Version ?? "okunamadı"}");
+        _log.Info($"Device match: {match}, firmware {firmware?.Version ?? "unreadable"}");
         return match;
     }
 

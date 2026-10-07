@@ -81,7 +81,7 @@ public sealed class PowerSourceSwitcher(
         }
     }
 
-    private void OnChanged() => Guarded("kaynak değişimi", () =>
+    private void OnChanged() => Guarded("source change", () =>
     {
         lock (_sync)
         {
@@ -96,7 +96,7 @@ public sealed class PowerSourceSwitcher(
         }
     });
 
-    private void OnSuspending() => Guarded("uyku", () =>
+    private void OnSuspending() => Guarded("sleep", () =>
     {
         lock (_sync)
         {
@@ -104,7 +104,7 @@ public sealed class PowerSourceSwitcher(
         }
     });
 
-    private void OnResumed() => Guarded("uyanış", () =>
+    private void OnResumed() => Guarded("resume", () =>
     {
         long generation;
         lock (_sync)
@@ -201,7 +201,7 @@ public sealed class PowerSourceSwitcher(
         }
         catch (Exception ex)
         {
-            Log($"Güç kaynağı geçişi: {what} işlenemedi", ex);
+            Log($"Power source switch: {what} not handled", ex);
         }
     }
 

@@ -51,7 +51,7 @@ internal sealed class GuiBootstrapper : IDisposable
         }
 
         var teardown = new Stack<(string Name, Action Dispose)>();
-        teardown.Push(("EC oturumu", session.Dispose));
+        teardown.Push(("EC session", session.Dispose));
         try
         {
             return await BuildAsync(app, log, exit, catalog, settings, session, coordinator, reapplyOptions, teardown);
@@ -74,7 +74,7 @@ internal sealed class GuiBootstrapper : IDisposable
     {
         if (!SpinWait.SpinUntil(() => !isWriting(), RunningWriteGrace))
         {
-            log.Warn("Çıkış: süren EC yazması beklenenden uzun sürdü; oturum yine de kapatılıyor.");
+            log.Warn("Exit: an EC write took longer than expected; closing the session anyway.");
         }
     }
 
@@ -92,35 +92,35 @@ internal sealed class GuiBootstrapper : IDisposable
         var poller = new SensorPoller(
             control.ReadSensorsAsync, () => coordinator.IsEcAccessAllowed, () => service.IsBusy, TimeProvider.System, log,
             MainViewModel.HiddenInterval);
-        teardown.Push(("sensör yoklama", poller.Dispose));
+        teardown.Push(("sensor polling", poller.Dispose));
 
         var theme = new ThemeManager(app);
-        teardown.Push(("tema", theme.Dispose));
+        teardown.Push(("theme", theme.Dispose));
 
         MainWindow? window = null;
         var tray = new TrayIconHost(theme, () => window?.ToggleFromTray(), () => window?.ShowNearTray(), exit);
-        teardown.Push(("tepsi ikonu", tray.Dispose));
+        teardown.Push(("tray icon", tray.Dispose));
 
         // Before the view model: with switching on, the window must first show the current source's pair,
         // and the start-up reapply below writes that pair.
         var powerEvents = new SystemPowerEvents(log);
-        teardown.Push(("güç olayları", powerEvents.Dispose));
+        teardown.Push(("power events", powerEvents.Dispose));
         await AlignToStartSourceAsync(service, powerEvents.Current, log);
 
         var ui = new DispatcherUi(app);
         var viewModel = new MainViewModel(poller, service, control, powerEvents, tray, ui, TimeProvider.System);
-        teardown.Push(("durum mesajı zamanlayıcısı", viewModel.Status.Dispose));
+        teardown.Push(("status message timer", viewModel.Status.Dispose));
         window = new MainWindow(viewModel, () =>
         {
             FanCurveEditorWindow? editor = null;
             editor = new FanCurveEditorWindow(viewModel.CreateEditor(new DialogConfirm(() => editor, theme)), theme);
             return editor;
         });
-        teardown.Push(("pencere", window.CloseForExit));
+        teardown.Push(("window", window.CloseForExit));
         window.SourceInitialized += (_, _) => window.ApplyTitleBarTheme(theme.IsDark);
         theme.Changed += () => window.ApplyTitleBarTheme(theme.IsDark);
 
-        log.Info($"GUI başladı ({AppVersion}). Firmware: {setup.Firmware?.Version ?? "okunamadı"}, yazma: {control.Access.WriteMode}" +
+        log.Info($"GUI started ({AppVersion}). Firmware: {setup.Firmware?.Version ?? "unreadable"}, writes: {control.Access.WriteMode}" +
                  (control.Access.LockReason is { } reason ? $" ({reason})" : ""));
 
         var reapplier = new AutoReapplier(service.ReapplyAsync, powerEvents, coordinator, TimeProvider.System, log, reapplyOptions);
@@ -138,7 +138,7 @@ internal sealed class GuiBootstrapper : IDisposable
             WaitForRunningWrite(() => switcher.IsRunning || reapplier.IsRunning || service.IsBusy, log);
         }
 
-        teardown.Push(("otomatik yeniden uygulama", StopAutoReapply));
+        teardown.Push(("auto reapply", StopAutoReapply));
 
         // Results arrive on pool threads and are shown on the UI thread.
         void ShowOnUi(AutoReapplyResult result) => ui.Post(() =>
@@ -178,7 +178,7 @@ internal sealed class GuiBootstrapper : IDisposable
         }
         catch (Exception ex)
         {
-            log.Error("Açılışta güç kaynağına göre ayar seçilemedi", ex);
+            log.Error("Could not choose settings for the power source at start", ex);
         }
     }
 
@@ -190,7 +190,7 @@ internal sealed class GuiBootstrapper : IDisposable
         }
         catch (Exception ex)
         {
-            log.Error("Otomatik yeniden uygulama sonucu gösterilemedi", ex);
+            log.Error("Could not show the auto reapply result", ex);
         }
     }
 
@@ -205,7 +205,7 @@ internal sealed class GuiBootstrapper : IDisposable
             }
             catch (Exception ex)
             {
-                log.Error($"Kapanış: {step.Name} kapatılamadı", ex);
+                log.Error($"Shutdown: could not close {step.Name}", ex);
             }
         }
     }
@@ -248,7 +248,7 @@ internal sealed class GuiBootstrapper : IDisposable
         }
         catch (UnsupportedDeviceException ex)
         {
-            log.Warn($"Desteklenmeyen model; GUI açılmadı. {ex.Message}");
+            log.Warn($"Unsupported model; GUI not opened. {ex.Message}");
             StartupProblem($"{ex.Message}\n\nAyrıntı: {AppPaths.Logs}");
             return null;
         }
@@ -260,7 +260,7 @@ internal sealed class GuiBootstrapper : IDisposable
         }
         catch (PawnIoMissingException)
         {
-            log.Error("PawnIO kurulu değil; GUI açılmadı.");
+            log.Error("PawnIO not installed; GUI not opened.");
             StartupProblem(
                 $"PawnIO kurulu değil. M-Tool EC'ye PawnIO sürücüsüyle erişir.\n\nKurmak için (yönetici komut isteminde):\n" +
                 $"{PawnIoInstallation.InstallCommand}\n\nAyrıntı: {AppPaths.Logs}");
@@ -268,7 +268,7 @@ internal sealed class GuiBootstrapper : IDisposable
         }
         catch (Exception ex)
         {
-            log.Error("EC oturumu açılamadı; GUI açılmadı.", ex);
+            log.Error("Could not open the EC session; GUI not opened.", ex);
             StartupProblem($"EC'ye erişilemedi: {ex.Message}\n\nAyrıntı: {AppPaths.Logs}");
             return null;
         }

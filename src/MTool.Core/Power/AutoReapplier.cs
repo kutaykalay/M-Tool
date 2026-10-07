@@ -90,7 +90,7 @@ public sealed class AutoReapplier(
         }
     }
 
-    private void OnSuspending() => Guarded("uyku", () =>
+    private void OnSuspending() => Guarded("sleep", () =>
     {
         lock (_sync)
         {
@@ -104,7 +104,7 @@ public sealed class AutoReapplier(
         }
     });
 
-    private void OnResumed() => Guarded("uyanış", () =>
+    private void OnResumed() => Guarded("resume", () =>
     {
         lock (_sync)
         {
@@ -173,7 +173,7 @@ public sealed class AutoReapplier(
             // timer clock) the reapply is retried, not dropped.
             if (!coordinator.IsEcAccessAllowed)
             {
-                log.Warn($"Otomatik yeniden uygulama ({trigger}) ertelendi: EC erişimi henüz kapalı");
+                log.Warn($"Auto reapply ({trigger}) postponed: EC access still closed");
                 RetryIfStillCurrent(trigger, generation);
                 return;
             }
@@ -188,7 +188,7 @@ public sealed class AutoReapplier(
         }
         catch (Exception ex)
         {
-            Guarded("hata kaydı", () => log.Error($"Otomatik yeniden uygulama ({trigger}) hata verdi", ex));
+            Guarded("error log", () => log.Error($"Auto reapply ({trigger}) failed", ex));
         }
         finally
         {
@@ -205,7 +205,7 @@ public sealed class AutoReapplier(
                 return;
             }
 
-            log.Info($"Otomatik yeniden uygulama {_options.RetryDelay.TotalSeconds:0} sn sonra bir kez yeniden denenecek");
+            log.Info($"Auto reapply will retry once in {_options.RetryDelay.TotalSeconds:0} s");
             ScheduleLocked(ReapplyTrigger.Retry, _options.RetryDelay);
         }
     }
@@ -226,7 +226,7 @@ public sealed class AutoReapplier(
         }
         catch (Exception ex)
         {
-            log.Error("Otomatik yeniden uygulama sonucu bildirilemedi", ex);
+            log.Error("Auto reapply result could not be reported", ex);
         }
     }
 
@@ -241,7 +241,7 @@ public sealed class AutoReapplier(
         {
             try
             {
-                log.Error($"Otomatik yeniden uygulama: {what} işlenemedi", ex);
+                log.Error($"Auto reapply: {what} not handled", ex);
             }
             catch
             {
