@@ -53,7 +53,7 @@ internal static class ReportCommand
     /// <param name="includeWmi2">Call the WMI2 <c>Get_*</c> methods; only ever on a WMI2 laptop.</param>
     public static ReportData Collect(IReportSources sources, string appVersion, DateTimeOffset at, Action<string> warn, bool includeWmi2 = false)
     {
-        var wmi = Read("MSI WMI arayüzü", sources.ReadInterface, warn);
+        var wmi = Read("MSI WMI interface", sources.ReadInterface, warn);
         var dsdt = Read("DSDT", sources.ReadDsdt, warn);
         var ec = !wmi.IsOk ? Section.Failed<EcReadout>("not read: MSI WMI interface unknown")
             : wmi.Value switch
@@ -66,9 +66,9 @@ internal static class ReportCommand
         var input = new DeviceReportInput(
             appVersion,
             at,
-            Read("sistem bilgisi", sources.ReadSystem, warn),
+            Read("system information", sources.ReadSystem, warn),
             wmi,
-            Read("MSI sınıfları", sources.ReadClasses, warn),
+            Read("MSI classes", sources.ReadClasses, warn),
             dsdt.IsOk ? Section.Ok(dsdt.Value!.Length) : Section.Failed<int>(dsdt.Error!),
             ec,
             includeWmi2 ? Wmi2(sources, wmi, warn) : null);
@@ -127,7 +127,7 @@ internal static class ReportCommand
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            warn($"Rapor: {part} okunamadı: {ex.Message}");
+            warn($"Report: {part} unreadable: {ex.Message}");
             return Section.Failed<T>($"{ex.GetType().Name}: {ex.Message}");
         }
     }

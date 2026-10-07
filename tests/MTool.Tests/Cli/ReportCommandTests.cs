@@ -116,6 +116,8 @@ public sealed class ReportCommandTests : IDisposable
         data.Input.Classes.IsOk.Should().BeTrue();
         data.Input.Ec.IsOk.Should().BeTrue();
         _warnings.Should().HaveCount(2);
+        _warnings.Should().Contain(w => w.StartsWith("Report: system information unreadable: ", StringComparison.Ordinal));
+        _warnings.Should().Contain(w => w.StartsWith("Report: DSDT unreadable: ", StringComparison.Ordinal));
     }
 
     [Fact]
