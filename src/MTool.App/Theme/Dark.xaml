@@ -7,8 +7,8 @@
     <SolidColorBrush x:Key="Brush.Border" Color="#3A3D43" />
     <SolidColorBrush x:Key="Brush.Text" Color="#ECEDEF" />
     <SolidColorBrush x:Key="Brush.TextMuted" Color="#A0A4AB" />
-    <SolidColorBrush x:Key="Brush.Accent" Color="#3B82F6" />
-    <SolidColorBrush x:Key="Brush.AccentText" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Brush.Accent" Color="#E06A3C" />
+    <SolidColorBrush x:Key="Brush.AccentText" Color="#1C1D20" />
     <SolidColorBrush x:Key="Brush.Info" Color="#1E3A5F" />
     <SolidColorBrush x:Key="Brush.Warning" Color="#4A3B12" />
     <SolidColorBrush x:Key="Brush.Error" Color="#5A2320" />

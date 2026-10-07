@@ -3,11 +3,11 @@
     <!-- Same keys as Dark.xaml; ThemeManager swaps the two. -->
     <SolidColorBrush x:Key="Brush.Window" Color="#F3F4F6" />
     <SolidColorBrush x:Key="Brush.Surface" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="Brush.SurfaceHover" Color="#E8EEF9" />
+    <SolidColorBrush x:Key="Brush.SurfaceHover" Color="#F6E8E1" />
     <SolidColorBrush x:Key="Brush.Border" Color="#D9DCE1" />
     <SolidColorBrush x:Key="Brush.Text" Color="#1B1D21" />
     <SolidColorBrush x:Key="Brush.TextMuted" Color="#5E636B" />
-    <SolidColorBrush x:Key="Brush.Accent" Color="#1F6FEB" />
+    <SolidColorBrush x:Key="Brush.Accent" Color="#B84A2A" />
     <SolidColorBrush x:Key="Brush.AccentText" Color="#FFFFFF" />
     <SolidColorBrush x:Key="Brush.Info" Color="#DCE9FD" />
     <SolidColorBrush x:Key="Brush.Warning" Color="#FCEFC7" />

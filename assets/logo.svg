@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title">
+  <title id="title">M-Tool</title>
+  <!-- Same drawing as src/MTool.App/Resources/m-tool.ico (made by assets/make-icon.ps1). -->
+  <defs>
+    <linearGradient id="smoke" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2b3038"/>
+      <stop offset="1" stop-color="#0f1115"/>
+    </linearGradient>
+    <linearGradient id="blade" gradientUnits="userSpaceOnUse" x1="0" y1="-100" x2="0" y2="10">
+      <stop offset="0" stop-color="#ff8a55"/>
+      <stop offset="1" stop-color="#c2502e"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#smoke)" stroke="#e06a3c" stroke-opacity="0.35" stroke-width="3"/>
+  <g transform="translate(128 128)" fill="url(#blade)">
+    <ellipse cx="0" cy="-52" rx="27" ry="46" transform="rotate(18)"/>
+    <ellipse cx="0" cy="-52" rx="27" ry="46" transform="rotate(138)"/>
+    <ellipse cx="0" cy="-52" rx="27" ry="46" transform="rotate(258)"/>
+  </g>
+  <circle cx="128" cy="128" r="22" fill="#0f1115" stroke="#ff8a55" stroke-width="7"/>
+</svg>
