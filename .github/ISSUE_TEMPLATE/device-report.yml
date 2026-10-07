@@ -6,12 +6,14 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping. Run `M-Tool.exe --report` from an administrator terminal. It only reads:
+        Thanks for helping. Run `M-Tool.exe --report` from an administrator terminal (on a newer
+        MSI with WMI2, `M-Tool.exe --report --wmi2`). It only reads:
         it writes nothing to the embedded controller and never opens the raw port. It saves a zip to
         `%AppData%\M-Tool\reports` with `report.txt` and `dsdt.aml`, a copy of the laptop's ACPI DSDT
         table. M-Tool does not query the serial number or UUID and hides your user and computer names
         in `report.txt`. The DSDT is firmware code written by MSI, not personal data, but M-Tool does
-        not filter that binary file.
+        not filter that binary file. With `--wmi2`, report.txt also holds MSI's raw WMI2 answers as
+        hex bytes, which M-Tool cannot filter either.
   - type: input
     id: model
     attributes:

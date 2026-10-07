@@ -34,9 +34,9 @@ internal static class CliRunner
                 return Dump(log);
             }
 
-            if (args is ["--report"])
+            if (ReportCommand.TryParse(args, out var wmi2))
             {
-                return Report(log);
+                return Report(log, wmi2);
             }
 
             if (WatchCommand.TryParse(args, out var watchSeconds))
@@ -54,7 +54,7 @@ internal static class CliRunner
                 return Apply(log, apply!, confirm);
             }
 
-            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe [{StartupArgs.Tray}]   (GUI; --tray ile yalnızca tepside){Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}  M-Tool.exe --report   (başka bir MSI modeli için rapor; yalnızca okur){Environment.NewLine}{WatchCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
+            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe [{StartupArgs.Tray}]   (GUI; --tray ile yalnızca tepside){Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}  M-Tool.exe --report [--wmi2]   (başka bir MSI modeli için rapor; yalnızca okur; --wmi2: yeni modellerde ham WMI2 paketleri){Environment.NewLine}{WatchCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
             return ExitUsage;
         }
         catch (UnsupportedDeviceException ex)
@@ -88,10 +88,10 @@ internal static class CliRunner
     /// A part the laptop cannot give is written as such and does not fail the command; only saving
     /// the zip can (the error path below reports it).
     /// </summary>
-    private static int Report(FileLog log)
+    private static int Report(FileLog log, bool wmi2)
     {
         var at = DateTimeOffset.Now;
-        var data = ReportCommand.Collect(new LiveReportSources(log), GuiBootstrapper.AppVersion, at, log.Warn);
+        var data = ReportCommand.Collect(new LiveReportSources(log), GuiBootstrapper.AppVersion, at, log.Warn, wmi2);
         var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var text = DeviceReport.Format(data.Input,
             [Environment.UserName, Environment.MachineName, Environment.UserDomainName, profile, Path.GetFileName(profile)]);

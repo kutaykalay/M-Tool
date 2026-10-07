@@ -58,7 +58,8 @@ internal static class WmiProbe
 
     internal static string UnsupportedMessage(WmiInterface? detected) => detected == WmiInterface.Wmi2
         ? "Bu MSI modeli henüz desteklenmiyor: EC'ye MSI'ın WMI2 arayüzüyle erişiliyor (çoğunlukla 11. nesil Intel ve sonrası). " +
-          "M-Tool şimdilik yalnızca WMI1 modellerini okuyabiliyor."
+          "M-Tool şimdilik yalnızca WMI1 modellerini okuyabiliyor. Desteğe katkı için yönetici komut isteminde " +
+          "\"M-Tool.exe --report --wmi2\" çalıştırıp oluşan zip'i GitHub'da \"Device report\" issue'suna ekleyebilirsiniz."
         : $"Bu bilgisayar henüz desteklenmiyor: MSI WMI arayüzü (root\\WMI içinde {Wmi1Class} ya da {Wmi2Class}) bulunamadı.";
 
     private static bool HasClass(ManagementScope scope, string className)

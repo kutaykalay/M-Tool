@@ -29,6 +29,7 @@ public static class DeviceReport
             .AppendLine("[ACPI]")
             .AppendLine(Line("DSDT", Describe(input.DsdtBytes, bytes => $"{bytes} bytes ({DsdtFileName})")));
         AppendEc(text, input.Ec);
+        AppendWmi2(text, input);
         return Mask(text.ToString(), privateWords);
     }
 
@@ -93,6 +94,42 @@ public static class DeviceReport
             text.AppendLine($"  {ec.Fields.Skipped} more fields skipped after {FieldScan.MaxFailuresInARow} failed reads in a row");
         }
     }
+
+    /// <summary>Only on a WMI2 laptop, or when asked for: the raw packets, then a cautious reading of them.</summary>
+    private static void AppendWmi2(StringBuilder text, DeviceReportInput input)
+    {
+        if (input.Wmi2 is null && input.Interface.Value != WmiInterface.Wmi2)
+        {
+            return;
+        }
+
+        text.AppendLine().AppendLine("[WMI2, Get_* methods only, raw]");
+        if (input.Wmi2 is not { } section)
+        {
+            text.AppendLine(Line("WMI2", "not read: run M-Tool.exe --report --wmi2 to include the WMI2 packets"));
+            return;
+        }
+
+        if (section.Value is not { } readout)
+        {
+            text.AppendLine(Line("WMI2", section.Error));
+            return;
+        }
+
+        foreach (var call in readout.Calls)
+        {
+            var answer = call.Packet is { } packet ? string.Join(' ', packet.Select(b => $"{b:X2}")) : $"failed ({call.Error})";
+            text.AppendLine($"  {call.Method}({call.Sub}) : {answer}");
+        }
+
+        var reading = readout.Interpret();
+        text.AppendLine(Line("Reading", "YAMDCC's packet layout, unverified"))
+            .AppendLine(Line("Firmware", reading.Firmware is { } f ? $"{f} ({reading.FirmwareDate})" : null))
+            .AppendLine(Line("Temperatures", $"CPU {Show(reading.CpuTempC)} C, GPU {Show(reading.GpuTempC)} C"))
+            .AppendLine(Line("Fans", $"CPU {Show(reading.CpuRpm)} RPM, GPU {Show(reading.GpuRpm)} RPM"));
+    }
+
+    private static string Show(int? value) => value?.ToString(CultureInfo.InvariantCulture) ?? "?";
 
     private static string Capabilities(EcReadout ec)
     {

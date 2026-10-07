@@ -44,6 +44,14 @@ public sealed class ReportCommandTests : IDisposable
 
         public byte[] ReadDsdt() => DsdtFails ? throw new InvalidOperationException("tablo yok") : DsdtBytes;
 
+        public int Wmi2Reads { get; private set; }
+
+        public Wmi2Readout ReadWmi2()
+        {
+            Wmi2Reads++;
+            return new Wmi2Readout([]);
+        }
+
         public EcReadout ReadEc()
         {
             EcReads++;
@@ -54,7 +62,34 @@ public sealed class ReportCommandTests : IDisposable
         }
     }
 
-    private ReportData Collect(FakeSources sources) => ReportCommand.Collect(sources, "0.9.0", At, _warnings.Add);
+    private ReportData Collect(FakeSources sources, bool wmi2 = false) => ReportCommand.Collect(sources, "0.9.0", At, _warnings.Add, wmi2);
+
+    [Fact]
+    public void Wmi2_packets_are_read_only_when_asked_and_only_on_wmi2()
+    {
+        var notAsked = new FakeSources { Wmi = WmiInterface.Wmi2 };
+        var wmi1 = new FakeSources();
+        var asked = new FakeSources { Wmi = WmiInterface.Wmi2 };
+
+        Collect(notAsked).Input.Wmi2.Should().BeNull();
+        Collect(wmi1, wmi2: true).Input.Wmi2!.Error.Should().Contain("no WMI2");
+        Collect(asked, wmi2: true).Input.Wmi2!.IsOk.Should().BeTrue();
+
+        notAsked.Wmi2Reads.Should().Be(0);
+        wmi1.Wmi2Reads.Should().Be(0);
+        asked.Wmi2Reads.Should().Be(1);
+    }
+
+    [Fact]
+    public void The_report_flags_parse()
+    {
+        ReportCommand.TryParse(["--report"], out var plain).Should().BeTrue();
+        plain.Should().BeFalse();
+        ReportCommand.TryParse(["--report", "--wmi2"], out var withWmi2).Should().BeTrue();
+        withWmi2.Should().BeTrue();
+        ReportCommand.TryParse(["--report", "--wmi3"], out _).Should().BeFalse();
+        ReportCommand.TryParse(["--wmi2"], out _).Should().BeFalse();
+    }
 
     [Fact]
     public void Collects_every_part()

@@ -46,6 +46,7 @@ public sealed record EcReadout(
     FirmwareInfo? Firmware, DeviceMatch Match, string LayoutId, DeviceCapabilities Capabilities, FieldScan Fields);
 
 /// <param name="Computer">SMBIOS and Windows.</param>
+/// <param name="Wmi2">The raw WMI2 packets; null when not asked for (<c>--report --wmi2</c>).</param>
 public sealed record DeviceReportInput(
     string AppVersion,
     DateTimeOffset At,
@@ -53,4 +54,5 @@ public sealed record DeviceReportInput(
     Section<WmiInterface?> Interface,
     Section<IReadOnlyList<WmiClassInfo>> Classes,
     Section<int> DsdtBytes,
-    Section<EcReadout> Ec);
+    Section<EcReadout> Ec,
+    Section<Wmi2Readout>? Wmi2 = null);

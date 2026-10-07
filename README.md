@@ -31,7 +31,7 @@ mode and battery charge limit. One exe, no background service.
 | MSI P65 Creator 9SE | `16Q4EMS2.107` | WMI1 | yes | yes |
 | MSI P65 Creator 9SE, other firmware (`16Q4EMS2.1xx`) | | WMI1 | yes, unverified | no |
 | Other MSI laptops with WMI1 (mostly Intel 10th gen and older) | | WMI1 | yes, unverified | no |
-| MSI laptops with WMI2 (mostly Intel 11th gen and newer) | | WMI2 | not yet | no |
+| MSI laptops with WMI2 (mostly Intel 11th gen and newer) | | WMI2 | not yet (`--report --wmi2` collects data) | no |
 
 M-Tool checks the firmware at start-up. With any other firmware it only **reads** and never writes.
 Other MSI models use different register layouts, so a wrong write could set a fan to the wrong
@@ -43,7 +43,10 @@ M-Tool shows come from the P65's map and may be wrong.
 Own another MSI laptop? A device report lets M-Tool learn its layout. It only reads: no EC write,
 and the raw port is never opened.
 
-1. Run `M-Tool.exe --report` from an administrator terminal.
+1. Run `M-Tool.exe --report` from an administrator terminal. On a newer MSI with WMI2 (mostly
+   Intel 11th gen and later), run `M-Tool.exe --report --wmi2` instead: it also records the raw
+   answers of MSI's WMI2 read methods (`Get_*` only; nothing is set). These methods run firmware
+   code, and that they have no side effects is an assumption, so this part is opt-in.
 2. Open a [device report issue](https://github.com/kutaykalay/M-Tool/issues/new?template=device-report.yml) and attach the zip
    from `%AppData%\M-Tool\reports`.
 
@@ -51,7 +54,9 @@ The zip holds `report.txt` (the model, BIOS and EC firmware versions, the MSI WM
 values M-Tool could read) and `dsdt.aml`, a copy of the laptop's ACPI DSDT table. M-Tool does not
 query the serial number or UUID, and it hides your user and computer names in `report.txt`. The
 DSDT is firmware code written by MSI, not personal data, but it is a binary file M-Tool does not
-filter. Read `report.txt` before you post it.
+filter. With `--wmi2`, `report.txt` also holds MSI's raw WMI2 answers as hex bytes; M-Tool does
+not know what every byte means, so it cannot hide anything in them either. Read `report.txt`
+before you post it.
 
 ## Requirements
 
@@ -116,7 +121,7 @@ The result is a single `M-Tool.exe`, about 1.5 MB.
 
 ```
 M-Tool.exe --dump                              EC state, written to %AppData%\M-Tool\dumps
-M-Tool.exe --report                            device report for another MSI model, read-only
+M-Tool.exe --report [--wmi2]                   device report for another MSI model, read-only
 M-Tool.exe --watch [seconds]                   log changes, read-only
 M-Tool.exe --apply fan default|cool|silent     also: perf, boost, charge, fanmode
 M-Tool.exe --restore                           factory fan table
