@@ -28,7 +28,8 @@ public static class WriteAccessBootstrap
         retry ??= EcAccessRetry.Default;
         var firmware = await ReadFirmwareAsync(worker, layout, retry, log).ConfigureAwait(false);
         var store = new PreStateStore(dataDirectory);
-        if (firmware is { IsSupported: true })
+        var layoutVerified = layout.Status == Device.Config.DeviceStatus.WriteVerified;
+        if (firmware is { IsSupported: true } && layoutVerified)
         {
             await BackUpOnceAsync(worker, retry, log, store, firmware, now ?? (() => DateTimeOffset.Now)).ConfigureAwait(false);
         }
@@ -38,7 +39,8 @@ public static class WriteAccessBootstrap
             PreStateSaved: firmware is not null && HasValidSnapshot(store, firmware, log),
             DryRun: dryRun,
             PortAvailable: portAvailable,
-            PersistedLockReason: ReadPersistedLock(dataDirectory, log, out var writeLock));
+            PersistedLockReason: ReadPersistedLock(dataDirectory, log, out var writeLock),
+            LayoutVerified: layoutVerified);
         return new WriteAccessSetup(firmware, new EcGateway(worker, policy, log, writeLock.Lock, retry));
     }
 

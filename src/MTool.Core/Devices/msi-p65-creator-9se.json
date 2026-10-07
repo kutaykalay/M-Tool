@@ -3,7 +3,7 @@
   "id": "msi-p65-creator-9se",
   "displayName": "MSI P65 Creator 9SE",
   "status": "writeVerified",
-  "firmware": { "exact": ["16Q4EMS2.107"], "family": "16Q4EMS2.1" },
+  "firmware": { "exact": ["16Q4EMS2.107"], "families": ["16Q4EMS2.1"] },
   "interface": "wmi1",
   "firmwareLocation": { "version": "0xA0", "versionLength": 12, "date": "0xAC", "dateLength": 8 },
   "fans": [

@@ -24,9 +24,12 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
     private bool PortAvailable => setup.Gateway.IsPortAvailable;
 
     public DeviceAccess Access => setup.Gateway.LockReason is { } reason
-        ? new DeviceAccess(setup.Firmware, WriteMode.Locked, reason, PortAvailable, layout.Capabilities, setup.Match)
+        ? new DeviceAccess(setup.Firmware, WriteMode.Locked, reason, PortAvailable, layout.Capabilities, setup.Match, ExperimentalRecord)
         : new DeviceAccess(
-            setup.Firmware, setup.Gateway.IsDryRun ? WriteMode.DryRun : WriteMode.Enabled, null, PortAvailable, layout.Capabilities, setup.Match);
+            setup.Firmware, setup.Gateway.IsDryRun ? WriteMode.DryRun : WriteMode.Enabled, null, PortAvailable, layout.Capabilities,
+            setup.Match, ExperimentalRecord);
+
+    private string? ExperimentalRecord => layout.Status == Config.DeviceStatus.WriteVerified ? null : layout.DisplayName;
 
     public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default) =>
         worker.RunAsync(ec => new P65Device(ec, layout).ReadSensors(), cancellationToken);

@@ -92,7 +92,7 @@ internal sealed class EcSession : IDisposable
         try
         {
             var firmware = ReadFirmware(catalog, ecLock, log, accessGate);
-            var selection = DeviceSelection.Choose(firmware, catalog, EmbeddedDevices.P65Id);
+            var selection = DeviceSelection.Choose(firmware, catalog, EmbeddedDevices.Wmi1GenericId);
             var usePort = backend == EcBackends.Hybrid && selection.PortAllowed;
             if (usePort && PawnIoInstallation.InstalledVersion() is null)
             {

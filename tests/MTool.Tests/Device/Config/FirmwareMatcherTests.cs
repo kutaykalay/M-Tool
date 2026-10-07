@@ -42,7 +42,7 @@ public class FirmwareMatcherTests
     [Fact]
     public void An_exact_match_wins_over_another_records_family()
     {
-        var family = Draft() with { Id = "family-only", Firmware = new FirmwareSpec([], "16Q4EMS2.1") };
+        var family = Draft() with { Id = "family-only", Firmware = new FirmwareSpec([], ["16Q4EMS2.1"]) };
 
         FirmwareMatcher.Match(new FirmwareInfo("16Q4EMS2.107", ""), [family, P65()]).RecordId.Should().Be("msi-p65-creator-9se");
     }
@@ -67,7 +67,7 @@ public class FirmwareMatcherTests
     [Fact]
     public void A_later_record_can_match()
     {
-        var other = Draft() with { Id = "other", Firmware = new FirmwareSpec([], "1541EMS1.1") };
+        var other = Draft() with { Id = "other", Firmware = new FirmwareSpec([], ["1541EMS1.1"]) };
 
         FirmwareMatcher.Match(new FirmwareInfo("1541EMS1.115", ""), [P65(), other]).RecordId.Should().Be("other");
     }

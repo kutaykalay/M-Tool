@@ -55,7 +55,8 @@ public sealed record DeviceCapabilities(
         return restricted;
     }
 
-    private static PerformanceMode? ModeOf(string id) => id switch
+    /// <summary>The mode a record's mode id names; null for one M-Tool has no name for yet.</summary>
+    internal static PerformanceMode? ModeOf(string id) => id switch
     {
         "high" => PerformanceMode.High,
         "balanced" => PerformanceMode.Balanced,

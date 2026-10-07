@@ -1,0 +1,384 @@
+{
+  "schemaVersion": 1,
+  "id": "msi-wmi1-generic",
+  "displayName": "MSI WMI1 (generic)",
+  "status": "draft",
+  "firmware": {
+    "exact": [],
+    "families": []
+  },
+  "interface": "wmi1",
+  "firmwareLocation": {
+    "version": "0xA0",
+    "versionLength": 12,
+    "date": "0xAC",
+    "dateLength": 8
+  },
+  "fans": [
+    {
+      "id": "cpu",
+      "temperature": "0x68",
+      "speedPercent": "0x71",
+      "rpmHigh": "0xCC",
+      "upThresholds": {
+        "start": "0x6A",
+        "count": 6
+      },
+      "speeds": {
+        "start": "0x72",
+        "count": 7
+      },
+      "factoryDownOffsets": null,
+      "factoryCurve": null
+    },
+    {
+      "id": "gpu",
+      "temperature": "0x80",
+      "speedPercent": "0x89",
+      "rpmHigh": "0xCA",
+      "upThresholds": {
+        "start": "0x82",
+        "count": 6
+      },
+      "speeds": {
+        "start": "0x8A",
+        "count": 7
+      },
+      "factoryDownOffsets": null,
+      "factoryCurve": null
+    }
+  ],
+  "features": {
+    "coolerBoost": {
+      "register": "0x98",
+      "bit": 7
+    },
+    "chargeLimit": {
+      "register": "0xEF",
+      "enableBit": 7,
+      "min": 50,
+      "max": 100
+    },
+    "performanceMode": {
+      "register": "0xF2",
+      "modes": [
+        {
+          "id": "high",
+          "value": "0xC0"
+        },
+        {
+          "id": "balanced",
+          "value": "0xC1"
+        },
+        {
+          "id": "eco",
+          "value": "0xC2"
+        }
+      ]
+    },
+    "fanMode": {
+      "register": "0xF4",
+      "auto": "0x0D",
+      "advanced": "0x8D"
+    }
+  },
+  "wmi1": {
+    "fields": [
+      {
+        "register": "0xA0",
+        "class": "MSI_Software",
+        "index": 6
+      },
+      {
+        "register": "0xA1",
+        "class": "MSI_Software",
+        "index": 7
+      },
+      {
+        "register": "0xA2",
+        "class": "MSI_Software",
+        "index": 8
+      },
+      {
+        "register": "0xA3",
+        "class": "MSI_Software",
+        "index": 9
+      },
+      {
+        "register": "0xA4",
+        "class": "MSI_Software",
+        "index": 10
+      },
+      {
+        "register": "0xA5",
+        "class": "MSI_Software",
+        "index": 11
+      },
+      {
+        "register": "0xA6",
+        "class": "MSI_Software",
+        "index": 12
+      },
+      {
+        "register": "0xA7",
+        "class": "MSI_Software",
+        "index": 13
+      },
+      {
+        "register": "0xA8",
+        "class": "MSI_Software",
+        "index": 14
+      },
+      {
+        "register": "0xA9",
+        "class": "MSI_Software",
+        "index": 15
+      },
+      {
+        "register": "0xAA",
+        "class": "MSI_Software",
+        "index": 16
+      },
+      {
+        "register": "0xAB",
+        "class": "MSI_Software",
+        "index": 17
+      },
+      {
+        "register": "0xAC",
+        "class": "MSI_Software",
+        "index": 18
+      },
+      {
+        "register": "0xAD",
+        "class": "MSI_Software",
+        "index": 19
+      },
+      {
+        "register": "0xAE",
+        "class": "MSI_Software",
+        "index": 20
+      },
+      {
+        "register": "0xAF",
+        "class": "MSI_Software",
+        "index": 21
+      },
+      {
+        "register": "0xB0",
+        "class": "MSI_Software",
+        "index": 22
+      },
+      {
+        "register": "0xB1",
+        "class": "MSI_Software",
+        "index": 23
+      },
+      {
+        "register": "0xB2",
+        "class": "MSI_Software",
+        "index": 24
+      },
+      {
+        "register": "0xB3",
+        "class": "MSI_Software",
+        "index": 25
+      },
+      {
+        "register": "0x68",
+        "class": "MSI_CPU",
+        "index": 1
+      },
+      {
+        "register": "0x71",
+        "class": "MSI_CPU",
+        "index": 2
+      },
+      {
+        "register": "0x6A",
+        "class": "MSI_CPU",
+        "index": 5
+      },
+      {
+        "register": "0x6B",
+        "class": "MSI_CPU",
+        "index": 6
+      },
+      {
+        "register": "0x6C",
+        "class": "MSI_CPU",
+        "index": 7
+      },
+      {
+        "register": "0x6D",
+        "class": "MSI_CPU",
+        "index": 8
+      },
+      {
+        "register": "0x6E",
+        "class": "MSI_CPU",
+        "index": 9
+      },
+      {
+        "register": "0x6F",
+        "class": "MSI_CPU",
+        "index": 10
+      },
+      {
+        "register": "0x72",
+        "class": "MSI_CPU",
+        "index": 11
+      },
+      {
+        "register": "0x73",
+        "class": "MSI_CPU",
+        "index": 12
+      },
+      {
+        "register": "0x74",
+        "class": "MSI_CPU",
+        "index": 13
+      },
+      {
+        "register": "0x75",
+        "class": "MSI_CPU",
+        "index": 14
+      },
+      {
+        "register": "0x76",
+        "class": "MSI_CPU",
+        "index": 15
+      },
+      {
+        "register": "0x77",
+        "class": "MSI_CPU",
+        "index": 16
+      },
+      {
+        "register": "0x78",
+        "class": "MSI_CPU",
+        "index": 17
+      },
+      {
+        "register": "0x80",
+        "class": "MSI_VGA",
+        "index": 1
+      },
+      {
+        "register": "0x89",
+        "class": "MSI_VGA",
+        "index": 2
+      },
+      {
+        "register": "0x82",
+        "class": "MSI_VGA",
+        "index": 5
+      },
+      {
+        "register": "0x83",
+        "class": "MSI_VGA",
+        "index": 6
+      },
+      {
+        "register": "0x84",
+        "class": "MSI_VGA",
+        "index": 7
+      },
+      {
+        "register": "0x85",
+        "class": "MSI_VGA",
+        "index": 8
+      },
+      {
+        "register": "0x86",
+        "class": "MSI_VGA",
+        "index": 9
+      },
+      {
+        "register": "0x87",
+        "class": "MSI_VGA",
+        "index": 10
+      },
+      {
+        "register": "0x8A",
+        "class": "MSI_VGA",
+        "index": 11
+      },
+      {
+        "register": "0x8B",
+        "class": "MSI_VGA",
+        "index": 12
+      },
+      {
+        "register": "0x8C",
+        "class": "MSI_VGA",
+        "index": 13
+      },
+      {
+        "register": "0x8D",
+        "class": "MSI_VGA",
+        "index": 14
+      },
+      {
+        "register": "0x8E",
+        "class": "MSI_VGA",
+        "index": 15
+      },
+      {
+        "register": "0x8F",
+        "class": "MSI_VGA",
+        "index": 16
+      },
+      {
+        "register": "0x90",
+        "class": "MSI_VGA",
+        "index": 17
+      },
+      {
+        "register": "0xCD",
+        "class": "MSI_AP",
+        "index": 2
+      },
+      {
+        "register": "0xCC",
+        "class": "MSI_AP",
+        "index": 3
+      },
+      {
+        "register": "0xCB",
+        "class": "MSI_AP",
+        "index": 4
+      },
+      {
+        "register": "0xCA",
+        "class": "MSI_AP",
+        "index": 5
+      },
+      {
+        "register": "0xF2",
+        "class": "MSI_System",
+        "index": 7
+      },
+      {
+        "register": "0xF4",
+        "class": "MSI_System",
+        "index": 9
+      }
+    ]
+  },
+  "portRegisters": [
+    "0x98",
+    "0xEF"
+  ],
+  "limits": {
+    "minUpThresholdC": 30,
+    "maxUpThresholdC": 95,
+    "maxSpeedPercent": 100
+  },
+  "presets": [],
+  "sources": [
+    "Family A of docs (Intel 10th gen and older, WMI1): the P65 Creator 9SE's verified addresses and WMI1 layout, assumed for other models until reports confirm them",
+    "msi-ec d7fbbd8, CONF_G1_0 to CONF_G1_13 (cross-check: firmware at 0xA0, Cooler Boost 0x98 bit 7, modes 0xF2/0xF4, charge limit 0xEF)",
+    "YAMDCC da7d9d8, Generic 9th-gen configs (cross-check of the fan table addresses)"
+  ]
+}

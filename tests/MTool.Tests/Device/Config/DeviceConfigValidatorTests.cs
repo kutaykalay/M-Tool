@@ -226,7 +226,7 @@ public class DeviceConfigValidatorTests
     [Fact]
     public void Rejects_write_verified_without_an_exact_firmware()
     {
-        Rejects(P65() with { Firmware = new FirmwareSpec([], "16Q4EMS2.1") }, "*writeVerified*");
+        Rejects(P65() with { Firmware = new FirmwareSpec([], ["16Q4EMS2.1"]) }, "*writeVerified*");
     }
 
     [Fact]
@@ -243,13 +243,13 @@ public class DeviceConfigValidatorTests
     [InlineData("16Q4EMS1.107")]
     public void Rejects_an_exact_firmware_of_the_wrong_length_or_family(string firmware)
     {
-        Rejects(P65() with { Firmware = new FirmwareSpec([firmware], "16Q4EMS2.1") }, $"*{firmware}*");
+        Rejects(P65() with { Firmware = new FirmwareSpec([firmware], ["16Q4EMS2.1"]) }, $"*{firmware}*");
     }
 
     [Fact]
     public void Rejects_a_firmware_listed_twice()
     {
-        Rejects(P65() with { Firmware = new FirmwareSpec([P65Golden.Firmware, P65Golden.Firmware], "16Q4EMS2.1") },
+        Rejects(P65() with { Firmware = new FirmwareSpec([P65Golden.Firmware, P65Golden.Firmware], ["16Q4EMS2.1"]) },
             $"*{P65Golden.Firmware}*");
     }
 
@@ -258,7 +258,7 @@ public class DeviceConfigValidatorTests
     [InlineData("16Q4EMS2.10")]
     public void Rejects_a_family_that_is_not_ten_characters(string family)
     {
-        Rejects(P65() with { Firmware = new FirmwareSpec([], family), Status = DeviceStatus.Draft, Presets = [] }, "*family*");
+        Rejects(P65() with { Firmware = new FirmwareSpec([], [family]), Status = DeviceStatus.Draft, Presets = [] }, "*families*");
     }
 
     [Fact]
@@ -505,7 +505,7 @@ public class DeviceConfigValidatorTests
     [Fact]
     public void Rejects_write_verified_on_a_firmware_outside_the_code_allow_list()
     {
-        Rejects(P65() with { Firmware = new FirmwareSpec(["16Q4EMS2.108"], "16Q4EMS2.1") }, "*16Q4EMS2.108*kodda*");
+        Rejects(P65() with { Firmware = new FirmwareSpec(["16Q4EMS2.108"], ["16Q4EMS2.1"]) }, "*16Q4EMS2.108*kodda*");
     }
 
     [Fact]
@@ -528,7 +528,7 @@ public class DeviceConfigValidatorTests
         Rejects(P65() with { DisplayName = text }, "*displayName*kontrol karakteri*");
         Rejects(P65() with { Sources = [text] }, "*sources*kontrol karakteri*");
         Rejects(P65() with { Presets = [P65().Presets[0] with { Name = text }] }, "*preset adı*kontrol karakteri*");
-        Rejects(P65() with { Firmware = new FirmwareSpec([text], "16Q4EMS2.1") }, "*firmware*kontrol karakteri*");
+        Rejects(P65() with { Firmware = new FirmwareSpec([text], ["16Q4EMS2.1"]) }, "*firmware*kontrol karakteri*");
     }
 
     [Theory]

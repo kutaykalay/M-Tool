@@ -50,6 +50,9 @@ public sealed partial class StatusViewModel(INotifier notifier, IUiDispatcher ui
                 ("Deneme modu: seçimler kontrol ediliyor ama dizüstüne uygulanmıyor. Gerçek uygulama için " +
                     "settings.json'da \"dryRun\": false yapın.", MessageKind.Info),
             { Firmware: null } => ($"Firmware sürümü okunamadı. {ReadOnlyNote}", MessageKind.Warning),
+            { ExperimentalRecord: { } record } =>
+                ($"Deneysel: bu firmware ({access.Firmware.Version}) {record} kaydıyla okunuyor; değerler bu modelde doğrulanmadı ve yanlış olabilir. {ReadOnlyNote}",
+                    MessageKind.Warning),
             { Firmware.IsSupported: false, Match: { Kind: MatchKind.Family } match } =>
                 ($"Bu firmware ({access.Firmware.Version}) {match.DisplayName} ailesinden, ama ayar değiştirme için doğrulanmadı. {ReadOnlyNote}",
                     MessageKind.Warning),

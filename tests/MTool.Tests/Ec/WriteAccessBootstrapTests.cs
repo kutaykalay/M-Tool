@@ -30,6 +30,22 @@ public sealed class WriteAccessBootstrapTests : IDisposable
         _worker, TestLayouts.P65, _folder, dryRun, portAvailable, _log, EcAccessRetry.Default with { Sleep = _sleeps.Add }, () => Now);
 
     [Fact]
+    public async Task A_session_read_with_a_draft_record_never_opens_writes_even_on_the_verified_firmware()
+    {
+        // The P65 whose first firmware read failed: the session fell back to the generic draft record.
+        var generic = DeviceLayout.From(MTool.Core.Device.Config.DeviceConfigLoader.LoadEmbedded(new ListLog())
+            .Single(c => c.Id == EmbeddedDevices.Wmi1GenericId)).WithoutPortFeatures();
+
+        var setup = await WriteAccessBootstrap.CreateAsync(
+            _worker, generic, _folder, dryRun: false, portAvailable: false, _log, EcAccessRetry.Default with { Sleep = _sleeps.Add }, () => Now);
+
+        setup.Firmware!.Version.Should().Be("16Q4EMS2.107");
+        setup.Gateway.IsWriteEnabled.Should().BeFalse();
+        setup.Gateway.LockReason.Should().Contain("doğrulanmamış");
+        File.Exists(PreStatePath).Should().BeFalse("no backup is taken for a session that cannot write");
+    }
+
+    [Fact]
     public async Task Without_a_port_the_gateway_opens_but_refuses_port_plans()
     {
         var setup = await CreateAsync(portAvailable: false);

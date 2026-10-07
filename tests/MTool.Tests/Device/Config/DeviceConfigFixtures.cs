@@ -11,7 +11,7 @@ internal static class DeviceConfigFixtures
         Id: "msi-p65-creator-9se",
         DisplayName: "MSI P65 Creator 9SE",
         Status: DeviceStatus.WriteVerified,
-        Firmware: new FirmwareSpec([P65Golden.Firmware], "16Q4EMS2.1"),
+        Firmware: new FirmwareSpec([P65Golden.Firmware], ["16Q4EMS2.1"]),
         Interface: WmiInterface.Wmi1,
         FirmwareLocation: new FirmwareLocation(
             P65Golden.FirmwareVersion, P65Golden.FirmwareVersionLength, P65Golden.FirmwareDate, P65Golden.FirmwareDateLength),
@@ -37,7 +37,7 @@ internal static class DeviceConfigFixtures
     {
         Id = "draft-test",
         Status = DeviceStatus.Draft,
-        Firmware = new FirmwareSpec([], "16Q4EMS9.1"),
+        Firmware = new FirmwareSpec([], ["16Q4EMS9.1"]),
         Fans = [CpuFan() with { FactoryDownOffsets = null, FactoryCurve = null }],
         Presets = [],
     };

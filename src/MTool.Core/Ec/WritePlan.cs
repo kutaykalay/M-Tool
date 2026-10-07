@@ -16,8 +16,13 @@ public sealed record WritePlan(string Description, IReadOnlyList<RegisterWrite> 
 /// them are refused before any EC access and recovery never reaches for Cooler Boost.
 /// </param>
 /// <param name="PersistedLockReason">Set when an earlier session's write failed; writes stay locked until cleared by hand.</param>
+/// <param name="LayoutVerified">
+/// The session reads with a record verified for writes. False when it fell back to a draft record
+/// (unknown model, or the firmware could not be read when the session opened): then nothing is
+/// written, even if the firmware read later is the verified one.
+/// </param>
 public sealed record WritePolicy(
-    bool FirmwareSupported, bool PreStateSaved, bool DryRun, bool PortAvailable, string? PersistedLockReason = null);
+    bool FirmwareSupported, bool PreStateSaved, bool DryRun, bool PortAvailable, string? PersistedLockReason = null, bool LayoutVerified = true);
 
 public enum WriteStatus
 {

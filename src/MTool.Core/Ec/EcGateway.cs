@@ -81,7 +81,8 @@ public sealed class EcGateway
         new(ec, _retry, message => SafeLog(log => log.Warn(message)));
 
     private static string? InitialLockReason(WritePolicy policy) =>
-        !policy.FirmwareSupported ? $"bu firmware desteklenmiyor (yalnızca {EcMap.SupportedFirmware})."
+        !policy.LayoutVerified ? "değerler doğrulanmamış bir cihaz kaydıyla okunuyor; M-Tool'u yeniden başlatın."
+        : !policy.FirmwareSupported ? $"bu firmware desteklenmiyor (yalnızca {EcMap.SupportedFirmware})."
         : !policy.PreStateSaved ? "ilk açılışta alınan ayar yedeği bulunamadı ya da bozuk."
         : policy.PersistedLockReason;
 

@@ -10,6 +10,28 @@ public sealed record FanPoint(int UpThresholdC, int SpeedPercent);
 
 public sealed record FanCurve(IReadOnlyList<FanPoint> Points)
 {
+    private const int TablePoints = 7;
+    private const int MinPlausibleThresholdC = 20;
+    private const int MaxPlausibleThresholdC = 110;
+    private const int MaxPlausibleSpeedPercent = 150;
+
+    /// <summary>
+    /// Whether a table read from the EC can be a fan table at all: seven points, the six thresholds
+    /// after the idle point rising within 20-110 °C, every speed 0-150 % (YAMDCC's ceiling). Not a safety check for writes
+    /// (<c>CurveValidator</c> is): it tells nonsense read with an unverified map from a real table.
+    /// </summary>
+    public bool IsPlausible()
+    {
+        if (Points.Count != TablePoints || Points.Any(p => p.SpeedPercent is < 0 or > MaxPlausibleSpeedPercent))
+        {
+            return false;
+        }
+
+        var thresholds = Points.Skip(1).Select(p => p.UpThresholdC).ToArray();
+        return thresholds.All(t => t is >= MinPlausibleThresholdC and <= MaxPlausibleThresholdC)
+            && thresholds.Zip(thresholds.Skip(1)).All(pair => pair.First < pair.Second);
+    }
+
     /// <summary>Builds a curve from (up, speed) steps.</summary>
     public static FanCurve Of(params (int Up, int Speed)[] steps) =>
         new(Array.AsReadOnly(steps.Select(s => new FanPoint(s.Up, s.Speed)).ToArray()));

@@ -52,7 +52,7 @@ public class DeviceSelectionTests
     [Fact]
     public void The_verified_firmware_reached_only_by_family_gets_no_port()
     {
-        var p65WithoutIt = P65() with { Firmware = new FirmwareSpec(["16Q4EMS2.106"], "16Q4EMS2.1") };
+        var p65WithoutIt = P65() with { Firmware = new FirmwareSpec(["16Q4EMS2.106"], ["16Q4EMS2.1"]) };
 
         var selection = DeviceSelection.Choose(new FirmwareInfo("16Q4EMS2.107", ""), [p65WithoutIt], P65().Id);
 
@@ -74,7 +74,7 @@ public class DeviceSelectionTests
     [Fact]
     public void An_exact_match_on_a_firmware_outside_the_code_allowlist_gets_no_port()
     {
-        var other = P65() with { Id = "other", Firmware = new FirmwareSpec(["1541EMS1.115"], null) };
+        var other = P65() with { Id = "other", Firmware = new FirmwareSpec(["1541EMS1.115"], []) };
 
         var selection = DeviceSelection.Choose(new FirmwareInfo("1541EMS1.115", ""), [P65(), other], P65().Id);
 

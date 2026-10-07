@@ -97,7 +97,7 @@ public class DeviceConfigLoaderTests
     {
         var configs = DeviceConfigLoader.LoadEmbedded(_log);
 
-        configs.Select(c => c.Id).Should().Equal("msi-p65-creator-9se");
+        configs.Select(c => c.Id).Should().BeEquivalentTo("msi-p65-creator-9se", "msi-wmi1-generic", "msi-wmi1-legacy");
         _log.Lines.Should().BeEmpty();
     }
 

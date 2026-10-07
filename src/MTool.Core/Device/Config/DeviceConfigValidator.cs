@@ -73,7 +73,7 @@ public static partial class DeviceConfigValidator
             .Select(g => new ConfigConflict(g.Key, $"id \"{ConfigText.Show(g.Key)}\" birden çok kayıtta var."));
 
         var sameFirmware = Shared(configs.SelectMany(c => c.Firmware.Exact.Select(firmware => (Key: firmware, c.Id))), "firmware");
-        var sameFamily = Shared(configs.Where(c => c.Firmware.Family is not null).Select(c => (Key: c.Firmware.Family!, c.Id)), "aile");
+        var sameFamily = Shared(configs.SelectMany(c => c.Firmware.Families.Distinct(StringComparer.Ordinal).Select(family => (Key: family, c.Id))), "aile");
 
         return [.. sameId.Concat(sameFirmware).Concat(sameFamily).DistinctBy(c => c.Id)];
     }
@@ -150,7 +150,7 @@ public static partial class DeviceConfigValidator
 
     private static void CheckFirmware(DeviceConfig config, List<string> errors)
     {
-        var (exact, family) = (config.Firmware.Exact, config.Firmware.Family);
+        var (exact, families) = (config.Firmware.Exact, config.Firmware.Families);
         var location = config.FirmwareLocation;
 
         if (location.VersionLength < 1 || location.DateLength < 1
@@ -159,18 +159,23 @@ public static partial class DeviceConfigValidator
             errors.Add("firmwareLocation geçersiz: uzunluklar en az 1 olmalı ve 0xFF'i aşmamalı.");
         }
 
-        if (family is not null)
+        foreach (var family in families)
         {
-            CheckText("firmware.family", family, errors);
+            CheckText("firmware.families", family, errors);
             if (family.Length != FamilyLength)
             {
-                errors.Add($"firmware.family \"{ConfigText.Show(family)}\" {FamilyLength} karakter olmalı.");
+                errors.Add($"firmware.families \"{ConfigText.Show(family)}\" {FamilyLength} karakter olmalı.");
             }
+        }
+
+        foreach (var duplicate in Duplicates(families))
+        {
+            errors.Add($"aile \"{ConfigText.Show(duplicate)}\" iki kez yazılmış.");
         }
 
         foreach (var firmware in exact)
         {
-            CheckExactFirmware(firmware, family, config, errors);
+            CheckExactFirmware(firmware, families, config, errors);
         }
 
         foreach (var duplicate in Duplicates(exact))
@@ -184,7 +189,7 @@ public static partial class DeviceConfigValidator
         }
     }
 
-    private static void CheckExactFirmware(string firmware, string? family, DeviceConfig config, List<string> errors)
+    private static void CheckExactFirmware(string firmware, IReadOnlyList<string> families, DeviceConfig config, List<string> errors)
     {
         CheckText("firmware", firmware, errors);
         var shown = ConfigText.Show(firmware);
@@ -193,9 +198,9 @@ public static partial class DeviceConfigValidator
         {
             errors.Add($"firmware \"{shown}\" {config.FirmwareLocation.VersionLength} karakter olmalı.");
         }
-        else if (family is not null && !firmware.StartsWith(family, StringComparison.Ordinal))
+        else if (families.Count > 0 && !families.Any(family => firmware.StartsWith(family, StringComparison.Ordinal)))
         {
-            errors.Add($"firmware \"{shown}\" \"{ConfigText.Show(family)}\" ailesinde değil.");
+            errors.Add($"firmware \"{shown}\" kaydın ailelerinde değil ({string.Join(", ", families.Select(ConfigText.Show))}).");
         }
 
         if (config.Status == DeviceStatus.WriteVerified && !WriteVerifiedFirmware.Contains(firmware))

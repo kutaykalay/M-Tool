@@ -19,6 +19,7 @@ public sealed partial class ControlsViewModel : ObservableObject
     private readonly IP65Control _control;
     private readonly StatusViewModel _status;
     private ControlState? _shown;
+    private bool _tableImplausible; // a draft record's map may read nonsense
     private byte _performanceRaw;
     private bool _portStateKnown;
     private int _refreshes;
@@ -63,7 +64,7 @@ public sealed partial class ControlsViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(ActiveProfileLabel))]
     public partial string? ActiveProfile { get; private set; }
 
-    public string ActiveProfileLabel => ActiveProfile ?? "Tanınmayan fan ayarı";
+    public string ActiveProfileLabel => ActiveProfile ?? (_tableImplausible ? "Okunan fan tablosu makul değil" : "Tanınmayan fan ayarı");
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PerformanceLabel))]
@@ -174,6 +175,14 @@ public sealed partial class ControlsViewModel : ObservableObject
 
     private void ShowDrift(ControlState state)
     {
+        // Nothing is ever written with a draft record, so its drift would never go away. A verified
+        // record locked for another reason (a failed write) still shows it.
+        if (_control.Access.ExperimentalRecord is not null)
+        {
+            _status.SetDrift(new StateDrift(false, false, false, false), dryRun: false);
+            return;
+        }
+
         // A part the device lacks is never written (P65Control.ApplyDesiredAsync), so it is no drift either.
         var (desired, catalog) = _service.DesiredWithCatalog;
         var supported = _control.Access.Capabilities.Restrict(desired);
@@ -235,6 +244,7 @@ public sealed partial class ControlsViewModel : ObservableObject
     private void Show(ControlState state)
     {
         _shown = state;
+        _tableImplausible = !state.FanCurves.Cpu.IsPlausible() || !state.FanCurves.Gpu.IsPlausible();
         _performanceRaw = state.PerformanceRaw;
         ActiveProfile = MatchedProfileName(state);
         ActivePerformance = state.Performance;

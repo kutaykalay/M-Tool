@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using MTool.Core.Device.Config;
 
 namespace MTool.Core.Device;
@@ -14,9 +15,12 @@ public sealed class DeviceLayout
     private const string CpuFanId = "cpu";
     private const string GpuFanId = "gpu";
 
+    private readonly FrozenDictionary<byte, PerformanceMode> _performanceModes;
+    private readonly FrozenDictionary<byte, FanMode> _fanModes;
+
     private DeviceLayout(DeviceConfig config, FanRegisters cpu, FanRegisters gpu, FeatureSet features, Wmi1Layout wmi)
     {
-        Id = config.Id;
+        (Id, DisplayName, Status) = (config.Id, config.DisplayName, config.Status);
         Firmware = config.FirmwareLocation;
         CpuFan = cpu;
         GpuFan = gpu;
@@ -26,6 +30,16 @@ public sealed class DeviceLayout
         FanMode = features.FanMode!.Register;
         Wmi = WmiFieldMap.From(config, wmi);
         Capabilities = DeviceCapabilities.From(config);
+        _performanceModes = features.PerformanceMode!.Modes
+            .Select(m => (m.Value, Mode: DeviceCapabilities.ModeOf(m.Id)))
+            .Where(m => m.Mode is not null)
+            .ToFrozenDictionary(m => m.Value, m => m.Mode!.Value);
+        // "Device.FanMode": the enum, not this class's FanMode register property.
+        _fanModes = new Dictionary<byte, FanMode>
+        {
+            [features.FanMode!.Auto] = Device.FanMode.Auto,
+            [features.FanMode.Advanced] = Device.FanMode.Advanced,
+        }.ToFrozenDictionary();
         WatchedRegisters = Array.AsReadOnly(
             [.. new[] { cpu, gpu }.SelectMany(TableRegisters).Append(PerformanceMode).Append(FanMode).Order()]);
     }
@@ -33,14 +47,21 @@ public sealed class DeviceLayout
     /// <summary>A copy with other capabilities; registers and maps are shared, both are immutable.</summary>
     private DeviceLayout(DeviceLayout source, DeviceCapabilities capabilities)
     {
-        (Id, Firmware, CpuFan, GpuFan) = (source.Id, source.Firmware, source.CpuFan, source.GpuFan);
+        (Id, DisplayName, Status) = (source.Id, source.DisplayName, source.Status);
+        (Firmware, CpuFan, GpuFan) = (source.Firmware, source.CpuFan, source.GpuFan);
         (CoolerBoost, ChargeLimit, PerformanceMode, FanMode) = (source.CoolerBoost, source.ChargeLimit, source.PerformanceMode, source.FanMode);
         (Wmi, WatchedRegisters) = (source.Wmi, source.WatchedRegisters);
+        (_performanceModes, _fanModes) = (source._performanceModes, source._fanModes);
         Capabilities = capabilities;
     }
 
     /// <summary>The record this layout came from, for the log.</summary>
     public string Id { get; }
+
+    public string DisplayName { get; }
+
+    /// <summary>How far the record was checked; anything below write-verified is shown as experimental.</summary>
+    public DeviceStatus Status { get; }
 
     public FirmwareLocation Firmware { get; }
 
@@ -65,6 +86,12 @@ public sealed class DeviceLayout
 
     /// <summary>Both fan tables, performance mode and fan mode, in register order: what a watch compares.</summary>
     public IReadOnlyList<byte> WatchedRegisters { get; }
+
+    /// <summary>The record's performance mode for a byte; null for one it does not list (e.g. 0x80 after a reboot).</summary>
+    public PerformanceMode? DecodePerformance(byte value) => _performanceModes.TryGetValue(value, out var mode) ? mode : null;
+
+    /// <summary>The record's fan mode for a byte; null for anything else.</summary>
+    public FanMode? DecodeFanMode(byte value) => _fanModes.TryGetValue(value, out var mode) ? mode : null;
 
     /// <summary>
     /// For a session without the raw port (an unverified model or firmware): Cooler Boost and the

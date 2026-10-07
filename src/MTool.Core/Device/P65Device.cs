@@ -35,9 +35,9 @@ public sealed class P65Device
         var performance = _ec.Read(_layout.PerformanceMode);
         return new ControlState(
             FanCurves: ReadFanCurves(),
-            Performance: ModeCodes.ToPerformance(performance),
+            Performance: _layout.DecodePerformance(performance),
             PerformanceRaw: performance,
-            FanMode: ModeCodes.ToFanMode(_ec.Read(_layout.FanMode)),
+            FanMode: _layout.DecodeFanMode(_ec.Read(_layout.FanMode)),
             Port: null);
     }
 

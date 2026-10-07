@@ -15,13 +15,15 @@ public enum WriteMode
 /// <param name="PortFeaturesAvailable">Cooler Boost and the charge limit can be read and written (the raw port is open).</param>
 /// <param name="Capabilities">The controls the session's device record has; the UI hides the others.</param>
 /// <param name="Match">Which device record the firmware matched; informational, writes still follow <see cref="FirmwareInfo.IsSupported"/>.</param>
+/// <param name="ExperimentalRecord">The record's name when the values are read with an unverified (draft) record; null otherwise.</param>
 public sealed record DeviceAccess(
     FirmwareInfo? Firmware,
     WriteMode WriteMode,
     string? LockReason,
     bool PortFeaturesAvailable,
     DeviceCapabilities Capabilities,
-    Config.DeviceMatch? Match = null);
+    Config.DeviceMatch? Match = null,
+    string? ExperimentalRecord = null);
 
 /// <summary>
 /// Everything the UI may do with the laptop. No register addresses, no write plans: every write

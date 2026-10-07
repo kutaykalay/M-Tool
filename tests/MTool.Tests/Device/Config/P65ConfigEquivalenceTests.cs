@@ -16,7 +16,7 @@ public class P65ConfigEquivalenceTests
         _p65.Status.Should().Be(DeviceStatus.WriteVerified);
         _p65.Interface.Should().Be(WmiInterface.Wmi1);
         _p65.Firmware.Exact.Should().Equal(P65Golden.Firmware);
-        _p65.Firmware.Family.Should().Be("16Q4EMS2.1");
+        _p65.Firmware.Families.Should().Equal("16Q4EMS2.1");
         _p65.Sources.Should().NotBeEmpty();
     }
 

@@ -20,6 +20,7 @@ internal static class DumpFormatter
         var text = new StringBuilder()
             .AppendLine($"M-Tool EC dump  {DateTime.Now:yyyy-MM-dd HH:mm:ss}")
             .AppendLine($"Firmware   : {firmware.Version} ({firmware.Date}) {FirmwareStatus(firmware, match(firmware))}")
+            .AppendLine($"Kayit      : {layout.DisplayName}{RecordNote(layout)}")
             .AppendLine($"CPU        : {Temp(sensors.CpuTempC)}, fan %{sensors.CpuFanPercent}, {sensors.CpuRpm} RPM")
             .AppendLine($"GPU        : {Temp(sensors.GpuTempC)}, fan %{sensors.GpuFanPercent}, {sensors.GpuRpm} RPM")
             .AppendLine($"Registers  : {string.Join(' ', PortPairs(ec, layout, portOpen).Append(Pair(ec, layout.PerformanceMode)).Append(Pair(ec, layout.FanMode)))}");
@@ -35,13 +36,17 @@ internal static class DumpFormatter
         var steps = curve.Points.Select((p, i) => i == 0
             ? $"0C->%{p.SpeedPercent}"
             : $"{p.UpThresholdC}/{downs[i - 1]}C->%{p.SpeedPercent}");
-        text.AppendLine($"{title} : {string.Join("  ", steps)}");
+        var note = curve.IsPlausible() ? "" : "gecersiz tablo, ";
+        text.AppendLine($"{title} : {note}{string.Join("  ", steps)}");
     }
 
     private static string FirmwareStatus(FirmwareInfo firmware, DeviceMatch match) =>
         firmware.IsSupported ? "destekleniyor"
         : match.Kind == MatchKind.Family ? $"{match.DisplayName} ailesinden, dogrulanmadi, salt okunur"
         : "TANINMIYOR, salt okunur";
+
+    private static string RecordNote(DeviceLayout layout) =>
+        layout.Status == DeviceStatus.WriteVerified ? "" : ", deneysel, dogrulanmadi";
 
     private static string Temp(int? celsius) => celsius is { } value ? $"{value} C" : "gecersiz okuma";
 

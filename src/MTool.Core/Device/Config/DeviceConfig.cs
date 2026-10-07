@@ -50,8 +50,11 @@ public sealed record DeviceConfig(
     IReadOnlyList<string> Sources);
 
 /// <param name="Exact">Full firmware strings this record was checked on; writes need one of these.</param>
-/// <param name="Family">First ten characters (<c>xxxxbMSn.y</c>) shared by related firmware, for read-only matching.</param>
-public sealed record FirmwareSpec(IReadOnlyList<string> Exact, string? Family);
+/// <param name="Families">
+/// First ten characters (<c>xxxxbMSn.y</c>) shared by related firmware, for read-only matching. One
+/// record may cover several models' families; empty when it matches only exactly (or is the fallback).
+/// </param>
+public sealed record FirmwareSpec(IReadOnlyList<string> Exact, IReadOnlyList<string> Families);
 
 /// <summary>Where the EC keeps its firmware version and date strings.</summary>
 public sealed record FirmwareLocation(byte Version, int VersionLength, byte Date, int DateLength);

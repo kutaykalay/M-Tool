@@ -39,7 +39,7 @@ public static class FirmwareMatcher
         }
 
         var family = version.Length >= DeviceConfigValidator.FamilyLength
-            ? catalog.FirstOrDefault(c => c.Firmware.Family is { } f && version.StartsWith(f, StringComparison.Ordinal))
+            ? catalog.FirstOrDefault(c => c.Firmware.Families.Any(f => version.StartsWith(f, StringComparison.Ordinal)))
             : null;
         return family is null ? DeviceMatch.None : new DeviceMatch(MatchKind.Family, family.Id, family.DisplayName);
     }

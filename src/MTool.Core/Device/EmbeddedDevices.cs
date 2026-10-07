@@ -7,6 +7,9 @@ public static class EmbeddedDevices
 {
     public const string P65Id = "msi-p65-creator-9se";
 
+    /// <summary>The draft record an unmatched WMI1 firmware is read with (read-only, no port).</summary>
+    public const string Wmi1GenericId = "msi-wmi1-generic";
+
     /// <exception cref="InvalidOperationException">The embedded P65 record did not load (the reason is logged).</exception>
     public static DeviceLayout LoadP65(IAppLog log) => Find(DeviceConfigLoader.LoadEmbedded(log), P65Id);
 
