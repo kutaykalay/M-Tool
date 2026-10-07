@@ -97,7 +97,7 @@ public class DeviceCapabilitiesTests
 
         restricted.Should().Be(new DesiredState("Cool", Performance: null, ChargeLimitPercent: 80));
         restricted.ToPlans(ProfileCatalog.BuiltIn).Should().NotContain(p => p.Description.Contains("Performans"));
-        warnings.Should().ContainSingle().Which.Should().Contain("Yüksek");
+        warnings.Should().ContainSingle().Which.Should().Contain("\"High\" performance mode");
     }
 
     [Fact]
@@ -108,6 +108,6 @@ public class DeviceCapabilitiesTests
 
         caps.Restrict(new DesiredState("Cool", PerformanceMode.Eco, ChargeLimitPercent: 80), warnings)
             .Should().Be(new DesiredState("Cool", PerformanceMode.Eco, ChargeLimitPercent: null));
-        warnings.Should().ContainSingle().Which.Should().Contain("şarj");
+        warnings.Should().ContainSingle().Which.Should().Contain("charge limit");
     }
 }

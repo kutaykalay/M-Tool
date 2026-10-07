@@ -60,7 +60,7 @@ public class DesiredStateTests
         var desired = new DesiredState("Silent", Performance: null, ChargeLimitPercent: 90, FanMode: null);
 
         desired.ToPlans(Catalog).Select(p => p.Description)
-            .Should().Equal("Fan profili: Silent", "Şarj limiti: %90");
+            .Should().Equal("Fan profile: Silent", "Charge limit: 90%");
     }
 
     [Fact]

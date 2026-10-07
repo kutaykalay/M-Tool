@@ -30,7 +30,7 @@ public class EcTroubleLogTests
         troubleLog.Report(Trouble(EcOperation.Read, 0x80, succeeded: false, failedAttempts: 5));
 
         _log.Lines.Should().ContainSingle().Which.Should()
-            .StartWith("WARN EC: Read 0x80 BAŞARISIZ: #1 NoAnswer").And.Contain("#5 NoAnswer");
+            .StartWith("WARN EC: Read 0x80 FAILED: #1 NoAnswer").And.Contain("#5 NoAnswer");
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class EcTroubleLogTests
 
         troubleLog.Report(Trouble(EcOperation.Write, 0xF2, succeeded: true, failedAttempts: 1));
 
-        _log.Lines.Should().ContainSingle().Which.Should().StartWith("WARN EC: Write 0xF2 kurtarıldı");
+        _log.Lines.Should().ContainSingle().Which.Should().StartWith("WARN EC: Write 0xF2 recovered");
     }
 
     [Fact]
@@ -68,8 +68,8 @@ public class EcTroubleLogTests
         troubleLog.Report(RecoveredRead(0x68, failedAttempts: 1));
 
         _log.Lines.Should().ContainSingle().Which.Should().Be(
-            "INFO EC: son 10 dk'da 4 okuma yeniden denemeyle kurtarıldı " +
-            "(en çok 4 başarısız deneme; 0x68×3, 0x80×1).");
+            "INFO EC: reads recovered by retry in the last 10 min: 4 " +
+            "(most failed attempts in one read: 4; 0x68×3, 0x80×1).");
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public class EcTroubleLogTests
         troubleLog.Flush();
 
         _log.Lines.Should().ContainSingle().Which.Should().EndWith(
-            "(en çok 1 başarısız deneme; 0x68×2, 0x71×2, 0x80×2, 0x89×1, 0xCA×1, …).");
+            "(most failed attempts in one read: 1; 0x68×2, 0x71×2, 0x80×2, 0x89×1, 0xCA×1, …).");
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public class EcTroubleLogTests
 
         _log.Lines.Should().HaveCount(2);
         _log.Lines.Last().Should().Be(
-            "INFO EC: son 1 dk'da 1 okuma yeniden denemeyle kurtarıldı (en çok 1 başarısız deneme; 0x71×1).");
+            "INFO EC: reads recovered by retry in the last 1 min: 1 (most failed attempts in one read: 1; 0x71×1).");
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public class EcTroubleLogTests
         troubleLog.Flush();
         troubleLog.Flush();
 
-        _log.Lines.Should().ContainSingle().Which.Should().StartWith("INFO EC: son 0 dk'da 1 okuma");
+        _log.Lines.Should().ContainSingle().Which.Should().StartWith("INFO EC: reads recovered by retry in the last 0 min: 1 ");
     }
 
     [Fact]

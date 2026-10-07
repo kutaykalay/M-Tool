@@ -9,23 +9,23 @@ public static class WritePlans
     public static WritePlan FanCurves(FanCurves curves, string profileName)
     {
         var writes = TableWrites(EcMap.CpuFan, curves.Cpu).Concat(TableWrites(EcMap.GpuFan, curves.Gpu)).ToArray();
-        return new WritePlan($"Fan profili: {profileName}", Array.AsReadOnly(writes));
+        return new WritePlan($"Fan profile: {profileName}", Array.AsReadOnly(writes));
     }
 
     public static WritePlan CoolerBoost(bool on, byte currentValue)
     {
         var value = on ? currentValue | ModeCodes.CoolerBoostBit : currentValue & ~ModeCodes.CoolerBoostBit;
-        return Single($"Cooler Boost: {(on ? "açık" : "kapalı")}", EcMap.CoolerBoost, (byte)value);
+        return Single($"Cooler Boost: {(on ? "on" : "off")}", EcMap.CoolerBoost, (byte)value);
     }
 
     public static WritePlan ChargeLimit(int percent) =>
-        Single($"Şarj limiti: %{percent}", EcMap.ChargeLimit, ModeCodes.ChargeLimitByte(percent));
+        Single($"Charge limit: {percent}%", EcMap.ChargeLimit, ModeCodes.ChargeLimitByte(percent));
 
     public static WritePlan Performance(PerformanceMode mode) =>
-        Single($"Performans modu: {ModeNames.Of(mode)}", EcMap.PerformanceMode, ModeCodes.PerformanceByte(mode));
+        Single($"Performance mode: {ModeNames.Of(mode)}", EcMap.PerformanceMode, ModeCodes.PerformanceByte(mode));
 
     public static WritePlan Fan(FanMode mode) =>
-        Single($"Fan modu: {ModeNames.Of(mode)}", EcMap.FanMode, ModeCodes.FanModeByte(mode));
+        Single($"Fan mode: {ModeNames.Of(mode)}", EcMap.FanMode, ModeCodes.FanModeByte(mode));
 
     private static WritePlan Single(string description, byte register, byte value) =>
         new(description, [new RegisterWrite(register, value)]);

@@ -52,7 +52,7 @@ public static class WriteAccessBootstrap
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            log.Error("Firmware okunamadı; EC yazma kapalı (salt okunur)", ex);
+            log.Error("Firmware unreadable; EC writes off (read-only)", ex);
             return null;
         }
     }
@@ -71,11 +71,11 @@ public static class WriteAccessBootstrap
             var state = await worker.RunRetryingAsync(ec => PreStateCapture.Read(ec, firmware, now()), retry, log.Warn)
                 .ConfigureAwait(false);
             store.SaveIfMissing(state);
-            log.Info($"M-Tool öncesi durum yedeklendi ({state.Registers.Count} register).");
+            log.Info($"Pre-M-Tool state saved ({state.Registers.Count} registers).");
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            log.Error("M-Tool öncesi durum yedeği alınamadı; EC yazma kapalı (salt okunur)", ex);
+            log.Error("Could not save the pre-M-Tool state; EC writes off (read-only)", ex);
         }
     }
 
@@ -88,7 +88,7 @@ public static class WriteAccessBootstrap
         }
         catch (Exception ex)
         {
-            log.Error("M-Tool öncesi durum yedeği okunamadı; EC yazma kapalı (salt okunur)", ex);
+            log.Error("Could not read the pre-M-Tool state; EC writes off (read-only)", ex);
             return false;
         }
     }
@@ -103,7 +103,7 @@ public static class WriteAccessBootstrap
         catch (Exception ex)
         {
             // Fail closed: an unreadable lock file is treated as a lock.
-            log.Error("Yazma kilidi dosyası okunamadı; EC yazma kapalı", ex);
+            log.Error("Write lock file unreadable; EC writes off", ex);
             return $"kilit dosyası (write-lock.txt) okunamadı ({ex.Message}).";
         }
     }

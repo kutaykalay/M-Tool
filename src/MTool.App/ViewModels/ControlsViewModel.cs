@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MTool.App.Resources;
 using MTool.Core.Device;
 using MTool.Core.Ec;
 using MTool.Core.Profiles;
@@ -32,7 +33,7 @@ public sealed partial class ControlsViewModel : ObservableObject
         var capabilities = control.Access.Capabilities;
         (ShowGpu, ShowFanProfiles, ShowCoolerBoost, ShowChargeLimit) =
             (capabilities.GpuFan, capabilities.FanCurve, capabilities.CoolerBoost, capabilities.ChargeLimit);
-        PerformanceOptions = Array.AsReadOnly([.. capabilities.PerformanceModes.Select(m => new PerformanceOption(m, ModeNames.Of(m)))]);
+        PerformanceOptions = Array.AsReadOnly([.. capabilities.PerformanceModes.Select(m => new PerformanceOption(m, Texts.Mode(m)))]);
         service.CatalogChanged += () => ui.Post(OnCatalogChanged);
     }
 
@@ -71,7 +72,7 @@ public sealed partial class ControlsViewModel : ObservableObject
     public partial PerformanceMode? ActivePerformance { get; private set; }
 
     public string PerformanceLabel =>
-        ActivePerformance is { } mode ? ModeNames.Of(mode) : $"fabrika ayarı (0x{_performanceRaw:X2})";
+        ActivePerformance is { } mode ? Texts.Mode(mode) : $"fabrika ayarı (0x{_performanceRaw:X2})";
 
     /// <summary>Null when the port state is not known.</summary>
     [ObservableProperty]

@@ -15,4 +15,13 @@
   <data name="Main_SectionSensors" xml:space="preserve">
     <value>SENSÖRLER</value>
   </data>
+  <data name="Mode_High" xml:space="preserve">
+    <value>Yüksek</value>
+  </data>
+  <data name="Mode_Balanced" xml:space="preserve">
+    <value>Dengeli</value>
+  </data>
+  <data name="Mode_Eco" xml:space="preserve">
+    <value>Pil</value>
+  </data>
 </root>

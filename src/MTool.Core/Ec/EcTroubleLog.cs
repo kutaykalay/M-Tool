@@ -75,8 +75,8 @@ public sealed class EcTroubleLog
         var more = _recoveredByRegister.Count > RegistersInSummary ? ", …" : string.Empty;
 
         _log.Info(
-            $"EC: son {minutes} dk'da {_recoveredCount} okuma yeniden denemeyle kurtarıldı " +
-            $"(en çok {_mostFailedAttempts} başarısız deneme; {string.Join(", ", busiest)}{more}).");
+            $"EC: reads recovered by retry in the last {minutes} min: {_recoveredCount} " +
+            $"(most failed attempts in one read: {_mostFailedAttempts}; {string.Join(", ", busiest)}{more}).");
 
         _windowStart = now;
         _recoveredCount = 0;

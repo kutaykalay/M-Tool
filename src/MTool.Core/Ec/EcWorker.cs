@@ -106,7 +106,7 @@ public sealed class EcWorker : IDisposable
             }
             catch (Exception ex)
             {
-                _reportError?.Invoke("EC işleminde beklenmeyen hata", ex);
+                _reportError?.Invoke("Unexpected error in an EC operation", ex);
             }
         }
     }
@@ -168,7 +168,7 @@ public sealed class EcWorker : IDisposable
         }
         catch (Exception ex)
         {
-            _reportError?.Invoke("EC kilidi bırakılamadı", ex);
+            _reportError?.Invoke("Could not release the EC lock", ex);
         }
     }
 }

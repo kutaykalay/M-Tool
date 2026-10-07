@@ -140,7 +140,7 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
 
             if (current.ChargeLimitRaw == write.Value)
             {
-                log.Info($"{plan.Description}: EC zaten bu değerde, yazılmadı.");
+                log.Info($"{plan.Description}: EC already has this value, not written.");
                 return null;
             }
 
@@ -203,7 +203,7 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
                 return _port;
             }
 
-            return (await FreshReadLockedAsync("Cooler Boost/şarj limiti", cancellationToken).ConfigureAwait(false)).State;
+            return (await FreshReadLockedAsync("Cooler Boost/charge limit", cancellationToken).ConfigureAwait(false)).State;
         }
         finally
         {
@@ -223,18 +223,18 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
             var state = await worker.RunRetryingAsync(ec => new P65Device(ec, layout).ReadPortState(), _retry, log.Warn, cancellationToken)
                 .ConfigureAwait(false);
             (_port, _portSettled) = (state, true);
-            log.Info($"{what}: port okundu, 0x{layout.CoolerBoost:X2}=0x{state.CoolerBoostRaw:X2} 0x{layout.ChargeLimit:X2}=0x{state.ChargeLimitRaw:X2}");
+            log.Info($"{what}: port read, 0x{layout.CoolerBoost:X2}=0x{state.CoolerBoostRaw:X2} 0x{layout.ChargeLimit:X2}=0x{state.ChargeLimitRaw:X2}");
             return (state, null);
         }
         catch (EcAccessException ex) when (ex.IsAccessPaused)
         {
-            log.Warn($"{what}: port okunmadı, {ex.Message}");
+            log.Warn($"{what}: port not read, {ex.Message}");
             return (null, ex.Message);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             (_port, _portSettled) = (null, false);
-            log.Error($"{what}: port okunamadı", ex);
+            log.Error($"{what}: port read failed", ex);
             return (null, ex.Message);
         }
     }

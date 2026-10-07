@@ -34,8 +34,8 @@ public sealed record EcTransactionTrouble(
     IReadOnlyList<EcFailedAttempt> Attempts)
 {
     public override string ToString() =>
-        $"{Operation} 0x{Register:X2} {(Succeeded ? "kurtarıldı" : "BAŞARISIZ")}: " +
+        $"{Operation} 0x{Register:X2} {(Succeeded ? "recovered" : "FAILED")}: " +
         string.Join(", ", Attempts.Select(a =>
-            $"#{a.Attempt} {a.Kind} durum=0x{a.Status:X2}" +
-            (a.Drained.Count == 0 ? string.Empty : $" boşaltılan=[{string.Join(' ', a.Drained.Select(b => b.ToString("X2")))}]")));
+            $"#{a.Attempt} {a.Kind} status=0x{a.Status:X2}" +
+            (a.Drained.Count == 0 ? string.Empty : $" drained=[{string.Join(' ', a.Drained.Select(b => b.ToString("X2")))}]")));
 }

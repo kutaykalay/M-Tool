@@ -364,7 +364,7 @@ public sealed class P65ControlTests : IDisposable
         await control.ReadControlStateAsync(PortUse.Allowed);
         await control.ReadControlStateAsync(PortUse.Allowed); // cache: no second line
 
-        _log.Lines.Should().ContainSingle(l => l.StartsWith("INFO") && l.Contains("port okundu") && l.Contains("0x98=0x02 0xEF=0xD0"));
+        _log.Lines.Should().ContainSingle(l => l.StartsWith("INFO") && l.Contains("port read,") && l.Contains("0x98=0x02 0xEF=0xD0"));
     }
 
     // --- writes ---
@@ -479,7 +479,7 @@ public sealed class P65ControlTests : IDisposable
         outcomes.Should().OnlyContain(o => o.Status == WriteStatus.Applied)
             .And.NotContain(o => o.Planned.Any(w => w.Register == 0xF2));
         _ec.Writes.Should().NotContain(w => w.Register == 0xF2);
-        _log.Lines.Should().Contain(l => l.StartsWith("WARN") && l.Contains("Yüksek"));
+        _log.Lines.Should().Contain(l => l.StartsWith("WARN") && l.Contains("\"High\" performance mode"));
     }
 
     [Fact]

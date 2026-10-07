@@ -1,20 +1,20 @@
 namespace MTool.Core.Device;
 
-/// <summary>The modes' names as the window, the tray and plan descriptions show them.</summary>
+/// <summary>The modes' names in plan descriptions and other log text: English in every UI language.</summary>
 public static class ModeNames
 {
     public static string Of(PerformanceMode mode) => mode switch
     {
-        PerformanceMode.High => "Yüksek",
-        PerformanceMode.Balanced => "Dengeli",
-        PerformanceMode.Eco => "Pil",
+        PerformanceMode.High => "High",
+        PerformanceMode.Balanced => "Balanced",
+        PerformanceMode.Eco => "Eco",
         _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null),
     };
 
     public static string Of(FanMode mode) => mode switch
     {
-        FanMode.Auto => "Otomatik",
-        FanMode.Advanced => "Gelişmiş",
+        FanMode.Auto => "Auto",
+        FanMode.Advanced => "Advanced",
         _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null),
     };
 }

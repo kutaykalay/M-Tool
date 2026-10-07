@@ -16,4 +16,16 @@
     <value>SENSORS</value>
     <comment>Main window, section heading. Written in upper case in every language.</comment>
   </data>
+  <data name="Mode_High" xml:space="preserve">
+    <value>High</value>
+    <comment>Performance mode name in the window and the tray menu. Keep close to MSI Center's own label.</comment>
+  </data>
+  <data name="Mode_Balanced" xml:space="preserve">
+    <value>Balanced</value>
+    <comment>Performance mode name in the window and the tray menu. Keep close to MSI Center's own label.</comment>
+  </data>
+  <data name="Mode_Eco" xml:space="preserve">
+    <value>Eco</value>
+    <comment>Performance mode name in the window and the tray menu: the battery-saving mode. Keep close to MSI Center's own label.</comment>
+  </data>
 </root>

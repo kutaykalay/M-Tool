@@ -71,7 +71,7 @@ public sealed class EcGateway
         {
             // ApplyLocked handles every failure after its first write, so this is a failure before
             // any write (lock busy, sleep, unreadable state): nothing changed.
-            SafeLog(log => log.Error($"{snapshot.Description}: yazmadan önce EC erişimi başarısız", ex));
+            SafeLog(log => log.Error($"{snapshot.Description}: EC access failed before writing", ex));
             return Reject(snapshot, $"Dizüstüne ulaşılamadı, hiçbir ayar değişmedi. Biraz sonra tekrar deneyin. ({ex.Message})");
         }
     }
@@ -158,7 +158,7 @@ public sealed class EcGateway
             return Fail(ec, plan, ex.Message, ex, watched);
         }
 
-        SafeLog(log => log.Info($"{plan.Description}: uygulandı ve doğrulandı."));
+        SafeLog(log => log.Info($"{plan.Description}: applied and verified."));
         return new WriteOutcome(WriteStatus.Applied, ordered, "Uygulandı ve doğrulandı.");
     }
 
@@ -238,7 +238,7 @@ public sealed class EcGateway
                 return true;
             }
 
-            SafeLog(log => log.Warn($"{write}: geri okunan 0x{actual:X2} (deneme {attempt}/{WriteAttempts})."));
+            SafeLog(log => log.Warn($"{write}: read back 0x{actual:X2} (attempt {attempt}/{WriteAttempts})."));
         }
 
         return false;
@@ -262,13 +262,13 @@ public sealed class EcGateway
         var boosted = !safe && TryCoolerBoost(ec);
 
         var details = string.Join(' ', new[] { reason, disturbance.Describe(), restored }.Where(t => t.Length > 0));
-        SafeLog(log => log.Error($"{plan.Description}: yazma başarısız, EC yazma kilitlendi. {details}", exception));
+        SafeLog(log => log.Error($"{plan.Description}: write failed, EC writes locked. {details}", exception));
         if (safe)
         {
             return new WriteOutcome(WriteStatus.FailedRecovered, ordered, $"Ayar uygulanamadı. {details}");
         }
 
-        SafeLog(log => log.Error($"Güvenli fan tablosu doğrulanamadı; Cooler Boost {(boosted ? "açıldı" : "da açılamadı")}."));
+        SafeLog(log => log.Error($"Safe fan table not verified; Cooler Boost {(boosted ? "turned on" : "could not be turned on either")}."));
         return new WriteOutcome(WriteStatus.FailedUnrecovered, ordered, $"Ayar uygulanamadı. {details}");
     }
 
@@ -289,12 +289,12 @@ public sealed class EcGateway
         var list = string.Join(' ', restores.Select(w => w.ToString()));
         try
         {
-            SafeLog(log => log.Warn($"Kurtarma: {list} geri yükleniyor."));
+            SafeLog(log => log.Warn($"Recovery: restoring {list}."));
             return restores.All(w => WriteVerified(ec, w)) ? $"Geri yüklendi: {list}." : $"Geri yüklenemedi: {list}.";
         }
         catch (Exception ex)
         {
-            SafeLog(log => log.Error($"Kurtarma: {list} geri yüklenemedi", ex));
+            SafeLog(log => log.Error($"Recovery: could not restore {list}", ex));
             return $"Geri yüklenemedi: {list}.";
         }
     }
@@ -310,13 +310,13 @@ public sealed class EcGateway
             }
 
             // Factory values are known safe, so rewriting them never makes the table worse.
-            SafeLog(log => log.Warn("Kurtarma: fabrika fan tablosu yazılıyor."));
+            SafeLog(log => log.Warn("Recovery: writing the factory fan table."));
             var factory = Ordered(WritePlans.FanCurves(FactoryDefaults.FanCurves, "Default").Writes);
             return factory.All(w => WriteVerified(ec, w)) && factory.All(w => ec.Read(w.Register) == w.Value);
         }
         catch (Exception ex)
         {
-            SafeLog(log => log.Error("Kurtarma: fabrika fan tablosu yazılamadı", ex));
+            SafeLog(log => log.Error("Recovery: could not write the factory fan table", ex));
             return false;
         }
     }
@@ -326,7 +326,7 @@ public sealed class EcGateway
     {
         if (!_policy.PortAvailable)
         {
-            SafeLog(log => log.Error("Kurtarma: port kapalı (yalnızca WMI), Cooler Boost denenmedi."));
+            SafeLog(log => log.Error("Recovery: port closed (WMI only), Cooler Boost not tried."));
             return false;
         }
 
@@ -335,7 +335,7 @@ public sealed class EcGateway
             var (first, second) = (ec.Read(EcMap.CoolerBoost), ec.Read(EcMap.CoolerBoost));
             if (first != second)
             {
-                SafeLog(log => log.Error($"Kurtarma: 0x98 tutarsız okundu (0x{first:X2} / 0x{second:X2}), Cooler Boost yazılmadı."));
+                SafeLog(log => log.Error($"Recovery: 0x98 read inconsistently (0x{first:X2} / 0x{second:X2}), Cooler Boost not written."));
                 return false;
             }
 
@@ -343,7 +343,7 @@ public sealed class EcGateway
         }
         catch (Exception ex)
         {
-            SafeLog(log => log.Error("Kurtarma: Cooler Boost açılamadı", ex));
+            SafeLog(log => log.Error("Recovery: could not turn on Cooler Boost", ex));
             return false;
         }
     }
@@ -356,7 +356,7 @@ public sealed class EcGateway
         }
         catch (Exception ex)
         {
-            SafeLog(log => log.Error("Yazma kilidi kalıcı olarak kaydedilemedi", ex));
+            SafeLog(log => log.Error("Could not save the write lock", ex));
         }
     }
 

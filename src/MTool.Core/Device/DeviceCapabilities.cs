@@ -42,13 +42,13 @@ public sealed record DeviceCapabilities(
         var restricted = desired;
         if (desired.Performance is { } mode && !PerformanceModes.Contains(mode))
         {
-            warnings.Add($"Bu modelde \"{ModeNames.Of(mode)}\" performans modu yok; kayıtlı seçim yok sayıldı.");
+            warnings.Add($"This model has no \"{ModeNames.Of(mode)}\" performance mode; the saved choice was ignored.");
             restricted = restricted with { Performance = null };
         }
 
         if (desired.ChargeLimitPercent is not null && !ChargeLimit)
         {
-            warnings.Add("Bu modelde şarj limiti yok; kayıtlı şarj limiti yok sayıldı.");
+            warnings.Add("This model has no charge limit; the saved charge limit was ignored.");
             restricted = restricted with { ChargeLimitPercent = null };
         }
 

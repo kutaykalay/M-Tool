@@ -158,7 +158,7 @@ public sealed class EcGatewayTests : IDisposable
         outcome.Status.Should().Be(WriteStatus.Applied);
         new P65Device(_ec, TestLayouts.P65).ReadFanCurves().Cpu.Points.Should().Equal(Presets.Cool.Curves.Cpu.Points);
         new P65Device(_ec, TestLayouts.P65).ReadFanCurves().Gpu.Points.Should().Equal(Presets.Cool.Curves.Gpu.Points);
-        _log.Lines.Should().Contain(l => l.Contains("Applied") || l.Contains("uygulandı"));
+        _log.Lines.Should().Contain(l => l.Contains("applied and verified"));
     }
 
     [Fact]
@@ -393,7 +393,7 @@ public sealed class EcGatewayTests : IDisposable
 
         await Gateway().ApplyAsync(WritePlans.Performance(PerformanceMode.Balanced));
 
-        _log.Lines.Where(l => l.StartsWith("WARN ", StringComparison.Ordinal)).Should().ContainSingle().Which.Should().Contain("0xF2").And.Contain("yeniden");
+        _log.Lines.Where(l => l.StartsWith("WARN ", StringComparison.Ordinal)).Should().ContainSingle().Which.Should().Contain("0xF2").And.Contain("retrying");
     }
 
     [Fact]

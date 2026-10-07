@@ -13,7 +13,7 @@ internal class RetryingEcReader(IEcRegisters inner, EcAccessRetry retry, Action<
     private TimeSpan _slept;
 
     public byte Read(byte register) =>
-        Retry($"0x{register:X2} okuma", () => inner.Read(register));
+        Retry($"0x{register:X2} read", () => inner.Read(register));
 
     public IReadOnlyList<byte> ReadBlock(byte startRegister, int count)
     {
@@ -41,8 +41,8 @@ internal class RetryingEcReader(IEcRegisters inner, EcAccessRetry retry, Action<
             {
                 var delay = retry.Delays[retryNumber];
                 _slept += delay;
-                warn($"EC cevap vermedi ({access}: {ex.Message}); {delay.TotalMilliseconds:F0} ms sonra yeniden " +
-                     $"deneniyor ({retryNumber + 1}/{retry.Delays.Count}).");
+                warn($"EC did not answer ({access}: {ex.Message}); retrying in {delay.TotalMilliseconds:F0} ms " +
+                     $"({retryNumber + 1}/{retry.Delays.Count}).");
                 retry.Sleep(delay);
             }
         }
@@ -62,7 +62,7 @@ internal sealed class RetryingEcRegisters(IEcWritableRegisters inner, EcAccessRe
     private readonly IEcWritableRegisters _writable = inner;
 
     public void Write(byte register, byte value) =>
-        Retry($"0x{register:X2}=0x{value:X2} yazma", () =>
+        Retry($"0x{register:X2}=0x{value:X2} write", () =>
         {
             _writable.Write(register, value);
             return true;
