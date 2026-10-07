@@ -14,6 +14,8 @@
     <SelfContained>false</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <DebugType>embedded</DebugType>
+    <!-- Keep in step with SupportedLanguages; also drops the package satellites M-Tool has no UI for. -->
+    <SatelliteResourceLanguages>en;tr</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,6 +38,39 @@
   <ItemGroup>
     <EmbeddedResource Include="Hardware\Resources\LpcACPIEC.bin" LogicalName="MTool.LpcACPIEC.bin" />
     <EmbeddedResource Include="Resources\m-tool.ico" LogicalName="MTool.m-tool.ico" />
+    <EmbeddedResource Update="Resources\Strings.resx">
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>MTool.App.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Strings</StronglyTypedClassName>
+      <StronglyTypedManifestPrefix>MTool.App.Resources</StronglyTypedManifestPrefix>
+      <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
+    </EmbeddedResource>
   </ItemGroup>
+
+  <!-- XAML reads text with {x:Static res:Strings.Key}. WPF compiles a temporary assembly for markup
+       before ResGen runs and hands it only the XAML-generated code, so generate the typed class early
+       and add it to that list. ResGen later writes the same file for the real compile. -->
+  <Target Name="MTool_GenerateStringsForMarkup" AfterTargets="MarkupCompilePass1" BeforeTargets="GenerateTemporaryTargetAssembly"
+          Inputs="Resources\Strings.resx;$(MSBuildProjectFullPath)" Outputs="$(IntermediateOutputPath)Strings.Designer.cs">
+    <ItemGroup>
+      <_MarkupStrings Include="@(EmbeddedResource)" Condition="'%(EmbeddedResource.StronglyTypedClassName)' == 'Strings'" />
+      <FileWrites Include="$(IntermediateOutputPath)Strings.markup.resources" />
+    </ItemGroup>
+    <Error Condition="'@(_MarkupStrings)' == ''" Text="No EmbeddedResource with StronglyTypedClassName 'Strings'; XAML x:Static bindings would not compile." />
+    <GenerateResource Sources="@(_MarkupStrings)"
+                      OutputResources="$(IntermediateOutputPath)Strings.markup.resources"
+                      StronglyTypedLanguage="%(_MarkupStrings.StronglyTypedLanguage)"
+                      StronglyTypedNamespace="%(_MarkupStrings.StronglyTypedNamespace)"
+                      StronglyTypedClassName="%(_MarkupStrings.StronglyTypedClassName)"
+                      StronglyTypedManifestPrefix="%(_MarkupStrings.StronglyTypedManifestPrefix)"
+                      StronglyTypedFileName="%(_MarkupStrings.StronglyTypedFileName)"
+                      ExecuteAsTool="false" />
+  </Target>
+  <Target Name="MTool_AddStringsToMarkupCompile" AfterTargets="MTool_GenerateStringsForMarkup" BeforeTargets="GenerateTemporaryTargetAssembly">
+    <ItemGroup>
+      <_GeneratedCodeFiles Remove="$(IntermediateOutputPath)Strings.Designer.cs" />
+      <_GeneratedCodeFiles Include="$(IntermediateOutputPath)Strings.Designer.cs" />
+    </ItemGroup>
+  </Target>
 
 </Project>

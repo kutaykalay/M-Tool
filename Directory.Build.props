@@ -4,6 +4,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- The neutral resources are English; *.tr.resx etc. become satellite assemblies. -->
+    <NeutralLanguage>en</NeutralLanguage>
     <Authors>Kutay Kalay</Authors>
     <Product>M-Tool</Product>
     <Copyright>Copyright (c) 2026 Kutay Kalay</Copyright>

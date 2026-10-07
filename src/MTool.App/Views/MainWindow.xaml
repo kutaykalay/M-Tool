@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:MTool.App.ViewModels"
+        xmlns:res="clr-namespace:MTool.App.Resources"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
         Title="M-Tool" Width="380" SizeToContent="Height" ResizeMode="CanMinimize"
@@ -19,7 +20,7 @@
         </Border>
 
         <!-- Sensors -->
-        <TextBlock Style="{StaticResource Section}" Text="SENSÖRLER" />
+        <TextBlock Style="{StaticResource Section}" Text="{x:Static res:Strings.Main_SectionSensors}" />
         <Border Style="{StaticResource Card}">
             <Grid>
                 <Grid.ColumnDefinitions>

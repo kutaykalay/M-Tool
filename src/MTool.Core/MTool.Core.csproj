@@ -11,6 +11,13 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Devices\*.json" LogicalName="MTool.Devices.%(Filename)%(Extension)" />
+    <EmbeddedResource Update="Resources\CoreStrings.resx">
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>MTool.Core.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>CoreStrings</StronglyTypedClassName>
+      <StronglyTypedManifestPrefix>MTool.Core.Resources</StronglyTypedManifestPrefix>
+      <StronglyTypedFileName>$(IntermediateOutputPath)CoreStrings.Designer.cs</StronglyTypedFileName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
