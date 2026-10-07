@@ -5,8 +5,8 @@
 A small Windows tray app for the **MSI P65 Creator 9SE**: fan curves, Cooler Boost, performance
 mode and battery charge limit. One exe, no background service.
 
-> **Status:** in development. It runs on one laptop and firmware only (see below).
-> The interface is in Turkish.
+> **Status:** beta (pre-release). It changes settings on one laptop and firmware only; other MSI
+> laptops with WMI1 are read-only and experimental (see below). The interface is in Turkish.
 
 ## Features
 
@@ -64,6 +64,20 @@ before you post it.
 - [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [PawnIO](https://pawnio.eu) (`winget install namazso.PawnIO`)
 - Administrator rights (the app asks through UAC)
+- PawnIO is needed only on the supported laptop: elsewhere M-Tool reads through MSI's WMI alone
+
+## Download
+
+Get `M-Tool.exe` from the latest release on the
+[Releases page](https://github.com/kutaykalay/M-Tool/releases) and compare its SHA-256 with the
+one in the release notes:
+
+```
+Get-FileHash .\M-Tool.exe -Algorithm SHA256
+```
+
+The exe is not signed, so SmartScreen may warn on the first start. Choose **More info → Run
+anyway** only if the hash matches.
 
 ## Install
 
