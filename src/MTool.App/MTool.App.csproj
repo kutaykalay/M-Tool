@@ -42,6 +42,8 @@
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
       <StronglyTypedNamespace>MTool.App.Resources</StronglyTypedNamespace>
       <StronglyTypedClassName>Strings</StronglyTypedClassName>
+      <!-- XAML reads the members by reflection and sees public ones only. -->
+      <PublicClass>true</PublicClass>
       <StronglyTypedManifestPrefix>MTool.App.Resources</StronglyTypedManifestPrefix>
       <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
     </EmbeddedResource>
@@ -62,6 +64,7 @@
                       StronglyTypedLanguage="%(_MarkupStrings.StronglyTypedLanguage)"
                       StronglyTypedNamespace="%(_MarkupStrings.StronglyTypedNamespace)"
                       StronglyTypedClassName="%(_MarkupStrings.StronglyTypedClassName)"
+                      PublicClass="%(_MarkupStrings.PublicClass)"
                       StronglyTypedManifestPrefix="%(_MarkupStrings.StronglyTypedManifestPrefix)"
                       StronglyTypedFileName="%(_MarkupStrings.StronglyTypedFileName)"
                       ExecuteAsTool="false" />
