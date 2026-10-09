@@ -566,4 +566,59 @@ public sealed class SettingsStoreTests : IDisposable
 
         return names;
     }
+
+    [Fact]
+    public void The_chosen_language_round_trips_in_the_file()
+    {
+        var store = new SettingsStore(_folder);
+
+        store.Save(AppSettings.Default with { Language = "tr" });
+
+        store.Load().Settings.Language.Should().Be("tr");
+        File.ReadAllText(SettingsPath).Should().Contain("\"language\": \"tr\"").And.Contain("\"schemaVersion\": 1");
+    }
+
+    [Fact]
+    public void Settings_that_differ_only_in_language_are_not_equal()
+    {
+        (AppSettings.Default with { Language = "tr" }).Should().NotBe(AppSettings.Default);
+    }
+
+    [Fact]
+    public void A_file_without_a_language_loads_with_none_and_keeps_its_version()
+    {
+        File.WriteAllText(SettingsPath, """{ "schemaVersion": 1, "dryRun": false }""");
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Warning.Should().BeNull();
+        result.Settings.Language.Should().BeNull();
+        result.Settings.SchemaVersion.Should().Be(1);
+    }
+
+    [Fact]
+    public void An_unset_language_is_saved_as_null_and_the_version_stays_1()
+    {
+        var store = new SettingsStore(_folder);
+
+        store.Save(AppSettings.Default);
+
+        store.Load().Settings.Language.Should().BeNull();
+        AppSettings.CurrentSchemaVersion.Should().Be(1);
+    }
+
+    [Theory]
+    [InlineData("""{ "schemaVersion": 1, "language": 5 }""")]
+    [InlineData("""{ "schemaVersion": 1, "language": true }""")]
+    [InlineData("""{ "schemaVersion": 1, "language": ["tr"] }""")]
+    public void A_language_of_the_wrong_type_sets_the_file_aside(string json)
+    {
+        File.WriteAllText(SettingsPath, json);
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Settings.Should().Be(AppSettings.Default);
+        result.Warning.Should().NotBeNull();
+        Directory.GetFiles(_folder, "settings.json.bad-*").Should().ContainSingle();
+    }
 }

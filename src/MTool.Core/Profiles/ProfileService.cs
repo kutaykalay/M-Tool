@@ -1,7 +1,10 @@
+using System.Globalization;
 using System.Text.Json;
 using MTool.Core.Device;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 using MTool.Core.Power;
+using MTool.Core.Resources;
 using MTool.Core.Settings;
 
 namespace MTool.Core.Profiles;
@@ -135,6 +138,33 @@ public sealed class ProfileService
         {
             _oneAtATime.Release();
             Interlocked.Decrement(ref _commands);
+        }
+    }
+
+    public string? Language => Current.Settings.Language;
+
+    /// <summary>
+    /// Keeps the interface language for the next start; null follows Windows. Never writes the EC and
+    /// raises no event: the language applies at start, so there is nothing for a subscriber to refresh.
+    /// </summary>
+    /// <param name="language">A name from <see cref="SupportedLanguages"/> in any case, or null.</param>
+    public async Task<ProfileCommandResult> SetLanguageAsync(string? language)
+    {
+        var canonical = language is null ? null : UiLanguage.CanonicalName(language, SupportedLanguages.All);
+        if (language is not null && canonical is null)
+        {
+            return new ProfileCommandResult(
+                string.Format(CultureInfo.CurrentUICulture, CoreStrings.Settings_LanguageNotSupported, ProfileNameRules.Printable(language)));
+        }
+
+        await _oneAtATime.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            return new ProfileCommandResult(null, Remember(Current.Settings with { Language = canonical }));
+        }
+        finally
+        {
+            _oneAtATime.Release();
         }
     }
 

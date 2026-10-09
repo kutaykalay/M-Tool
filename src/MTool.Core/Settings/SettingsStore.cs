@@ -15,12 +15,18 @@ namespace MTool.Core.Settings;
 /// Separate choices on AC and on battery; missing or null means off. Added without a new schema
 /// version: an older M-Tool loads the file and only drops this field when it saves.
 /// </param>
+/// <param name="Language">
+/// The interface language the user chose, spelled as in <see cref="Localization.SupportedLanguages"/>;
+/// null means follow Windows. Outside input: <see cref="SettingsSanitizer"/> checks it. Added without a
+/// new schema version, like <paramref name="PowerSwitch"/>.
+/// </param>
 public sealed record AppSettings(
     int SchemaVersion = AppSettings.CurrentSchemaVersion,
     bool DryRun = true,
     DesiredState? Desired = null,
     IReadOnlyList<FanProfile>? CustomProfiles = null,
-    PowerSwitchSettings? PowerSwitch = null)
+    PowerSwitchSettings? PowerSwitch = null,
+    string? Language = null)
 {
     public const int CurrentSchemaVersion = 1;
 
@@ -57,9 +63,10 @@ public sealed record AppSettings(
         && DryRun == other.DryRun
         && Desired == other.Desired
         && CustomProfiles.SequenceEqual(other.CustomProfiles)
-        && PowerSwitch == other.PowerSwitch;
+        && PowerSwitch == other.PowerSwitch
+        && Language == other.Language;
 
-    public override int GetHashCode() => HashCode.Combine(SchemaVersion, DryRun, Desired, CustomProfiles.Count, PowerSwitch);
+    public override int GetHashCode() => HashCode.Combine(SchemaVersion, DryRun, Desired, CustomProfiles.Count, PowerSwitch, Language);
 }
 
 /// <param name="Warning">Set when the file was unusable and defaults were loaded instead.</param>

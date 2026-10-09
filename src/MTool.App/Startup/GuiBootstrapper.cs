@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Windows;
 using MTool.App.Hardware;
@@ -9,6 +10,7 @@ using MTool.App.Views;
 using MTool.Core;
 using MTool.Core.Device;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 using MTool.Core.Power;
 using MTool.Core.Profiles;
 using MTool.Core.Sensors;
@@ -214,6 +216,13 @@ internal sealed class GuiBootstrapper : IDisposable
     {
         var store = new SettingsStore(AppPaths.Root);
         var loaded = store.Load();
+
+        // Before the sanitizer: its warnings are shown in the chosen language. An unusable choice in
+        // the file is ignored here and dropped (with a warning) by the sanitizer.
+        var language = UiLanguage.Resolve(loaded.Settings.Language, CultureInfo.CurrentUICulture, SupportedLanguages.All);
+        SetUiCulture(language);
+        log.Info($"UI language: {language.Name}");
+
         var sanitized = SettingsSanitizer.Sanitize(loaded.Settings, catalog);
 
         // The next save writes the file without the dropped profiles, so keep the user's original first.
@@ -225,6 +234,13 @@ internal sealed class GuiBootstrapper : IDisposable
         }
 
         return new LoadedSettings(store, sanitized.Settings, warnings);
+    }
+
+    /// <summary>Resource lookups on this and later threads follow it; number and date formats stay the Windows regional ones.</summary>
+    private static void SetUiCulture(CultureInfo language)
+    {
+        CultureInfo.DefaultThreadCurrentUICulture = language;
+        CultureInfo.CurrentUICulture = language;
     }
 
     /// <param name="Store">

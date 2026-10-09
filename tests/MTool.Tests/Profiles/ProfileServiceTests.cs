@@ -521,4 +521,76 @@ public sealed class ProfileServiceTests : IDisposable
         (await reader).Should().BePositive();
         service.Catalog.Profiles.Should().HaveCount(ProfileCatalog.BuiltIn.Profiles.Count + ProfileCatalog.MaxCustomProfiles);
     }
+
+    [Theory]
+    [InlineData("tr", "tr")]
+    [InlineData("EN", "en")]
+    public async Task A_chosen_language_is_saved_without_touching_the_ec(string chosen, string expected)
+    {
+        var service = Service();
+        var catalogChanges = 0;
+        service.CatalogChanged += () => catalogChanges++;
+
+        var result = await service.SetLanguageAsync(chosen);
+
+        result.Error.Should().BeNull();
+        result.SaveWarning.Should().BeNull();
+        Saved().Language.Should().Be(expected);
+        _control.Calls.Should().BeEmpty();
+        catalogChanges.Should().Be(0);
+        _changes.Should().BeEmpty();
+        service.IsBusy.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Choosing_the_Windows_language_again_saves_none()
+    {
+        var service = Service(AppSettings.Default with { Language = "tr" });
+
+        var result = await service.SetLanguageAsync(null);
+
+        result.Error.Should().BeNull();
+        Saved().Language.Should().BeNull();
+        _control.Calls.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("xx")]
+    [InlineData("../tr")]
+    [InlineData("")]
+    public async Task An_unsupported_language_is_rejected_and_nothing_is_saved(string chosen)
+    {
+        var service = Service();
+
+        var result = await service.SetLanguageAsync(chosen);
+
+        result.Error.Should().NotBeNullOrEmpty();
+        SettingsFileExists.Should().BeFalse();
+        _control.Calls.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task A_language_keeps_the_other_settings()
+    {
+        var service = Service(AppSettings.Default with { DryRun = false, Desired = new DesiredState("Cool", PerformanceMode.Eco) });
+
+        await service.SetLanguageAsync("tr");
+
+        Saved().Should().Be(AppSettings.Default with { DryRun = false, Desired = new DesiredState("Cool", PerformanceMode.Eco), Language = "tr" });
+    }
+
+    [Fact]
+    public async Task A_language_that_cannot_be_saved_is_a_warning_and_is_kept_in_memory()
+    {
+        var blocked = Path.Combine(_folder, "not-a-folder");
+        File.WriteAllText(blocked, "");
+        var service = Service(folder: blocked);
+
+        var result = await service.SetLanguageAsync("tr");
+
+        result.Error.Should().BeNull();
+        result.SaveWarning.Should().Contain("settings.json");
+        service.Language.Should().Be("tr");
+        _log.Lines.Should().Contain(l => l.StartsWith("ERROR"));
+    }
 }

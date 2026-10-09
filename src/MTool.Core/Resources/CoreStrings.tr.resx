@@ -15,4 +15,7 @@
   <data name="Settings_UnknownLanguage" xml:space="preserve">
     <value>Bilinmeyen dil ({0}); Windows dili kullanılıyor.</value>
   </data>
+  <data name="Settings_LanguageNotSupported" xml:space="preserve">
+    <value>Dil desteklenmiyor: {0}</value>
+  </data>
 </root>

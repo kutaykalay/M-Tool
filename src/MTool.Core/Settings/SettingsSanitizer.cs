@@ -1,6 +1,9 @@
+using System.Globalization;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 using MTool.Core.Power;
 using MTool.Core.Profiles;
+using MTool.Core.Resources;
 
 namespace MTool.Core.Settings;
 
@@ -47,7 +50,28 @@ public static class SettingsSanitizer
         };
 
         return new SanitizedSettings(
-            settings with { Desired = desired, CustomProfiles = custom, PowerSwitch = powerSwitch }, warnings.AsReadOnly(), full, dropped);
+            settings with { Desired = desired, CustomProfiles = custom, PowerSwitch = powerSwitch, Language = ValidLanguage(settings.Language, warnings) },
+            warnings.AsReadOnly(), full, dropped);
+    }
+
+    /// <summary>
+    /// Only a name from <see cref="SupportedLanguages"/> passes, so a hand-edited value is never used as a
+    /// culture or a path. What the file said is echoed made printable and cut short.
+    /// </summary>
+    private static string? ValidLanguage(string? language, List<string> warnings)
+    {
+        if (language is null)
+        {
+            return null;
+        }
+
+        if (UiLanguage.CanonicalName(language, SupportedLanguages.All) is { } canonical)
+        {
+            return canonical;
+        }
+
+        warnings.Add(string.Format(CultureInfo.CurrentUICulture, CoreStrings.Settings_UnknownLanguage, ProfileNameRules.Printable(language)));
+        return null;
     }
 
     /// <summary>

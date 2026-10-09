@@ -16,4 +16,8 @@
     <value>Unknown language ({0}); using the Windows language.</value>
     <comment>Settings warning when settings.json names a language M-Tool does not have. {0}: the value from the file.</comment>
   </data>
+  <data name="Settings_LanguageNotSupported" xml:space="preserve">
+    <value>Language not supported: {0}</value>
+    <comment>Error when the user picks a language M-Tool does not have. {0}: the value, made printable.</comment>
+  </data>
 </root>

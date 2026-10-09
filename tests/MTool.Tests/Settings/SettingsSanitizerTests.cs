@@ -385,4 +385,73 @@ public class SettingsSanitizerTests
 
         result.Settings.Desired.Should().Be(new DesiredState("Cool"));
     }
+
+    [Theory]
+    [InlineData("tr", "tr")]
+    [InlineData("TR", "tr")]
+    [InlineData("En", "en")]
+    public void A_supported_language_is_kept_in_its_canonical_spelling(string stored, string expected)
+    {
+        var result = SettingsSanitizer.Sanitize(AppSettings.Default with { Language = stored }, Catalog);
+
+        result.Settings.Language.Should().Be(expected);
+        result.Warnings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void No_language_stays_none_without_a_warning()
+    {
+        var result = SettingsSanitizer.Sanitize(AppSettings.Default, Catalog);
+
+        result.Settings.Language.Should().BeNull();
+        result.Warnings.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("xx")]
+    [InlineData("../tr")]
+    [InlineData("..\\..\\tr")]
+    [InlineData("")]
+    [InlineData("  ")]
+    [InlineData("tr\u0007")]
+    [InlineData("tr-TR")]
+    public void An_unknown_language_is_dropped_with_a_warning(string stored)
+    {
+        var result = SettingsSanitizer.Sanitize(AppSettings.Default with { Language = stored }, Catalog);
+
+        result.Settings.Language.Should().BeNull();
+        result.Warnings.Should().ContainSingle().Which.Should().StartWith("Bilinmeyen dil");
+    }
+
+    [Fact]
+    public void The_language_in_the_warning_is_printable_and_cut_short()
+    {
+        var long500 = new string('a', 500);
+        var withControl = "x\u0007\u001b[31m\r\ny";
+
+        var warnings = new[] { long500, withControl }
+            .Select(value => SettingsSanitizer.Sanitize(AppSettings.Default with { Language = value }, Catalog).Warnings.Single())
+            .ToArray();
+
+        warnings[0].Length.Should().BeLessThan(100);
+        warnings[0].Should().Contain("…").And.NotContain(long500);
+        warnings[1].Should().Contain("x??[31m??y").And.NotMatchRegex(@"\p{Cc}");
+    }
+
+    [Fact]
+    public void A_language_problem_does_not_touch_profiles_or_the_desired_state()
+    {
+        var settings = WithProfiles(Night("Gece")) with
+        {
+            Language = "xx",
+            Desired = new DesiredState("Cool", PerformanceMode.Eco, 70, FanMode.Auto),
+        };
+
+        var result = SettingsSanitizer.Sanitize(settings, Catalog);
+
+        result.Settings.CustomProfiles.Should().Equal(Night("Gece"));
+        result.Settings.Desired.Should().Be(settings.Desired);
+        result.DroppedProfiles.Should().Be(0);
+        result.Warnings.Should().ContainSingle();
+    }
 }
