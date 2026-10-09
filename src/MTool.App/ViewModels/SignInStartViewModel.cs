@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MTool.App.Resources;
 using MTool.App.Services;
 using MTool.Core;
 
@@ -31,10 +32,13 @@ public sealed partial class SignInStartViewModel(
             return;
         }
 
-        var found = registered.Length == 0 ? "M-Tool'un tanımadığı bir görev" : $"başka bir exe: {registered}";
-        _repairWarning = $"Oturum açılışında başlatma beklenen görev değil ({found}). " +
-            "Bu exe'ye almak için tepsi menüsünden kapatıp yeniden açın.";
-        log.Warn(_repairWarning);
+        // The band is in the UI language; the log is always English.
+        var (found, foundForLog) = registered.Length == 0
+            ? (Strings.SignIn_ForeignTask, "a task M-Tool did not create")
+            : (string.Format(Strings.SignIn_OtherExe, registered), $"another exe: {registered}");
+        _repairWarning = string.Format(Strings.SignIn_RepairWarning, found);
+        log.Warn($"Start at sign-in task is not the expected one ({foundForLog}). " +
+            "To move it to this exe, switch it off and on again from the tray menu.");
         status.AddWarning(_repairWarning);
     }
 
@@ -61,7 +65,7 @@ public sealed partial class SignInStartViewModel(
         catch (Exception ex)
         {
             log.Error("Start at sign-in could not be changed", ex);
-            status.ShowWarning($"Oturum açılışında başlatma değiştirilemedi: {ex.Message}");
+            status.ShowWarning(string.Format(Strings.SignIn_ChangeFailed, ex.Message));
         }
 
         await QueryAsync();

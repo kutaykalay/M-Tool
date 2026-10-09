@@ -174,4 +174,124 @@
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Bu bilgisayar henüz desteklenmiyor: MSI WMI arayüzü (root\WMI içinde {0} ya da {1}) bulunamadı.</value>
   </data>
+  <data name="Status_FailureTitle" xml:space="preserve">
+    <value>M-Tool: ayar uygulanamadı</value>
+  </data>
+  <data name="Status_ReadOnlyNote" xml:space="preserve">
+    <value>M-Tool yalnızca izleme modunda, ayar değiştiremez.</value>
+  </data>
+  <data name="Status_DryRun" xml:space="preserve">
+    <value>Deneme modu: seçimler kontrol ediliyor ama dizüstüne uygulanmıyor. Gerçek uygulama için settings.json'da "dryRun": false yapın.</value>
+  </data>
+  <data name="Status_FirmwareUnread" xml:space="preserve">
+    <value>Firmware sürümü okunamadı. {0}</value>
+  </data>
+  <data name="Status_Experimental" xml:space="preserve">
+    <value>Deneysel: bu firmware ({0}) {1} kaydıyla okunuyor; değerler bu modelde doğrulanmadı ve yanlış olabilir. {2}</value>
+  </data>
+  <data name="Status_FirmwareFamily" xml:space="preserve">
+    <value>Bu firmware ({0}) {1} ailesinden, ama ayar değiştirme için doğrulanmadı. {2}</value>
+  </data>
+  <data name="Status_FirmwareUnsupported" xml:space="preserve">
+    <value>Bu firmware ({0}) desteklenmiyor. {1}</value>
+  </data>
+  <data name="Status_WritesOff" xml:space="preserve">
+    <value>Ayar değiştirme kapalı, M-Tool yalnızca izleme modunda. Sebep: {0}</value>
+  </data>
+  <data name="Status_Drift" xml:space="preserve">
+    <value>Dizüstündeki ayarlar seçtiklerinizden farklı ({0}). Geri getirmek için Yeniden uygula'ya basın.</value>
+  </data>
+  <data name="Status_DriftFanTable" xml:space="preserve">
+    <value>fan tablosu</value>
+  </data>
+  <data name="Status_DriftPerformance" xml:space="preserve">
+    <value>performans modu</value>
+  </data>
+  <data name="Status_DriftChargeLimit" xml:space="preserve">
+    <value>şarj limiti</value>
+  </data>
+  <data name="Status_DriftFanMode" xml:space="preserve">
+    <value>fan modu</value>
+  </data>
+  <data name="Status_FailedRecovered" xml:space="preserve">
+    <value>{0} Güvenlik için fanlar fabrika ayarına alındı ve ayar değiştirme kapatıldı. Yeniden açmak için yönetici komut isteminde M-Tool.exe --unlock --confirm çalıştırın, sonra M-Tool'u yeniden başlatın.</value>
+  </data>
+  <data name="Status_FailedUnrecovered" xml:space="preserve">
+    <value>{0} Fanların güvenli ayarda olduğu doğrulanamadı; önlem olarak Cooler Boost açılmaya çalışıldı. Bilgisayarı yeniden başlatın, fanlar fabrika ayarına döner.</value>
+  </data>
+  <data name="Controls_FanTableImplausible" xml:space="preserve">
+    <value>Okunan fan tablosu makul değil</value>
+  </data>
+  <data name="Controls_FanProfileUnrecognized" xml:space="preserve">
+    <value>Tanınmayan fan ayarı</value>
+  </data>
+  <data name="Controls_PerformanceFactory" xml:space="preserve">
+    <value>fabrika ayarı (0x{0:X2})</value>
+  </data>
+  <data name="Controls_ReadFailed" xml:space="preserve">
+    <value>Güncel ayarlar okunamadı, gösterilen değerler eski olabilir. ({0})</value>
+  </data>
+  <data name="Controls_NothingToReapply" xml:space="preserve">
+    <value>Yeniden uygulanacak bir şey yok.</value>
+  </data>
+  <data name="Main_ReapplyStartup" xml:space="preserve">
+    <value>Açılışta ayarlar uygulanamadı: {0}</value>
+  </data>
+  <data name="Main_ReapplyResume" xml:space="preserve">
+    <value>Uykudan uyanınca ayarlar uygulanamadı: {0}</value>
+  </data>
+  <data name="Main_ReapplyPowerSource" xml:space="preserve">
+    <value>Güç kaynağı değişince ayarlar uygulanamadı: {0}</value>
+  </data>
+  <data name="Main_ReapplyRetry" xml:space="preserve">
+    <value>Yeniden denemede ayarlar uygulanamadı: {0}</value>
+  </data>
+  <data name="Sensors_Reading" xml:space="preserve">
+    <value>Okunuyor…</value>
+  </data>
+  <data name="Sensors_Paused" xml:space="preserve">
+    <value>Duraklatıldı (uyku)</value>
+  </data>
+  <data name="Sensors_Stale" xml:space="preserve">
+    <value>Veri eski ({0})</value>
+  </data>
+  <data name="Sensors_NoData" xml:space="preserve">
+    <value>Veri yok</value>
+  </data>
+  <data name="PowerSwitch_OnAc" xml:space="preserve">
+    <value>Şu an: prizde.</value>
+  </data>
+  <data name="PowerSwitch_OnBattery" xml:space="preserve">
+    <value>Şu an: pilde.</value>
+  </data>
+  <data name="SignIn_ForeignTask" xml:space="preserve">
+    <value>M-Tool'un tanımadığı bir görev</value>
+  </data>
+  <data name="SignIn_OtherExe" xml:space="preserve">
+    <value>başka bir exe: {0}</value>
+  </data>
+  <data name="SignIn_RepairWarning" xml:space="preserve">
+    <value>Oturum açılışında başlatma beklenen görev değil ({0}). Bu exe'ye almak için tepsi menüsünden kapatıp yeniden açın.</value>
+  </data>
+  <data name="SignIn_ChangeFailed" xml:space="preserve">
+    <value>Oturum açılışında başlatma değiştirilemedi: {0}</value>
+  </data>
+  <data name="Editor_DiscardQuestion" xml:space="preserve">
+    <value>Kaydedilmemiş değişiklikler atılsın mı?</value>
+  </data>
+  <data name="Editor_Saved" xml:space="preserve">
+    <value>Kaydedildi. Fanlara uygulamak için Uygula'ya basın.</value>
+  </data>
+  <data name="Editor_SavedNotApplied" xml:space="preserve">
+    <value>Profil kaydedildi ama uygulanmadı: başka bir işlem sürüyor ya da ayar değiştirme kapalı. Biraz sonra tekrar deneyin.</value>
+  </data>
+  <data name="Editor_DeleteQuestion" xml:space="preserve">
+    <value>"{0}" profili silinsin mi?</value>
+  </data>
+  <data name="Editor_BusySelect" xml:space="preserve">
+    <value>Başka bir işlem sürüyor; bitince profil seçebilirsiniz.</value>
+  </data>
+  <data name="List_Separator" xml:space="preserve">
+    <value>, </value>
+  </data>
 </root>

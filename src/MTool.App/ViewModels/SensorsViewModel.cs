@@ -1,5 +1,6 @@
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
+using MTool.App.Resources;
 using MTool.Core.Sensors;
 
 namespace MTool.App.ViewModels;
@@ -40,10 +41,12 @@ public sealed partial class SensorsViewModel : ObservableObject
         IsStale = reading.Status is SensorStatus.Stale or SensorStatus.Paused;
         Freshness = reading.Status switch
         {
-            SensorStatus.Waiting => "Okunuyor…",
+            SensorStatus.Waiting => Strings.Sensors_Reading,
             SensorStatus.Live => "",
-            SensorStatus.Paused => "Duraklatıldı (uyku)",
-            _ => reading.LastUpdated is { } at ? $"Veri eski ({at.ToLocalTime():HH:mm:ss})" : "Veri yok",
+            SensorStatus.Paused => Strings.Sensors_Paused,
+            _ => reading.LastUpdated is { } at
+                ? string.Format(Strings.Sensors_Stale, at.ToLocalTime().ToString("T", CultureInfo.CurrentUICulture))
+                : Strings.Sensors_NoData,
         };
     }
 

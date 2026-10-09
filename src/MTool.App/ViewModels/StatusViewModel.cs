@@ -1,4 +1,6 @@
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
+using MTool.App.Resources;
 using MTool.Core.Device;
 using MTool.Core.Device.Config;
 using MTool.Core.Ec;
@@ -15,9 +17,6 @@ namespace MTool.App.ViewModels;
 public sealed partial class StatusViewModel(INotifier notifier, IUiDispatcher ui, TimeProvider time) : ObservableObject, IDisposable
 {
     public static readonly TimeSpan InfoLifetime = TimeSpan.FromSeconds(10);
-
-    private const string FailureTitle = "M-Tool: ayar uygulanamadı";
-    private const string ReadOnlyNote = "M-Tool yalnızca izleme modunda, ayar değiştiremez.";
 
     private long _version;
     private ITimer? _hideTimer;
@@ -43,22 +42,19 @@ public sealed partial class StatusViewModel(INotifier notifier, IUiDispatcher ui
 
     public void SetAccess(DeviceAccess access)
     {
+        var readOnly = Strings.Status_ReadOnlyNote;
         (AccessBanner, AccessBannerKind) = access switch
         {
             { WriteMode: WriteMode.Enabled } => ((string?)null, MessageKind.None),
-            { WriteMode: WriteMode.DryRun } =>
-                ("Deneme modu: seçimler kontrol ediliyor ama dizüstüne uygulanmıyor. Gerçek uygulama için " +
-                    "settings.json'da \"dryRun\": false yapın.", MessageKind.Info),
-            { Firmware: null } => ($"Firmware sürümü okunamadı. {ReadOnlyNote}", MessageKind.Warning),
+            { WriteMode: WriteMode.DryRun } => (Strings.Status_DryRun, MessageKind.Info),
+            { Firmware: null } => (string.Format(Strings.Status_FirmwareUnread, readOnly), MessageKind.Warning),
             { ExperimentalRecord: { } record } =>
-                ($"Deneysel: bu firmware ({access.Firmware.Version}) {record} kaydıyla okunuyor; değerler bu modelde doğrulanmadı ve yanlış olabilir. {ReadOnlyNote}",
-                    MessageKind.Warning),
+                (string.Format(Strings.Status_Experimental, access.Firmware.Version, record, readOnly), MessageKind.Warning),
             { Firmware.IsSupported: false, Match: { Kind: MatchKind.Family } match } =>
-                ($"Bu firmware ({access.Firmware.Version}) {match.DisplayName} ailesinden, ama ayar değiştirme için doğrulanmadı. {ReadOnlyNote}",
-                    MessageKind.Warning),
+                (string.Format(Strings.Status_FirmwareFamily, access.Firmware.Version, match.DisplayName, readOnly), MessageKind.Warning),
             { Firmware.IsSupported: false } =>
-                ($"Bu firmware ({access.Firmware.Version}) desteklenmiyor. {ReadOnlyNote}", MessageKind.Warning),
-            _ => ($"Ayar değiştirme kapalı, M-Tool yalnızca izleme modunda. Sebep: {access.LockReason}", MessageKind.Warning),
+                (string.Format(Strings.Status_FirmwareUnsupported, access.Firmware.Version, readOnly), MessageKind.Warning),
+            _ => (string.Format(Strings.Status_WritesOff, access.LockReason), MessageKind.Warning),
         };
     }
 
@@ -66,7 +62,7 @@ public sealed partial class StatusViewModel(INotifier notifier, IUiDispatcher ui
     public void SetDrift(StateDrift drift, bool dryRun)
     {
         ShowReapply = drift.Any && !dryRun;
-        DriftText = ShowReapply ? $"Dizüstündeki ayarlar seçtiklerinizden farklı ({DriftParts(drift)}). Geri getirmek için Yeniden uygula'ya basın." : null;
+        DriftText = ShowReapply ? string.Format(Strings.Status_Drift, DriftParts(drift)) : null;
     }
 
     public void Report(CommandResult result)
@@ -76,16 +72,14 @@ public sealed partial class StatusViewModel(INotifier notifier, IUiDispatcher ui
         {
             WriteStatus.Applied or WriteStatus.DryRun => (outcome.Message, MessageKind.Info),
             WriteStatus.Rejected => (outcome.Message, MessageKind.Warning),
-            WriteStatus.FailedRecovered => ($"{outcome.Message} Güvenlik için fanlar fabrika ayarına alındı ve ayar değiştirme kapatıldı. Yeniden açmak " +
-                "için yönetici komut isteminde M-Tool.exe --unlock --confirm çalıştırın, sonra M-Tool'u yeniden başlatın.", MessageKind.Error),
-            WriteStatus.FailedUnrecovered => ($"{outcome.Message} Fanların güvenli ayarda olduğu doğrulanamadı; önlem olarak Cooler Boost açılmaya " +
-                "çalışıldı. Bilgisayarı yeniden başlatın, fanlar fabrika ayarına döner.", MessageKind.Error),
-            _ => throw new ArgumentOutOfRangeException(nameof(result), outcome.Status, "Bilinmeyen yazma sonucu."),
+            WriteStatus.FailedRecovered => (string.Format(Strings.Status_FailedRecovered, outcome.Message), MessageKind.Error),
+            WriteStatus.FailedUnrecovered => (string.Format(Strings.Status_FailedUnrecovered, outcome.Message), MessageKind.Error),
+            _ => throw new ArgumentOutOfRangeException(nameof(result), outcome.Status, "Unknown write result."),
         };
 
         if (kind == MessageKind.Error)
         {
-            notifier.ShowError(FailureTitle, text);
+            notifier.ShowError(Strings.Status_FailureTitle, text);
         }
 
         if (result.SaveWarning is { } warning)
@@ -147,11 +141,12 @@ public sealed partial class StatusViewModel(INotifier notifier, IUiDispatcher ui
         }
     }
 
-    private static string DriftParts(StateDrift drift) => string.Join(", ", new[]
-    {
-        drift.FanTable ? "fan tablosu" : null,
-        drift.Performance ? "performans modu" : null,
-        drift.ChargeLimit ? "şarj limiti" : null,
-        drift.FanMode ? "fan modu" : null,
-    }.OfType<string>());
+    private static string DriftParts(StateDrift drift) =>
+        string.Join(Strings.List_Separator, new[]
+        {
+            drift.FanTable ? Strings.Status_DriftFanTable : null,
+            drift.Performance ? Strings.Status_DriftPerformance : null,
+            drift.ChargeLimit ? Strings.Status_DriftChargeLimit : null,
+            drift.FanMode ? Strings.Status_DriftFanMode : null,
+        }.OfType<string>());
 }

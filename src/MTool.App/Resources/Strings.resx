@@ -228,4 +228,164 @@
     <value>This computer is not supported yet: the MSI WMI interface ({0} or {1} in root\WMI) was not found.</value>
     <comment>Error box. {0} and {1} are WMI class names: copy them unchanged.</comment>
   </data>
+  <data name="Status_FailureTitle" xml:space="preserve">
+    <value>M-Tool: setting could not be applied</value>
+    <comment>Title of the error balloon shown when writing a setting failed. Keep M-Tool.</comment>
+  </data>
+  <data name="Status_ReadOnlyNote" xml:space="preserve">
+    <value>M-Tool is in monitor-only mode and cannot change settings.</value>
+    <comment>SAFETY. Last sentence of the warning banners, passed to them as {2} or {1}. Says the app only monitors and writes nothing.</comment>
+  </data>
+  <data name="Status_DryRun" xml:space="preserve">
+    <value>Dry-run mode: your choices are checked but not applied to the laptop. To apply them for real, set "dryRun": false in settings.json.</value>
+    <comment>SAFETY. Info banner at the top of the window. Copy settings.json and "dryRun": false unchanged: the user types them in the file.</comment>
+  </data>
+  <data name="Status_FirmwareUnread" xml:space="preserve">
+    <value>The firmware version could not be read. {0}</value>
+    <comment>SAFETY. Warning banner. {0} is the sentence 'M-Tool is in monitor-only mode and cannot change settings.' Firmware = the laptop's embedded controller firmware.</comment>
+  </data>
+  <data name="Status_Experimental" xml:space="preserve">
+    <value>Experimental: this firmware ({0}) is read with the {1} record; the values are not verified on this model and may be wrong. {2}</value>
+    <comment>SAFETY. Warning banner. {0} is the firmware version, {1} the name of the device record it is read with (copy it unchanged), {2} the sentence 'M-Tool is in monitor-only mode and cannot change settings.'</comment>
+  </data>
+  <data name="Status_FirmwareFamily" xml:space="preserve">
+    <value>This firmware ({0}) belongs to the {1} family, but is not verified for changing settings. {2}</value>
+    <comment>SAFETY. Warning banner. {0} is the firmware version, {1} the model name (for example MSI P65 Creator 9SE: copy it unchanged), {2} the sentence 'M-Tool is in monitor-only mode and cannot change settings.'</comment>
+  </data>
+  <data name="Status_FirmwareUnsupported" xml:space="preserve">
+    <value>This firmware ({0}) is not supported. {1}</value>
+    <comment>SAFETY. Warning banner. {0} is the firmware version, {1} the sentence 'M-Tool is in monitor-only mode and cannot change settings.'</comment>
+  </data>
+  <data name="Status_WritesOff" xml:space="preserve">
+    <value>Changing settings is off, M-Tool is in monitor-only mode. Reason: {0}</value>
+    <comment>SAFETY. Warning banner shown when writing is switched off. {0} is the reason, a sentence.</comment>
+  </data>
+  <data name="Status_Drift" xml:space="preserve">
+    <value>The laptop's settings differ from your choices ({0}). Press Reapply to restore them.</value>
+    <comment>Warning band with a button. {0} is a list of the differing settings, already separated with the list separator of the language. Reapply must match the label of the Reapply button (Main_Reapply).</comment>
+  </data>
+  <data name="Status_DriftFanTable" xml:space="preserve">
+    <value>fan table</value>
+    <comment>Part of the list in the drift band (Status_Drift). Lower case, no full stop.</comment>
+  </data>
+  <data name="Status_DriftPerformance" xml:space="preserve">
+    <value>performance mode</value>
+    <comment>Part of the list in the drift band (Status_Drift). Lower case, no full stop.</comment>
+  </data>
+  <data name="Status_DriftChargeLimit" xml:space="preserve">
+    <value>charge limit</value>
+    <comment>Part of the list in the drift band (Status_Drift). Lower case, no full stop.</comment>
+  </data>
+  <data name="Status_DriftFanMode" xml:space="preserve">
+    <value>fan mode</value>
+    <comment>Part of the list in the drift band (Status_Drift). Lower case, no full stop.</comment>
+  </data>
+  <data name="Status_FailedRecovered" xml:space="preserve">
+    <value>{0} For safety, the fans were set back to the factory setting and changing settings was switched off. To switch it on again, run M-Tool.exe --unlock --confirm in an administrator command prompt, then restart M-Tool.</value>
+    <comment>SAFETY. Error band and balloon after a failed write that was undone. {0} is the failure sentence. Copy the command M-Tool.exe --unlock --confirm unchanged.</comment>
+  </data>
+  <data name="Status_FailedUnrecovered" xml:space="preserve">
+    <value>{0} It could not be confirmed that the fans are at a safe setting; as a precaution, an attempt was made to switch Cooler Boost on. Restart the computer; the fans return to the factory setting.</value>
+    <comment>SAFETY. Error band and balloon after a failed write that could not be undone. {0} is the failure sentence. Cooler Boost is MSI's name: keep it.</comment>
+  </data>
+  <data name="Controls_FanTableImplausible" xml:space="preserve">
+    <value>The fan table read from the laptop is not plausible</value>
+    <comment>Label of the active fan profile when the table read from the EC holds nonsense values. EC = the laptop's embedded controller.</comment>
+  </data>
+  <data name="Controls_FanProfileUnrecognized" xml:space="preserve">
+    <value>Unrecognized fan setting</value>
+    <comment>Label of the active fan profile when the laptop's fan table matches no profile.</comment>
+  </data>
+  <data name="Controls_PerformanceFactory" xml:space="preserve">
+    <value>factory setting (0x{0:X2})</value>
+    <comment>Performance mode label when the laptop holds a value that is none of the three modes. {0} is the raw value as two hex digits: keep {0:X2} and the 0x.</comment>
+  </data>
+  <data name="Controls_ReadFailed" xml:space="preserve">
+    <value>The current settings could not be read, the values shown may be old. ({0})</value>
+    <comment>Warning band. {0} is the technical reason.</comment>
+  </data>
+  <data name="Controls_NothingToReapply" xml:space="preserve">
+    <value>There is nothing to reapply.</value>
+    <comment>Message after pressing Reapply when no setting is chosen.</comment>
+  </data>
+  <data name="Main_ReapplyStartup" xml:space="preserve">
+    <value>Settings could not be applied at startup: {0}</value>
+    <comment>Warning or error band after the automatic reapply when M-Tool started. {0} is the reason, a sentence.</comment>
+  </data>
+  <data name="Main_ReapplyResume" xml:space="preserve">
+    <value>Settings could not be applied after waking from sleep: {0}</value>
+    <comment>Warning or error band after the automatic reapply when the computer woke from sleep. {0} is the reason, a sentence.</comment>
+  </data>
+  <data name="Main_ReapplyPowerSource" xml:space="preserve">
+    <value>Settings could not be applied after the power source changed: {0}</value>
+    <comment>Warning or error band after the automatic reapply when the computer was plugged in or unplugged. {0} is the reason, a sentence.</comment>
+  </data>
+  <data name="Main_ReapplyRetry" xml:space="preserve">
+    <value>Settings could not be applied on retry: {0}</value>
+    <comment>Warning or error band after the automatic reapply that retries an earlier failure. {0} is the reason, a sentence.</comment>
+  </data>
+  <data name="Sensors_Reading" xml:space="preserve">
+    <value>Reading…</value>
+    <comment>Line under the sensors before the first reading.</comment>
+  </data>
+  <data name="Sensors_Paused" xml:space="preserve">
+    <value>Paused (sleep)</value>
+    <comment>Line under the sensors while reading is paused because the computer sleeps.</comment>
+  </data>
+  <data name="Sensors_Stale" xml:space="preserve">
+    <value>Data stale ({0})</value>
+    <comment>Line under the sensors when the sensors stopped answering. {0} is the time of the last good reading, already formatted in the language of the window (long time format).</comment>
+  </data>
+  <data name="Sensors_NoData" xml:space="preserve">
+    <value>No data</value>
+    <comment>Line under the sensors when the sensors never answered.</comment>
+  </data>
+  <data name="PowerSwitch_OnAc" xml:space="preserve">
+    <value>Now: on AC power.</value>
+    <comment>Line under the AC and battery switch. AC = plugged in to mains power.</comment>
+  </data>
+  <data name="PowerSwitch_OnBattery" xml:space="preserve">
+    <value>Now: on battery.</value>
+    <comment>Line under the AC and battery switch.</comment>
+  </data>
+  <data name="SignIn_ForeignTask" xml:space="preserve">
+    <value>a task M-Tool did not create</value>
+    <comment>Part of SignIn_RepairWarning ({0}): the Task Scheduler task with M-Tool's name was not made by M-Tool. Lower case, no full stop.</comment>
+  </data>
+  <data name="SignIn_OtherExe" xml:space="preserve">
+    <value>another exe: {0}</value>
+    <comment>Part of SignIn_RepairWarning ({0}): the task starts another program. {0} is its file path. Lower case, no full stop.</comment>
+  </data>
+  <data name="SignIn_RepairWarning" xml:space="preserve">
+    <value>Start at sign-in is not the expected task ({0}). To switch it to this exe, turn it off and on again from the tray menu.</value>
+    <comment>Warning band. {0} is SignIn_ForeignTask or SignIn_OtherExe. The tray menu item is Tray_StartAtSignIn: use the same wording.</comment>
+  </data>
+  <data name="SignIn_ChangeFailed" xml:space="preserve">
+    <value>Start at sign-in could not be changed: {0}</value>
+    <comment>Warning band. {0} is the technical reason.</comment>
+  </data>
+  <data name="Editor_DiscardQuestion" xml:space="preserve">
+    <value>Discard the unsaved changes?</value>
+    <comment>Question in a Yes/No box, asked before leaving a changed fan curve.</comment>
+  </data>
+  <data name="Editor_Saved" xml:space="preserve">
+    <value>Saved. Press Apply to use it on the fans.</value>
+    <comment>Message in the curve editor after saving. Apply must match the label of the Apply button (Common_Apply).</comment>
+  </data>
+  <data name="Editor_SavedNotApplied" xml:space="preserve">
+    <value>The profile was saved but not applied: another action is running or changing settings is off. Try again in a moment.</value>
+    <comment>Message in the curve editor after Save and apply could not apply.</comment>
+  </data>
+  <data name="Editor_DeleteQuestion" xml:space="preserve">
+    <value>Delete the profile "{0}"?</value>
+    <comment>Question in a Yes/No box. {0} is the profile name, shown in quotes.</comment>
+  </data>
+  <data name="Editor_BusySelect" xml:space="preserve">
+    <value>Another action is running; you can pick a profile when it is done.</value>
+    <comment>Message in the curve editor when a profile is clicked while a command runs.</comment>
+  </data>
+  <data name="List_Separator" xml:space="preserve">
+    <value>, </value>
+    <comment>Between the items of a list written in a sentence, for example the parts in the drift band. Include the space. Use the separator your language writes in prose (for example a comma and a space, or the CJK comma), not the regional list separator.</comment>
+  </data>
 </root>

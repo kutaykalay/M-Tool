@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MTool.App.Resources;
 using MTool.Core.Power;
 using MTool.Core.Profiles;
 
@@ -34,8 +35,8 @@ public sealed partial class PowerSwitchViewModel : ObservableObject
 
     private static string? LabelOf(PowerSource? source) => source switch
     {
-        PowerSource.Ac => "Şu an: prizde.",
-        PowerSource.Battery => "Şu an: pilde.",
+        PowerSource.Ac => Strings.PowerSwitch_OnAc,
+        PowerSource.Battery => Strings.PowerSwitch_OnBattery,
         _ => null,
     };
 

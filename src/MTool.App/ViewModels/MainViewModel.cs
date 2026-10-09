@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using MTool.App.Resources;
 using MTool.Core.Device;
 using MTool.Core.Ec;
 using MTool.Core.Power;
@@ -96,7 +97,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
         else
         {
-            Status.Report(new CommandResult(worst with { Message = $"{TriggerName(result.Trigger)} ayarlar uygulanamadı: {worst.Message}" }));
+            Status.Report(new CommandResult(worst with { Message = string.Format(FailedFormat(result.Trigger), worst.Message) }));
             _autoReapplyMessage = Status.Message;
         }
 
@@ -108,12 +109,13 @@ public sealed partial class MainViewModel : ObservableObject
     /// <summary>A new editor for one editor window; the window disposes it when it closes.</summary>
     public FanCurveEditorViewModel CreateEditor(IConfirm confirm) => new(_service, Controls, Status, confirm, _ui);
 
-    private static string TriggerName(ReapplyTrigger trigger) => trigger switch
+    // A whole sentence per trigger: the words around the trigger do not keep their order in every language.
+    private static string FailedFormat(ReapplyTrigger trigger) => trigger switch
     {
-        ReapplyTrigger.Startup => "Açılışta",
-        ReapplyTrigger.Resume => "Uykudan uyanınca",
-        ReapplyTrigger.PowerSource => "Güç kaynağı değişince",
-        _ => "Yeniden denemede",
+        ReapplyTrigger.Startup => Strings.Main_ReapplyStartup,
+        ReapplyTrigger.Resume => Strings.Main_ReapplyResume,
+        ReapplyTrigger.PowerSource => Strings.Main_ReapplyPowerSource,
+        _ => Strings.Main_ReapplyRetry,
     };
 
     private void UpdateTooltip() => TrayTooltip = TooltipText.Format(_poller.Latest, Controls.ActiveProfileLabel, Controls.ShowGpu);

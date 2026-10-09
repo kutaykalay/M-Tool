@@ -65,14 +65,14 @@ public sealed partial class ControlsViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(ActiveProfileLabel))]
     public partial string? ActiveProfile { get; private set; }
 
-    public string ActiveProfileLabel => ActiveProfile ?? (_tableImplausible ? "Okunan fan tablosu makul değil" : "Tanınmayan fan ayarı");
+    public string ActiveProfileLabel => ActiveProfile ?? (_tableImplausible ? Strings.Controls_FanTableImplausible : Strings.Controls_FanProfileUnrecognized);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PerformanceLabel))]
     public partial PerformanceMode? ActivePerformance { get; private set; }
 
     public string PerformanceLabel =>
-        ActivePerformance is { } mode ? Texts.Mode(mode) : $"fabrika ayarı (0x{_performanceRaw:X2})";
+        ActivePerformance is { } mode ? Texts.Mode(mode) : string.Format(Strings.Controls_PerformanceFactory, _performanceRaw);
 
     /// <summary>Null when the port state is not known.</summary>
     [ObservableProperty]
@@ -143,7 +143,7 @@ public sealed partial class ControlsViewModel : ObservableObject
             // A write failure message ("locked, restart") matters more than this one.
             if (_status.MessageKind != MessageKind.Error)
             {
-                _status.ShowWarning($"Güncel ayarlar okunamadı, gösterilen değerler eski olabilir. ({ex.Message})");
+                _status.ShowWarning(string.Format(Strings.Controls_ReadFailed, ex.Message));
             }
 
             return;
@@ -218,7 +218,7 @@ public sealed partial class ControlsViewModel : ObservableObject
     private Task ReapplyAsync() => RunAsync(PortUse.Allowed, async () =>
     {
         var outcomes = await _service.ReapplyAsync(PortUse.Allowed);
-        return new CommandResult(ReapplySummary.Worst(outcomes) ?? new WriteOutcome(WriteStatus.Rejected, [], "Yeniden uygulanacak bir şey yok."));
+        return new CommandResult(ReapplySummary.Worst(outcomes) ?? new WriteOutcome(WriteStatus.Rejected, [], Strings.Controls_NothingToReapply));
     });
 
     /// <summary>

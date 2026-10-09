@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MTool.App.Resources;
 using MTool.Core.Device;
 using MTool.Core.Profiles;
 
@@ -13,8 +14,6 @@ namespace MTool.App.ViewModels;
 /// </summary>
 public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposable
 {
-    private const string DiscardQuestion = "Kaydedilmemiş değişiklikler atılsın mı?";
-
     private readonly ProfileService _service;
     private readonly ControlsViewModel _controls;
     private readonly StatusViewModel _status;
@@ -129,6 +128,8 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
     /// <summary>Before the window closes; the draft is lost when the app exits from the tray.</summary>
     public bool ConfirmClose() => !IsDirty || _confirm.Ask(DiscardQuestion);
 
+    private static string DiscardQuestion => Strings.Editor_DiscardQuestion;
+
     private bool CanEditSelected() => !IsBuiltIn && !IsBusy;
 
     private bool CanSave() => CanEditSelected() && IsDirty && Errors.Count == 0;
@@ -150,7 +151,7 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
     {
         if (await SaveDraftAsync())
         {
-            Message ??= "Kaydedildi. Fanlara uygulamak için Uygula'ya basın.";
+            Message ??= Strings.Editor_Saved;
         }
     });
 
@@ -198,7 +199,7 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
     private Task DeleteAsync() => RunAsync(async () =>
     {
         var name = _selectedProfile.Name;
-        if (!_confirm.Ask($"\"{name}\" profili silinsin mi?"))
+        if (!_confirm.Ask(string.Format(Strings.Editor_DeleteQuestion, name)))
         {
             return;
         }
@@ -227,7 +228,7 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
         // Checked again: the tray may have started a command while this one was saving.
         if (!_controls.CanWrite)
         {
-            Message = Join(Message, "Profil kaydedildi ama uygulanmadı: başka bir işlem sürüyor ya da ayar değiştirme kapalı. Biraz sonra tekrar deneyin.");
+            Message = Join(Message, Strings.Editor_SavedNotApplied);
             return;
         }
 
@@ -269,7 +270,7 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
 
         if (IsBusy)
         {
-            Message = "Başka bir işlem sürüyor; bitince profil seçebilirsiniz.";
+            Message = Strings.Editor_BusySelect;
         }
 
         if (IsBusy || (IsDirty && !_confirm.Ask(DiscardQuestion)))
