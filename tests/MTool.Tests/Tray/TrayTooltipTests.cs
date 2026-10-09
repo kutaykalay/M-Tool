@@ -1,5 +1,7 @@
+using System.Globalization;
 using MTool.App.Tray;
 using MTool.Core.Device;
+using MTool.Core.Localization;
 using MTool.Core.Sensors;
 
 namespace MTool.Tests.Tray;
@@ -57,6 +59,33 @@ public class TrayTooltipTests
         var text = TrayTooltip.Format(new SensorReading(hot, SensorStatus.Stale, 9, At), "Silent", showGpu: true);
 
         text.Length.Should().BeLessThanOrEqualTo(TrayTooltip.MaxLength);
+    }
+
+    public static TheoryData<string> Languages => [.. SupportedLanguages.All];
+
+    [Theory]
+    [MemberData(nameof(Languages))]
+    public void A_full_length_profile_name_and_the_longest_marker_fit_in_every_language(string language)
+    {
+        var hot = new SensorSnapshot(110, 110, 100, 100, 65535, 65535);
+        var profile = new string('W', 24);
+        var before = CultureInfo.CurrentUICulture;
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(language);
+
+            var stale = TrayTooltip.Format(new SensorReading(hot, SensorStatus.Stale, 9, At), profile, showGpu: true);
+            var paused = TrayTooltip.Format(new SensorReading(hot, SensorStatus.Paused, 9, At), profile, showGpu: true);
+
+            stale.Length.Should().BeLessThanOrEqualTo(TrayTooltip.MaxLength);
+            paused.Length.Should().BeLessThanOrEqualTo(TrayTooltip.MaxLength);
+            stale.Should().Contain(profile, "a profile name of the full length is not to be cut");
+            paused.Should().Contain(profile, "a profile name of the full length is not to be cut");
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = before;
+        }
     }
 
     [Fact]

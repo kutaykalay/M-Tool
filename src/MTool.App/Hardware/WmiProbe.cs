@@ -1,4 +1,5 @@
 using System.Management;
+using MTool.App.Resources;
 using MTool.Core;
 using MTool.Core.Diagnostics;
 using MTool.Core.Device.Config;
@@ -7,7 +8,12 @@ using MTool.Core.Ec;
 namespace MTool.App.Hardware;
 
 /// <summary>A model M-Tool cannot read yet; the message is meant for the user.</summary>
-internal sealed class UnsupportedDeviceException(string message) : Exception(message);
+/// <param name="message">In the language of the window.</param>
+/// <param name="logMessage">The same sentence in English, for the log.</param>
+internal sealed class UnsupportedDeviceException(string message, string logMessage) : Exception(message)
+{
+    public string LogMessage { get; } = logMessage;
+}
 
 /// <summary>
 /// Finds which MSI WMI interface this laptop has before a session opens, so a model M-Tool cannot
@@ -57,10 +63,14 @@ internal static class WmiProbe
         hasSoftware ? WmiInterface.Wmi1 : hasAcpi ? WmiInterface.Wmi2 : null;
 
     internal static string UnsupportedMessage(WmiInterface? detected) => detected == WmiInterface.Wmi2
-        ? "Bu MSI modeli henüz desteklenmiyor: EC'ye MSI'ın WMI2 arayüzüyle erişiliyor (çoğunlukla 11. nesil Intel ve sonrası). " +
-          "M-Tool şimdilik yalnızca WMI1 modellerini okuyabiliyor. Desteğe katkı için yönetici komut isteminde " +
-          "\"M-Tool.exe --report --wmi2\" çalıştırıp oluşan zip'i GitHub'da \"Device report\" issue'suna ekleyebilirsiniz."
-        : $"Bu bilgisayar henüz desteklenmiyor: MSI WMI arayüzü (root\\WMI içinde {Wmi1Class} ya da {Wmi2Class}) bulunamadı.";
+        ? Strings.Probe_UnsupportedWmi2
+        : string.Format(Strings.Probe_UnsupportedNoWmi, Wmi1Class, Wmi2Class);
+
+    /// <summary>What <see cref="UnsupportedMessage"/> says, always in English: the log is read by people in any language.</summary>
+    internal static string UnsupportedLogMessage(WmiInterface? detected) => detected == WmiInterface.Wmi2
+        ? "This MSI model is not supported yet: it reaches the EC through MSI's WMI2 interface. " +
+          "M-Tool can only read WMI1 models for now."
+        : $"This computer is not supported yet: the MSI WMI interface ({Wmi1Class} or {Wmi2Class} in root\\WMI) was not found.";
 
     private static bool HasClass(ManagementScope scope, string className)
     {
@@ -103,7 +113,7 @@ internal sealed class WmiInterfaceCheck(Func<WmiInterface?> detect)
 
         if (detected != WmiInterface.Wmi1)
         {
-            throw new UnsupportedDeviceException(WmiProbe.UnsupportedMessage(detected));
+            throw new UnsupportedDeviceException(WmiProbe.UnsupportedMessage(detected), WmiProbe.UnsupportedLogMessage(detected));
         }
 
         _wmi1Confirmed = true;

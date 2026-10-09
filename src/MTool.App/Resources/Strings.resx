@@ -160,4 +160,72 @@
     <value>Save and apply</value>
     <comment>Button: save the profile and apply it to the laptop.</comment>
   </data>
+  <data name="Tray_PowerSwitch" xml:space="preserve">
+    <value>Separate AC and battery settings</value>
+    <comment>Tray menu check item. AC = plugged in to mains power.</comment>
+  </data>
+  <data name="Tray_StartAtSignIn" xml:space="preserve">
+    <value>Start at sign-in</value>
+    <comment>Tray menu check item: start M-Tool when the user signs in to Windows.</comment>
+  </data>
+  <data name="Tray_OpenWindow" xml:space="preserve">
+    <value>Open window</value>
+    <comment>Tray menu item.</comment>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Exit</value>
+    <comment>Tray menu item.</comment>
+  </data>
+  <data name="Tray_Performance" xml:space="preserve">
+    <value>Performance: {0}</value>
+    <comment>Tray menu sub menu title. {0} is the current performance mode name.</comment>
+  </data>
+  <data name="Tray_DataStale" xml:space="preserve">
+    <value> (data stale)</value>
+    <comment>Tray tooltip, appended to the profile name when the sensors stopped answering. Keep the leading space and keep it short: the whole tooltip is limited to 127 characters.</comment>
+  </data>
+  <data name="Tray_Paused" xml:space="preserve">
+    <value> (paused)</value>
+    <comment>Tray tooltip, appended to the profile name while sensor reading is paused (sleep). Keep the leading space and keep it short: the whole tooltip is limited to 127 characters.</comment>
+  </data>
+  <data name="Tray_ReadingSensors" xml:space="preserve">
+    <value>Reading sensors…</value>
+    <comment>Tray tooltip line before the first sensor reading. Keep it short: the whole tooltip is limited to 127 characters.</comment>
+  </data>
+  <data name="Startup_Failed" xml:space="preserve">
+    <value>M-Tool could not start: {0}&#10;&#10;Details: {1}</value>
+    <comment>Error box. {0} is the reason, {1} the folder of the log files.</comment>
+  </data>
+  <data name="Startup_UnexpectedError" xml:space="preserve">
+    <value>Unexpected error: {0}&#10;&#10;Details: {1}</value>
+    <comment>Error box. {0} is the reason, {1} the folder of the log files.</comment>
+  </data>
+  <data name="Startup_Problem" xml:space="preserve">
+    <value>{0}&#10;&#10;Details: {1}</value>
+    <comment>Error box. {0} is a sentence that says why M-Tool did not open, {1} the folder of the log files.</comment>
+  </data>
+  <data name="Startup_EcUnreachable" xml:space="preserve">
+    <value>Could not reach the EC: {0}&#10;&#10;Details: {1}</value>
+    <comment>Error box. EC = the laptop's embedded controller. {0} is the reason, {1} the folder of the log files.</comment>
+  </data>
+  <data name="Startup_PawnIoMissing" xml:space="preserve">
+    <value>PawnIO is not installed. M-Tool reaches the EC through the PawnIO driver.&#10;&#10;To install (in an administrator command prompt):&#10;{0}&#10;&#10;Details: {1}</value>
+    <comment>SAFETY. Error box. {0} is the install command: copy it unchanged. {1} is the folder of the log files. PawnIO is a product name. EC = the laptop's embedded controller.</comment>
+  </data>
+  <data name="PawnIo_Missing" xml:space="preserve">
+    <value>PawnIO is not installed. To install: {0}</value>
+    <comment>SAFETY. Error text. {0} is the install command: copy it unchanged. PawnIO is a product name.</comment>
+  </data>
+  <data name="Session_FirmwareUnread" xml:space="preserve">
+    <value>Firmware could not be read at startup. For safety, Cooler Boost and the charge limit are hidden in this session and settings are not written. Restart M-Tool.</value>
+    <comment>SAFETY. Warning banner. Firmware = the laptop's embedded controller firmware. Cooler Boost is MSI's name: keep it.</comment>
+  </data>
+  <data name="Probe_UnsupportedWmi2" xml:space="preserve">
+    <value>This MSI model is not supported yet: it reaches the EC through MSI's WMI2 interface (mostly 11th-generation Intel and later). M-Tool can only read WMI1 models for now. To help add support, run "M-Tool.exe --report --wmi2" in an administrator command prompt and attach the zip it creates to a "Device report" issue on GitHub.</value>
+    <comment>SAFETY. Error box. EC = the laptop's embedded controller. Copy the command M-Tool.exe --report --wmi2 unchanged. "Device report" is the name of the GitHub issue type: keep it in English.</comment>
+  </data>
+  <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
+    <value>This computer is not supported yet: the MSI WMI interface ({0} or {1} in root\WMI) was not found.</value>
+    <comment>Error box. {0} and {1} are WMI class names: copy them unchanged.</comment>
+  </data>
 </root>

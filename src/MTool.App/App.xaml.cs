@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Threading;
 using MTool.App.Cli;
+using MTool.App.Resources;
 using MTool.App.Startup;
 
 namespace MTool.App;
@@ -42,7 +43,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             _log.Error("GUI failed to start", ex);
-            MessageBox.Show($"M-Tool başlatılamadı: {ex.Message}\n\nAyrıntı: {AppPaths.Logs}", "M-Tool",
+            MessageBox.Show(string.Format(Strings.Startup_Failed, ex.Message, AppPaths.Logs), "M-Tool",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
@@ -99,7 +100,7 @@ public partial class App : Application
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         _log.Error("UI error", e.Exception);
-        MessageBox.Show($"Beklenmeyen hata: {e.Exception.Message}\n\nAyrıntı: {AppPaths.Logs}", "M-Tool",
+        MessageBox.Show(string.Format(Strings.Startup_UnexpectedError, e.Exception.Message, AppPaths.Logs), "M-Tool",
             MessageBoxButton.OK, MessageBoxImage.Warning);
         e.Handled = true;
     }

@@ -56,4 +56,23 @@ public sealed class StringResourcesTests
 
         Strings.ResourceManager.GetString(nameof(Strings.Main_SectionSensors), austrianGerman).Should().Be("SENSORS");
     }
+
+    [Theory]
+    [InlineData("en")]
+    [InlineData("tr")]
+    public void Error_box_texts_break_lines_with_real_newlines(string language)
+    {
+        var culture = CultureInfo.GetCultureInfo(language);
+        string[] keys =
+        [
+            nameof(Strings.Startup_Failed), nameof(Strings.Startup_UnexpectedError), nameof(Strings.Startup_Problem),
+            nameof(Strings.Startup_EcUnreachable), nameof(Strings.Startup_PawnIoMissing),
+        ];
+
+        foreach (var key in keys)
+        {
+            var text = Strings.ResourceManager.GetString(key, culture);
+            text.Should().Contain("\n", key).And.NotContain("<NL>", key);
+        }
+    }
 }

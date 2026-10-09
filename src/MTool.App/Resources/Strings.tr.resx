@@ -123,4 +123,55 @@
   <data name="Editor_SaveAndApply" xml:space="preserve">
     <value>Kaydet ve uygula</value>
   </data>
+  <data name="Tray_PowerSwitch" xml:space="preserve">
+    <value>Prizde ve pilde ayrı ayar</value>
+  </data>
+  <data name="Tray_StartAtSignIn" xml:space="preserve">
+    <value>Oturum açılışında başlat</value>
+  </data>
+  <data name="Tray_OpenWindow" xml:space="preserve">
+    <value>Pencereyi aç</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Çıkış</value>
+  </data>
+  <data name="Tray_Performance" xml:space="preserve">
+    <value>Performans: {0}</value>
+  </data>
+  <data name="Tray_DataStale" xml:space="preserve">
+    <value> (veri eski)</value>
+  </data>
+  <data name="Tray_Paused" xml:space="preserve">
+    <value> (duraklatıldı)</value>
+  </data>
+  <data name="Tray_ReadingSensors" xml:space="preserve">
+    <value>Sensörler okunuyor…</value>
+  </data>
+  <data name="Startup_Failed" xml:space="preserve">
+    <value>M-Tool başlatılamadı: {0}&#10;&#10;Ayrıntı: {1}</value>
+  </data>
+  <data name="Startup_UnexpectedError" xml:space="preserve">
+    <value>Beklenmeyen hata: {0}&#10;&#10;Ayrıntı: {1}</value>
+  </data>
+  <data name="Startup_Problem" xml:space="preserve">
+    <value>{0}&#10;&#10;Ayrıntı: {1}</value>
+  </data>
+  <data name="Startup_EcUnreachable" xml:space="preserve">
+    <value>EC'ye erişilemedi: {0}&#10;&#10;Ayrıntı: {1}</value>
+  </data>
+  <data name="Startup_PawnIoMissing" xml:space="preserve">
+    <value>PawnIO kurulu değil. M-Tool EC'ye PawnIO sürücüsüyle erişir.&#10;&#10;Kurmak için (yönetici komut isteminde):&#10;{0}&#10;&#10;Ayrıntı: {1}</value>
+  </data>
+  <data name="PawnIo_Missing" xml:space="preserve">
+    <value>PawnIO kurulu değil. Kurmak için: {0}</value>
+  </data>
+  <data name="Session_FirmwareUnread" xml:space="preserve">
+    <value>Açılışta firmware okunamadı. Güvenlik için Cooler Boost ve şarj limiti bu oturumda gizli, ayarlar yazılmıyor. M-Tool'u yeniden başlatın.</value>
+  </data>
+  <data name="Probe_UnsupportedWmi2" xml:space="preserve">
+    <value>Bu MSI modeli henüz desteklenmiyor: EC'ye MSI'ın WMI2 arayüzüyle erişiliyor (çoğunlukla 11. nesil Intel ve sonrası). M-Tool şimdilik yalnızca WMI1 modellerini okuyabiliyor. Desteğe katkı için yönetici komut isteminde "M-Tool.exe --report --wmi2" çalıştırıp oluşan zip'i GitHub'da "Device report" issue'suna ekleyebilirsiniz.</value>
+  </data>
+  <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
+    <value>Bu bilgisayar henüz desteklenmiyor: MSI WMI arayüzü (root\WMI içinde {0} ya da {1}) bulunamadı.</value>
+  </data>
 </root>

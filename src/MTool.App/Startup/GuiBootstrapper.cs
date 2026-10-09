@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Windows;
 using MTool.App.Hardware;
+using MTool.App.Resources;
 using MTool.App.Services;
 using MTool.App.Theme;
 using MTool.App.Tray;
@@ -264,8 +265,8 @@ internal sealed class GuiBootstrapper : IDisposable
         }
         catch (UnsupportedDeviceException ex)
         {
-            log.Warn($"Unsupported model; GUI not opened. {ex.Message}");
-            StartupProblem($"{ex.Message}\n\nAyrıntı: {AppPaths.Logs}");
+            log.Warn($"Unsupported model; GUI not opened. {ex.LogMessage}");
+            StartupProblem(string.Format(Strings.Startup_Problem, ex.Message, AppPaths.Logs));
             return null;
         }
 
@@ -277,15 +278,13 @@ internal sealed class GuiBootstrapper : IDisposable
         catch (PawnIoMissingException)
         {
             log.Error("PawnIO not installed; GUI not opened.");
-            StartupProblem(
-                $"PawnIO kurulu değil. M-Tool EC'ye PawnIO sürücüsüyle erişir.\n\nKurmak için (yönetici komut isteminde):\n" +
-                $"{PawnIoInstallation.InstallCommand}\n\nAyrıntı: {AppPaths.Logs}");
+            StartupProblem(string.Format(Strings.Startup_PawnIoMissing, PawnIoInstallation.InstallCommand, AppPaths.Logs));
             return null;
         }
         catch (Exception ex)
         {
             log.Error("Could not open the EC session; GUI not opened.", ex);
-            StartupProblem($"EC'ye erişilemedi: {ex.Message}\n\nAyrıntı: {AppPaths.Logs}");
+            StartupProblem(string.Format(Strings.Startup_EcUnreachable, ex.Message, AppPaths.Logs));
             return null;
         }
     }

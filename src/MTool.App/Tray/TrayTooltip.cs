@@ -1,4 +1,5 @@
 using System.Globalization;
+using MTool.App.Resources;
 using MTool.Core.Device;
 using MTool.Core.Sensors;
 
@@ -17,13 +18,13 @@ internal static class TrayTooltip
     {
         var marker = reading.Status switch
         {
-            SensorStatus.Stale => " (veri eski)",
-            SensorStatus.Paused => " (duraklatıldı)",
+            SensorStatus.Stale => Strings.Tray_DataStale,
+            SensorStatus.Paused => Strings.Tray_Paused,
             _ => "",
         };
         var body = reading.Snapshot is { } s
             ? $"\n{FanLine("CPU", s.CpuTempC, s.CpuRpm)}" + (showGpu ? $"\n{FanLine("GPU", s.GpuTempC, s.GpuRpm)}" : "")
-            : "\nSensörler okunuyor…";
+            : "\n" + Strings.Tray_ReadingSensors;
 
         var room = MaxLength - Prefix.Length - marker.Length - body.Length;
         return Prefix + Shorten(profileName, room) + marker + body;

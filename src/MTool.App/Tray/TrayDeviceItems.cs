@@ -1,4 +1,5 @@
 using System.Windows.Forms;
+using MTool.App.Resources;
 using MTool.App.ViewModels;
 using MTool.Core.Profiles;
 
@@ -73,7 +74,7 @@ internal static class TrayDeviceItems
 
     private static ToolStripMenuItem PerformanceMenu(ControlsViewModel controls)
     {
-        var menu = new ToolStripMenuItem($"Performans: {controls.PerformanceLabel}");
+        var menu = new ToolStripMenuItem(string.Format(Strings.Tray_Performance, controls.PerformanceLabel));
         foreach (var option in controls.PerformanceOptions)
         {
             menu.DropDownItems.Add(Item(option.Name, controls.ActivePerformance == option.Mode, controls.CanWrite,

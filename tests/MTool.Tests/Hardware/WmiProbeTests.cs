@@ -29,6 +29,13 @@ public class WmiProbeTests
         WmiProbe.UnsupportedMessage(WmiInterface.Wmi2).Should().Contain("henüz desteklenmiyor").And.Contain("WMI2");
     }
 
+    [Fact]
+    public void The_log_text_is_English_whatever_the_language_of_the_window()
+    {
+        WmiProbe.UnsupportedLogMessage(WmiInterface.Wmi2).Should().Contain("not supported yet").And.Contain("WMI2");
+        WmiProbe.UnsupportedLogMessage(null).Should().Contain("not supported yet").And.Contain("MSI WMI");
+    }
+
     // --- the check before a session: only a definite answer stops start-up ---
 
     [Theory]
@@ -40,7 +47,7 @@ public class WmiProbeTests
 
         var act = () => check.EnsureWmi1(new ListLog());
 
-        act.Should().Throw<UnsupportedDeviceException>().WithMessage("*henüz desteklenmiyor*");
+        act.Should().Throw<UnsupportedDeviceException>().WithMessage("*henüz desteklenmiyor*").Which.LogMessage.Should().Contain("not supported yet");
     }
 
     [Fact]

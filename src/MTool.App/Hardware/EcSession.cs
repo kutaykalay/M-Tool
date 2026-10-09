@@ -1,3 +1,4 @@
+using MTool.App.Resources;
 using MTool.Core;
 using MTool.Core.Device;
 using MTool.Core.Device.Config;
@@ -6,7 +7,11 @@ using MTool.Core.Ec;
 namespace MTool.App.Hardware;
 
 /// <summary>The firmware is verified for writes and the port is wanted, but PawnIO is not installed.</summary>
-internal sealed class PawnIoMissingException() : Exception($"PawnIO kurulu değil. Kurmak için: {PawnIoInstallation.InstallCommand}");
+internal sealed class PawnIoMissingException() : Exception(string.Format(Strings.PawnIo_Missing, PawnIoInstallation.InstallCommand))
+{
+    /// <summary>The same sentence in English, for the log.</summary>
+    public string LogMessage { get; } = $"PawnIO is not installed. To install: {PawnIoInstallation.InstallCommand}";
+}
 
 /// <summary>How a session reaches the EC: MSI WMI with or without the raw port.</summary>
 internal enum EcBackends
@@ -29,9 +34,6 @@ internal enum EcBackends
 internal sealed class EcSession : IDisposable
 {
     private const int FirmwareAttempts = 2;
-
-    private const string FirmwareUnreadWarning =
-        "Açılışta firmware okunamadı. Güvenlik için Cooler Boost ve şarj limiti bu oturumda gizli, ayarlar yazılmıyor. M-Tool'u yeniden başlatın.";
 
     private static readonly TimeSpan LockTimeout = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan FirmwareRetryDelay = TimeSpan.FromSeconds(1);
@@ -115,7 +117,7 @@ internal sealed class EcSession : IDisposable
             var worker = new EcWorker(registers, ecLock, LockTimeout, (message, ex) => log.Error(message, ex), accessGate);
             var fallback = backend == EcBackends.Hybrid && !usePort ? " (unverified firmware: port closed)" : "";
             log.Info($"EC session: {(usePort ? EcBackends.Hybrid : EcBackends.WmiOnly)}, device record {layout.Id}{fallback}");
-            string[] warnings = firmware is null && backend == EcBackends.Hybrid ? [FirmwareUnreadWarning] : [];
+            string[] warnings = firmware is null && backend == EcBackends.Hybrid ? [Strings.Session_FirmwareUnread] : [];
             return new EcSession(ports, ecLock, controller, worker, catalog, layout, log, troubleLog, warnings);
         }
         catch

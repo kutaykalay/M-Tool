@@ -60,16 +60,20 @@ internal static class CliRunner
         catch (UnsupportedDeviceException ex)
         {
             // An expected answer about the laptop, not a fault: no stack trace in the log.
-            log.Warn($"Unsupported model: {string.Join(' ', args)}. {ex.Message}");
+            log.Warn($"Unsupported model: {string.Join(' ', args)}. {ex.LogMessage}");
             Console.Error.WriteLine(ex.Message);
             return ExitError;
+        }
+        catch (PawnIoMissingException ex)
+        {
+            // The message is for the console in the Windows language; the log stays English.
+            log.Error($"Command failed: {string.Join(' ', args)}. {ex.LogMessage}");
+            return ReportFailure(ex);
         }
         catch (Exception ex)
         {
             log.Error($"Command failed: {string.Join(' ', args)}", ex);
-            Console.Error.WriteLine($"HATA: {ex.Message}");
-            Console.Error.WriteLine($"Ayrıntı: {AppPaths.Logs}");
-            return ExitError;
+            return ReportFailure(ex);
         }
     }
 
@@ -153,6 +157,13 @@ internal static class CliRunner
         log.Warn($"Write lock removed by hand. Previous reason: {reason}");
         Console.WriteLine($"Kilit kaldırıldı. Önceki neden: {reason}");
         return ExitOk;
+    }
+
+    private static int ReportFailure(Exception ex)
+    {
+        Console.Error.WriteLine($"HATA: {ex.Message}");
+        Console.Error.WriteLine($"Ayrıntı: {AppPaths.Logs}");
+        return ExitError;
     }
 
     // Safe to block: callers pass work that never resumes on the UI thread (ConfigureAwait(false) / Task.Run).

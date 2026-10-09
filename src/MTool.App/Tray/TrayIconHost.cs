@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows.Forms;
+using MTool.App.Resources;
 using MTool.App.Theme;
 using MTool.App.ViewModels;
 using static MTool.App.Tray.TrayDeviceItems;
@@ -102,17 +103,17 @@ internal sealed class TrayIconHost : INotifier, IDisposable
 
         // Only changes the settings file, so it stays enabled while writing is locked.
         var powerSwitch = _viewModel.PowerSwitch;
-        _menu.Items.Add(Item("Prizde ve pilde ayrı ayar", powerSwitch.IsOn, powerSwitch.ToggleCommand.CanExecute(null),
+        _menu.Items.Add(Item(Strings.Tray_PowerSwitch, powerSwitch.IsOn, powerSwitch.ToggleCommand.CanExecute(null),
             () => Run(powerSwitch.ToggleCommand, null)));
         _menu.Items.Add(new ToolStripSeparator());
         if (_signInStart is { } signInStart)
         {
-            _menu.Items.Add(Item("Oturum açılışında başlat", signInStart.IsEnabled, signInStart.ToggleCommand.CanExecute(null),
+            _menu.Items.Add(Item(Strings.Tray_StartAtSignIn, signInStart.IsEnabled, signInStart.ToggleCommand.CanExecute(null),
                 () => Run(signInStart.ToggleCommand, null)));
         }
 
-        _menu.Items.Add(Item("Pencereyi aç", isChecked: false, enabled: true, _showWindow));
-        _menu.Items.Add(Item("Çıkış", isChecked: false, enabled: true, _exit));
+        _menu.Items.Add(Item(Strings.Tray_OpenWindow, isChecked: false, enabled: true, _showWindow));
+        _menu.Items.Add(Item(Strings.Tray_Exit, isChecked: false, enabled: true, _exit));
         e.Cancel = false;
     }
 
