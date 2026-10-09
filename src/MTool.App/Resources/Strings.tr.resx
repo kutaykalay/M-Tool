@@ -24,4 +24,103 @@
   <data name="Mode_Eco" xml:space="preserve">
     <value>Pil</value>
   </data>
+  <data name="Common_Apply" xml:space="preserve">
+    <value>Uygula</value>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Evet</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>Hayır</value>
+  </data>
+  <data name="Main_SectionFanProfile" xml:space="preserve">
+    <value>FAN PROFİLİ</value>
+  </data>
+  <data name="Main_EditCurves" xml:space="preserve">
+    <value>Eğrileri düzenle</value>
+  </data>
+  <data name="Main_EditCurvesTip" xml:space="preserve">
+    <value>Fan eğrilerini ve özel profilleri düzenle</value>
+  </data>
+  <data name="Main_SectionPerformance" xml:space="preserve">
+    <value>PERFORMANS</value>
+  </data>
+  <data name="Main_PowerSwitch" xml:space="preserve">
+    <value>Prizde ve pilde ayrı ayarları hatırla</value>
+  </data>
+  <data name="Main_PowerSwitchTip" xml:space="preserve">
+    <value>Açıkken fan profili ve performans modu prizde ve pilde ayrı hatırlanır. Kablo takılınca ya da çıkarılınca o kaynakta son seçtiğiniz ayar uygulanır. Şarj limiti ve Cooler Boost değişmez.</value>
+  </data>
+  <data name="Main_CoolerBoostHint" xml:space="preserve">
+    <value>(fanlar tam hız)</value>
+  </data>
+  <data name="Main_SectionChargeLimit" xml:space="preserve">
+    <value>ŞARJ LİMİTİ</value>
+  </data>
+  <data name="Main_ChargeLimitNow" xml:space="preserve">
+    <value>Şu an:</value>
+  </data>
+  <data name="Main_Reapply" xml:space="preserve">
+    <value>Yeniden uygula</value>
+  </data>
+  <data name="Charge_Unknown" xml:space="preserve">
+    <value>bilinmiyor</value>
+  </data>
+  <data name="Charge_Off" xml:space="preserve">
+    <value>kapalı</value>
+  </data>
+  <data name="Format_Percent" xml:space="preserve">
+    <value>%{0}</value>
+  </data>
+  <data name="Editor_Title" xml:space="preserve">
+    <value>M-Tool · Fan eğrileri</value>
+  </data>
+  <data name="Editor_SectionProfiles" xml:space="preserve">
+    <value>PROFİLLER</value>
+  </data>
+  <data name="Editor_BuiltIn" xml:space="preserve">
+    <value>hazır</value>
+  </data>
+  <data name="Editor_Copy" xml:space="preserve">
+    <value>Kopyala</value>
+  </data>
+  <data name="Editor_Delete" xml:space="preserve">
+    <value>Sil</value>
+  </data>
+  <data name="Editor_SectionName" xml:space="preserve">
+    <value>AD</value>
+  </data>
+  <data name="Editor_Rename" xml:space="preserve">
+    <value>Yeniden adlandır</value>
+  </data>
+  <data name="Editor_SectionFan" xml:space="preserve">
+    <value>FAN</value>
+  </data>
+  <data name="Editor_BuiltInReadOnly" xml:space="preserve">
+    <value>Hazır profiller değiştirilemez; düzenlemek için kopyalayın.</value>
+  </data>
+  <data name="Editor_ColPoint" xml:space="preserve">
+    <value>Nokta</value>
+  </data>
+  <data name="Editor_ColThreshold" xml:space="preserve">
+    <value>Eşik °C</value>
+  </data>
+  <data name="Editor_ColSpeed" xml:space="preserve">
+    <value>Hız %</value>
+  </data>
+  <data name="Editor_ColAllowed" xml:space="preserve">
+    <value>İzin verilen</value>
+  </data>
+  <data name="Editor_AllowedRange" xml:space="preserve">
+    <value>{0}–{1} °C, %{2}–{3}</value>
+  </data>
+  <data name="Editor_Revert" xml:space="preserve">
+    <value>Geri al</value>
+  </data>
+  <data name="Editor_Save" xml:space="preserve">
+    <value>Kaydet</value>
+  </data>
+  <data name="Editor_SaveAndApply" xml:space="preserve">
+    <value>Kaydet ve uygula</value>
+  </data>
 </root>

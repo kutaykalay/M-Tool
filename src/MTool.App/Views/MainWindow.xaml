@@ -50,13 +50,13 @@
         <StackPanel Visibility="{Binding Controls.ShowFanProfiles, Converter={StaticResource BoolToVisible}}">
             <!-- The pill is taller than the title; negative vertical margins center it on the title line without growing the row. -->
             <DockPanel Margin="0,12,0,10">
-                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" VerticalAlignment="Center" Text="FAN PROFİLİ" />
+                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" VerticalAlignment="Center" Text="{x:Static res:Strings.Main_SectionFanProfile}" />
                 <Button DockPanel.Dock="Right" Style="{StaticResource Pill}" Margin="10,-4,0,-4" VerticalAlignment="Center"
-                        Click="OnEditCurvesClick" ToolTip="Fan eğrilerini ve özel profilleri düzenle">
+                        Click="OnEditCurvesClick" ToolTip="{x:Static res:Strings.Main_EditCurvesTip}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="11" VerticalAlignment="Center"
                                    Margin="0,0,5,0" Text="&#xE70F;" />
-                        <TextBlock VerticalAlignment="Center" Text="Eğrileri düzenle" />
+                        <TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.Main_EditCurves}" />
                     </StackPanel>
                 </Button>
                 <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" VerticalAlignment="Center"
@@ -89,7 +89,7 @@
         <!-- Performance mode -->
         <StackPanel Visibility="{Binding Controls.ShowPerformance, Converter={StaticResource BoolToVisible}}">
             <DockPanel Margin="0,12,0,6">
-                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="PERFORMANS" />
+                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="{x:Static res:Strings.Main_SectionPerformance}" />
                 <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" Text="{Binding Controls.PerformanceLabel}" />
             </DockPanel>
             <ItemsControl ItemsSource="{Binding Controls.PerformanceOptions}">
@@ -117,8 +117,8 @@
         <!-- AC/battery switching: changes only the settings file, so it is not tied to write access. -->
         <CheckBox Margin="2,10,0,0" Foreground="{DynamicResource Brush.Text}" ToolTipService.ShowDuration="20000"
                   IsChecked="{Binding PowerSwitch.IsOn, Mode=OneWay}" Command="{Binding PowerSwitch.ToggleCommand}"
-                  ToolTip="Açıkken fan profili ve performans modu prizde ve pilde ayrı hatırlanır. Kablo takılınca ya da çıkarılınca o kaynakta son seçtiğiniz ayar uygulanır. Şarj limiti ve Cooler Boost değişmez.">
-            <TextBlock Text="Prizde ve pilde ayrı ayarları hatırla" TextWrapping="Wrap" />
+                  ToolTip="{x:Static res:Strings.Main_PowerSwitchTip}">
+            <TextBlock Text="{x:Static res:Strings.Main_PowerSwitch}" TextWrapping="Wrap" />
         </CheckBox>
         <TextBlock Style="{StaticResource Muted}" Margin="22,2,0,0" Text="{Binding PowerSwitch.SourceLabel}"
                    Visibility="{Binding PowerSwitch.SourceLabel, Converter={StaticResource NotNullToVisible}}" />
@@ -132,7 +132,7 @@
                     Command="{Binding Controls.SetCoolerBoostCommand}">
                 <TextBlock>
                     <Run Text="Cooler Boost" />
-                    <Run Text="(fanlar tam hız)" />
+                    <Run Text="{x:Static res:Strings.Main_CoolerBoostHint}" />
                 </TextBlock>
             </Button>
         </StackPanel>
@@ -140,17 +140,17 @@
         <!-- Charge limit -->
         <StackPanel Visibility="{Binding Controls.ShowChargeLimit, Converter={StaticResource BoolToVisible}}">
             <DockPanel Margin="0,12,0,6">
-                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="ŞARJ LİMİTİ" />
+                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="{x:Static res:Strings.Main_SectionChargeLimit}" />
                 <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right">
-                    <Run Text="Şu an:" />
+                    <Run Text="{x:Static res:Strings.Main_ChargeLimitNow}" />
                     <Run Text="{Binding Controls.ChargeLimitLabel, Mode=OneWay}" />
                 </TextBlock>
             </DockPanel>
             <DockPanel>
-                <Button DockPanel.Dock="Right" Style="{StaticResource Choice}" Margin="8,0,0,0" Content="Uygula"
+                <Button DockPanel.Dock="Right" Style="{StaticResource Choice}" Margin="8,0,0,0" Content="{x:Static res:Strings.Common_Apply}"
                         Command="{Binding Controls.ApplyChargeLimitCommand}" />
                 <TextBlock DockPanel.Dock="Right" Width="44" VerticalAlignment="Center" TextAlignment="Right"
-                           Text="{Binding Controls.ChargeLimitDraft, StringFormat='%{0}'}" />
+                           Text="{Binding Controls.ChargeLimitDraftLabel}" />
                 <Slider Minimum="{Binding Controls.ChargeLimitMin, Mode=OneTime}" Maximum="{Binding Controls.ChargeLimitMax, Mode=OneTime}" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"
                         Value="{Binding Controls.ChargeLimitDraft, Mode=TwoWay}" IsEnabled="{Binding Controls.CanWritePort}" />
             </DockPanel>
@@ -160,7 +160,7 @@
         <Border Style="{StaticResource Band}" Tag="{x:Static vm:MessageKind.Warning}"
                 Visibility="{Binding Status.ShowReapply, Converter={StaticResource BoolToVisible}}">
             <DockPanel>
-                <Button DockPanel.Dock="Right" Style="{StaticResource Choice}" Margin="8,0,0,0" Content="Yeniden uygula"
+                <Button DockPanel.Dock="Right" Style="{StaticResource Choice}" Margin="8,0,0,0" Content="{x:Static res:Strings.Main_Reapply}"
                         Command="{Binding Controls.ReapplyCommand}" />
                 <TextBlock Text="{Binding Status.DriftText}" TextWrapping="Wrap" VerticalAlignment="Center" />
             </DockPanel>

@@ -83,11 +83,14 @@ public sealed partial class ControlsViewModel : ObservableObject
     public partial int? ChargeLimitActual { get; private set; }
 
     public string ChargeLimitLabel =>
-        !_portStateKnown ? "bilinmiyor" : ChargeLimitActual is { } percent ? $"%{percent}" : "kapalı";
+        !_portStateKnown ? Strings.Charge_Unknown : ChargeLimitActual is { } percent ? string.Format(Strings.Format_Percent, percent) : Strings.Charge_Off;
 
     /// <summary>Slider value; written only by <see cref="ApplyChargeLimitCommand"/>.</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ChargeLimitDraftLabel))]
     public partial int ChargeLimitDraft { get; set; }
+
+    public string ChargeLimitDraftLabel => string.Format(Strings.Format_Percent, ChargeLimitDraft);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanWrite), nameof(CanWritePort))]

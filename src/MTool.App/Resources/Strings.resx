@@ -28,4 +28,136 @@
     <value>Eco</value>
     <comment>Performance mode name in the window and the tray menu: the battery-saving mode. Keep close to MSI Center's own label.</comment>
   </data>
+  <data name="Common_Apply" xml:space="preserve">
+    <value>Apply</value>
+    <comment>Button: apply the chosen setting to the laptop.</comment>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Yes</value>
+    <comment>Confirmation dialog button.</comment>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>No</value>
+    <comment>Confirmation dialog button.</comment>
+  </data>
+  <data name="Main_SectionFanProfile" xml:space="preserve">
+    <value>FAN PROFILE</value>
+    <comment>Main window, section heading. Written in upper case in every language.</comment>
+  </data>
+  <data name="Main_EditCurves" xml:space="preserve">
+    <value>Edit curves</value>
+    <comment>Main window, button that opens the fan curve editor. Keep short.</comment>
+  </data>
+  <data name="Main_EditCurvesTip" xml:space="preserve">
+    <value>Edit fan curves and custom profiles</value>
+    <comment>Tooltip of the Edit curves button.</comment>
+  </data>
+  <data name="Main_SectionPerformance" xml:space="preserve">
+    <value>PERFORMANCE</value>
+    <comment>Main window, section heading above the performance modes. Written in upper case in every language.</comment>
+  </data>
+  <data name="Main_PowerSwitch" xml:space="preserve">
+    <value>Remember separate settings on AC and battery</value>
+    <comment>Check box label. AC = plugged in to mains power.</comment>
+  </data>
+  <data name="Main_PowerSwitchTip" xml:space="preserve">
+    <value>When on, the fan profile and performance mode are remembered separately for AC and battery. Plugging in or unplugging the cable applies the last setting you chose for that source. The charge limit and Cooler Boost do not change.</value>
+    <comment>Tooltip of the AC and battery check box.</comment>
+  </data>
+  <data name="Main_CoolerBoostHint" xml:space="preserve">
+    <value>(fans at full speed)</value>
+    <comment>Shown next to the Cooler Boost button. Cooler Boost is MSI's name for full-speed fans: keep it untranslated.</comment>
+  </data>
+  <data name="Main_SectionChargeLimit" xml:space="preserve">
+    <value>CHARGE LIMIT</value>
+    <comment>Main window, section heading. Written in upper case in every language.</comment>
+  </data>
+  <data name="Main_ChargeLimitNow" xml:space="preserve">
+    <value>Now:</value>
+    <comment>Label before the charge limit that is set at the moment, for example Now: 60%.</comment>
+  </data>
+  <data name="Main_Reapply" xml:space="preserve">
+    <value>Reapply</value>
+    <comment>Button next to the warning that the laptop dropped M-Tool's settings (after a restart or sleep).</comment>
+  </data>
+  <data name="Charge_Unknown" xml:space="preserve">
+    <value>unknown</value>
+    <comment>Charge limit value when it could not be read. Lower case, shown after Now:.</comment>
+  </data>
+  <data name="Charge_Off" xml:space="preserve">
+    <value>off</value>
+    <comment>Charge limit value when the limit is switched off (battery charges to full). Lower case, shown after Now:.</comment>
+  </data>
+  <data name="Format_Percent" xml:space="preserve">
+    <value>{0}%</value>
+    <comment>A percentage, {0} is the number. Follow the way your language writes it: 60%, 60 %, %60.</comment>
+  </data>
+  <data name="Editor_Title" xml:space="preserve">
+    <value>M-Tool · Fan curves</value>
+    <comment>Title of the fan curve editor window.</comment>
+  </data>
+  <data name="Editor_SectionProfiles" xml:space="preserve">
+    <value>PROFILES</value>
+    <comment>Fan curve editor, section heading. Written in upper case in every language.</comment>
+  </data>
+  <data name="Editor_BuiltIn" xml:space="preserve">
+    <value>built-in</value>
+    <comment>Tag next to a fan profile that ships with M-Tool. Lower case, short.</comment>
+  </data>
+  <data name="Editor_Copy" xml:space="preserve">
+    <value>Copy</value>
+    <comment>Button: copy the selected fan profile.</comment>
+  </data>
+  <data name="Editor_Delete" xml:space="preserve">
+    <value>Delete</value>
+    <comment>Button: delete the selected fan profile.</comment>
+  </data>
+  <data name="Editor_SectionName" xml:space="preserve">
+    <value>NAME</value>
+    <comment>Fan curve editor, section heading above the profile name box. Written in upper case in every language.</comment>
+  </data>
+  <data name="Editor_Rename" xml:space="preserve">
+    <value>Rename</value>
+    <comment>Button: rename the selected fan profile.</comment>
+  </data>
+  <data name="Editor_SectionFan" xml:space="preserve">
+    <value>FAN</value>
+    <comment>Fan curve editor, section heading above the CPU and GPU buttons. Written in upper case in every language.</comment>
+  </data>
+  <data name="Editor_BuiltInReadOnly" xml:space="preserve">
+    <value>Built-in profiles cannot be changed; copy one to edit it.</value>
+    <comment>Shown when a built-in fan profile is selected.</comment>
+  </data>
+  <data name="Editor_ColPoint" xml:space="preserve">
+    <value>Point</value>
+    <comment>Column heading: number of the curve point.</comment>
+  </data>
+  <data name="Editor_ColThreshold" xml:space="preserve">
+    <value>Threshold °C</value>
+    <comment>Column heading: temperature at which the fan speed of this point starts.</comment>
+  </data>
+  <data name="Editor_ColSpeed" xml:space="preserve">
+    <value>Speed %</value>
+    <comment>Column heading: fan speed in percent.</comment>
+  </data>
+  <data name="Editor_ColAllowed" xml:space="preserve">
+    <value>Allowed</value>
+    <comment>Column heading: the range the point may be moved in.</comment>
+  </data>
+  <data name="Editor_AllowedRange" xml:space="preserve">
+    <value>{0}–{1} °C, {2}–{3}%</value>
+    <comment>Range a curve point may be set to: {0}–{1} temperature, {2}–{3} fan speed in percent.</comment>
+  </data>
+  <data name="Editor_Revert" xml:space="preserve">
+    <value>Revert</value>
+    <comment>Button: throw away the unsaved changes.</comment>
+  </data>
+  <data name="Editor_Save" xml:space="preserve">
+    <value>Save</value>
+    <comment>Button: save the profile.</comment>
+  </data>
+  <data name="Editor_SaveAndApply" xml:space="preserve">
+    <value>Save and apply</value>
+    <comment>Button: save the profile and apply it to the laptop.</comment>
+  </data>
 </root>

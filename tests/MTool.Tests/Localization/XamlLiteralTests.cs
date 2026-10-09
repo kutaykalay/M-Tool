@@ -17,26 +17,7 @@ public sealed partial class XamlLiteralTests
     private static readonly string[] MarkupExtensions = ["{Binding", "{x:Static", "{StaticResource", "{DynamicResource", "{TemplateBinding", "{x:Null"];
 
     /// <summary>Names and symbols that read the same in every language.</summary>
-    private static readonly HashSet<string> Shared = ["CPU", "GPU", "M-Tool", "Cooler Boost", "–", "°C", "True", "False"];
-
-    /// <summary>Today's Turkish text, per file. Step 4 moves it to the resources and empties this list.</summary>
-    private static readonly Dictionary<string, HashSet<string>> NotMovedYet = new()
-    {
-        ["MainWindow.xaml"] =
-        [
-            "(fanlar tam hız)",
-            "Açıkken fan profili ve performans modu prizde ve pilde ayrı hatırlanır. Kablo takılınca ya da çıkarılınca o kaynakta son seçtiğiniz ayar uygulanır. Şarj limiti ve Cooler Boost değişmez.",
-            "COOLER BOOST", "Eğrileri düzenle", "FAN PROFİLİ", "Fan eğrilerini ve özel profilleri düzenle", "PERFORMANS",
-            "Prizde ve pilde ayrı ayarları hatırla", "Uygula", "Yeniden uygula", "ŞARJ LİMİTİ", "Şu an:",
-        ],
-        ["FanCurveEditorWindow.xaml"] =
-        [
-            "%", "AD", "Eşik °C", "FAN", "Geri al", "Hazır profiller değiştirilemez; düzenlemek için kopyalayın.", "Hız %", "Kaydet",
-            "Kaydet ve uygula", "Kopyala", "M-Tool · Fan eğrileri", "Nokta", "PROFİLLER", "Sil", "Uygula", "Yeniden adlandır",
-            "hazır", "°C,", "İzin verilen",
-        ],
-        ["ConfirmDialog.xaml"] = ["Evet", "Hayır"],
-    };
+    private static readonly HashSet<string> Shared = ["CPU", "GPU", "M-Tool", "Cooler Boost", "COOLER BOOST", "–", "°C", "True", "False"];
 
     [Fact]
     public void Xaml_text_is_bound_or_shared_by_every_language()
@@ -47,20 +28,8 @@ public sealed partial class XamlLiteralTests
         string.Join(Environment.NewLine, unexpected).Should().BeEmpty();
     }
 
-    [Fact]
-    public void The_not_moved_list_holds_only_text_that_is_still_in_xaml()
-    {
-        var present = Literals().Select(literal => (literal.File, literal.Value)).ToHashSet();
-
-        var stale = NotMovedYet.SelectMany(file => file.Value.Select(value => (file.Key, value))).Where(entry => !present.Contains(entry));
-
-        stale.Should().BeEmpty("a moved text must leave the list too");
-    }
-
     private static bool IsAllowed(Literal literal) =>
-        Shared.Contains(literal.Value)
-        || (NotMovedYet.TryGetValue(literal.File, out var file) && file.Contains(literal.Value))
-        || literal.Value.All(IsIconGlyph);
+        Shared.Contains(literal.Value) || literal.Value.All(IsIconGlyph);
 
     // Segoe MDL2 / Fluent icons live in the private use area.
     private static bool IsIconGlyph(char c) => c is >= (char)0xE000 and <= (char)0xF8FF;

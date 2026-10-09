@@ -1,3 +1,4 @@
+using MTool.App.Resources;
 using MTool.Core.Profiles;
 
 namespace MTool.App.ViewModels;
@@ -18,4 +19,8 @@ public sealed record PointViewModel(int Index, int UpC, int SpeedPercent, PointL
 
     /// <summary>1-based, as shown to the user.</summary>
     public int Number => Index + 1;
+
+    /// <summary>The temperature and speed range the point may be set to.</summary>
+    public string AllowedText => string.Format(
+        Strings.Editor_AllowedRange, Limits.MinUpC, Limits.MaxUpC, Limits.MinSpeedPercent, Limits.MaxSpeedPercent);
 }

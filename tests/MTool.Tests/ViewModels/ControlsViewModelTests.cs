@@ -163,6 +163,14 @@ public sealed class ControlsViewModelTests : IDisposable
     }
 
     [Fact]
+    public void The_slider_value_is_shown_as_a_percentage()
+    {
+        _controls.ChargeLimitDraft = 60;
+
+        _controls.ChargeLimitDraftLabel.Should().Be("%60");
+    }
+
+    [Fact]
     public async Task An_unread_port_state_is_shown_as_unknown()
     {
         _control.State = _control.State with { Port = null };
