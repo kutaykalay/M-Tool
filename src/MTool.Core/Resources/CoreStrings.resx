@@ -220,4 +220,96 @@
     <value>A copy of settings.json could not be kept ({0}); the profiles that were set aside are lost at the next save.</value>
     <comment>Settings warning at start. {0}: the reason from the system.</comment>
   </data>
+  <data name="Write_Locked" xml:space="preserve">
+    <value>Changing settings is turned off: {0}</value>
+    <comment>SAFETY. Outcome shown when writes are locked, so nothing was written. {0}: why they are locked (one of the Write_Lock texts, or a reason saved by an earlier session).</comment>
+  </data>
+  <data name="Write_LockUnverifiedRecord" xml:space="preserve">
+    <value>values are read with an unverified device record; restart M-Tool.</value>
+    <comment>SAFETY. Reason in Write_Locked. The session fell back to a draft device record, so nothing may be written. Keep the name M-Tool.</comment>
+  </data>
+  <data name="Write_LockFirmware" xml:space="preserve">
+    <value>this firmware is not supported (only {0}).</value>
+    <comment>SAFETY. Reason in Write_Locked. {0}: the one firmware version M-Tool may write to. Keep the version unchanged.</comment>
+  </data>
+  <data name="Write_LockNoBackup" xml:space="preserve">
+    <value>the settings backup taken at first launch is missing or damaged.</value>
+    <comment>SAFETY. Reason in Write_Locked. The backup of the laptop's own settings, taken the first time M-Tool ran.</comment>
+  </data>
+  <data name="Write_LockFileUnreadable" xml:space="preserve">
+    <value>the lock file (write-lock.txt) could not be read ({0}).</value>
+    <comment>SAFETY. Reason in Write_Locked. An unreadable lock file counts as a lock. Keep the file name write-lock.txt. {0}: the reason from the system.</comment>
+  </data>
+  <data name="Write_LockAfterFailure" xml:space="preserve">
+    <value>a previous setting could not be applied ({0}). Detail: {1}</value>
+    <comment>SAFETY. Reason in Write_Locked, kept for later sessions. {0}: what was being applied (an English name, not translated). {1}: what went wrong (a Write text or a message from the system).</comment>
+  </data>
+  <data name="Write_Unreachable" xml:space="preserve">
+    <value>Could not reach the laptop; no setting was changed. Try again in a moment. ({0})</value>
+    <comment>SAFETY. Outcome when the laptop's controller could not be reached before anything was written. {0}: the reason from the system or from the controller worker (one of the Worker texts).</comment>
+  </data>
+  <data name="Write_EmptyPlan" xml:space="preserve">
+    <value>The plan is empty.</value>
+    <comment>Outcome when there is nothing to write.</comment>
+  </data>
+  <data name="Write_DuplicateRegister" xml:space="preserve">
+    <value>0x{0:X2} appears more than once in the plan.</value>
+    <comment>Outcome when a register is listed twice. {0}: the register number, written in hexadecimal. Keep 0x and the format.</comment>
+  </data>
+  <data name="Write_PortUnavailable" xml:space="preserve">
+    <value>{0}: Cooler Boost and the charge limit are not available in this session (no PawnIO access).</value>
+    <comment>SAFETY. Outcome for a Cooler Boost or charge limit write without port access. {0}: the register and value, such as 0xEF=0xCF; keep it. Keep Cooler Boost and PawnIO.</comment>
+  </data>
+  <data name="Write_PortAlone" xml:space="preserve">
+    <value>{0}: a port register must be the only write in its plan.</value>
+    <comment>SAFETY. Outcome when a Cooler Boost or charge limit write comes with other writes. {0}: the register and value, such as 0xEF=0xCF; keep it.</comment>
+  </data>
+  <data name="Write_DryRun" xml:space="preserve">
+    <value>Dry-run mode: checked, not applied.</value>
+    <comment>SAFETY. Outcome in dry-run mode: the change was checked but nothing was written.</comment>
+  </data>
+  <data name="Write_Applied" xml:space="preserve">
+    <value>Applied and verified.</value>
+    <comment>SAFETY. Outcome when a change was written and read back correctly.</comment>
+  </data>
+  <data name="Write_ReadBackDiffers" xml:space="preserve">
+    <value>The setting was written but read back differently ({0}).</value>
+    <comment>SAFETY. Reason in Write_Failed. {0}: the register and value that did not stick, such as 0x72=0x32; keep it.</comment>
+  </data>
+  <data name="Write_OthersChanged" xml:space="preserve">
+    <value>The setting was written but other values changed too; stopped for safety.</value>
+    <comment>SAFETY. Reason in Write_Failed. A Cooler Boost or charge limit write changed other registers.</comment>
+  </data>
+  <data name="Write_ReadBackFailed" xml:space="preserve">
+    <value>The setting was written but could not be read back ({0}).</value>
+    <comment>SAFETY. Reason in Write_Failed. {0}: the reason from the system.</comment>
+  </data>
+  <data name="Write_CurveUnsafe" xml:space="preserve">
+    <value>The {0} curve would be unsafe: {1}</value>
+    <comment>SAFETY. Outcome when a change would leave a fan curve breaking the safety rules. {0}: CPU or GPU, not translated. {1}: the first problem, one of the Curve texts.</comment>
+  </data>
+  <data name="Write_Failed" xml:space="preserve">
+    <value>The setting could not be applied. {0}</value>
+    <comment>SAFETY. Outcome after a failed write; writes are locked from then on. {0}: details (a reason, what happened to other registers, what was restored).</comment>
+  </data>
+  <data name="Write_Restored" xml:space="preserve">
+    <value>Restored: {0}.</value>
+    <comment>SAFETY. Part of Write_Failed. {0}: the registers and values put back, such as 0xF2=0xC0; keep them.</comment>
+  </data>
+  <data name="Write_NotRestored" xml:space="preserve">
+    <value>Could not be restored: {0}.</value>
+    <comment>SAFETY. Part of Write_Failed. {0}: the registers and values that could not be put back; keep them.</comment>
+  </data>
+  <data name="Write_PortRefused" xml:space="preserve">
+    <value>{0} is not available in this session (no PawnIO access).</value>
+    <comment>SAFETY. Outcome for Cooler Boost without port access. {0}: the feature name; Cooler Boost is not translated. Keep PawnIO.</comment>
+  </data>
+  <data name="Worker_Paused" xml:space="preserve">
+    <value>EC access is paused because of sleep or wake-up.</value>
+    <comment>Message when the laptop is asleep or just woke up, so its controller (EC) was not touched. It appears inside Write_Unreachable.</comment>
+  </data>
+  <data name="Worker_LockTimeout" xml:space="preserve">
+    <value>The EC lock (Access_EC) was not obtained within {0} ms; another program may be using the EC.</value>
+    <comment>Message when the shared controller (EC) lock stayed taken. {0}: the time waited in milliseconds. Keep Access_EC. It appears inside Write_Unreachable.</comment>
+  </data>
 </root>

@@ -168,4 +168,73 @@
   <data name="Store_CopyFailed" xml:space="preserve">
     <value>settings.json dosyasının kopyası saklanamadı ({0}); kenara ayrılan profiller sonraki kaydetmede kaybolur.</value>
   </data>
+  <data name="Write_Locked" xml:space="preserve">
+    <value>Ayar değiştirme kapalı: {0}</value>
+  </data>
+  <data name="Write_LockUnverifiedRecord" xml:space="preserve">
+    <value>değerler doğrulanmamış bir cihaz kaydıyla okunuyor; M-Tool'u yeniden başlatın.</value>
+  </data>
+  <data name="Write_LockFirmware" xml:space="preserve">
+    <value>bu firmware desteklenmiyor (yalnızca {0}).</value>
+  </data>
+  <data name="Write_LockNoBackup" xml:space="preserve">
+    <value>ilk açılışta alınan ayar yedeği bulunamadı ya da bozuk.</value>
+  </data>
+  <data name="Write_LockFileUnreadable" xml:space="preserve">
+    <value>kilit dosyası (write-lock.txt) okunamadı ({0}).</value>
+  </data>
+  <data name="Write_LockAfterFailure" xml:space="preserve">
+    <value>önceki bir ayar uygulanamadı ({0}). Ayrıntı: {1}</value>
+  </data>
+  <data name="Write_Unreachable" xml:space="preserve">
+    <value>Dizüstüne ulaşılamadı, hiçbir ayar değişmedi. Biraz sonra tekrar deneyin. ({0})</value>
+  </data>
+  <data name="Write_EmptyPlan" xml:space="preserve">
+    <value>Plan boş.</value>
+  </data>
+  <data name="Write_DuplicateRegister" xml:space="preserve">
+    <value>0x{0:X2} planda birden fazla kez var.</value>
+  </data>
+  <data name="Write_PortUnavailable" xml:space="preserve">
+    <value>{0}: Cooler Boost ve şarj limiti bu oturumda kullanılamıyor (PawnIO erişimi yok).</value>
+  </data>
+  <data name="Write_PortAlone" xml:space="preserve">
+    <value>{0}: port register'ı planda tek başına olmalı.</value>
+  </data>
+  <data name="Write_DryRun" xml:space="preserve">
+    <value>Deneme modu: kontrol edildi, uygulanmadı.</value>
+  </data>
+  <data name="Write_Applied" xml:space="preserve">
+    <value>Uygulandı ve doğrulandı.</value>
+  </data>
+  <data name="Write_ReadBackDiffers" xml:space="preserve">
+    <value>Ayar yazıldı ama geri okunduğunda farklı çıktı ({0}).</value>
+  </data>
+  <data name="Write_OthersChanged" xml:space="preserve">
+    <value>Ayar yazıldı ama başka değerler de değişti; güvenlik için durduruldu.</value>
+  </data>
+  <data name="Write_ReadBackFailed" xml:space="preserve">
+    <value>Ayar yazıldı ama geri okunamadı ({0}).</value>
+  </data>
+  <data name="Write_CurveUnsafe" xml:space="preserve">
+    <value>{0} eğrisi güvensiz olur: {1}</value>
+  </data>
+  <data name="Write_Failed" xml:space="preserve">
+    <value>Ayar uygulanamadı. {0}</value>
+  </data>
+  <data name="Write_Restored" xml:space="preserve">
+    <value>Geri yüklendi: {0}.</value>
+  </data>
+  <data name="Write_NotRestored" xml:space="preserve">
+    <value>Geri yüklenemedi: {0}.</value>
+  </data>
+  <data name="Write_PortRefused" xml:space="preserve">
+    <value>{0} bu oturumda kullanılamıyor (PawnIO erişimi yok).</value>
+  </data>
+  <data name="Worker_Paused" xml:space="preserve">
+    <value>EC erişimi uyku/uyanış nedeniyle duraklatıldı.</value>
+  </data>
+  <data name="Worker_LockTimeout" xml:space="preserve">
+    <value>EC kilidi (Access_EC) {0} ms içinde alınamadı; başka bir program EC'yi kullanıyor olabilir.</value>
+  </data>
 </root>

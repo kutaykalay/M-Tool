@@ -1,5 +1,8 @@
+using System.Globalization;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 using MTool.Core.Profiles;
+using MTool.Core.Resources;
 
 namespace MTool.Core.Device;
 
@@ -57,7 +60,7 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
         {
             var (current, error) = await FreshReadLockedAsync("Cooler Boost", cancellationToken).ConfigureAwait(false);
             return current is null
-                ? new WriteOutcome(WriteStatus.Rejected, [], $"Dizüstüne ulaşılamadı, hiçbir ayar değişmedi. Biraz sonra tekrar deneyin. ({error})")
+                ? new WriteOutcome(WriteStatus.Rejected, [], CoreText.Get(nameof(CoreStrings.Write_Unreachable), CultureInfo.CurrentUICulture, error))
                 : await ApplyPortLockedAsync(WritePlans.CoolerBoost(on, current.CoolerBoostRaw), cancellationToken).ConfigureAwait(false);
         }
         finally
@@ -135,7 +138,7 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
             var (current, error) = await FreshReadLockedAsync(plan.Description, cancellationToken).ConfigureAwait(false);
             if (current is null)
             {
-                return new WriteOutcome(WriteStatus.Rejected, plan.Writes, $"Dizüstüne ulaşılamadı, hiçbir ayar değişmedi. Biraz sonra tekrar deneyin. ({error})");
+                return new WriteOutcome(WriteStatus.Rejected, plan.Writes, CoreText.Get(nameof(CoreStrings.Write_Unreachable), CultureInfo.CurrentUICulture, error));
             }
 
             if (current.ChargeLimitRaw == write.Value)
@@ -154,8 +157,8 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
 
     /// <summary>A refusal that needs no EC access (no port, writes locked), or null.</summary>
     private WriteOutcome? PortRefusal(string what) =>
-        !PortAvailable ? new WriteOutcome(WriteStatus.Rejected, [], $"{what} bu oturumda kullanılamıyor (PawnIO erişimi yok).")
-        : setup.Gateway.LockReason is { } reason ? new WriteOutcome(WriteStatus.Rejected, [], $"Ayar değiştirme kapalı: {reason}")
+        !PortAvailable ? new WriteOutcome(WriteStatus.Rejected, [], CoreText.Get(nameof(CoreStrings.Write_PortRefused), CultureInfo.CurrentUICulture, what))
+        : setup.Gateway.LockReason is { } reason ? new WriteOutcome(WriteStatus.Rejected, [], CoreText.Get(nameof(CoreStrings.Write_Locked), CultureInfo.CurrentUICulture, reason))
         : null;
 
     /// <summary>Call holding <see cref="_portGate"/>. A done write updates the cache, a failed one makes it unknown.</summary>

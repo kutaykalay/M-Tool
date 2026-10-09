@@ -1,4 +1,7 @@
+using System.Globalization;
 using MTool.Core.Device;
+using MTool.Core.Localization;
+using MTool.Core.Resources;
 using MTool.Core.Settings;
 
 namespace MTool.Core.Ec;
@@ -104,7 +107,7 @@ public static class WriteAccessBootstrap
         {
             // Fail closed: an unreadable lock file is treated as a lock.
             log.Error("Write lock file unreadable; EC writes off", ex);
-            return $"kilit dosyası (write-lock.txt) okunamadı ({ex.Message}).";
+            return CoreText.Get(nameof(CoreStrings.Write_LockFileUnreadable), CultureInfo.CurrentUICulture, ex.Message);
         }
     }
 }

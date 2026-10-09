@@ -1,4 +1,7 @@
 using System.Collections.Concurrent;
+using System.Globalization;
+using MTool.Core.Localization;
+using MTool.Core.Resources;
 
 namespace MTool.Core.Ec;
 
@@ -48,9 +51,10 @@ public sealed class EcWorker : IDisposable
         }
 
         var completion = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var caller = ExecutionContext.Capture(); // carries the caller's UI language to the worker thread
         try
         {
-            _queue.Add(() => Execute(operation, completion, cancellationToken));
+            _queue.Add(() => RunInContext(caller, () => Execute(operation, completion, cancellationToken)));
         }
         catch (Exception ex) when (ex is InvalidOperationException or ObjectDisposedException)
         {
@@ -96,6 +100,17 @@ public sealed class EcWorker : IDisposable
         _queue.Dispose();
     }
 
+    private static void RunInContext(ExecutionContext? context, Action work)
+    {
+        if (context is null)
+        {
+            work();
+            return;
+        }
+
+        ExecutionContext.Run(context, static state => ((Action)state!)(), work);
+    }
+
     private void ProcessQueue()
     {
         foreach (var work in _queue.GetConsumingEnumerable())
@@ -130,7 +145,7 @@ public sealed class EcWorker : IDisposable
 
         if (_accessGate is { } gate && !gate())
         {
-            completion.TrySetException(new EcAccessException("EC erişimi uyku/uyanış nedeniyle duraklatıldı.") { IsAccessPaused = true });
+            completion.TrySetException(new EcAccessException(CoreText.Get(nameof(CoreStrings.Worker_Paused), CultureInfo.CurrentUICulture)) { IsAccessPaused = true });
             return;
         }
 
@@ -141,7 +156,7 @@ public sealed class EcWorker : IDisposable
             if (!acquired)
             {
                 completion.TrySetException(new EcAccessException(
-                    $"EC kilidi (Access_EC) {_lockTimeout.TotalMilliseconds} ms içinde alınamadı; başka bir program EC'yi kullanıyor olabilir."));
+                    CoreText.Get(nameof(CoreStrings.Worker_LockTimeout), CultureInfo.CurrentUICulture, _lockTimeout.TotalMilliseconds)));
                 return;
             }
 
