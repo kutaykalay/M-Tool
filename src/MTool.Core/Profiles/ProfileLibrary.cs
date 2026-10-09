@@ -1,9 +1,12 @@
+using System.Globalization;
+using MTool.Core.Localization;
 using MTool.Core.Power;
+using MTool.Core.Resources;
 using MTool.Core.Settings;
 
 namespace MTool.Core.Profiles;
 
-/// <summary>Either the new settings or a human-readable (Turkish) reason why nothing changed.</summary>
+/// <summary>Either the new settings or a human-readable reason (in the UI language) why nothing changed.</summary>
 public sealed record LibraryResult(AppSettings? Updated, string? Error)
 {
     public static LibraryResult Ok(AppSettings updated) => new(updated, null);
@@ -21,7 +24,7 @@ public static class ProfileLibrary
     {
         if (settings.CustomProfiles.Count >= ProfileCatalog.MaxCustomProfiles)
         {
-            return LibraryResult.Fail($"En fazla {ProfileCatalog.MaxCustomProfiles} özel profil olabilir; önce birini silin.");
+            return LibraryResult.Fail(Text(nameof(CoreStrings.Library_TooMany), ProfileCatalog.MaxCustomProfiles));
         }
 
         var problem = ProfileNameRules.Validate(name, CatalogOf(settings)) ?? CurveProblem(curves);
@@ -72,7 +75,7 @@ public static class ProfileLibrary
 
         if (IsReferenced(settings, settings.CustomProfiles[index].Name))
         {
-            return LibraryResult.Fail("Bu profil şu an seçili; silmeden önce başka bir profil seçin.");
+            return LibraryResult.Fail(Text(nameof(CoreStrings.Library_DesiredSelected)));
         }
 
         return LibraryResult.Ok(settings with
@@ -132,14 +135,16 @@ public static class ProfileLibrary
     }
 
     private static string NotCustom(string name) => ProfileCatalog.IsBuiltIn(name)
-        ? $"\"{name}\" hazır bir profil, değiştirilemez; kopyalayıp kopyasını düzenleyin."
-        : $"\"{ProfileNameRules.Printable(name)}\" adında bir özel profil bulunamadı.";
+        ? Text(nameof(CoreStrings.Library_BuiltInReadOnly), name)
+        : Text(nameof(CoreStrings.Library_NotFound), ProfileNameRules.Printable(name));
+
+    private static string Text(string key, params object?[] args) => CoreText.Get(key, CultureInfo.CurrentUICulture, args);
 
     private static IReadOnlyList<FanProfile> Replace(AppSettings settings, int index, FanProfile profile) =>
         [.. settings.CustomProfiles.Select((p, i) => i == index ? profile : p)];
 
     private static string? CurveProblem(FanCurves curves) =>
-        !CurveValidator.IsComplete(curves) ? "Fan eğrisi eksik."
+        !CurveValidator.IsComplete(curves) ? Text(nameof(CoreStrings.Library_CurvesMissing))
         : CurveValidator.ValidateWithFactoryOffsets(curves) is [var first, ..] ? first
         : null;
 

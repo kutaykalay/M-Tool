@@ -1,7 +1,10 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using MTool.Core.Localization;
 using MTool.Core.Power;
 using MTool.Core.Profiles;
+using MTool.Core.Resources;
 
 namespace MTool.Core.Settings;
 
@@ -69,8 +72,16 @@ public sealed record AppSettings(
     public override int GetHashCode() => HashCode.Combine(SchemaVersion, DryRun, Desired, CustomProfiles.Count, PowerSwitch, Language);
 }
 
-/// <param name="Warning">Set when the file was unusable and defaults were loaded instead.</param>
-public sealed record SettingsLoadResult(AppSettings Settings, string? Warning);
+/// <param name="Warning">Set when the file was unusable and defaults were loaded instead. For the user, in the UI language of that moment.</param>
+/// <param name="LogWarning">The same warning for the log, always in English; null when <paramref name="Warning"/> is.</param>
+/// <remarks>
+/// A warning always comes with the default settings, which have no language field, so the app then follows
+/// Windows: the language the warning is written in before the app has set its own is the one it will pick.
+/// </remarks>
+public sealed record SettingsLoadResult(AppSettings Settings, string? Warning, string? LogWarning = null);
+
+/// <summary>A message for the user and its copy for the log (always English).</summary>
+public sealed record SettingsNotice(string Text, string Log);
 
 /// <summary><c>settings.json</c> under the app folder. Corrupt files are set aside, never silently lost.</summary>
 public sealed class SettingsStore(string directory)
@@ -94,16 +105,26 @@ public sealed class SettingsStore(string directory)
     /// <summary>
     /// Set at load when the file is kept but this session must not save over it: it could not be read
     /// (locked, no permission), or a newer M-Tool wrote it. Saving would replace the user's custom
-    /// profiles with the defaults this session started on. The text is the reason Save gives.
+    /// profiles with the defaults this session started on. Save words the reason when it is asked to
+    /// save, in the language the user reads then, not the one at load.
     /// </summary>
-    private volatile string? _saveRefusal;
+    private volatile SaveRefusal _saveRefusal;
 
-    private static string UnreadRefusal => $"{FileName} açılışta okunamadığı için üzerine yazılmıyor; M-Tool'u yeniden başlatın";
+    private enum SaveRefusal
+    {
+        None,
+        Unread,
+        NewerVersion,
+    }
+
+    private static string RefusalText(SaveRefusal refusal) => CoreText.Get(
+        refusal == SaveRefusal.Unread ? nameof(CoreStrings.Store_RefuseUnread) : nameof(CoreStrings.Store_RefuseNewer),
+        CultureInfo.CurrentUICulture);
 
     /// <summary>Each load decides afresh whether this session may save.</summary>
     public SettingsLoadResult Load()
     {
-        _saveRefusal = null;
+        _saveRefusal = SaveRefusal.None;
         if (!File.Exists(FilePath))
         {
             return new SettingsLoadResult(AppSettings.Default, null);
@@ -113,26 +134,27 @@ public sealed class SettingsStore(string directory)
         {
             if (ReadAtMost(MaxFileBytes) is not { } content)
             {
-                return SetAside($"{MaxFileBytes / 1024} KB'tan büyük");
+                return SetAside(c => CoreText.Get(nameof(CoreStrings.Store_ReasonTooBig), c, MaxFileBytes / 1024));
             }
 
             return JsonSerializer.Deserialize<AppSettings>(WithoutByteOrderMark(content), JsonDefaults.Options) switch
             {
-                null => SetAside("boş ya da eksik"),
-                { SchemaVersion: < 1 } settings => SetAside($"geçersiz sürüm numarası: {settings.SchemaVersion}"),
+                null => SetAside(c => CoreText.Get(nameof(CoreStrings.Store_ReasonEmpty), c)),
+                { SchemaVersion: < 1 } settings => SetAside(c => CoreText.Get(nameof(CoreStrings.Store_ReasonVersion), c, settings.SchemaVersion)),
                 { SchemaVersion: > AppSettings.CurrentSchemaVersion } => FromNewerVersion(),
                 var settings => new SettingsLoadResult(settings, null),
             };
         }
         catch (JsonException ex)
         {
-            return SetAside(ex.Message);
+            return SetAside(_ => ex.Message);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             // Unreadable (locked, no permission): leave the file alone and run on safe defaults.
-            _saveRefusal = UnreadRefusal;
-            return new SettingsLoadResult(AppSettings.Default, $"{FileName} okunamadı ({ex.Message}); varsayılanlar kullanılıyor.");
+            _saveRefusal = SaveRefusal.Unread;
+            var (text, log) = CoreText.ForUserAndLog(c => CoreText.Get(nameof(CoreStrings.Store_Unreadable), c, ex.Message));
+            return new SettingsLoadResult(AppSettings.Default, text, log);
         }
     }
 
@@ -142,9 +164,9 @@ public sealed class SettingsStore(string directory)
     /// </exception>
     public void Save(AppSettings settings)
     {
-        if (_saveRefusal is { } refusal)
+        if (_saveRefusal is not SaveRefusal.None and var refusal)
         {
-            throw new IOException(refusal);
+            throw new IOException(RefusalText(refusal));
         }
 
         Directory.CreateDirectory(directory);
@@ -158,7 +180,10 @@ public sealed class SettingsStore(string directory)
     /// An identical copy kept earlier is reused, so starting again without a save adds no new file.
     /// Returns a message for the user, or null when there is no file to copy.
     /// </summary>
-    public string? PreserveCopy()
+    public string? PreserveCopy() => PreserveCopyNotice()?.Text;
+
+    /// <summary><see cref="PreserveCopy"/> with the English copy of the message for the log.</summary>
+    public SettingsNotice? PreserveCopyNotice()
     {
         if (!File.Exists(FilePath))
         {
@@ -180,11 +205,12 @@ public sealed class SettingsStore(string directory)
                 DeleteOldCopies(kept: copyPath);
             }
 
-            return $"{FileName} dosyasının önceki hali {Path.GetFileName(copyPath)} olarak saklandı.";
+            var name = Path.GetFileName(copyPath);
+            return Notice(c => CoreText.Get(nameof(CoreStrings.Store_CopyKept), c, name));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            return $"{FileName} dosyasının kopyası saklanamadı ({ex.Message}); kenara ayrılan profiller sonraki kaydetmede kaybolur.";
+            return Notice(c => CoreText.Get(nameof(CoreStrings.Store_CopyFailed), c, ex.Message));
         }
     }
 
@@ -217,10 +243,9 @@ public sealed class SettingsStore(string directory)
     /// </summary>
     private SettingsLoadResult FromNewerVersion()
     {
-        _saveRefusal = $"{FileName} M-Tool'un daha yeni bir sürümüne ait, bu sürüm üzerine yazmıyor; yeni sürümü kurun";
-        return new SettingsLoadResult(
-            AppSettings.Default,
-            $"{FileName} M-Tool'un daha yeni bir sürümüne ait; varsayılanlar kullanılıyor ve değişiklikler kaydedilmiyor. Yeni sürümü kurun.");
+        _saveRefusal = SaveRefusal.NewerVersion;
+        var (text, log) = CoreText.ForUserAndLog(c => CoreText.Get(nameof(CoreStrings.Store_NewerVersion), c));
+        return new SettingsLoadResult(AppSettings.Default, text, log);
     }
 
     /// <summary>
@@ -248,7 +273,8 @@ public sealed class SettingsStore(string directory)
     }
 
     /// <summary>Also called from a catch block in <see cref="Load"/>, so it handles its own failure.</summary>
-    private SettingsLoadResult SetAside(string reason)
+    /// <param name="reason">The reason in the language it is asked for: the warning is made for the user and for the log.</param>
+    private SettingsLoadResult SetAside(Func<CultureInfo, string> reason)
     {
         var badPath = BadPath();
         try
@@ -259,15 +285,21 @@ public sealed class SettingsStore(string directory)
         {
             // Held by another process: leave it where it is and run on safe defaults. Saving would
             // replace it while no copy of it exists.
-            _saveRefusal = UnreadRefusal;
-            return new SettingsLoadResult(
-                AppSettings.Default,
-                $"{FileName} okunamadı ({reason}) ve kenara alınamadı ({ex.Message}); varsayılanlar kullanılıyor.");
+            _saveRefusal = SaveRefusal.Unread;
+            var (blockedText, blockedLog) = CoreText.ForUserAndLog(
+                c => CoreText.Get(nameof(CoreStrings.Store_UnreadableNotMoved), c, reason(c), ex.Message));
+            return new SettingsLoadResult(AppSettings.Default, blockedText, blockedLog);
         }
 
         DeleteOldCopies(kept: badPath);
-        return new SettingsLoadResult(
-            AppSettings.Default,
-            $"{FileName} okunamadı ({reason}); {Path.GetFileName(badPath)} olarak saklandı, varsayılanlar kullanılıyor.");
+        var kept = Path.GetFileName(badPath);
+        var (text, log) = CoreText.ForUserAndLog(c => CoreText.Get(nameof(CoreStrings.Store_SetAside), c, reason(c), kept));
+        return new SettingsLoadResult(AppSettings.Default, text, log);
+    }
+
+    private static SettingsNotice Notice(Func<CultureInfo, string> make)
+    {
+        var (text, log) = CoreText.ForUserAndLog(make);
+        return new SettingsNotice(text, log);
     }
 }

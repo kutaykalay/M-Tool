@@ -20,4 +20,204 @@
     <value>Language not supported: {0}</value>
     <comment>Error when the user picks a language M-Tool does not have. {0}: the value, made printable.</comment>
   </data>
+  <data name="Curve_PointCount" xml:space="preserve">
+    <value>The curve must have {0} points (it has {1}).</value>
+    <comment>Fan curve problem. {0}: required number of points. {1}: number of points the curve has.</comment>
+  </data>
+  <data name="Curve_FirstPointThreshold" xml:space="preserve">
+    <value>The first point is the idle speed and has no threshold.</value>
+    <comment>Fan curve problem. The first point of a curve is the fan speed when the chip is idle; it has no temperature threshold.</comment>
+  </data>
+  <data name="Curve_EnvelopeFirstStep" xml:space="preserve">
+    <value>Safety rule: the first step must start at {0} °C at the latest.</value>
+    <comment>SAFETY. Fan curve problem. {0}: highest allowed temperature in degrees Celsius. Keep the number and the unit.</comment>
+  </data>
+  <data name="Curve_EnvelopeSpeed" xml:space="preserve">
+    <value>Safety rule: at {0} °C the fan must run at {1}% or more (currently {2}%).</value>
+    <comment>SAFETY. Fan curve problem. {0}: temperature in degrees Celsius. {1}: minimum fan speed in percent. {2}: the speed the curve has at that temperature, in percent.</comment>
+  </data>
+  <data name="Curve_SpeedRange" xml:space="preserve">
+    <value>Point {0}: the fan speed must be between 0% and {1}%.</value>
+    <comment>Fan curve problem. {0}: number of the point, counted from 1 like the rows of the editor. {1}: highest allowed speed in percent.</comment>
+  </data>
+  <data name="Curve_SpeedDecreases" xml:space="preserve">
+    <value>Point {0}: the fan speed cannot be lower than the previous point.</value>
+    <comment>Fan curve problem. {0}: number of the point, counted from 1.</comment>
+  </data>
+  <data name="Curve_ThresholdRange" xml:space="preserve">
+    <value>Point {0}: the threshold must be {1}-{2} °C.</value>
+    <comment>Fan curve problem. {0}: number of the point, counted from 1. {1} and {2}: lowest and highest allowed threshold in degrees Celsius.</comment>
+  </data>
+  <data name="Curve_ThresholdOrder" xml:space="preserve">
+    <value>Point {0}: the threshold must be higher than the previous point's.</value>
+    <comment>Fan curve problem. {0}: number of the point, counted from 1.</comment>
+  </data>
+  <data name="Curve_DownThreshold" xml:space="preserve">
+    <value>Point {0}: the fan drops back from this point at {1} °C, which is not above the previous point's threshold ({2} °C). Raise this point's threshold.</value>
+    <comment>Fan curve problem. {0}: number of the point, counted from 1. {1}: temperature in degrees Celsius at which the fan leaves this step. {2}: threshold of the previous point in degrees Celsius.</comment>
+  </data>
+  <data name="Curve_LastStepStart" xml:space="preserve">
+    <value>Safety rule: the last step must start at {0} °C at the latest.</value>
+    <comment>SAFETY. Fan curve problem. {0}: highest allowed temperature in degrees Celsius. Keep the number and the unit.</comment>
+  </data>
+  <data name="Curve_LastStepSpeed" xml:space="preserve">
+    <value>Safety rule: the last step must be at least {0}%.</value>
+    <comment>SAFETY. Fan curve problem. {0}: minimum fan speed of the last step, in percent.</comment>
+  </data>
+  <data name="Library_TooMany" xml:space="preserve">
+    <value>There can be at most {0} custom profiles; delete one first.</value>
+    <comment>Error when adding a custom fan profile. {0}: the limit.</comment>
+  </data>
+  <data name="Library_BuiltInReadOnly" xml:space="preserve">
+    <value>"{0}" is a built-in profile and cannot be changed; copy it and edit the copy.</value>
+    <comment>Error when changing a built-in fan profile. {0}: the profile name.</comment>
+  </data>
+  <data name="Library_NotFound" xml:space="preserve">
+    <value>There is no custom profile named "{0}".</value>
+    <comment>Error when a custom fan profile does not exist. {0}: the name, made printable.</comment>
+  </data>
+  <data name="Library_DesiredSelected" xml:space="preserve">
+    <value>This profile is currently selected; choose another profile before deleting it.</value>
+    <comment>Error when deleting the fan profile that is selected.</comment>
+  </data>
+  <data name="Library_CurvesMissing" xml:space="preserve">
+    <value>The fan curve is incomplete.</value>
+    <comment>Error when a fan profile has no complete curves.</comment>
+  </data>
+  <data name="Name_Empty" xml:space="preserve">
+    <value>The profile name cannot be empty.</value>
+    <comment>Error on a fan profile name.</comment>
+  </data>
+  <data name="Name_BadCharacters" xml:space="preserve">
+    <value>The profile name cannot contain control or invalid characters.</value>
+    <comment>Error on a fan profile name: control characters, line breaks, text direction marks and lone surrogates are refused.</comment>
+  </data>
+  <data name="Name_TooLong" xml:space="preserve">
+    <value>The profile name can be at most {0} characters ({1} given).</value>
+    <comment>Error on a fan profile name. {0}: the limit. {1}: the length of the name that was given.</comment>
+  </data>
+  <data name="Name_Taken" xml:space="preserve">
+    <value>A profile named "{0}" already exists.</value>
+    <comment>Error on a fan profile name. {0}: the name.</comment>
+  </data>
+  <data name="Name_Unnamed" xml:space="preserve">
+    <value>(unnamed)</value>
+    <comment>Stands in for a profile name that is missing, in a warning or error. Keep the parentheses.</comment>
+  </data>
+  <data name="Name_CopySuffix" xml:space="preserve">
+    <value> copy</value>
+    <comment>Added to a profile name to name its copy ("Cool copy"), then with a number ("Cool copy 2"). Starts with a space. Keep it short: names are limited to 24 characters.</comment>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>Unknown fan profile: {0}</value>
+    <comment>Error when selecting a fan profile that does not exist. {0}: the name, made printable.</comment>
+  </data>
+  <data name="Profile_ChargeLimitRange" xml:space="preserve">
+    <value>The charge limit must be {0}-{1}% (got {2}%).</value>
+    <comment>SAFETY. Error when the charge limit is out of range. {0} and {1}: lowest and highest allowed percent. {2}: the value that was given.</comment>
+  </data>
+  <data name="Profile_ChangeFailed" xml:space="preserve">
+    <value>The profile could not be changed.</value>
+    <comment>Error when a profile change fails and no reason is known.</comment>
+  </data>
+  <data name="Settings_SaveFailed" xml:space="preserve">
+    <value>Could not save the settings (settings.json: {0}); the previous settings return after a restart.</value>
+    <comment>Warning when settings.json cannot be written. {0}: the reason from the system or from M-Tool. settings.json is a file name.</comment>
+  </data>
+  <data name="Settings_UnknownProfile" xml:space="preserve">
+    <value>Unknown fan profile ({0}); {1} is used.</value>
+    <comment>Settings warning when settings.json names a fan profile that does not exist. {0}: the name from the file, or the word for empty. {1}: the name of the profile used instead.</comment>
+  </data>
+  <data name="Settings_EmptyValue" xml:space="preserve">
+    <value>empty</value>
+    <comment>Stands in for a missing name in a settings warning, shown in parentheses ("Unknown fan profile (empty)").</comment>
+  </data>
+  <data name="Settings_InvalidPerformanceMode" xml:space="preserve">
+    <value>Invalid performance mode ({0}); ignored.</value>
+    <comment>Settings warning. {0}: the value from settings.json.</comment>
+  </data>
+  <data name="Settings_InvalidFanMode" xml:space="preserve">
+    <value>Invalid fan mode ({0}); ignored.</value>
+    <comment>Settings warning. {0}: the value from settings.json.</comment>
+  </data>
+  <data name="Settings_InvalidChargeLimit" xml:space="preserve">
+    <value>Invalid charge limit ({0}%); it must be {1}-{2}%, ignored.</value>
+    <comment>Settings warning. {0}: the value from settings.json, in percent. {1} and {2}: lowest and highest allowed percent.</comment>
+  </data>
+  <data name="Settings_PairMissingAc" xml:space="preserve">
+    <value>The fan profile used on AC power was not found ({0}); the current setting is kept when switching to AC.</value>
+    <comment>Settings warning about the power-source switch. {0}: the name from the file, or the word for empty. AC = mains power.</comment>
+  </data>
+  <data name="Settings_PairMissingBattery" xml:space="preserve">
+    <value>The fan profile used on battery power was not found ({0}); the current setting is kept when switching to battery.</value>
+    <comment>Settings warning about the power-source switch. {0}: the name from the file, or the word for empty.</comment>
+  </data>
+  <data name="Settings_ProfileDropped" xml:space="preserve">
+    <value>Custom profile "{0}" was set aside: {1}.</value>
+    <comment>Settings warning. {0}: the profile name, made printable. {1}: the reason, a phrase without a final full stop (one of the Settings_Drop texts, or a name or curve problem).</comment>
+  </data>
+  <data name="Settings_ProfilesDroppedMore" xml:space="preserve">
+    <value>{0} more custom profiles were set aside.</value>
+    <comment>Settings warning after the first ten dropped profiles were named. {0}: how many more.</comment>
+  </data>
+  <data name="Settings_DropTooMany" xml:space="preserve">
+    <value>there can be at most {0} custom profiles</value>
+    <comment>Reason in Settings_ProfileDropped. {0}: the limit.</comment>
+  </data>
+  <data name="Settings_DropMissingPart" xml:space="preserve">
+    <value>a field is missing.</value>
+    <comment>Reason in Settings_ProfileDropped. The final full stop is removed when the text is used.</comment>
+  </data>
+  <data name="Settings_DropNameNotNormal" xml:space="preserve">
+    <value>the name was saved with spaces at its start or end, or with a decomposed letter.</value>
+    <comment>Reason in Settings_ProfileDropped. A decomposed letter is a base letter followed by a combining mark (for example C + cedilla instead of the single letter). The final full stop is removed when the text is used.</comment>
+  </data>
+  <data name="Settings_DropCurve" xml:space="preserve">
+    <value>it breaks the fan rules ({0})</value>
+    <comment>Reason in Settings_ProfileDropped. {0}: the first problem, one of the Curve texts, without its final full stop.</comment>
+  </data>
+  <data name="Store_Unreadable" xml:space="preserve">
+    <value>settings.json could not be read ({0}); defaults are used.</value>
+    <comment>Settings warning at start. {0}: the reason from the system. settings.json is a file name.</comment>
+  </data>
+  <data name="Store_UnreadableNotMoved" xml:space="preserve">
+    <value>settings.json could not be read ({0}) and could not be set aside ({1}); defaults are used.</value>
+    <comment>Settings warning at start. {0}: why it could not be read. {1}: the reason from the system.</comment>
+  </data>
+  <data name="Store_SetAside" xml:space="preserve">
+    <value>settings.json could not be read ({0}); it was kept as {1}, defaults are used.</value>
+    <comment>Settings warning at start. {0}: why it could not be read (one of the Store_Reason texts or a parser message). {1}: the file name of the kept copy.</comment>
+  </data>
+  <data name="Store_ReasonTooBig" xml:space="preserve">
+    <value>larger than {0} KB</value>
+    <comment>Reason in Store_SetAside. {0}: the size limit in kilobytes.</comment>
+  </data>
+  <data name="Store_ReasonEmpty" xml:space="preserve">
+    <value>empty or incomplete</value>
+    <comment>Reason in Store_SetAside.</comment>
+  </data>
+  <data name="Store_ReasonVersion" xml:space="preserve">
+    <value>invalid version number: {0}</value>
+    <comment>Reason in Store_SetAside. {0}: the schema version number from the file.</comment>
+  </data>
+  <data name="Store_NewerVersion" xml:space="preserve">
+    <value>settings.json belongs to a newer version of M-Tool; defaults are used and changes are not saved. Install the newer version.</value>
+    <comment>Settings warning at start.</comment>
+  </data>
+  <data name="Store_RefuseUnread" xml:space="preserve">
+    <value>settings.json is not overwritten because it could not be read at start; restart M-Tool</value>
+    <comment>Reason given when a save is refused. It is shown inside Settings_SaveFailed, so it has no final full stop.</comment>
+  </data>
+  <data name="Store_RefuseNewer" xml:space="preserve">
+    <value>settings.json belongs to a newer version of M-Tool, this version does not overwrite it; install the newer version</value>
+    <comment>Reason given when a save is refused. It is shown inside Settings_SaveFailed, so it has no final full stop.</comment>
+  </data>
+  <data name="Store_CopyKept" xml:space="preserve">
+    <value>The previous version of settings.json was kept as {0}.</value>
+    <comment>Settings message at start. {0}: the file name of the copy.</comment>
+  </data>
+  <data name="Store_CopyFailed" xml:space="preserve">
+    <value>A copy of settings.json could not be kept ({0}); the profiles that were set aside are lost at the next save.</value>
+    <comment>Settings warning at start. {0}: the reason from the system.</comment>
+  </data>
 </root>

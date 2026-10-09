@@ -13,7 +13,7 @@ namespace MTool.Core.Profiles;
 public sealed record CommandResult(WriteOutcome Outcome, string? SaveWarning = null);
 
 /// <summary>The result of a change to the custom profiles; these never write the EC.</summary>
-/// <param name="Error">Why nothing changed (Turkish, for the user); null on success.</param>
+/// <param name="Error">Why nothing changed (in the UI language, for the user); null on success.</param>
 /// <param name="SaveWarning">Set when the change is kept in memory but settings.json could not be written.</param>
 public sealed record ProfileCommandResult(string? Error, string? SaveWarning = null);
 
@@ -95,7 +95,7 @@ public sealed class ProfileService
         FanProfile? profile = null;
         return RunAsync(
             () => (profile = Catalog.Find(name)) is null
-                ? Task.FromResult(RejectedOutcome($"Bilinmeyen fan profili: {ProfileNameRules.Printable(name)}"))
+                ? Task.FromResult(RejectedOutcome(Text(nameof(CoreStrings.Profile_Unknown), ProfileNameRules.Printable(name))))
                 : _control.ApplyFanProfileAsync(profile),
             desired => desired with { FanProfile = profile!.Name });
     }
@@ -109,7 +109,7 @@ public sealed class ProfileService
         if (percent is < EcWriteRules.MinChargeLimitPercent or > EcWriteRules.MaxChargeLimitPercent)
         {
             return Task.FromResult(new CommandResult(RejectedOutcome(
-                $"Şarj limiti %{EcWriteRules.MinChargeLimitPercent}-{EcWriteRules.MaxChargeLimitPercent} olmalı (%{percent}).")));
+                Text(nameof(CoreStrings.Profile_ChargeLimitRange), EcWriteRules.MinChargeLimitPercent, EcWriteRules.MaxChargeLimitPercent, percent))));
         }
 
         return RunAsync(
@@ -210,7 +210,7 @@ public sealed class ProfileService
             }
 
             changed = aligned.Desired;
-            _log.Info($"Power source switch ({source}): {ProfileNameRules.Printable(aligned.Desired.FanProfile)} + {aligned.Desired.Performance?.ToString() ?? "-"} (write: {(write ? "yes" : "no, gate closed")})");
+            _log.Info($"Power source switch ({source}): {ProfileNameRules.Printable(aligned.Desired.FanProfile, CultureInfo.InvariantCulture)} + {aligned.Desired.Performance?.ToString() ?? "-"} (write: {(write ? "yes" : "no, gate closed")})");
             return write
                 ? await _control.ApplyDesiredAsync(aligned.Desired.WithoutPortParts(), Current.Catalog).ConfigureAwait(false)
                 : null;
@@ -272,7 +272,7 @@ public sealed class ProfileService
             var result = change(before);
             if (result.Updated is not { } updated)
             {
-                return new ProfileCommandResult(result.Error ?? "Profil değiştirilemedi.");
+                return new ProfileCommandResult(result.Error ?? Text(nameof(CoreStrings.Profile_ChangeFailed)));
             }
 
             saveWarning = Remember(updated);
@@ -368,9 +368,11 @@ public sealed class ProfileService
             or System.Security.SecurityException or JsonException)
         {
             _log.Error("Could not write settings.json", ex);
-            return $"Ayar kaydedilemedi (settings.json: {ex.Message}); yeniden başlatınca eski hali geri gelir.";
+            return Text(nameof(CoreStrings.Settings_SaveFailed), ex.Message);
         }
     }
+
+    private static string Text(string key, params object?[] args) => CoreText.Get(key, CultureInfo.CurrentUICulture, args);
 
     private static WriteOutcome RejectedOutcome(string message) => new(WriteStatus.Rejected, [], message);
 

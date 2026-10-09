@@ -18,4 +18,154 @@
   <data name="Settings_LanguageNotSupported" xml:space="preserve">
     <value>Dil desteklenmiyor: {0}</value>
   </data>
+  <data name="Curve_PointCount" xml:space="preserve">
+    <value>Eğri {0} noktadan oluşmalı ({1} var).</value>
+  </data>
+  <data name="Curve_FirstPointThreshold" xml:space="preserve">
+    <value>İlk nokta boştaki hızdır, eşik taşımaz.</value>
+  </data>
+  <data name="Curve_EnvelopeFirstStep" xml:space="preserve">
+    <value>Güvenlik kuralı: ilk kademe en geç {0} °C'de başlamalı.</value>
+  </data>
+  <data name="Curve_EnvelopeSpeed" xml:space="preserve">
+    <value>Güvenlik kuralı: {0} °C'de fan en az %{1} dönmeli (şu an %{2}).</value>
+  </data>
+  <data name="Curve_SpeedRange" xml:space="preserve">
+    <value>Nokta {0}: fan hızı %0-{1} aralığında olmalı.</value>
+  </data>
+  <data name="Curve_SpeedDecreases" xml:space="preserve">
+    <value>Nokta {0}: fan hızı önceki noktadan düşük olamaz.</value>
+  </data>
+  <data name="Curve_ThresholdRange" xml:space="preserve">
+    <value>Nokta {0}: eşik {1}-{2} °C olmalı.</value>
+  </data>
+  <data name="Curve_ThresholdOrder" xml:space="preserve">
+    <value>Nokta {0}: eşik önceki noktanınkinden yüksek olmalı.</value>
+  </data>
+  <data name="Curve_DownThreshold" xml:space="preserve">
+    <value>Nokta {0}: fan bu noktadan {1} °C'de geri iner, bu da önceki noktanın eşiğini ({2} °C) geçmiyor. Bu noktanın eşiğini yükseltin.</value>
+  </data>
+  <data name="Curve_LastStepStart" xml:space="preserve">
+    <value>Güvenlik kuralı: son kademe en geç {0} °C'de başlamalı.</value>
+  </data>
+  <data name="Curve_LastStepSpeed" xml:space="preserve">
+    <value>Güvenlik kuralı: son kademe en az %{0} olmalı.</value>
+  </data>
+  <data name="Library_TooMany" xml:space="preserve">
+    <value>En fazla {0} özel profil olabilir; önce birini silin.</value>
+  </data>
+  <data name="Library_BuiltInReadOnly" xml:space="preserve">
+    <value>"{0}" hazır bir profil, değiştirilemez; kopyalayıp kopyasını düzenleyin.</value>
+  </data>
+  <data name="Library_NotFound" xml:space="preserve">
+    <value>"{0}" adında bir özel profil bulunamadı.</value>
+  </data>
+  <data name="Library_DesiredSelected" xml:space="preserve">
+    <value>Bu profil şu an seçili; silmeden önce başka bir profil seçin.</value>
+  </data>
+  <data name="Library_CurvesMissing" xml:space="preserve">
+    <value>Fan eğrisi eksik.</value>
+  </data>
+  <data name="Name_Empty" xml:space="preserve">
+    <value>Profil adı boş olamaz.</value>
+  </data>
+  <data name="Name_BadCharacters" xml:space="preserve">
+    <value>Profil adında kontrol ya da geçersiz karakter olamaz.</value>
+  </data>
+  <data name="Name_TooLong" xml:space="preserve">
+    <value>Profil adı en fazla {0} karakter olabilir ({1} var).</value>
+  </data>
+  <data name="Name_Taken" xml:space="preserve">
+    <value>"{0}" adında bir profil zaten var.</value>
+  </data>
+  <data name="Name_Unnamed" xml:space="preserve">
+    <value>(adsız)</value>
+  </data>
+  <data name="Name_CopySuffix" xml:space="preserve">
+    <value> kopya</value>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>Bilinmeyen fan profili: {0}</value>
+  </data>
+  <data name="Profile_ChargeLimitRange" xml:space="preserve">
+    <value>Şarj limiti %{0}-{1} olmalı (%{2}).</value>
+  </data>
+  <data name="Profile_ChangeFailed" xml:space="preserve">
+    <value>Profil değiştirilemedi.</value>
+  </data>
+  <data name="Settings_SaveFailed" xml:space="preserve">
+    <value>Ayar kaydedilemedi (settings.json: {0}); yeniden başlatınca eski hali geri gelir.</value>
+  </data>
+  <data name="Settings_UnknownProfile" xml:space="preserve">
+    <value>Bilinmeyen fan profili ({0}); {1} kullanılıyor.</value>
+  </data>
+  <data name="Settings_EmptyValue" xml:space="preserve">
+    <value>boş</value>
+  </data>
+  <data name="Settings_InvalidPerformanceMode" xml:space="preserve">
+    <value>Geçersiz performans modu ({0}); yok sayıldı.</value>
+  </data>
+  <data name="Settings_InvalidFanMode" xml:space="preserve">
+    <value>Geçersiz fan modu ({0}); yok sayıldı.</value>
+  </data>
+  <data name="Settings_InvalidChargeLimit" xml:space="preserve">
+    <value>Geçersiz şarj limiti (%{0}); %{1}-{2} olmalı, yok sayıldı.</value>
+  </data>
+  <data name="Settings_PairMissingAc" xml:space="preserve">
+    <value>Prizde kullanılan fan profili bulunamadı ({0}); prize geçince o anki ayar korunacak.</value>
+  </data>
+  <data name="Settings_PairMissingBattery" xml:space="preserve">
+    <value>Pilde kullanılan fan profili bulunamadı ({0}); pile geçince o anki ayar korunacak.</value>
+  </data>
+  <data name="Settings_ProfileDropped" xml:space="preserve">
+    <value>Özel profil "{0}" kenara ayrıldı: {1}.</value>
+  </data>
+  <data name="Settings_ProfilesDroppedMore" xml:space="preserve">
+    <value>{0} özel profil daha kenara ayrıldı.</value>
+  </data>
+  <data name="Settings_DropTooMany" xml:space="preserve">
+    <value>en fazla {0} özel profil olabilir</value>
+  </data>
+  <data name="Settings_DropMissingPart" xml:space="preserve">
+    <value>eksik alan.</value>
+  </data>
+  <data name="Settings_DropNameNotNormal" xml:space="preserve">
+    <value>ad başında ya da sonunda boşlukla ya da ayrışık harfle kaydedilmiş.</value>
+  </data>
+  <data name="Settings_DropCurve" xml:space="preserve">
+    <value>fan kurallarına uymuyor ({0})</value>
+  </data>
+  <data name="Store_Unreadable" xml:space="preserve">
+    <value>settings.json okunamadı ({0}); varsayılanlar kullanılıyor.</value>
+  </data>
+  <data name="Store_UnreadableNotMoved" xml:space="preserve">
+    <value>settings.json okunamadı ({0}) ve kenara alınamadı ({1}); varsayılanlar kullanılıyor.</value>
+  </data>
+  <data name="Store_SetAside" xml:space="preserve">
+    <value>settings.json okunamadı ({0}); {1} olarak saklandı, varsayılanlar kullanılıyor.</value>
+  </data>
+  <data name="Store_ReasonTooBig" xml:space="preserve">
+    <value>{0} KB'tan büyük</value>
+  </data>
+  <data name="Store_ReasonEmpty" xml:space="preserve">
+    <value>boş ya da eksik</value>
+  </data>
+  <data name="Store_ReasonVersion" xml:space="preserve">
+    <value>geçersiz sürüm numarası: {0}</value>
+  </data>
+  <data name="Store_NewerVersion" xml:space="preserve">
+    <value>settings.json M-Tool'un daha yeni bir sürümüne ait; varsayılanlar kullanılıyor ve değişiklikler kaydedilmiyor. Yeni sürümü kurun.</value>
+  </data>
+  <data name="Store_RefuseUnread" xml:space="preserve">
+    <value>settings.json açılışta okunamadığı için üzerine yazılmıyor; M-Tool'u yeniden başlatın</value>
+  </data>
+  <data name="Store_RefuseNewer" xml:space="preserve">
+    <value>settings.json M-Tool'un daha yeni bir sürümüne ait, bu sürüm üzerine yazmıyor; yeni sürümü kurun</value>
+  </data>
+  <data name="Store_CopyKept" xml:space="preserve">
+    <value>settings.json dosyasının önceki hali {0} olarak saklandı.</value>
+  </data>
+  <data name="Store_CopyFailed" xml:space="preserve">
+    <value>settings.json dosyasının kopyası saklanamadı ({0}); kenara ayrılan profiller sonraki kaydetmede kaybolur.</value>
+  </data>
 </root>

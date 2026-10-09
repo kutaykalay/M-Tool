@@ -1,4 +1,7 @@
+using System.Globalization;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
+using MTool.Core.Resources;
 
 namespace MTool.Core.Profiles;
 
@@ -21,38 +24,40 @@ public static class CurveValidator
 
     public const int EnvelopeMinSpeedPercent = 50;
 
-    /// <summary>Returns human-readable (Turkish) problems; empty when the curve is valid.</summary>
+    /// <summary>Returns human-readable problems in the UI language; empty when the curve is valid.</summary>
     /// <param name="downOffsets">
     /// The EC's down offsets for this fan (one per step after the idle point). M-Tool never writes
     /// them, so they are the factory values: <see cref="Device.FactoryDefaults.CpuDownOffsets"/>.
     /// </param>
+    /// <param name="culture">The language of the problems; the UI language when null. The rules and their order do not depend on it.</param>
     /// <exception cref="ArgumentException">The offset count does not match a seven-point curve.</exception>
-    public static IReadOnlyList<string> Validate(FanCurve curve, IReadOnlyList<int> downOffsets)
+    public static IReadOnlyList<string> Validate(FanCurve curve, IReadOnlyList<int> downOffsets, CultureInfo? culture = null)
     {
+        culture ??= CultureInfo.CurrentUICulture;
         var points = curve.Points;
         if (points.Count != PointCount)
         {
-            return [$"Eğri {PointCount} noktadan oluşmalı ({points.Count} var)."];
+            return [CoreText.Get(nameof(CoreStrings.Curve_PointCount), culture, PointCount, points.Count)];
         }
 
         var errors = new List<string>();
         if (points[0].UpThresholdC != 0)
         {
-            errors.Add("İlk nokta boştaki hızdır, eşik taşımaz.");
+            errors.Add(CoreText.Get(nameof(CoreStrings.Curve_FirstPointThreshold), culture));
         }
 
         var downThresholds = curve.DownThresholdsC(downOffsets);
         for (var i = 0; i < PointCount; i++)
         {
-            CheckSpeed(points, i, errors);
+            CheckSpeed(points, i, errors, culture);
             if (i > 0)
             {
-                CheckThresholds(points, i, downThresholds[i - 1], errors);
+                CheckThresholds(points, i, downThresholds[i - 1], errors, culture);
             }
         }
 
-        CheckSafetyFloor(points[^1], errors);
-        CheckEnvelope(points, errors);
+        CheckSafetyFloor(points[^1], errors, culture);
+        CheckEnvelope(points, errors, culture);
         return errors.AsReadOnly();
     }
 
@@ -68,18 +73,19 @@ public static class CurveValidator
     /// Both fans of a profile with the factory down offsets M-Tool never changes, the same check the
     /// gateway makes. Problems start with "CPU: " or "GPU: "; empty when both curves are valid.
     /// </summary>
-    public static IReadOnlyList<string> ValidateWithFactoryOffsets(FanCurves curves) =>
+    /// <param name="culture">The language of the problems; the UI language when null.</param>
+    public static IReadOnlyList<string> ValidateWithFactoryOffsets(FanCurves curves, CultureInfo? culture = null) =>
     [
-        .. Validate(curves.Cpu, Device.FactoryDefaults.CpuDownOffsets).Select(e => $"CPU: {e}"),
-        .. Validate(curves.Gpu, Device.FactoryDefaults.GpuDownOffsets).Select(e => $"GPU: {e}"),
+        .. Validate(curves.Cpu, Device.FactoryDefaults.CpuDownOffsets, culture).Select(e => $"CPU: {e}"),
+        .. Validate(curves.Gpu, Device.FactoryDefaults.GpuDownOffsets, culture).Select(e => $"GPU: {e}"),
     ];
 
     /// <summary>Stops curves that keep the fan idle or slow until the last step (e.g. 0 % up to 84 °C).</summary>
-    private static void CheckEnvelope(IReadOnlyList<FanPoint> points, List<string> errors)
+    private static void CheckEnvelope(IReadOnlyList<FanPoint> points, List<string> errors, CultureInfo culture)
     {
         if (points[1].UpThresholdC > MaxFirstStepThresholdC)
         {
-            errors.Add($"Güvenlik kuralı: ilk kademe en geç {MaxFirstStepThresholdC} °C'de başlamalı.");
+            errors.Add(CoreText.Get(nameof(CoreStrings.Curve_EnvelopeFirstStep), culture, MaxFirstStepThresholdC));
         }
 
         // Below its first threshold the fan runs at the idle speed. A curve from settings.json may break
@@ -87,56 +93,56 @@ public static class CurveValidator
         var speedAtEnvelope = (points.LastOrDefault(p => p.UpThresholdC <= EnvelopeTemperatureC) ?? points[0]).SpeedPercent;
         if (speedAtEnvelope < EnvelopeMinSpeedPercent)
         {
-            errors.Add($"Güvenlik kuralı: {EnvelopeTemperatureC} °C'de fan en az %{EnvelopeMinSpeedPercent} dönmeli (şu an %{speedAtEnvelope}).");
+            errors.Add(CoreText.Get(nameof(CoreStrings.Curve_EnvelopeSpeed), culture, EnvelopeTemperatureC, EnvelopeMinSpeedPercent, speedAtEnvelope));
         }
     }
 
-    private static void CheckSpeed(IReadOnlyList<FanPoint> points, int i, List<string> errors)
+    private static void CheckSpeed(IReadOnlyList<FanPoint> points, int i, List<string> errors, CultureInfo culture)
     {
         var speed = points[i].SpeedPercent;
         if (speed is < 0 or > EcWriteRules.MaxSpeedPercent)
         {
-            errors.Add($"Nokta {i + 1}: fan hızı %0-{EcWriteRules.MaxSpeedPercent} aralığında olmalı.");
+            errors.Add(CoreText.Get(nameof(CoreStrings.Curve_SpeedRange), culture, i + 1, EcWriteRules.MaxSpeedPercent));
         }
 
         if (i > 0 && speed < points[i - 1].SpeedPercent)
         {
-            errors.Add($"Nokta {i + 1}: fan hızı önceki noktadan düşük olamaz.");
+            errors.Add(CoreText.Get(nameof(CoreStrings.Curve_SpeedDecreases), culture, i + 1));
         }
     }
 
-    private static void CheckThresholds(IReadOnlyList<FanPoint> points, int i, int down, List<string> errors)
+    private static void CheckThresholds(IReadOnlyList<FanPoint> points, int i, int down, List<string> errors, CultureInfo culture)
     {
         var up = points[i].UpThresholdC;
         var previousUp = points[i - 1].UpThresholdC;
 
         if (up is < EcWriteRules.MinUpThresholdC or > EcWriteRules.MaxUpThresholdC)
         {
-            errors.Add($"Nokta {i + 1}: eşik {EcWriteRules.MinUpThresholdC}-{EcWriteRules.MaxUpThresholdC} °C olmalı.");
+            errors.Add(CoreText.Get(nameof(CoreStrings.Curve_ThresholdRange), culture, i + 1, EcWriteRules.MinUpThresholdC, EcWriteRules.MaxUpThresholdC));
         }
 
         if (i > 1 && up <= previousUp)
         {
-            errors.Add($"Nokta {i + 1}: eşik önceki noktanınkinden yüksek olmalı.");
+            errors.Add(CoreText.Get(nameof(CoreStrings.Curve_ThresholdOrder), culture, i + 1));
         }
 
         // The fixed factory offset decides the down threshold, so only the up threshold can fix this.
         if (down <= previousUp)
         {
-            errors.Add($"Nokta {i + 1}: fan bu noktadan {down} °C'de geri iner, bu da önceki noktanın eşiğini ({previousUp} °C) geçmiyor. Bu noktanın eşiğini yükseltin.");
+            errors.Add(CoreText.Get(nameof(CoreStrings.Curve_DownThreshold), culture, i + 1, down, previousUp));
         }
     }
 
-    private static void CheckSafetyFloor(FanPoint last, List<string> errors)
+    private static void CheckSafetyFloor(FanPoint last, List<string> errors, CultureInfo culture)
     {
         if (last.UpThresholdC > SafetyFloorMaxLastThresholdC)
         {
-            errors.Add($"Güvenlik kuralı: son kademe en geç {SafetyFloorMaxLastThresholdC} °C'de başlamalı.");
+            errors.Add(CoreText.Get(nameof(CoreStrings.Curve_LastStepStart), culture, SafetyFloorMaxLastThresholdC));
         }
 
         if (last.SpeedPercent < SafetyFloorMinLastSpeedPercent)
         {
-            errors.Add($"Güvenlik kuralı: son kademe en az %{SafetyFloorMinLastSpeedPercent} olmalı.");
+            errors.Add(CoreText.Get(nameof(CoreStrings.Curve_LastStepSpeed), culture, SafetyFloorMinLastSpeedPercent));
         }
     }
 }

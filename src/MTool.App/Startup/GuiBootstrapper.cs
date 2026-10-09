@@ -227,9 +227,11 @@ internal sealed class GuiBootstrapper : IDisposable
         var sanitized = SettingsSanitizer.Sanitize(loaded.Settings, catalog);
 
         // The next save writes the file without the dropped profiles, so keep the user's original first.
-        var copied = sanitized.DroppedProfiles > 0 ? store.PreserveCopy() : null;
-        var warnings = new[] { loaded.Warning }.Concat(sanitized.Warnings).Append(copied).OfType<string>().ToArray();
-        foreach (var warning in warnings)
+        var copied = sanitized.DroppedProfiles > 0 ? store.PreserveCopyNotice() : null;
+        var warnings = new[] { loaded.Warning }.Concat(sanitized.Warnings).Append(copied?.Text).OfType<string>().ToArray();
+
+        // The log is English whatever language the banner is in.
+        foreach (var warning in new[] { loaded.LogWarning }.Concat(sanitized.LogWarnings).Append(copied?.Log).OfType<string>())
         {
             log.Warn(warning);
         }
