@@ -11,16 +11,7 @@ namespace MTool.App.Cli;
 /// </summary>
 internal static class ApplyCommand
 {
-    public const string Usage =
-        "  M-Tool.exe --apply charge <50-100> [--confirm]\n" +
-        "  M-Tool.exe --apply boost on|off [--confirm]\n" +
-        "  M-Tool.exe --apply perf high|balanced|eco [--confirm]\n" +
-        "  M-Tool.exe --apply fan default|cool|silent [--confirm]\n" +
-        "  M-Tool.exe --apply fanmode auto|advanced [--confirm]\n" +
-        "  M-Tool.exe --restore [--confirm]   (fabrika fan tablosu)\n" +
-        "  M-Tool.exe --unlock --confirm      (başarısız yazmadan kalan kilidi kaldır)\n" +
-        "  --confirm olmadan: dry-run, EC'ye yazılmaz. Komut satırı settings.json'daki dryRun'a bakmaz;\n" +
-        "  her canlı yazma --confirm ister.";
+    public static string Usage => CliText.ApplyUsage;
 
     /// <param name="NeedsCoolerBoostRegister">
     /// Cooler Boost keeps the other bits of 0x98, so only its plan reads that register (through the

@@ -388,4 +388,48 @@
     <value>, </value>
     <comment>Between the items of a list written in a sentence, for example the parts in the drift band. Include the space. Use the separator your language writes in prose (for example a comma and a space, or the CJK comma), not the regional list separator.</comment>
   </data>
+  <data name="Cli_UsageHeader" xml:space="preserve">
+    <value>Usage:</value>
+    <comment>Command line help, first line.</comment>
+  </data>
+  <data name="Cli_UsageGui" xml:space="preserve">
+    <value>  M-Tool.exe [{0}]   (window; with --tray only in the tray)</value>
+    <comment>Command line help. {0} is the option --tray: copy it unchanged. Keep the two leading spaces.</comment>
+  </data>
+  <data name="Cli_UsageReport" xml:space="preserve">
+    <value>  M-Tool.exe --report [--wmi2]   (report for another MSI model; read only; --wmi2: raw WMI2 packets on newer models)</value>
+    <comment>SAFETY. Command line help. Copy the command M-Tool.exe --report [--wmi2] unchanged. Keep the two leading spaces.</comment>
+  </data>
+  <data name="Cli_UsageWatch" xml:space="preserve">
+    <value>  M-Tool.exe --watch [seconds]        (read only, WMI only: records changes in 0xF2, 0xF4 and the fan tables; default 60 s, at most 600)</value>
+    <comment>Command line help. Copy the option --watch unchanged. Keep the two leading spaces.</comment>
+  </data>
+  <data name="Cli_UsageApply" xml:space="preserve">
+    <value>  M-Tool.exe --apply charge &lt;50-100&gt; [--confirm]&#10;  M-Tool.exe --apply boost on|off [--confirm]&#10;  M-Tool.exe --apply perf high|balanced|eco [--confirm]&#10;  M-Tool.exe --apply fan default|cool|silent [--confirm]&#10;  M-Tool.exe --apply fanmode auto|advanced [--confirm]&#10;  M-Tool.exe --restore [--confirm]   (factory fan table)&#10;  M-Tool.exe --unlock --confirm      (remove the lock left by a failed write)&#10;  Without --confirm: dry run, nothing is written to the laptop. The command line ignores dryRun in settings.json;&#10;  every live write needs --confirm.</value>
+    <comment>SAFETY. Command line help, several lines. Copy every command and option unchanged (--apply values, --restore, --unlock --confirm, --confirm) and settings.json and dryRun. Keep the two leading spaces and the line breaks. Dry run = trial mode: nothing is written.</comment>
+  </data>
+  <data name="Cli_Saved" xml:space="preserve">
+    <value>Saved: {0}</value>
+    <comment>Command line output. {0} is the path of the file that was written.</comment>
+  </data>
+  <data name="Cli_ReportGuidance" xml:space="preserve">
+    <value>Attach this file to a "Device report" issue on GitHub. The serial number was not queried, and the user and computer name are hidden in report.txt. dsdt.aml is MSI's firmware table and is not filtered. Look through report.txt before you send it.</value>
+    <comment>Command line output after --report. Keep report.txt, dsdt.aml and "Device report" (the name of the GitHub issue type) in English.</comment>
+  </data>
+  <data name="Cli_NoWriteLock" xml:space="preserve">
+    <value>There is no write lock.</value>
+    <comment>Command line output of --unlock when no lock exists.</comment>
+  </data>
+  <data name="Cli_LockRemoved" xml:space="preserve">
+    <value>The lock was removed. Previous reason: {0}</value>
+    <comment>Command line output of --unlock. {0} is the reason the lock was set.</comment>
+  </data>
+  <data name="Cli_Error" xml:space="preserve">
+    <value>ERROR: {0}</value>
+    <comment>Command line error output. {0} is the reason.</comment>
+  </data>
+  <data name="Cli_ErrorDetails" xml:space="preserve">
+    <value>Details: {0}</value>
+    <comment>Command line error output, second line. {0} is the folder of the log files.</comment>
+  </data>
 </root>

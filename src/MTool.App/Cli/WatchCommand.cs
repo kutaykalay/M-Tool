@@ -20,8 +20,7 @@ namespace MTool.App.Cli;
 /// </summary>
 internal static class WatchCommand
 {
-    public const string Usage =
-        "  M-Tool.exe --watch [saniye]         (salt okuma, yalnızca WMI: 0xF2, 0xF4 ve fan tablolarındaki değişimleri kaydeder, varsayılan 60 sn, en çok 600)";
+    public static string Usage => CliText.WatchUsage;
 
     private const int DefaultSeconds = 60;
     private const int MaxSeconds = 600;
@@ -59,7 +58,7 @@ internal static class WatchCommand
         finally
         {
             Console.CancelKeyPress -= onCancel;
-            Console.WriteLine($"Kaydedildi: {CliRunner.SaveDump(report.ToString(), "watch")}");
+            Console.WriteLine(CliText.Saved(CliRunner.SaveDump(report.ToString(), "watch")));
         }
 
         return 0;

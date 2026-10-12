@@ -54,7 +54,7 @@ internal static class CliRunner
                 return Apply(log, apply!, confirm);
             }
 
-            Console.WriteLine($"Kullanım:{Environment.NewLine}  M-Tool.exe [{StartupArgs.Tray}]   (GUI; --tray ile yalnızca tepside){Environment.NewLine}  M-Tool.exe --dump{Environment.NewLine}  M-Tool.exe --report [--wmi2]   (başka bir MSI modeli için rapor; yalnızca okur; --wmi2: yeni modellerde ham WMI2 paketleri){Environment.NewLine}{WatchCommand.Usage}{Environment.NewLine}{ApplyCommand.Usage}");
+            Console.WriteLine(CliText.Usage());
             return ExitUsage;
         }
         catch (UnsupportedDeviceException ex)
@@ -84,7 +84,7 @@ internal static class CliRunner
         var report = Wait(session.Worker.RunAsync(ec =>
             DumpFormatter.Format(new Core.Device.P65Device(ec, session.Layout), session.Layout, session.Match, ec, session.Controller?.RecoveredFailures ?? 0, session.PortAvailable)));
         Console.WriteLine(report);
-        Console.WriteLine($"Kaydedildi: {SaveDump(report)}");
+        Console.WriteLine(CliText.Saved(SaveDump(report)));
         return ExitOk;
     }
 
@@ -101,9 +101,8 @@ internal static class CliRunner
             [Environment.UserName, Environment.MachineName, Environment.UserDomainName, profile, Path.GetFileName(profile)]);
         var path = ReportCommand.Save(AppPaths.Reports, data, text, at);
         Console.WriteLine(text);
-        Console.WriteLine($"Kaydedildi: {path}");
-        Console.WriteLine("Bu dosyayı GitHub'da \"Device report\" issue'suna ekleyin. Seri numarası sorgulanmadı, kullanıcı ve bilgisayar adı " +
-            "report.txt'de gizlendi. dsdt.aml MSI'ın firmware tablosudur ve filtrelenmez. Göndermeden önce report.txt'ye göz atın.");
+        Console.WriteLine(CliText.Saved(path));
+        Console.WriteLine(CliText.ReportGuidance());
         log.Info($"Report written: {path}");
         return ExitOk;
     }
@@ -119,7 +118,7 @@ internal static class CliRunner
             outcome.Message,
             $"Yazmalar: {string.Join(' ', outcome.Planned)}");
         Console.WriteLine(report);
-        Console.WriteLine($"Kaydedildi: {SaveDump(report + Environment.NewLine + DumpAfter(session, log))}");
+        Console.WriteLine(CliText.Saved(SaveDump(report + Environment.NewLine + DumpAfter(session, log))));
 
         return outcome.Status switch
         {
@@ -149,20 +148,20 @@ internal static class CliRunner
         var store = new WriteLockStore(AppPaths.Root);
         if (store.Reason is not { } reason)
         {
-            Console.WriteLine("Yazma kilidi yok.");
+            Console.WriteLine(CliText.NoWriteLock());
             return ExitOk;
         }
 
         store.Clear();
         log.Warn($"Write lock removed by hand. Previous reason: {reason}");
-        Console.WriteLine($"Kilit kaldırıldı. Önceki neden: {reason}");
+        Console.WriteLine(CliText.LockRemoved(reason));
         return ExitOk;
     }
 
     private static int ReportFailure(Exception ex)
     {
-        Console.Error.WriteLine($"HATA: {ex.Message}");
-        Console.Error.WriteLine($"Ayrıntı: {AppPaths.Logs}");
+        Console.Error.WriteLine(CliText.Error(ex.Message));
+        Console.Error.WriteLine(CliText.Details(AppPaths.Logs));
         return ExitError;
     }
 

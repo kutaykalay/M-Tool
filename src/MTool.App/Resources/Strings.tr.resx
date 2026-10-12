@@ -294,4 +294,37 @@
   <data name="List_Separator" xml:space="preserve">
     <value>, </value>
   </data>
+  <data name="Cli_UsageHeader" xml:space="preserve">
+    <value>Kullanım:</value>
+  </data>
+  <data name="Cli_UsageGui" xml:space="preserve">
+    <value>  M-Tool.exe [{0}]   (GUI; --tray ile yalnızca tepside)</value>
+  </data>
+  <data name="Cli_UsageReport" xml:space="preserve">
+    <value>  M-Tool.exe --report [--wmi2]   (başka bir MSI modeli için rapor; yalnızca okur; --wmi2: yeni modellerde ham WMI2 paketleri)</value>
+  </data>
+  <data name="Cli_UsageWatch" xml:space="preserve">
+    <value>  M-Tool.exe --watch [saniye]         (salt okuma, yalnızca WMI: 0xF2, 0xF4 ve fan tablolarındaki değişimleri kaydeder, varsayılan 60 sn, en çok 600)</value>
+  </data>
+  <data name="Cli_UsageApply" xml:space="preserve">
+    <value>  M-Tool.exe --apply charge &lt;50-100&gt; [--confirm]&#10;  M-Tool.exe --apply boost on|off [--confirm]&#10;  M-Tool.exe --apply perf high|balanced|eco [--confirm]&#10;  M-Tool.exe --apply fan default|cool|silent [--confirm]&#10;  M-Tool.exe --apply fanmode auto|advanced [--confirm]&#10;  M-Tool.exe --restore [--confirm]   (fabrika fan tablosu)&#10;  M-Tool.exe --unlock --confirm      (başarısız yazmadan kalan kilidi kaldır)&#10;  --confirm olmadan: dry-run, EC'ye yazılmaz. Komut satırı settings.json'daki dryRun'a bakmaz;&#10;  her canlı yazma --confirm ister.</value>
+  </data>
+  <data name="Cli_Saved" xml:space="preserve">
+    <value>Kaydedildi: {0}</value>
+  </data>
+  <data name="Cli_ReportGuidance" xml:space="preserve">
+    <value>Bu dosyayı GitHub'da "Device report" issue'suna ekleyin. Seri numarası sorgulanmadı, kullanıcı ve bilgisayar adı report.txt'de gizlendi. dsdt.aml MSI'ın firmware tablosudur ve filtrelenmez. Göndermeden önce report.txt'ye göz atın.</value>
+  </data>
+  <data name="Cli_NoWriteLock" xml:space="preserve">
+    <value>Yazma kilidi yok.</value>
+  </data>
+  <data name="Cli_LockRemoved" xml:space="preserve">
+    <value>Kilit kaldırıldı. Önceki neden: {0}</value>
+  </data>
+  <data name="Cli_Error" xml:space="preserve">
+    <value>HATA: {0}</value>
+  </data>
+  <data name="Cli_ErrorDetails" xml:space="preserve">
+    <value>Ayrıntı: {0}</value>
+  </data>
 </root>
