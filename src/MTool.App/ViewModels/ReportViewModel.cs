@@ -33,6 +33,7 @@ internal sealed partial class ReportViewModel(
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
     [NotifyCanExecuteChangedFor(nameof(CreateWithWmi2Command))]
+    [NotifyCanExecuteChangedFor(nameof(ReportIssueCommand))]
     public partial bool IsBusy { get; private set; }
 
     /// <summary>Unknown (false) until <see cref="LoadAsync"/> has answered.</summary>
@@ -47,10 +48,10 @@ internal sealed partial class ReportViewModel(
     public async Task LoadAsync() => HasWmi2 = await Task.Run(service.HasWmi2Interface);
 
     [RelayCommand(CanExecute = nameof(CanStart))]
-    private Task CreateAsync() => MakeAsync(service.Create, askFirst: false);
+    private async Task CreateAsync() => await MakeAsync(service.Create, askFirst: false);
 
     [RelayCommand(CanExecute = nameof(CanStartWmi2))]
-    private Task CreateWithWmi2Async() => MakeAsync(service.CreateWithWmi2, askFirst: true);
+    private async Task CreateWithWmi2Async() => await MakeAsync(service.CreateWithWmi2, askFirst: true);
 
     [RelayCommand]
     private void OpenFolder()
@@ -61,19 +62,33 @@ internal sealed partial class ReportViewModel(
         }
     }
 
-    [RelayCommand]
-    private void ReportIssue() =>
-        Open(() => shell.OpenUrl(IssueUrl.Build(_last?.Model, _last?.Firmware)), "the issue form");
+    /// <summary>
+    /// Opens the prefilled issue form. With no report made since start-up it first makes the plain report
+    /// (never WMI2, no question) the same way <see cref="CreateCommand"/> does, so the form has the model
+    /// and firmware; if that fails or times out the form stays closed and the usual warning is shown.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanStart))]
+    private async Task ReportIssueAsync()
+    {
+        var report = _last ?? await MakeAsync(service.Create, askFirst: false);
+        if (report is null)
+        {
+            return;
+        }
+
+        Open(() => shell.OpenUrl(IssueUrl.Build(report.Model, report.Firmware)), "the issue form");
+    }
 
     private bool CanStart() => !IsBusy;
 
     private bool CanStartWmi2() => !IsBusy && HasWmi2;
 
-    private async Task MakeAsync(Func<ReportResult> make, bool askFirst)
+    /// <summary>Makes a report; null when it was refused, not confirmed, failed or timed out (the user has been told).</summary>
+    private async Task<ReportResult?> MakeAsync(Func<ReportResult> make, bool askFirst)
     {
         if (IsBusy || (askFirst && !HasWmi2))
         {
-            return; // the menu was built before the state changed
+            return null; // the menu was built before the state changed
         }
 
         IsBusy = true;
@@ -84,7 +99,7 @@ internal sealed partial class ReportViewModel(
             if (askFirst && !confirm.Ask(Strings.Report_Wmi2Confirm, defaultYes: false))
             {
                 log.Info("Report with WMI2: not confirmed, nothing was read.");
-                return;
+                return null;
             }
 
             notifier.ShowInfo(AppName, Strings.Report_Working);
@@ -96,6 +111,7 @@ internal sealed partial class ReportViewModel(
             var saved = string.Format(Strings.Report_Saved, shownPath, Strings.Report_IssueMenu);
             notifier.ShowInfo(AppName, saved);
             status.ShowInfo($"{saved} {Strings.Cli_ReportGuidance}");
+            return result;
         }
         catch (TimeoutException ex) when (work is { IsCompleted: false })
         {
@@ -108,12 +124,14 @@ internal sealed partial class ReportViewModel(
             log.Error($"The device report did not finish within {ReportTimeout.TotalMinutes:0.#} minutes", ex);
             status.ShowWarning(Strings.Report_TimedOut);
             notifier.ShowError(AppName, Strings.Report_TimedOut);
+            return null;
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             log.Error("The device report could not be created", ex);
             status.ShowWarning(Strings.Report_Failed);
             notifier.ShowError(AppName, Strings.Report_Failed);
+            return null;
         }
         finally
         {

@@ -402,13 +402,104 @@ public sealed class ReportViewModelTests : IDisposable
     }
 
     [Fact]
-    public void The_issue_command_without_a_report_opens_the_empty_form()
+    public async Task The_issue_command_without_a_report_makes_the_plain_report_first_and_opens_the_form_with_it()
     {
+        var sources = new FakeReportSources();
+        var vm = ViewModel(sources);
+
+        await Run(vm.ReportIssueCommand);
+
+        sources.InterfaceReads.Should().Be(1, "exactly one report is made");
+        sources.Wmi2Reads.Should().Be(0);
+        vm.LastReportPath.Should().NotBeNull();
+        _shell.Urls.Should().ContainSingle().Which.AbsoluteUri.Should().Be(IssueUrl.Build("P65 Creator 9SE", "16Q4EMS2.107").AbsoluteUri);
+        _notifier.Infos.Select(i => i.Message).Should().Contain(m => m.Contains(".zip", StringComparison.Ordinal));
+        _status.Message.Should().Contain("report.txt");
+        vm.IsBusy.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task The_issue_command_with_a_report_does_not_make_another()
+    {
+        var sources = new FakeReportSources();
+        var vm = ViewModel(sources);
+        await Run(vm.CreateCommand);
+
+        await Run(vm.ReportIssueCommand);
+        await Run(vm.ReportIssueCommand);
+
+        sources.InterfaceReads.Should().Be(1);
+        Directory.GetFiles(Reports).Should().ContainSingle();
+        _shell.Urls.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task The_issue_command_does_not_open_the_form_when_the_report_fails()
+    {
+        File.WriteAllText(Reports, "in the way");
         var vm = ViewModel(new FakeReportSources());
 
-        vm.ReportIssueCommand.Execute(null);
+        await Run(vm.ReportIssueCommand);
 
-        _shell.Urls.Should().ContainSingle().Which.AbsoluteUri.Should().Be(IssueUrl.Build(null, null).AbsoluteUri);
+        _shell.Urls.Should().BeEmpty();
+        _status.MessageKind.Should().Be(MessageKind.Warning);
+        _status.Message.Should().Be(Strings.Report_Failed);
+        _notifier.Errors.Should().ContainSingle().Which.Message.Should().Be(Strings.Report_Failed);
+        vm.IsBusy.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task The_issue_command_does_not_open_the_form_when_the_report_times_out()
+    {
+        using var gate = new ManualResetEventSlim();
+        var sources = new FakeReportSources { Gate = gate };
+        var vm = ViewModel(sources);
+
+        var running = Run(vm.ReportIssueCommand);
+        sources.Started.Wait(TimeSpan.FromSeconds(5)).Should().BeTrue();
+        await AdvanceUntilDone(running, ReportViewModel.ReportTimeout);
+
+        _shell.Urls.Should().BeEmpty();
+        _status.Message.Should().Be(Strings.Report_TimedOut);
+        _notifier.Errors.Should().ContainSingle().Which.Message.Should().Be(Strings.Report_TimedOut);
+        vm.IsBusy.Should().BeFalse();
+        gate.Set();
+        await WaitForTheAbandonedWork();
+    }
+
+    [Fact]
+    public async Task While_the_issue_report_runs_a_second_issue_start_is_refused()
+    {
+        using var gate = new ManualResetEventSlim();
+        var sources = new FakeReportSources { Gate = gate };
+        var vm = ViewModel(sources);
+
+        var running = Run(vm.ReportIssueCommand);
+        sources.Started.Wait(TimeSpan.FromSeconds(5)).Should().BeTrue();
+        vm.IsBusy.Should().BeTrue();
+        vm.ReportIssueCommand.CanExecute(null).Should().BeFalse();
+        vm.ReportIssueCommand.Execute(null);
+        gate.Set();
+        await running;
+
+        sources.InterfaceReads.Should().Be(1);
+        Directory.GetFiles(Reports).Should().ContainSingle();
+        _shell.Urls.Should().ContainSingle();
+        vm.ReportIssueCommand.CanExecute(null).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task The_issue_command_never_asks_a_question()
+    {
+        var sources = new FakeReportSources { Wmi = WmiInterface.Wmi2 };
+        var vm = ViewModel(sources);
+        await vm.LoadAsync();
+
+        await Run(vm.ReportIssueCommand);
+
+        _confirm.Questions.Should().BeEmpty();
+        sources.Wmi2Reads.Should().Be(0);
+        vm.LastReportPath.Should().NotBeNull();
     }
 
     [Fact]
