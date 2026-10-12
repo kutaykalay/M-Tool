@@ -237,4 +237,34 @@
   <data name="Worker_LockTimeout" xml:space="preserve">
     <value>EC kilidi (Access_EC) {0} ms içinde alınamadı; başka bir program EC'yi kullanıyor olabilir.</value>
   </data>
+  <data name="Rule_NotWritable" xml:space="preserve">
+    <value>0x{0:X2} yazılabilir register listesinde değil.</value>
+  </data>
+  <data name="Rule_UpThreshold" xml:space="preserve">
+    <value>{0}: yukarı eşik {1}-{2} °C olmalı.</value>
+  </data>
+  <data name="Rule_SpeedMax" xml:space="preserve">
+    <value>{0}: fan hızı en fazla %{1}.</value>
+  </data>
+  <data name="Rule_ChargeLimit" xml:space="preserve">
+    <value>{0}: şarj limiti 0x80 | %{1}-{2} olmalı.</value>
+  </data>
+  <data name="Rule_PerformanceMode" xml:space="preserve">
+    <value>{0}: desteklenmeyen performans modu.</value>
+  </data>
+  <data name="Rule_FanMode" xml:space="preserve">
+    <value>{0}: desteklenmeyen fan modu.</value>
+  </data>
+  <data name="Rule_CoolerBoostBits" xml:space="preserve">
+    <value>{0}: Cooler Boost yazmasında yalnızca bit 7 değişebilir (şu an 0x{1:X2}).</value>
+  </data>
+  <data name="PortGuard_Unreadable" xml:space="preserve">
+    <value>İzlenen register'lar port erişiminden sonra okunamadı.</value>
+  </data>
+  <data name="PortGuard_Changed" xml:space="preserve">
+    <value>Port erişimi başka register'ları değiştirdi: {0}.</value>
+  </data>
+  <data name="Config_OutsideLimits" xml:space="preserve">
+    <value>{0}: kaydın limitleri dışında ({1}-{2} °C, en fazla %{3}).</value>
+  </data>
 </root>

@@ -15,8 +15,6 @@ public sealed partial class EcGatewayCultureTests
 {
     private static readonly WritePolicy Live = new(FirmwareSupported: true, PreStateSaved: true, DryRun: false, PortAvailable: true);
 
-    // Texts of EcWriteRules and PortWriteGuard are outside the resource move (they are not touched),
-    // so a scenario that shows one of them keeps that part in Turkish in every language.
     private static readonly Scenario[] Scenarios =
     [
         new("firmware not supported", r => One(r.Gateway(Live with { FirmwareSupported = false }), WritePlans.ChargeLimit(79))),
@@ -27,8 +25,8 @@ public sealed partial class EcGatewayCultureTests
         new("duplicate register", r => One(r.Gateway(), new WritePlan("test", [new(0xF2, 0xC1), new(0xF2, 0xC2)]))),
         new("port plan without a port", r => One(r.Gateway(Live with { PortAvailable = false }), WritePlans.ChargeLimit(79))),
         new("port register not alone", r => One(r.Gateway(), new WritePlan("test", [new(0xEF, 0x80 | 79), new(0x72, 50)]))),
-        new("register not on the whitelist", r => One(r.Gateway(), new WritePlan("test", [new(0xF3, 0x83)])), OutsideText: true),
-        new("cooler boost touches other bits", r => One(r.Gateway(), new WritePlan("test", [new(0x98, 0x80)])), OutsideText: true),
+        new("register not on the whitelist", r => One(r.Gateway(), new WritePlan("test", [new(0xF3, 0x83)]))),
+        new("cooler boost touches other bits", r => One(r.Gateway(), new WritePlan("test", [new(0x98, 0x80)]))),
         new("unsafe fan table", r => One(r.Gateway(), new WritePlan("test", [new(0x78, 70)]))),
         new("fan mode on an unsafe table", r =>
         {
@@ -95,12 +93,12 @@ public sealed partial class EcGatewayCultureTests
         {
             r.Ec.AfterWrite = written => r.Ec[0xF2] = written == EcMap.ChargeLimit ? (byte)0xC4 : r.Ec[0xF2];
             return One(r.Gateway(), WritePlans.ChargeLimit(79));
-        }, OutsideText: true),
+        }),
         new("port write disturbs the fan table", r =>
         {
             r.Ec.AfterWrite = written => r.Ec[0x6A] = written == EcMap.ChargeLimit ? (byte)50 : r.Ec[0x6A];
             return One(r.Gateway(), WritePlans.ChargeLimit(79));
-        }, OutsideText: true),
+        }),
     ];
 
     private const string TurkishReadBack = "Ayar uygulanamadı. Ayar yazıldı ama geri okunduğunda farklı çıktı (0x72=0x32).";
@@ -133,10 +131,10 @@ public sealed partial class EcGatewayCultureTests
         ["port register not alone"] = (
             "0xEF=0xCF: port register'ı planda tek başına olmalı.",
             "0xEF=0xCF: a port register must be the only write in its plan."),
-        ["register not on the whitelist"] = ("0xF3 yazılabilir register listesinde değil.", "0xF3 yazılabilir register listesinde değil."),
+        ["register not on the whitelist"] = ("0xF3 yazılabilir register listesinde değil.", "0xF3 is not in the list of writable registers."),
         ["cooler boost touches other bits"] = (
             "0x98=0x80: Cooler Boost yazmasında yalnızca bit 7 değişebilir (şu an 0x02).",
-            "0x98=0x80: Cooler Boost yazmasında yalnızca bit 7 değişebilir (şu an 0x02)."),
+            "0x98=0x80: a Cooler Boost write may change only bit 7 (currently 0x02)."),
         ["unsafe fan table"] = (
             "CPU eğrisi güvensiz olur: Nokta 7: fan hızı önceki noktadan düşük olamaz.",
             "The CPU curve would be unsafe: Point 7: the fan speed cannot be lower than the previous point."),
@@ -160,10 +158,10 @@ public sealed partial class EcGatewayCultureTests
         ["port read fails before writing"] = (TurkishUnreachable + "EC silent)", EnglishUnreachable + "EC silent)"),
         ["port write disturbs performance mode"] = (
             "Ayar uygulanamadı. Ayar yazıldı ama başka değerler de değişti; güvenlik için durduruldu. Port erişimi başka register'ları değiştirdi: 0xF2=0xC4. Geri yüklendi: 0xF2=0xC0.",
-            "The setting could not be applied. The setting was written but other values changed too; stopped for safety. Port erişimi başka register'ları değiştirdi: 0xF2=0xC4. Restored: 0xF2=0xC0."),
+            "The setting could not be applied. The setting was written but other values changed too; stopped for safety. The port access changed other registers: 0xF2=0xC4. Restored: 0xF2=0xC0."),
         ["port write disturbs the fan table"] = (
             "Ayar uygulanamadı. Ayar yazıldı ama başka değerler de değişti; güvenlik için durduruldu. Port erişimi başka register'ları değiştirdi: 0x6A=0x32.",
-            "The setting could not be applied. The setting was written but other values changed too; stopped for safety. Port erişimi başka register'ları değiştirdi: 0x6A=0x32."),
+            "The setting could not be applied. The setting was written but other values changed too; stopped for safety. The port access changed other registers: 0x6A=0x32."),
     };
 
     public static TheoryData<string> Names() => [.. Scenarios.Select(s => s.Name)];
@@ -211,10 +209,7 @@ public sealed partial class EcGatewayCultureTests
 
         english.Texts.Should().Be(Texts[name].English);
         german.Texts.Should().Be(english.Texts);
-        if (!scenario.OutsideText)
-        {
-            english.Texts.Should().NotMatchRegex("[çğıöşüÇĞİÖŞÜ]");
-        }
+        english.Texts.Should().NotMatchRegex("[çğıöşüÇĞİÖŞÜ]");
     }
 
     [Theory]
@@ -226,10 +221,7 @@ public sealed partial class EcGatewayCultureTests
         var turkish = await RunIn("tr", scenario);
 
         turkish.Log.Should().NotBeEmpty();
-        if (!scenario.OutsideText)
-        {
-            turkish.Log.Should().OnlyContain(line => !TurkishLetter().IsMatch(line));
-        }
+        turkish.Log.Should().OnlyContain(line => !TurkishLetter().IsMatch(line));
     }
 
     [Fact]
@@ -276,6 +268,5 @@ public sealed partial class EcGatewayCultureTests
     private sealed record Scenario(
         string Name,
         Func<WriteRig, Task<WriteOutcome[]>> Act,
-        bool OutsideText = false,
         bool ExceptionInMessage = false);
 }

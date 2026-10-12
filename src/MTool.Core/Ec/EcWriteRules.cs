@@ -1,4 +1,7 @@
 using MTool.Core.Device;
+using MTool.Core.Localization;
+using MTool.Core.Resources;
+using static MTool.Core.Localization.UserAndLogText;
 
 namespace MTool.Core.Ec;
 
@@ -42,35 +45,41 @@ public static class EcWriteRules
         _ => 2,
     };
 
-    /// <summary>Rules that need no EC state. Returns an error message or null.</summary>
-    public static string? CheckStatic(RegisterWrite write)
+    /// <summary>Rules that need no EC state. Returns an error message (in the user's language) or null.</summary>
+    public static string? CheckStatic(RegisterWrite write) => CheckStaticText(write)?.Text;
+
+    /// <summary>Rules that need no EC state, with the message for the user and its English twin for the log.</summary>
+    internal static UserAndLogText? CheckStaticText(RegisterWrite write)
     {
         if (!Kinds.TryGetValue(write.Register, out var kind))
         {
-            return $"0x{write.Register:X2} yazılabilir register listesinde değil.";
+            return Say(nameof(CoreStrings.Rule_NotWritable), write.Register);
         }
 
         int value = write.Value;
         return kind switch
         {
             Kind.UpThreshold when value is < MinUpThresholdC or > MaxUpThresholdC =>
-                $"{write}: yukarı eşik {MinUpThresholdC}-{MaxUpThresholdC} °C olmalı.",
+                Say(nameof(CoreStrings.Rule_UpThreshold), write, MinUpThresholdC, MaxUpThresholdC),
             Kind.Speed when value > MaxSpeedPercent =>
-                $"{write}: fan hızı en fazla %{MaxSpeedPercent}.",
+                Say(nameof(CoreStrings.Rule_SpeedMax), write, MaxSpeedPercent),
             Kind.ChargeLimit when !IsValidChargeLimit(write.Value) =>
-                $"{write}: şarj limiti 0x80 | %{MinChargeLimitPercent}-{MaxChargeLimitPercent} olmalı.",
+                Say(nameof(CoreStrings.Rule_ChargeLimit), write, MinChargeLimitPercent, MaxChargeLimitPercent),
             Kind.Performance when !PerformanceValues.Contains(write.Value) =>
-                $"{write}: desteklenmeyen performans modu.",
+                Say(nameof(CoreStrings.Rule_PerformanceMode), write),
             Kind.FanMode when !FanModeValues.Contains(write.Value) =>
-                $"{write}: desteklenmeyen fan modu.",
+                Say(nameof(CoreStrings.Rule_FanMode), write),
             _ => null,
         };
     }
 
-    /// <summary>Rules that compare against the register's current value. Returns an error message or null.</summary>
-    public static string? CheckAgainstCurrent(RegisterWrite write, byte current) =>
+    /// <summary>Rules that compare against the register's current value. Returns an error message (in the user's language) or null.</summary>
+    public static string? CheckAgainstCurrent(RegisterWrite write, byte current) => CheckAgainstCurrentText(write, current)?.Text;
+
+    /// <summary>Rules that compare against the register's current value, with the message for the user and its English twin for the log.</summary>
+    internal static UserAndLogText? CheckAgainstCurrentText(RegisterWrite write, byte current) =>
         write.Register == EcMap.CoolerBoost && ((write.Value ^ current) & ~CoolerBoostBit & 0xFF) != 0
-            ? $"{write}: Cooler Boost yazmasında yalnızca bit 7 değişebilir (şu an 0x{current:X2})."
+            ? Say(nameof(CoreStrings.Rule_CoolerBoostBits), write, current)
             : null;
 
     private static bool IsValidChargeLimit(byte value)

@@ -103,8 +103,8 @@ public sealed class EcGateway
             return Say(nameof(CoreStrings.Write_DuplicateRegister), duplicate.Key);
         }
 
-        return plan.Writes.Select(EcWriteRules.CheckStatic).FirstOrDefault(e => e is not null) is { } ruleError
-            ? Plain(ruleError)
+        return plan.Writes.Select(EcWriteRules.CheckStaticText).FirstOrDefault(e => e is not null) is { } ruleError
+            ? ruleError
             : CheckPortRules(plan, portAvailable);
     }
 
@@ -198,8 +198,8 @@ public sealed class EcGateway
     {
         var liveError = plan.Writes
             .Where(w => w.Register == EcMap.CoolerBoost)
-            .Select(w => EcWriteRules.CheckAgainstCurrent(w, ec.Read(w.Register)))
-            .FirstOrDefault(e => e is not null) is { } liveRule ? Plain(liveRule) : null;
+            .Select(w => EcWriteRules.CheckAgainstCurrentText(w, ec.Read(w.Register)))
+            .FirstOrDefault(e => e is not null);
         var affectsFans = plan.Writes.Any(w => EcWriteRules.IsFanTable(w.Register) || w.Register == EcMap.FanMode);
         if (liveError is not null || !affectsFans)
         {
@@ -272,7 +272,7 @@ public sealed class EcGateway
         var restored = watched is null ? Plain("") : RestoreDisturbedModes(ec, watched, disturbance);
         var boosted = !safe && TryCoolerBoost(ec);
 
-        var details = Join(' ', new[] { reason, Plain(disturbance.Describe()), restored }.Where(t => t.Text.Length > 0));
+        var details = Join(' ', new[] { reason, disturbance.Describe(), restored }.Where(t => t.Text.Length > 0));
         SafeLog(log => log.Error($"{plan.Description}: write failed, EC writes locked. {details.Log}", exception));
         if (safe)
         {
@@ -290,7 +290,7 @@ public sealed class EcGateway
         var restores = disturbance.Changes
             .Where(c => !EcWriteRules.IsFanTable(c.Register))
             .Select(c => new RegisterWrite(c.Register, watched[c.Register]))
-            .Where(w => EcWriteRules.CheckStatic(w) is null)
+            .Where(w => EcWriteRules.CheckStaticText(w) is null)
             .ToArray();
         if (restores.Length == 0)
         {

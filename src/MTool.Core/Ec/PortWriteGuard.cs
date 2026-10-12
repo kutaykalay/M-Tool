@@ -1,4 +1,7 @@
 using MTool.Core.Device;
+using MTool.Core.Localization;
+using MTool.Core.Resources;
+using static MTool.Core.Localization.UserAndLogText;
 
 namespace MTool.Core.Ec;
 
@@ -46,8 +49,8 @@ internal sealed record PortDisturbance(IReadOnlyList<RegisterWrite> Changes, boo
 
     public bool TouchesFanTable => Unreadable || Changes.Any(c => EcWriteRules.IsFanTable(c.Register));
 
-    public string Describe() =>
-        Unreadable ? "İzlenen register'lar port erişiminden sonra okunamadı."
-        : Changes.Count > 0 ? $"Port erişimi başka register'ları değiştirdi: {string.Join(' ', Changes)}."
-        : "";
+    public UserAndLogText Describe() =>
+        Unreadable ? Say(nameof(CoreStrings.PortGuard_Unreadable))
+        : Changes.Count > 0 ? Say(nameof(CoreStrings.PortGuard_Changed), string.Join(' ', Changes))
+        : Plain("");
 }

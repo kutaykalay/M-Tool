@@ -312,4 +312,44 @@
     <value>The EC lock (Access_EC) was not obtained within {0} ms; another program may be using the EC.</value>
     <comment>Message when the shared controller (EC) lock stayed taken. {0}: the time waited in milliseconds. Keep Access_EC. It appears inside Write_Unreachable.</comment>
   </data>
+  <data name="Rule_NotWritable" xml:space="preserve">
+    <value>0x{0:X2} is not in the list of writable registers.</value>
+    <comment>SAFETY. Rejection when a write targets a register outside the whitelist, so nothing was written. {0}: the register number as two hex digits; keep the 0x prefix.</comment>
+  </data>
+  <data name="Rule_UpThreshold" xml:space="preserve">
+    <value>{0}: the up threshold must be {1}-{2} °C.</value>
+    <comment>SAFETY. Rejection of a fan table up threshold outside the allowed range. {0}: the register and value, such as 0x6A=0x1D; keep it. {1}, {2}: lowest and highest allowed temperature.</comment>
+  </data>
+  <data name="Rule_SpeedMax" xml:space="preserve">
+    <value>{0}: the fan speed is at most {1}%.</value>
+    <comment>SAFETY. Rejection of a fan speed above the maximum. {0}: the register and value; keep it. {1}: the highest allowed speed in percent.</comment>
+  </data>
+  <data name="Rule_ChargeLimit" xml:space="preserve">
+    <value>{0}: the charge limit must be 0x80 | {1}-{2}%.</value>
+    <comment>SAFETY. Rejection of a charge limit value outside the allowed range. {0}: the register and value; keep it. Keep 0x80 | unchanged (bit 7 set plus the percent). {1}, {2}: lowest and highest allowed percent.</comment>
+  </data>
+  <data name="Rule_PerformanceMode" xml:space="preserve">
+    <value>{0}: unsupported performance mode.</value>
+    <comment>SAFETY. Rejection of a performance mode value the laptop does not know. {0}: the register and value; keep it.</comment>
+  </data>
+  <data name="Rule_FanMode" xml:space="preserve">
+    <value>{0}: unsupported fan mode.</value>
+    <comment>SAFETY. Rejection of a fan mode value the laptop does not know. {0}: the register and value; keep it.</comment>
+  </data>
+  <data name="Rule_CoolerBoostBits" xml:space="preserve">
+    <value>{0}: a Cooler Boost write may change only bit 7 (currently 0x{1:X2}).</value>
+    <comment>SAFETY. Rejection of a Cooler Boost write that would change bits other than the switch. {0}: the register and value; keep it. {1}: the value the register holds now, as two hex digits.</comment>
+  </data>
+  <data name="PortGuard_Unreadable" xml:space="preserve">
+    <value>The watched registers could not be read after the port access.</value>
+    <comment>SAFETY. Part of the failure text when the registers watched during a port access cannot be read afterwards.</comment>
+  </data>
+  <data name="PortGuard_Changed" xml:space="preserve">
+    <value>The port access changed other registers: {0}.</value>
+    <comment>SAFETY. Part of the failure text when a port access changed registers it should not touch. {0}: the registers and values, such as 0xF2=0xC4; keep them.</comment>
+  </data>
+  <data name="Config_OutsideLimits" xml:space="preserve">
+    <value>{0}: outside the limits of the record ({1}-{2} °C, at most {3}%).</value>
+    <comment>Problem found in a device record: a fan curve goes beyond the record's own limits. {0}: which curve (starts with a fan name, in Turkish for now). {1}, {2}: lowest and highest temperature. {3}: highest fan speed in percent.</comment>
+  </data>
 </root>

@@ -1,6 +1,8 @@
 using System.Collections.Frozen;
 using System.Text.RegularExpressions;
 using MTool.Core.Ec;
+using MTool.Core.Resources;
+using static MTool.Core.Localization.UserAndLogText;
 using MTool.Core.Profiles;
 
 namespace MTool.Core.Device.Config;
@@ -303,8 +305,7 @@ public static partial class DeviceConfigValidator
             || curve.Points.Any(p => p.SpeedPercent > limits.MaxSpeedPercent);
         if (outside)
         {
-            errors.Add($"{label}: kaydın limitleri dışında ({limits.MinUpThresholdC}-{limits.MaxUpThresholdC} °C, "
-                + $"en fazla %{limits.MaxSpeedPercent}).");
+            errors.Add(Say(nameof(CoreStrings.Config_OutsideLimits), label, limits.MinUpThresholdC, limits.MaxUpThresholdC, limits.MaxSpeedPercent).Text);
         }
     }
 
