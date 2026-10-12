@@ -69,16 +69,16 @@ public sealed class ShellLauncherTests
     }
 
     [Fact]
-    public void The_browser_is_started_through_explorer_without_the_shell_so_it_is_not_elevated()
+    public void The_browser_is_opened_by_the_shell_with_the_address_alone()
     {
         var url = IssueUrl.Build("P65 Creator 9SE", "16Q4EMS2.107");
 
         ProcessStartInfo start = ShellLauncher.BrowserStartInfo(url);
 
-        Path.GetFileName(start.FileName).Should().Be("explorer.exe");
-        Path.IsPathRooted(start.FileName).Should().BeTrue("a bare name would be searched for in more places than the Windows folder");
-        start.UseShellExecute.Should().BeFalse();
-        start.Arguments.Should().Be(url.AbsoluteUri);
+        // Not explorer.exe: from the elevated process it opened the Documents folder instead of the page.
+        start.FileName.Should().Be(url.AbsoluteUri);
+        start.UseShellExecute.Should().BeTrue();
+        start.Arguments.Should().BeEmpty();
         start.ArgumentList.Should().BeEmpty();
     }
 

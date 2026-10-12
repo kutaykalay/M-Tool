@@ -19,8 +19,6 @@ internal interface IShellLauncher
 /// </summary>
 internal sealed class ShellLauncher : IShellLauncher
 {
-    private const string ExplorerFileName = "explorer.exe";
-
     public void OpenFolder(string folder)
     {
         if (!Directory.Exists(folder))
@@ -34,10 +32,10 @@ internal sealed class ShellLauncher : IShellLauncher
     public void OpenUrl(Uri url) => Process.Start(BrowserStartInfo(url))?.Dispose();
 
     /// <summary>
-    /// The address is handed to explorer.exe, started without the shell. Windows runs this program
-    /// elevated, and a browser started from here by the shell would be elevated too; explorer.exe
-    /// passes the address on to the already running, unelevated shell, which opens the browser.
-    /// The program is named by its full path in the Windows folder, so no search finds another one.
+    /// The address is opened by the shell, so Windows picks the user's default browser. Only the
+    /// validated https address of the issue form is ever passed. Handing the address to explorer.exe
+    /// instead (to keep the browser unelevated) opened the Documents folder from this elevated
+    /// process, so that was dropped; a browser that is already running takes the address over itself.
     /// </summary>
     /// <exception cref="ArgumentException">The address is not the issue form of M-Tool.</exception>
     internal static ProcessStartInfo BrowserStartInfo(Uri url)
@@ -47,8 +45,7 @@ internal sealed class ShellLauncher : IShellLauncher
             throw new ArgumentException("Only the GitHub issue form of M-Tool can be opened.", nameof(url));
         }
 
-        var explorer = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), ExplorerFileName);
-        return new ProcessStartInfo(explorer, url.AbsoluteUri) { UseShellExecute = false };
+        return new ProcessStartInfo(url.AbsoluteUri) { UseShellExecute = true };
     }
 
     /// <summary>
