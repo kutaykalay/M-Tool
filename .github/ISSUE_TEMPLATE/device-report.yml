@@ -6,8 +6,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping. Run `M-Tool.exe --report` from an administrator terminal (on a newer
-        MSI with WMI2, `M-Tool.exe --report --wmi2`). It only reads:
+        Thanks for helping. The easy way: right-click the M-Tool tray icon and choose
+        "Create device report" (on a newer MSI with WMI2 there is also "Device report (with WMI2)",
+        which asks you first). "Report an issue (GitHub)" in the same menu opens this form with the
+        model and firmware filled in. If you prefer a terminal: `M-Tool.exe --report` from an
+        administrator terminal (`M-Tool.exe --report --wmi2` on WMI2). It only reads:
         it writes nothing to the embedded controller and never opens the raw port. It saves a zip to
         `%AppData%\M-Tool\reports` with `report.txt` and `dsdt.aml`, a copy of the laptop's ACPI DSDT
         table. M-Tool does not query the serial number or UUID and hides your user and computer names
