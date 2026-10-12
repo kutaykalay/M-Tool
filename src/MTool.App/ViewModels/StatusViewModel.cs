@@ -92,6 +92,9 @@ public sealed partial class StatusViewModel(INotifier notifier, IUiDispatcher ui
 
     public void ShowWarning(string text) => SetMessage(text, MessageKind.Warning);
 
+    /// <summary>A plain notice that goes away by itself.</summary>
+    public void ShowInfo(string text) => SetMessage(text, MessageKind.Info);
+
     /// <summary>Adds to the message instead of replacing it; an error stays an error.</summary>
     public void AddWarning(string text)
     {

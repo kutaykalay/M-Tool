@@ -327,4 +327,13 @@
   <data name="Cli_ErrorDetails" xml:space="preserve">
     <value>Ayrıntı: {0}</value>
   </data>
+  <data name="Lang_Menu" xml:space="preserve">
+    <value>Dil (Language)</value>
+  </data>
+  <data name="Lang_Windows" xml:space="preserve">
+    <value>Windows dili</value>
+  </data>
+  <data name="Lang_Saved" xml:space="preserve">
+    <value>Dil kaydedildi. M-Tool bir sonraki açılışta bu dille açılır.</value>
+  </data>
 </root>
