@@ -25,6 +25,7 @@ internal sealed class TrayIconHost : INotifier, IDisposable
     private readonly Action _exit;
     private MainViewModel? _viewModel;
     private SignInStartViewModel? _signInStart;
+    private ReportViewModel? _report;
 
     public TrayIconHost(ThemeManager theme, Action toggleWindow, Action showWindow, Action exit)
     {
@@ -49,10 +50,11 @@ internal sealed class TrayIconHost : INotifier, IDisposable
         _theme.Changed += OnThemeChanged;
     }
 
-    public void Attach(MainViewModel viewModel, SignInStartViewModel signInStart)
+    public void Attach(MainViewModel viewModel, SignInStartViewModel signInStart, ReportViewModel report)
     {
         _viewModel = viewModel;
         _signInStart = signInStart;
+        _report = report;
         viewModel.PropertyChanged += OnViewModelChanged;
         _icon.Text = viewModel.TrayTooltip;
         _icon.Visible = true;
@@ -109,6 +111,12 @@ internal sealed class TrayIconHost : INotifier, IDisposable
         _menu.Items.Add(Item(Strings.Tray_PowerSwitch, powerSwitch.IsOn, powerSwitch.ToggleCommand.CanExecute(null),
             () => Run(powerSwitch.ToggleCommand, null)));
         _menu.Items.Add(TrayLanguageItems.For(_viewModel.Language));
+        if (_report is { } report)
+        {
+            _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.AddRange([.. TrayReportItems.For(report)]);
+        }
+
         _menu.Items.Add(new ToolStripSeparator());
         if (_signInStart is { } signInStart)
         {

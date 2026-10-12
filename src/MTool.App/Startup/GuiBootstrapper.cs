@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Windows;
 using MTool.App.Hardware;
+using MTool.App.Reports;
 using MTool.App.Resources;
 using MTool.App.Services;
 using MTool.App.Theme;
@@ -157,8 +158,12 @@ internal sealed class GuiBootstrapper : IDisposable
 
         await viewModel.InitializeAsync([.. settings.Warnings, .. session.StartupWarnings]);
         var signInStart = new SignInStartViewModel(new StartupTask(), CurrentExe, viewModel.Status, log);
-        tray.Attach(viewModel, signInStart); // Only now does the icon appear.
+        var report = new ReportViewModel(
+            new ReportService(new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords()),
+            new DialogConfirm(() => window, theme), new ShellLauncher(), viewModel.Status, tray, log);
+        tray.Attach(viewModel, signInStart, report); // Only now does the icon appear.
         _ = signInStart.LoadAsync(); // Off the UI thread; the menu item stays disabled until it answers.
+        _ = report.LoadAsync(); // Off the UI thread; the WMI2 item stays hidden until it answers.
 
         // After Attach, so a failure balloon has a visible icon and the start-up refresh is done.
         reapplier.Start();

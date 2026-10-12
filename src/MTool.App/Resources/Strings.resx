@@ -444,4 +444,40 @@
     <value>Language saved. It applies the next time M-Tool starts.</value>
     <comment>Status message after a language was chosen in the tray menu. It is shown in the language that was chosen, so the user can tell it worked.</comment>
   </data>
+  <data name="Report_Create" xml:space="preserve">
+    <value>Create device report</value>
+    <comment>Tray menu item. Creates a read-only report about this laptop (a zip with report.txt and dsdt.aml) that the user can attach to a GitHub issue. It never uses the WMI2 interface.</comment>
+  </data>
+  <data name="Report_CreateWmi2" xml:space="preserve">
+    <value>Device report (with WMI2)</value>
+    <comment>Tray menu item, only on newer MSI laptops that have the WMI2 interface. Like Report_Create, and it also includes the laptop's raw WMI2 answers. Asks for confirmation first (Report_Wmi2Confirm). Keep the name WMI2 and the same wording as Report_Create.</comment>
+  </data>
+  <data name="Report_OpenFolder" xml:space="preserve">
+    <value>Open the last report's folder</value>
+    <comment>Tray menu item, shown after a report was created in this session. Opens the folder with the zip in Windows Explorer.</comment>
+  </data>
+  <data name="Report_IssueMenu" xml:space="preserve">
+    <value>Report an issue (GitHub)</value>
+    <comment>Tray menu item. Opens the GitHub page where the user sends the report as a "Device report" issue, in the web browser. Keep GitHub in the text.</comment>
+  </data>
+  <data name="Report_Working" xml:space="preserve">
+    <value>Creating the device report. This can take a few seconds.</value>
+    <comment>Tray balloon and status message while the report is being created.</comment>
+  </data>
+  <data name="Report_Saved" xml:space="preserve">
+    <value>Report saved: {0} To send it, choose "{1}" in the tray menu and drag the zip file into the form.</value>
+    <comment>Tray balloon and status message after the report was created. {0} is the full path of the zip. {1} is the tray item Report_IssueMenu: use its exact wording. A zip cannot be attached through the web address, so the user drags it into the form. Keep the balloon short: it is cut at 255 characters.</comment>
+  </data>
+  <data name="Report_Failed" xml:space="preserve">
+    <value>The device report could not be created. See the log file for details.</value>
+    <comment>Warning (status message and tray balloon) when the report could not be created. It must not contain a path or a user name.</comment>
+  </data>
+  <data name="Report_OpenFailed" xml:space="preserve">
+    <value>Could not open the folder or the browser. See the log file for details.</value>
+    <comment>Warning when Windows could not open the report folder or the web browser. It must not contain a path or a user name.</comment>
+  </data>
+  <data name="Report_Wmi2Confirm" xml:space="preserve">
+    <value>Create a device report with the raw WMI2 answers?&#10;&#10;M-Tool only reads. It calls a fixed list of this laptop's Get_* WMI2 methods once. Nothing is written to the laptop and nothing is changed.&#10;&#10;report.txt will contain MSI's raw WMI2 answers as hex bytes. M-Tool cannot filter them. The report is meant for a public GitHub issue, so look through report.txt before you send it.</value>
+    <comment>SAFETY. Question in a Yes/No window before the WMI2 report. Say clearly that this only reads, that a fixed list of Get_* methods is called once, that nothing is written or changed, that the raw WMI2 answers are in report.txt as hex bytes and cannot be filtered, and that the report goes to a public GitHub issue. Keep Get_*, WMI2, report.txt and the line breaks. The answer buttons are Common_Yes and Common_No.</comment>
+  </data>
 </root>
