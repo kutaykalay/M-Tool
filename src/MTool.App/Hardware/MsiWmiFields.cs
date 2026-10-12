@@ -138,7 +138,7 @@ internal sealed class MsiWmiFields : IWmiFields
         if (!finished)
         {
             _ = call.ContinueWith(t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
-            throw new EcAccessException($"WMI {what}: {timeout.TotalSeconds:0.#} sn içinde cevap gelmedi (zaman aşımı).");
+            throw new EcAccessException($"WMI {what}: no answer within {timeout.TotalSeconds:0.#} s (timeout).");
         }
 
         return call.Result;

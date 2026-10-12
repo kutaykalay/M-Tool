@@ -94,7 +94,7 @@ public class MsiWmiFieldsTests
 
         var act = () => MsiWmiFields.Bounded("test", TimeSpan.FromMilliseconds(100), () => never.Wait(TimeSpan.FromSeconds(5)));
 
-        act.Should().Throw<MTool.Core.Ec.EcAccessException>().WithMessage("*zaman aşımı*");
+        act.Should().Throw<MTool.Core.Ec.EcAccessException>().WithMessage("*timeout*");
         clock.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(2));
         never.Set();
     }
