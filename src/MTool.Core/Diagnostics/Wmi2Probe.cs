@@ -27,23 +27,39 @@ public sealed record Wmi2Readout(IReadOnlyList<Wmi2Call> Calls)
     /// <summary>The fields YAMDCC (da7d9d8, Wmi2FanController) reads from these packets: [assumption], unverified.</summary>
     public Wmi2Reading Interpret()
     {
-        var ec = Ok("Get_EC", 0);
-        var temperatures = Ok("Get_Temperature", 0);
-        var fans = Ok("Get_Fan", 0);
+        var problems = new List<string>();
+        var ec = Ok("Get_EC", 0, problems);
+        var temperatures = Ok("Get_Temperature", 0, problems);
+        var fans = Ok("Get_Fan", 0, problems);
         return new Wmi2Reading(
             ec is null ? null : Ascii(ec, FirmwareStart, FirmwareLength),
             ec is null ? null : Ascii(ec, DateStart, DateLength),
             temperatures?[1],
             temperatures?[2],
             fans is null ? null : Rpm(fans[1], fans[2]),
-            fans is null ? null : Rpm(fans[3], fans[4]));
+            fans is null ? null : Rpm(fans[3], fans[4]),
+            problems.Count == 0 ? null : string.Join("; ", problems));
     }
 
-    /// <summary>A packet whose method reported success (first byte 1).</summary>
-    private IReadOnlyList<byte>? Ok(string method, byte sub) =>
-        Calls.FirstOrDefault(c => c.Method == method && c.Sub == sub)?.Packet is { } packet && packet[0] == Wmi2Probe.Success
-            ? packet
-            : null;
+    /// <summary>
+    /// A whole packet whose method reported success (first byte 1). A packet shorter than
+    /// <see cref="Wmi2Probe.PacketLength"/> is not read at all and is named in <paramref name="problems"/>.
+    /// </summary>
+    private IReadOnlyList<byte>? Ok(string method, byte sub, List<string> problems)
+    {
+        if (Calls.FirstOrDefault(c => c.Method == method && c.Sub == sub)?.Packet is not { } packet)
+        {
+            return null;
+        }
+
+        if (packet.Count < Wmi2Probe.PacketLength)
+        {
+            problems.Add($"{method}({sub}) answered {packet.Count} bytes, expected {Wmi2Probe.PacketLength}: short packet, not read");
+            return null;
+        }
+
+        return packet[0] == Wmi2Probe.Success ? packet : null;
+    }
 
     /// <summary>The period is big-endian; 0 means the fan stands still.</summary>
     private static int Rpm(byte high, byte low) => (high << 8 | low) is var period and > 0 ? RpmConstant / period : 0;
@@ -62,7 +78,8 @@ public sealed record Wmi2Readout(IReadOnlyList<Wmi2Call> Calls)
 }
 
 /// <param name="CpuRpm">0 when the fan stands still; null when not read.</param>
-public sealed record Wmi2Reading(string? Firmware, string? FirmwareDate, int? CpuTempC, int? GpuTempC, int? CpuRpm, int? GpuRpm);
+/// <param name="Problem">Which packets were too short to read, or null when all were whole.</param>
+public sealed record Wmi2Reading(string? Firmware, string? FirmwareDate, int? CpuTempC, int? GpuTempC, int? CpuRpm, int? GpuRpm, string? Problem = null);
 
 public static class Wmi2Probe
 {

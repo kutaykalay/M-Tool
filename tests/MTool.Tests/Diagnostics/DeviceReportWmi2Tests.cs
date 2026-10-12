@@ -54,7 +54,7 @@ public class DeviceReportWmi2Tests
     public void A_wmi2_laptop_without_the_flag_is_told_how_to_add_it()
     {
         DeviceReport.Format(Input(WmiInterface.Wmi2, wmi2: null), privateWords: [])
-            .Should().Contain("not read: run M-Tool.exe --report --wmi2 to include the WMI2 packets");
+            .Should().Contain("not read: the report was made without WMI2; use the WMI2 report item in the tray menu or run M-Tool.exe --report --wmi2.");
     }
 
     [Fact]

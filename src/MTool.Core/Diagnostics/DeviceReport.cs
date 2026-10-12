@@ -106,7 +106,7 @@ public static class DeviceReport
         text.AppendLine().AppendLine("[WMI2, Get_* methods only, raw]");
         if (input.Wmi2 is not { } section)
         {
-            text.AppendLine(Line("WMI2", "not read: run M-Tool.exe --report --wmi2 to include the WMI2 packets"));
+            text.AppendLine(Line("WMI2", "not read: the report was made without WMI2; use the WMI2 report item in the tray menu or run M-Tool.exe --report --wmi2."));
             return;
         }
 
@@ -122,11 +122,37 @@ public static class DeviceReport
             text.AppendLine($"  {call.Method}({call.Sub}) : {answer}");
         }
 
-        var reading = readout.Interpret();
+        if (!TryInterpret(readout, out var reading, out var failure))
+        {
+            text.AppendLine(Line("Reading", $"unreadable ({failure})"));
+            return;
+        }
+
         text.AppendLine(Line("Reading", "YAMDCC's packet layout, unverified"))
             .AppendLine(Line("Firmware", reading.Firmware is { } f ? $"{f} ({reading.FirmwareDate})" : null))
             .AppendLine(Line("Temperatures", $"CPU {Show(reading.CpuTempC)} C, GPU {Show(reading.GpuTempC)} C"))
             .AppendLine(Line("Fans", $"CPU {Show(reading.CpuRpm)} RPM, GPU {Show(reading.GpuRpm)} RPM"));
+        if (reading.Problem is not null)
+        {
+            text.AppendLine(Line("Unreadable", reading.Problem));
+        }
+    }
+
+    /// <summary>The reading is a guess on top of the raw packets: whatever goes wrong with it must not cost the report.</summary>
+    private static bool TryInterpret(Wmi2Readout readout, out Wmi2Reading reading, out string failure)
+    {
+        try
+        {
+            reading = readout.Interpret();
+            failure = "";
+            return true;
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            reading = new Wmi2Reading(null, null, null, null, null, null);
+            failure = ex.GetType().Name;
+            return false;
+        }
     }
 
     private static string Show(int? value) => value?.ToString(CultureInfo.InvariantCulture) ?? "?";
