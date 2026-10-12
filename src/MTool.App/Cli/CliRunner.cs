@@ -1,6 +1,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using MTool.App.Hardware;
+using MTool.App.Reports;
 using MTool.App.Startup;
 using MTool.Core.Diagnostics;
 using MTool.Core.Ec;
@@ -94,16 +95,11 @@ internal static class CliRunner
     /// </summary>
     private static int Report(FileLog log, bool wmi2)
     {
-        var at = DateTimeOffset.Now;
-        var data = ReportCommand.Collect(new LiveReportSources(log), GuiBootstrapper.AppVersion, at, log.Warn, wmi2);
-        var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var text = DeviceReport.Format(data.Input,
-            [Environment.UserName, Environment.MachineName, Environment.UserDomainName, profile, Path.GetFileName(profile)]);
-        var path = ReportCommand.Save(AppPaths.Reports, data, text, at);
-        Console.WriteLine(text);
-        Console.WriteLine(CliText.Saved(path));
+        var service = new ReportService(new LiveReportSources(log), log, AppPaths.Reports, GuiBootstrapper.AppVersion, ReportService.CurrentUserWords());
+        var report = wmi2 ? service.CreateWithWmi2() : service.Create();
+        Console.WriteLine(report.Text);
+        Console.WriteLine(CliText.Saved(report.Path));
         Console.WriteLine(CliText.ReportGuidance());
-        log.Info($"Report written: {path}");
         return ExitOk;
     }
 
