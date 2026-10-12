@@ -8,10 +8,14 @@ namespace MTool.App.Views;
 /// </summary>
 internal partial class ConfirmDialog : Window
 {
-    public ConfirmDialog(string question, bool dark)
+    public ConfirmDialog(string question, bool dark, bool defaultYes = true)
     {
         InitializeComponent();
         QuestionText.Text = question;
+        YesButton.IsDefault = defaultYes;
+        NoButton.IsDefault = !defaultYes;
+        // Enter presses the button that has the focus, so the default answer must also hold the focus.
+        Loaded += (_, _) => (defaultYes ? YesButton : NoButton).Focus();
         SourceInitialized += (_, _) => TitleBar.ApplyTheme(this, dark);
     }
 

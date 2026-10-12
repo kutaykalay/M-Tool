@@ -6,10 +6,11 @@ public interface IUiDispatcher
     void Post(Action action);
 }
 
-/// <summary>A yes/no question to the user (a message box in the app).</summary>
+/// <summary>A yes/no question to the user (a dialog in the app).</summary>
 public interface IConfirm
 {
-    bool Ask(string question);
+    /// <param name="defaultYes">Whether Enter answers yes. Pass false for a question where yes is the risky answer.</param>
+    bool Ask(string question, bool defaultYes = true);
 }
 
 /// <summary>Tray balloon for problems the user must see even with the window closed.</summary>

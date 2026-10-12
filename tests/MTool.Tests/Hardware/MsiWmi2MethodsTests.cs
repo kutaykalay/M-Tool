@@ -16,6 +16,6 @@ public class MsiWmi2MethodsTests
         // No instance at all: the refusal must come before the first WMI call.
         var act = () => MsiWmi2Methods.Call(instance: null!, method, 0);
 
-        act.Should().Throw<InvalidOperationException>().WithMessage("*okuma*");
+        act.Should().Throw<InvalidOperationException>().WithMessage("*Only read methods*");
     }
 }

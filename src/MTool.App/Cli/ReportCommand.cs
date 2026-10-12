@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using MTool.Core.Device.Config;
 using MTool.Core.Diagnostics;
 
@@ -35,6 +36,11 @@ internal sealed record ReportData(DeviceReportInput Input, byte[]? Dsdt);
 internal static class ReportCommand
 {
     public const string ReportFileName = "report.txt";
+
+    private const string TempSuffix = ".tmp";
+
+    /// <summary>A broken character in a firmware string becomes U+FFFD; it must not fail the whole report.</summary>
+    private static readonly UTF8Encoding LenientUtf8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: false);
 
     /// <summary><c>--report</c> or <c>--report --wmi2</c>.</summary>
     public static bool TryParse(string[] args, out bool wmi2)
@@ -77,7 +83,7 @@ internal static class ReportCommand
 
     private static Section<Wmi2Readout> Wmi2(IReportSources sources, Section<WmiInterface?> wmi, Action<string> warn) =>
         wmi is { IsOk: true, Value: WmiInterface.Wmi2 }
-            ? Read("WMI2 paketleri", sources.ReadWmi2, warn)
+            ? Read("WMI2 packets", sources.ReadWmi2, warn)
             : Section.Failed<Wmi2Readout>(wmi.IsOk ? "not read: this computer has no WMI2 interface" : "not read: MSI WMI interface unknown");
 
     /// <returns>The zip's path.</returns>
@@ -86,27 +92,51 @@ internal static class ReportCommand
     {
         Directory.CreateDirectory(folder);
         var path = Path.Combine(folder, string.Create(CultureInfo.InvariantCulture, $"m-tool-report-{at:yyyyMMdd-HHmmss}.zip"));
-        using (var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
-        {
-            try
-            {
-                Write(file, data, text);
-            }
-            catch
-            {
-                file.Dispose();
-                File.Delete(path);
-                throw;
-            }
-        }
-
+        WriteNew(path, file => Write(file, data, text));
         return path;
+    }
+
+    /// <summary>
+    /// Writes to a temporary name next to <paramref name="path"/>, then renames it, so the final name
+    /// never holds a half-written file. An existing file is never replaced. Nothing is left behind on failure.
+    /// </summary>
+    /// <exception cref="IOException">The file exists, or the disk refused.</exception>
+    internal static void WriteNew(string path, Action<Stream> write)
+    {
+        var temp = path + TempSuffix;
+        try
+        {
+            using (var file = new FileStream(temp, FileMode.CreateNew, FileAccess.Write))
+            {
+                write(file);
+            }
+
+            File.Move(temp, path); // fails when path exists: no overwrite
+        }
+        catch
+        {
+            TryDelete(temp);
+            throw;
+        }
+    }
+
+    /// <summary>Cleaning up must not hide the error that is being thrown.</summary>
+    private static void TryDelete(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // best effort: the original failure is what the caller needs to see
+        }
     }
 
     private static void Write(Stream file, ReportData data, string text)
     {
         using var zip = new ZipArchive(file, ZipArchiveMode.Create, leaveOpen: true);
-        using (var writer = new StreamWriter(zip.CreateEntry(ReportFileName).Open()))
+        using (var writer = new StreamWriter(zip.CreateEntry(ReportFileName).Open(), LenientUtf8))
         {
             writer.Write(text);
         }

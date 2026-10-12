@@ -1,10 +1,13 @@
+using System.Diagnostics;
 using MTool.App.Reports;
 
 namespace MTool.Tests.Reports;
 
-/// <summary>Only the refusals: nothing here starts a process.</summary>
+/// <summary>Only the refusals and the shape of the process: nothing here starts a process.</summary>
 public sealed class ShellLauncherTests
 {
+    private const string Form = "https://github.com/kutaykalay/M-Tool/issues/new";
+
     [Theory]
     [InlineData("http://github.com/kutaykalay/M-Tool/issues/new")]
     [InlineData("https://evil.example/kutaykalay/M-Tool/issues/new")]
@@ -25,6 +28,66 @@ public sealed class ShellLauncherTests
         var open = () => new ShellLauncher().OpenUrl(new Uri("issues/new", UriKind.Relative));
 
         open.Should().Throw<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData("https://user@github.com/kutaykalay/M-Tool/issues/new")]
+    [InlineData("https://user:pw@github.com/kutaykalay/M-Tool/issues/new")]
+    [InlineData("https://github.com:8443/kutaykalay/M-Tool/issues/new")]
+    [InlineData(Form + "#section")]
+    [InlineData(Form + "?template=device-report.yml#x")]
+    [InlineData(Form + "?labels=bug")]
+    [InlineData(Form + "?template=device-report.yml&assignees=me")]
+    [InlineData(Form + "?template=device-report.yml&body=hello")]
+    [InlineData(Form + "?template=device-report.yml&&title=x")]
+    [InlineData(Form + "?=x")]
+    [InlineData(Form + "?Title=x")]
+    public void An_address_with_more_than_the_known_fields_is_refused(string address)
+    {
+        Refuses(address);
+    }
+
+    private static void Refuses(string address) =>
+        ShellLauncher.IsIssueForm(new Uri(address)).Should().BeFalse(address);
+
+    private static void Accepts(string address) =>
+        ShellLauncher.IsIssueForm(new Uri(address)).Should().BeTrue(address);
+
+    [Theory]
+    [InlineData(Form)]
+    [InlineData(Form + "?template=device-report.yml")]
+    [InlineData(Form + "?template=device-report.yml&title=%5BDevice%20report%5D%20P65&model=P65&firmware=16Q4EMS2.107")]
+    [InlineData("https://github.com:443/kutaykalay/M-Tool/issues/new?template=device-report.yml")]
+    [InlineData("HTTPS://GITHUB.COM/kutaykalay/M-Tool/issues/new?model=P65")]
+    public void The_known_form_and_fields_are_accepted(string address) => Accepts(address);
+
+    [Fact]
+    public void Every_address_the_app_builds_is_accepted()
+    {
+        ShellLauncher.IsIssueForm(IssueUrl.Build("P65 Creator 9SE", "16Q4EMS2.107")).Should().BeTrue();
+        ShellLauncher.IsIssueForm(IssueUrl.Build(null, null)).Should().BeTrue();
+    }
+
+    [Fact]
+    public void The_browser_is_started_through_explorer_without_the_shell_so_it_is_not_elevated()
+    {
+        var url = IssueUrl.Build("P65 Creator 9SE", "16Q4EMS2.107");
+
+        ProcessStartInfo start = ShellLauncher.BrowserStartInfo(url);
+
+        Path.GetFileName(start.FileName).Should().Be("explorer.exe");
+        Path.IsPathRooted(start.FileName).Should().BeTrue("a bare name would be searched for in more places than the Windows folder");
+        start.UseShellExecute.Should().BeFalse();
+        start.Arguments.Should().Be(url.AbsoluteUri);
+        start.ArgumentList.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void No_process_is_prepared_for_an_address_that_is_not_the_form()
+    {
+        var prepare = () => ShellLauncher.BrowserStartInfo(new Uri("https://evil.example/x"));
+
+        prepare.Should().Throw<ArgumentException>();
     }
 
     [Fact]

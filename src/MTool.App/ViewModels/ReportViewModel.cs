@@ -12,12 +12,20 @@ namespace MTool.App.ViewModels;
 /// a time. It needs neither EC access nor an unlocked write mode: it never goes through the gateway.
 /// The plain report never asks WMI2 for anything. The WMI2 report is offered only on a laptop that has
 /// the interface, and only after the user answered the question that says what will be read.
-/// Messages shown to the user never hold a path from an error or a user name (the log has the details).
+/// Messages shown to the user never hold a path from an error or a user name: the report is named by its
+/// file name and <see cref="AppPaths.ReportsShown"/> (%AppData%), and the log has the full path and the details.
+/// A call that hangs (WMI can) is given up on after <see cref="ReportTimeout"/>: the commands work again
+/// and whatever the abandoned work finishes later is ignored.
 /// </summary>
 internal sealed partial class ReportViewModel(
-    ReportService service, IConfirm confirm, IShellLauncher shell, StatusViewModel status, INotifier notifier, IAppLog log) : ObservableObject
+    ReportService service, IConfirm confirm, IShellLauncher shell, StatusViewModel status, INotifier notifier, IAppLog log, TimeProvider? time = null) : ObservableObject
 {
+    /// <summary>Far above a normal report (seconds), so only a hung WMI or EC call is cut off.</summary>
+    public static readonly TimeSpan ReportTimeout = TimeSpan.FromMinutes(3);
+
     private const string AppName = "M-Tool";
+
+    private readonly TimeProvider _time = time ?? TimeProvider.System;
 
     private ReportResult? _last;
 
@@ -69,21 +77,37 @@ internal sealed partial class ReportViewModel(
         }
 
         IsBusy = true;
+        Task<ReportResult>? work = null;
         try
         {
-            if (askFirst && !confirm.Ask(Strings.Report_Wmi2Confirm))
+            // No is the default answer: Enter on this question must not start the WMI2 report.
+            if (askFirst && !confirm.Ask(Strings.Report_Wmi2Confirm, defaultYes: false))
             {
                 log.Info("Report with WMI2: not confirmed, nothing was read.");
                 return;
             }
 
             notifier.ShowInfo(AppName, Strings.Report_Working);
-            var result = await Task.Run(make);
+            work = Task.Run(make);
+            var result = await work.WaitAsync(ReportTimeout, _time);
             _last = result;
             OnPropertyChanged(nameof(LastReportPath));
-            var saved = string.Format(Strings.Report_Saved, result.Path, Strings.Report_IssueMenu);
+            var shownPath = Path.Combine(AppPaths.ReportsShown, Path.GetFileName(result.Path));
+            var saved = string.Format(Strings.Report_Saved, shownPath, Strings.Report_IssueMenu);
             notifier.ShowInfo(AppName, saved);
             status.ShowInfo($"{saved} {Strings.Cli_ReportGuidance}");
+        }
+        catch (TimeoutException ex) when (work is { IsCompleted: false })
+        {
+            // The work cannot be stopped: it runs on and its outcome is dropped (a fault is only logged).
+            _ = work.ContinueWith(
+                late => log.Warn($"The device report that was given up on failed later: {late.Exception?.GetBaseException().Message}"),
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted,
+                TaskScheduler.Default);
+            log.Error($"The device report did not finish within {ReportTimeout.TotalMinutes:0.#} minutes", ex);
+            status.ShowWarning(Strings.Report_TimedOut);
+            notifier.ShowError(AppName, Strings.Report_TimedOut);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {

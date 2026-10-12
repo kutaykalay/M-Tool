@@ -22,7 +22,7 @@ internal static class MsiWmi2Methods
     /// <exception cref="Core.Ec.EcAccessException">The instance cannot be opened.</exception>
     public static Wmi2Readout Probe()
     {
-        using var instance = MsiWmiFields.Bounded("WMI2 bağlantısı", CallTimeout, Open);
+        using var instance = MsiWmiFields.Bounded("WMI2 connection", CallTimeout, Open);
         return Wmi2Probe.Run((method, sub) => Call(instance, method, sub));
     }
 
@@ -31,7 +31,7 @@ internal static class MsiWmi2Methods
     {
         if (!method.StartsWith(ReadPrefix, StringComparison.Ordinal))
         {
-            throw new InvalidOperationException($"Yalnızca okuma yöntemleri çağrılabilir: {method}");
+            throw new InvalidOperationException($"Only read methods can be called: {method}");
         }
 
         return MsiWmiFields.Bounded($"WMI2 {method}({sub})", CallTimeout, () =>
@@ -43,11 +43,11 @@ internal static class MsiWmi2Methods
             data[BytesProperty] = packet;
             parameters[DataParameter] = data;
             using var result = instance.InvokeMethod(method, parameters, null)
-                ?? throw new InvalidOperationException($"{method} sonuç döndürmedi.");
+                ?? throw new InvalidOperationException($"{method} returned no result.");
             using var answer = result[DataParameter] as ManagementBaseObject
-                ?? throw new InvalidOperationException($"{method} cevabında {DataParameter} yok.");
+                ?? throw new InvalidOperationException($"The answer of {method} has no {DataParameter}.");
             return answer[BytesProperty] as byte[]
-                ?? throw new InvalidOperationException($"{method} cevabında {BytesProperty} bayt dizisi değil.");
+                ?? throw new InvalidOperationException($"The {BytesProperty} of the answer of {method} is not a byte array.");
         });
     }
 
@@ -75,7 +75,7 @@ internal static class MsiWmi2Methods
         var type = parameters.Properties[DataParameter].Qualifiers["CIMTYPE"].Value as string;
         if (type is null || !type.StartsWith(EmbeddedTypePrefix, StringComparison.Ordinal))
         {
-            throw new InvalidOperationException($"WMI2 giriş parametresinin türü bilinmiyor: {type ?? "yok"}");
+            throw new InvalidOperationException($"The type of the WMI2 input parameter is unknown: {type ?? "none"}");
         }
 
         using var dataClass = new ManagementClass(instance.Scope, new ManagementPath(type[EmbeddedTypePrefix.Length..]), null);

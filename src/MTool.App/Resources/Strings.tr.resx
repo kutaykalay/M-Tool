@@ -352,10 +352,13 @@
     <value>Cihaz raporu hazırlanıyor. Birkaç saniye sürebilir.</value>
   </data>
   <data name="Report_Saved" xml:space="preserve">
-    <value>Rapor kaydedildi: {0} Göndermek için tepsi menüsünden "{1}" öğesine basın ve zip dosyasını forma sürükleyin.</value>
+    <value>Rapor kaydedildi: {0}. Göndermek için tepsi menüsünden "{1}" öğesine basın ve zip dosyasını forma sürükleyin.</value>
   </data>
   <data name="Report_Failed" xml:space="preserve">
     <value>Cihaz raporu oluşturulamadı. Ayrıntılar günlük dosyasında.</value>
+  </data>
+  <data name="Report_TimedOut" xml:space="preserve">
+    <value>Cihaz raporu çok uzun sürdü ve durduruldu. Yeniden deneyin. Ayrıntılar günlük dosyasında.</value>
   </data>
   <data name="Report_OpenFailed" xml:space="preserve">
     <value>Klasör ya da tarayıcı açılamadı. Ayrıntılar günlük dosyasında.</value>

@@ -19,6 +19,7 @@ public sealed partial class ReportTextCultureTests
         [nameof(Strings.Report_IssueMenu)] = "Sorun bildir (GitHub)",
         [nameof(Strings.Report_Working)] = "Cihaz raporu hazırlanıyor. Birkaç saniye sürebilir.",
         [nameof(Strings.Report_Failed)] = "Cihaz raporu oluşturulamadı. Ayrıntılar günlük dosyasında.",
+        [nameof(Strings.Report_TimedOut)] = "Cihaz raporu çok uzun sürdü ve durduruldu. Yeniden deneyin. Ayrıntılar günlük dosyasında.",
         [nameof(Strings.Report_OpenFailed)] = "Klasör ya da tarayıcı açılamadı. Ayrıntılar günlük dosyasında.",
     };
 
@@ -42,9 +43,9 @@ public sealed partial class ReportTextCultureTests
     private static string Text(string key, CultureInfo culture) => Strings.ResourceManager.GetString(key, culture)!;
 
     [Fact]
-    public void There_are_nine_report_texts()
+    public void There_are_ten_report_texts()
     {
-        ReportKeys().Should().HaveCount(9);
+        ReportKeys().Should().HaveCount(10);
     }
 
     [Theory]
@@ -96,7 +97,7 @@ public sealed partial class ReportTextCultureTests
     public void The_turkish_saved_text_reads_naturally()
     {
         Text(nameof(Strings.Report_Saved), Turkish).Should()
-            .Be("Rapor kaydedildi: {0} Göndermek için tepsi menüsünden \"{1}\" öğesine basın ve zip dosyasını forma sürükleyin.");
+            .Be("Rapor kaydedildi: {0}. Göndermek için tepsi menüsünden \"{1}\" öğesine basın ve zip dosyasını forma sürükleyin.");
     }
 
     [Theory]

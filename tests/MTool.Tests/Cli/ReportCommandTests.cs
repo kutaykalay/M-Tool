@@ -209,6 +209,55 @@ public sealed class ReportCommandTests : IDisposable
     }
 
     [Fact]
+    public void While_the_zip_is_written_the_final_name_does_not_exist_yet_and_afterwards_only_it_does()
+    {
+        var path = Path.Combine(_folder, "r.zip");
+        string[]? during = null;
+        bool finalExistedDuring = true;
+
+        ReportCommand.WriteNew(path, stream =>
+        {
+            stream.Write([1, 2, 3]);
+            stream.Flush();
+            finalExistedDuring = File.Exists(path);
+            during = Directory.GetFiles(_folder);
+        });
+
+        finalExistedDuring.Should().BeFalse("a half-written zip must never carry the final name");
+        during.Should().ContainSingle().Which.Should().EndWith(".tmp");
+        Directory.GetFiles(_folder).Should().Equal(path);
+        File.ReadAllBytes(path).Should().Equal(1, 2, 3);
+    }
+
+    [Fact]
+    public void A_write_that_fails_halfway_leaves_neither_the_final_name_nor_a_temporary_file()
+    {
+        var path = Path.Combine(_folder, "r.zip");
+
+        var write = () => ReportCommand.WriteNew(path, stream =>
+        {
+            stream.Write([1, 2, 3]);
+            throw new InvalidOperationException("disk gone");
+        });
+
+        write.Should().Throw<InvalidOperationException>().WithMessage("disk gone");
+        Directory.GetFiles(_folder).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_final_file_that_exists_is_never_overwritten_and_no_temporary_file_stays()
+    {
+        var path = Path.Combine(_folder, "r.zip");
+        File.WriteAllBytes(path, [9, 9]);
+
+        var write = () => ReportCommand.WriteNew(path, stream => stream.Write([1, 2, 3]));
+
+        write.Should().Throw<IOException>();
+        File.ReadAllBytes(path).Should().Equal(9, 9);
+        Directory.GetFiles(_folder).Should().Equal(path);
+    }
+
+    [Fact]
     public void A_report_that_cannot_be_written_leaves_no_partial_zip()
     {
         var data = Collect(new FakeSources());

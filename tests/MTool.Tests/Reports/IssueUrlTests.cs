@@ -119,6 +119,38 @@ public sealed class IssueUrlTests
         Fields(url)["firmware"].Should().NotBeEmpty();
     }
 
+    [Theory]
+    [InlineData("P65\u202EREVERSED", "P65REVERSED")] // right-to-left override (Cf)
+    [InlineData("P65\u200BCreator", "P65Creator")] // zero-width space (Cf)
+    [InlineData("P65\u2066x\u2069", "P65x")] // isolates (Cf)
+    [InlineData("P65\uFEFFx", "P65x")] // byte order mark (Cf)
+    [InlineData("P65\uE000x", "P65x")] // private use
+    [InlineData("P65\U000F0000x", "P65x")] // private use, supplementary plane
+    [InlineData("P65\u2028x", "P65x")] // line separator
+    [InlineData("P65\u2029x", "P65x")] // paragraph separator
+    [InlineData("P65\u007Fx", "P65x")] // delete (control)
+    public void Invisible_and_direction_changing_characters_do_not_reach_the_address(string model, string expected)
+    {
+        var url = IssueUrl.Build(model, null);
+
+        Fields(url)["model"].Should().Be(expected);
+        Fields(url)["title"].Should().Be("[Device report] " + expected);
+    }
+
+    [Fact]
+    public void A_control_character_that_is_white_space_still_separates_words()
+    {
+        Fields(IssueUrl.Build("P65\u0085Creator", null))["model"].Should().Be("P65 Creator");
+    }
+
+    [Fact]
+    public void A_value_made_only_of_invisible_characters_is_left_out()
+    {
+        var fields = Fields(IssueUrl.Build("\u202E\u200B\u2028", "\uE000"));
+
+        fields.Keys.Should().BeEquivalentTo("template");
+    }
+
     [Fact]
     public void A_lone_surrogate_is_dropped_not_sent()
     {

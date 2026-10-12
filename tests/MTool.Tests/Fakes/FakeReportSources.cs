@@ -18,6 +18,8 @@ internal sealed class FakeReportSources : IReportSources
 
     public bool SystemFails { get; init; }
 
+    public bool Wmi2Fails { get; init; }
+
     public string? Model { get; init; } = "P65 Creator 9SE";
 
     public string Windows { get; init; } = "Windows 11";
@@ -57,6 +59,11 @@ internal sealed class FakeReportSources : IReportSources
     public Wmi2Readout ReadWmi2()
     {
         Wmi2Reads++;
+        if (Wmi2Fails)
+        {
+            throw new InvalidOperationException("no answer");
+        }
+
         return new Wmi2Readout([new Wmi2Call("Get_EC", 0, new byte[32], null)]);
     }
 

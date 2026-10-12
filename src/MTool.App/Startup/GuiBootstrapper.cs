@@ -308,9 +308,9 @@ internal sealed class GuiBootstrapper : IDisposable
     /// <summary>Asks over the window that is asking, so that window can close the question on exit.</summary>
     private sealed class DialogConfirm(Func<Window?> owner, ThemeManager theme) : IConfirm
     {
-        public bool Ask(string question) =>
+        public bool Ask(string question, bool defaultYes = true) =>
             // A window not shown yet or already closed cannot own the question; it then opens on its own.
-            new ConfirmDialog(question, theme.IsDark) { Owner = owner() is { IsLoaded: true } shown ? shown : null }
+            new ConfirmDialog(question, theme.IsDark, defaultYes) { Owner = owner() is { IsLoaded: true } shown ? shown : null }
                 .ShowDialog() == true;
     }
 }

@@ -119,6 +119,50 @@ public sealed class ReportServiceTests : IDisposable
         Directory.GetFiles(_folder).Should().Equal(first);
     }
 
+    [Theory]
+    [InlineData("\uFF3A\uFF25\uFF2B\uFF29-PC P65", "ZEKI-PC")] // fullwidth letters in the value
+    [InlineData("ZEKI-PC P65", "ZEKI-PC")]
+    [InlineData("zeki-pc P65", "ZEKI-PC")]
+    [InlineData("P65 \u212A-PC", "K-PC")] // Kelvin sign, NFKC-equal to K
+    [InlineData("ZEKI-PC P65", "\uFF3A\uFF25\uFF2B\uFF29-PC")] // fullwidth letters in the name
+    public void A_private_name_in_a_look_alike_form_is_kept_out_of_model_and_firmware(string model, string word)
+    {
+        var sources = new FakeReportSources { Model = model, Firmware = model };
+
+        var result = Service(sources, word).Create();
+
+        result.Model.Should().BeNull();
+        result.Firmware.Should().BeNull();
+    }
+
+    [Fact]
+    public void A_model_without_a_private_name_survives_the_comparison()
+    {
+        var result = Service(new FakeReportSources(), "ZEKI-PC", "\uFF3A\uFF25").Create();
+
+        result.Model.Should().Be("P65 Creator 9SE");
+    }
+
+    [Fact]
+    public void A_model_with_a_broken_surrogate_is_not_used_and_does_not_crash_the_report()
+    {
+        var result = Service(new FakeReportSources { Model = "P65\uD800 Creator" }, "ZEKI-PC").Create();
+
+        result.Model.Should().BeNull();
+        File.Exists(result.Path).Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_wmi2_part_that_cannot_be_read_is_logged_in_english()
+    {
+        var sources = new FakeReportSources { Wmi = WmiInterface.Wmi2, Wmi2Fails = true };
+
+        var result = Service(sources).CreateWithWmi2();
+
+        _log.Lines.Should().Contain(l => l.Contains("WMI2 packets unreadable", StringComparison.Ordinal));
+        result.Text.Should().Contain("InvalidOperationException: no answer");
+    }
+
     [Fact]
     public void A_reports_folder_that_cannot_be_made_throws()
     {

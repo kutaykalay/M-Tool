@@ -9,8 +9,8 @@
     <StackPanel Margin="16,14,16,16">
         <TextBlock x:Name="QuestionText" TextWrapping="Wrap" />
         <UniformGrid Rows="1" Margin="0,16,0,0">
-            <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Common_Yes}" IsDefault="True" Click="OnYesClick" />
-            <Button Style="{StaticResource Choice}" Margin="0" Content="{x:Static res:Strings.Common_No}" IsCancel="True" />
+            <Button x:Name="YesButton" Style="{StaticResource Choice}" Content="{x:Static res:Strings.Common_Yes}" IsDefault="True" Click="OnYesClick" />
+            <Button x:Name="NoButton" Style="{StaticResource Choice}" Margin="0" Content="{x:Static res:Strings.Common_No}" IsCancel="True" />
         </UniformGrid>
     </StackPanel>
 </Window>

@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Time.Testing;
 using MTool.App.Reports;
+using MTool.App.Resources;
 using MTool.App.ViewModels;
 using MTool.Core.Device.Config;
 using MTool.Tests.Fakes;
@@ -14,6 +16,7 @@ public sealed class ReportViewModelTests : IDisposable
     private readonly FakeShellLauncher _shell = new();
     private readonly ListLog _log = new();
     private readonly StatusViewModel _status;
+    private readonly FakeTimeProvider _time = new();
 
     public ReportViewModelTests() => _status = new StatusViewModel(_notifier, new ImmediateDispatcher(), TimeProvider.System);
 
@@ -22,7 +25,7 @@ public sealed class ReportViewModelTests : IDisposable
     public void Dispose() => Directory.Delete(_root, recursive: true);
 
     private ReportViewModel ViewModel(FakeReportSources sources, string? folder = null, params string[] privateWords) =>
-        new(new ReportService(sources, _log, folder ?? Reports, "0.9.0", privateWords), _confirm, _shell, _status, _notifier, _log);
+        new(new ReportService(sources, _log, folder ?? Reports, "0.9.0", privateWords), _confirm, _shell, _status, _notifier, _log, _time);
 
     private static Task Run(System.Windows.Input.ICommand command)
     {
@@ -40,10 +43,141 @@ public sealed class ReportViewModelTests : IDisposable
         var path = vm.LastReportPath!;
         File.Exists(path).Should().BeTrue();
         Path.GetDirectoryName(path).Should().Be(Reports);
-        _notifier.Infos.Select(i => i.Message).Should().Contain(m => m.Contains(path, StringComparison.Ordinal) && m.Contains("zip"));
+        var shown = @"%AppData%\M-Tool\reports\" + Path.GetFileName(path);
+        _notifier.Infos.Select(i => i.Message).Should().Contain(m => m.Contains(shown, StringComparison.Ordinal) && m.Contains("zip"));
         _notifier.Errors.Should().BeEmpty();
         _status.MessageKind.Should().Be(MessageKind.Info);
-        _status.Message.Should().Contain(path).And.Contain("report.txt");
+        _status.Message.Should().Contain(shown).And.Contain("report.txt");
+    }
+
+    [Fact]
+    public async Task The_balloon_and_the_band_never_show_the_full_path_or_the_user_name()
+    {
+        var vm = ViewModel(new FakeReportSources());
+
+        await Run(vm.CreateCommand);
+
+        var path = vm.LastReportPath!;
+        var shown = _notifier.Infos.Select(i => i.Message).Append(_status.Message!).ToList();
+        shown.Should().NotBeEmpty();
+        foreach (var text in shown)
+        {
+            text.Should().NotContain(Reports).And.NotContain(_root).And.NotContain(Path.GetTempPath())
+                .And.NotContain(Environment.UserName).And.NotContain(path);
+        }
+
+        _log.Lines.Should().Contain(l => l.Contains(path, StringComparison.Ordinal), "the full path is for the log");
+    }
+
+    [Fact]
+    public async Task The_saved_message_ends_the_name_before_the_how_to_send_sentence()
+    {
+        var vm = ViewModel(new FakeReportSources());
+
+        await Run(vm.CreateCommand);
+
+        _notifier.Infos.Select(i => i.Message).Should().Contain(m => m.Contains(".zip. ", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task The_wmi2_question_is_asked_with_no_as_the_default_answer()
+    {
+        var vm = ViewModel(new FakeReportSources { Wmi = WmiInterface.Wmi2 });
+        await vm.LoadAsync();
+
+        await Run(vm.CreateWithWmi2Command);
+
+        _confirm.DefaultsToYes.Should().Equal(false);
+    }
+
+    [Fact]
+    public async Task A_report_that_hangs_gives_up_after_the_timeout_and_frees_the_commands()
+    {
+        using var gate = new ManualResetEventSlim();
+        var sources = new FakeReportSources { Gate = gate };
+        var vm = ViewModel(sources);
+
+        var running = Run(vm.CreateCommand);
+        sources.Started.Wait(TimeSpan.FromSeconds(5)).Should().BeTrue();
+        vm.IsBusy.Should().BeTrue();
+        await AdvanceUntilDone(running, ReportViewModel.ReportTimeout);
+
+        vm.IsBusy.Should().BeFalse();
+        vm.CreateCommand.CanExecute(null).Should().BeTrue();
+        _status.MessageKind.Should().Be(MessageKind.Warning);
+        _status.Message.Should().Be(Strings.Report_TimedOut);
+        _notifier.Errors.Should().ContainSingle().Which.Message.Should().Be(Strings.Report_TimedOut);
+        vm.LastReportPath.Should().BeNull();
+        _log.Lines.Should().Contain(l => l.StartsWith("ERROR", StringComparison.Ordinal));
+        gate.Set();
+        await WaitForTheAbandonedWork();
+    }
+
+    [Fact]
+    public async Task The_timeout_is_a_few_minutes_not_seconds()
+    {
+        ReportViewModel.ReportTimeout.Should().BeGreaterThanOrEqualTo(TimeSpan.FromMinutes(2)).And.BeLessThanOrEqualTo(TimeSpan.FromMinutes(10));
+        await Task.CompletedTask;
+    }
+
+    [Fact]
+    public async Task A_report_that_is_only_slow_is_not_cut_short()
+    {
+        using var gate = new ManualResetEventSlim();
+        var sources = new FakeReportSources { Gate = gate };
+        var vm = ViewModel(sources);
+
+        var running = Run(vm.CreateCommand);
+        sources.Started.Wait(TimeSpan.FromSeconds(5)).Should().BeTrue();
+        _time.Advance(ReportViewModel.ReportTimeout - TimeSpan.FromSeconds(1));
+        gate.Set();
+        await running;
+
+        vm.LastReportPath.Should().NotBeNull();
+        _notifier.Errors.Should().BeEmpty();
+        vm.IsBusy.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task The_work_left_behind_by_a_timeout_does_not_report_later()
+    {
+        using var gate = new ManualResetEventSlim();
+        var sources = new FakeReportSources { Gate = gate };
+        var vm = ViewModel(sources);
+        var running = Run(vm.CreateCommand);
+        sources.Started.Wait(TimeSpan.FromSeconds(5)).Should().BeTrue();
+        await AdvanceUntilDone(running, ReportViewModel.ReportTimeout);
+        var infosAfterTimeout = _notifier.Infos.Count;
+
+        gate.Set();
+        await WaitForTheAbandonedWork();
+
+        vm.LastReportPath.Should().BeNull("the late result is ignored");
+        _notifier.Infos.Count.Should().Be(infosAfterTimeout);
+        _status.MessageKind.Should().Be(MessageKind.Warning);
+        vm.IsBusy.Should().BeFalse();
+    }
+
+    /// <summary>The abandoned work still writes its zip; wait for it so the test folder can be deleted.</summary>
+    private async Task WaitForTheAbandonedWork()
+    {
+        for (var i = 0; i < 200 && !(Directory.Exists(Reports) && Directory.GetFiles(Reports, "*.zip").Length > 0); i++)
+        {
+            await Task.Delay(25);
+        }
+    }
+
+    /// <summary>The timer is set up a moment after the work starts, so advance until the command is done.</summary>
+    private async Task AdvanceUntilDone(Task running, TimeSpan by)
+    {
+        for (var i = 0; i < 200 && !running.IsCompleted; i++)
+        {
+            _time.Advance(by);
+            await Task.Delay(25);
+        }
+
+        running.IsCompleted.Should().BeTrue("the timeout must end the command");
+        await running;
     }
 
     [Fact]

@@ -44,9 +44,13 @@ internal sealed class FakeConfirm : IConfirm
 
     public List<string> Questions { get; } = [];
 
-    public bool Ask(string question)
+    /// <summary>For each question, whether Enter would have answered yes.</summary>
+    public List<bool> DefaultsToYes { get; } = [];
+
+    public bool Ask(string question, bool defaultYes = true)
     {
         Questions.Add(question);
+        DefaultsToYes.Add(defaultYes);
         return Answer;
     }
 }
