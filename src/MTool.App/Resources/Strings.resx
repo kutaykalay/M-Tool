@@ -388,4 +388,16 @@
     <value>, </value>
     <comment>Between the items of a list written in a sentence, for example the parts in the drift band. Include the space. Use the separator your language writes in prose (for example a comma and a space, or the CJK comma), not the regional list separator.</comment>
   </data>
+  <data name="Lang_Menu" xml:space="preserve">
+    <value>Language</value>
+    <comment>Tray submenu title. Keep the English word "Language" in the text, in every language, so a user who ended up in a language they cannot read can still find the menu.</comment>
+  </data>
+  <data name="Lang_Windows" xml:space="preserve">
+    <value>Windows language</value>
+    <comment>Choice in the tray language menu: follow the display language of Windows. The other choices are language names written in their own language and are not translated.</comment>
+  </data>
+  <data name="Lang_Saved" xml:space="preserve">
+    <value>Language saved. It applies the next time M-Tool starts.</value>
+    <comment>Status message after a language was chosen in the tray menu. It is shown in the language that was chosen, so the user can tell it worked.</comment>
+  </data>
 </root>

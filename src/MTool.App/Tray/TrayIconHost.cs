@@ -105,6 +105,7 @@ internal sealed class TrayIconHost : INotifier, IDisposable
         var powerSwitch = _viewModel.PowerSwitch;
         _menu.Items.Add(Item(Strings.Tray_PowerSwitch, powerSwitch.IsOn, powerSwitch.ToggleCommand.CanExecute(null),
             () => Run(powerSwitch.ToggleCommand, null)));
+        _menu.Items.Add(TrayLanguageItems.For(_viewModel.Language));
         _menu.Items.Add(new ToolStripSeparator());
         if (_signInStart is { } signInStart)
         {

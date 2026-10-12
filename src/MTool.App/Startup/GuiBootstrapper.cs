@@ -111,7 +111,7 @@ internal sealed class GuiBootstrapper : IDisposable
         await AlignToStartSourceAsync(service, powerEvents.Current, log);
 
         var ui = new DispatcherUi(app);
-        var viewModel = new MainViewModel(poller, service, control, powerEvents, tray, ui, TimeProvider.System);
+        var viewModel = new MainViewModel(poller, service, control, powerEvents, tray, ui, TimeProvider.System, settings.WindowsUi);
         teardown.Push(("status message timer", viewModel.Status.Dispose));
         window = new MainWindow(viewModel, () =>
         {
@@ -217,10 +217,11 @@ internal sealed class GuiBootstrapper : IDisposable
     {
         var store = new SettingsStore(AppPaths.Root);
         var loaded = store.Load();
+        var windowsUi = CultureInfo.CurrentUICulture; // before the chosen language replaces it
 
         // Before the sanitizer: its warnings are shown in the chosen language. An unusable choice in
         // the file is ignored here and dropped (with a warning) by the sanitizer.
-        var language = UiLanguage.Resolve(loaded.Settings.Language, CultureInfo.CurrentUICulture, SupportedLanguages.All);
+        var language = UiLanguage.Resolve(loaded.Settings.Language, windowsUi, SupportedLanguages.All);
         SetUiCulture(language);
         log.Info($"UI language: {language.Name}");
 
@@ -236,7 +237,7 @@ internal sealed class GuiBootstrapper : IDisposable
             log.Warn(warning);
         }
 
-        return new LoadedSettings(store, sanitized.Settings, warnings);
+        return new LoadedSettings(store, sanitized.Settings, warnings, windowsUi);
     }
 
     /// <summary>Resource lookups on this and later threads follow it; number and date formats stay the Windows regional ones.</summary>
@@ -250,7 +251,7 @@ internal sealed class GuiBootstrapper : IDisposable
     /// The store that read the file. Saves must go through this same store: it remembers that the file
     /// could not be read and then refuses to save over it, which a new store would not know.
     /// </param>
-    private sealed record LoadedSettings(SettingsStore Store, AppSettings Settings, IReadOnlyList<string> Warnings);
+    private sealed record LoadedSettings(SettingsStore Store, AppSettings Settings, IReadOnlyList<string> Warnings, CultureInfo WindowsUi);
 
     private static string CurrentExe =>
         Environment.ProcessPath ?? throw new InvalidOperationException("Çalışan exe'nin yolu bulunamadı.");
