@@ -6,7 +6,9 @@ A small Windows tray app for the **MSI P65 Creator 9SE**: fan curves, Cooler Boo
 mode and battery charge limit. One exe, no background service.
 
 > **Status:** beta (pre-release). It changes settings on one laptop and firmware only; other MSI
-> laptops with WMI1 are read-only and experimental (see below). The interface is in Turkish.
+> laptops with WMI1 are read-only and experimental (see below). The interface is in English and
+> Turkish: it follows the Windows display language, and the tray menu → **Language** changes it
+> (it applies the next time M-Tool starts).
 
 ## Features
 
@@ -43,12 +45,15 @@ M-Tool shows come from the P65's map and may be wrong.
 Own another MSI laptop? A device report lets M-Tool learn its layout. It only reads: no EC write,
 and the raw port is never opened.
 
-1. Run `M-Tool.exe --report` from an administrator terminal. On a newer MSI with WMI2 (mostly
-   Intel 11th gen and later), run `M-Tool.exe --report --wmi2` instead: it also records the raw
-   answers of MSI's WMI2 read methods (`Get_*` only; nothing is set). These methods run firmware
-   code, and that they have no side effects is an assumption, so this part is opt-in.
-2. Open a [device report issue](https://github.com/kutaykalay/M-Tool/issues/new?template=device-report.yml) and attach the zip
-   from `%AppData%\M-Tool\reports`.
+1. Right-click the M-Tool tray icon and choose **Create device report**. On a newer MSI with WMI2
+   (mostly Intel 11th gen and later) choose **Device report (with WMI2)** instead: it also records
+   the raw answers of MSI's WMI2 read methods (`Get_*` only; nothing is set). These methods run
+   firmware code, and that they have no side effects is an assumption, so this part is opt-in:
+   M-Tool explains it and asks first. Prefer a terminal? Run `M-Tool.exe --report` (or
+   `M-Tool.exe --report --wmi2`) as administrator.
+2. Choose **Report an issue (GitHub)** in the same menu. It opens a [device report issue](https://github.com/kutaykalay/M-Tool/issues/new?template=device-report.yml)
+   with the model and firmware filled in. Attach the zip from `%AppData%\M-Tool\reports`
+   (**Open the last report's folder** shows it).
 
 The zip holds `report.txt` (the model, BIOS and EC firmware versions, the MSI WMI classes and the
 values M-Tool could read) and `dsdt.aml`, a copy of the laptop's ACPI DSDT table. M-Tool does not
@@ -89,7 +94,7 @@ anyway** only if the hash matches.
 2. The first start is a **dry run**: M-Tool checks and logs your choices but writes nothing. When
    the values look right, close M-Tool, set `"dryRun": false` in
    `%AppData%\M-Tool\settings.json` and start it again.
-3. Optional: tray menu → **Oturum açılışında başlat** (start at sign-in). M-Tool then starts
+3. Optional: tray menu → **Start at sign-in** (Turkish: *Oturum açılışında başlat*). M-Tool then starts
    hidden in the tray when you sign in, without a UAC prompt, and applies your fan profile and
    performance mode.
 
@@ -105,8 +110,9 @@ laptop keeps it across sleep and restarts.
 
 ## Uninstall
 
-1. Tray menu → turn off **Oturum açılışında başlat** (this removes the task).
-2. Tray menu → **Çıkış** (exit) and delete `M-Tool.exe`.
+1. Tray menu → turn off **Start at sign-in** (Turkish: *Oturum açılışında başlat*; this removes
+   the task).
+2. Tray menu → **Exit** (Turkish: *Çıkış*) and delete `M-Tool.exe`.
 3. Optional: delete `%AppData%\M-Tool` (settings, logs, dumps). M-Tool writes nothing to the
    registry.
 
