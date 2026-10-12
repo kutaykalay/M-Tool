@@ -61,6 +61,9 @@ internal sealed class TrayIconHost : INotifier, IDisposable
     public void ShowError(string title, string message) =>
         _icon.ShowBalloonTip(BalloonMilliseconds, title, Truncate(message), ToolTipIcon.Error);
 
+    public void ShowInfo(string title, string message) =>
+        _icon.ShowBalloonTip(BalloonMilliseconds, title, Truncate(message), ToolTipIcon.Info);
+
     public void Dispose()
     {
         _theme.Changed -= OnThemeChanged;

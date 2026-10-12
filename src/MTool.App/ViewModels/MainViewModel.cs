@@ -31,7 +31,7 @@ public sealed partial class MainViewModel : ObservableObject
         Status = new StatusViewModel(notifier, ui, time);
         Controls = new ControlsViewModel(service, control, Status, ui);
         PowerSwitch = new PowerSwitchViewModel(service, powerSource, Status, ui);
-        Language = new LanguageViewModel(service, Status, windowsUi ?? CultureInfo.CurrentUICulture);
+        Language = new LanguageViewModel(service, Status, notifier, windowsUi ?? CultureInfo.CurrentUICulture);
         TrayTooltip = TooltipText.Format(poller.Latest, Controls.ActiveProfileLabel, Controls.ShowGpu);
 
         poller.ReadingChanged += reading => ui.Post(() =>

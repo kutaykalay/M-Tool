@@ -12,7 +12,11 @@ internal sealed class FakeNotifier : INotifier
 {
     public List<(string Title, string Message)> Errors { get; } = [];
 
+    public List<(string Title, string Message)> Infos { get; } = [];
+
     public void ShowError(string title, string message) => Errors.Add((title, message));
+
+    public void ShowInfo(string title, string message) => Infos.Add((title, message));
 }
 
 /// <summary>Keeps posted work until <see cref="RunAll"/>, like a UI thread that is busy elsewhere.</summary>

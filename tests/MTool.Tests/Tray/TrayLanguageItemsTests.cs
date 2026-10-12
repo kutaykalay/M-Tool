@@ -18,7 +18,10 @@ public sealed class TrayLanguageItemsTests : IDisposable
 
     private readonly string _folder = Directory.CreateTempSubdirectory("mtool-test-").FullName;
     private readonly FakeP65Control _control = new();
-    private readonly StatusViewModel _status = new(new FakeNotifier(), new ImmediateDispatcher(), TimeProvider.System);
+    private readonly FakeNotifier _notifier = new();
+    private readonly StatusViewModel _status;
+
+    public TrayLanguageItemsTests() => _status = new StatusViewModel(_notifier, new ImmediateDispatcher(), TimeProvider.System);
 
     public void Dispose() => Directory.Delete(_folder, recursive: true);
 
@@ -26,7 +29,7 @@ public sealed class TrayLanguageItemsTests : IDisposable
         new(_control, ProfileCatalog.BuiltIn, new SettingsStore(folder ?? _folder), AppSettings.Default with { Language = language }, new ListLog());
 
     private LanguageViewModel ViewModel(ProfileService service, CultureInfo? windowsUi = null) =>
-        new(service, _status, windowsUi ?? EnglishWindows);
+        new(service, _status, _notifier, windowsUi ?? EnglishWindows);
 
     private static ToolStripMenuItem[] Choices(ToolStripMenuItem menu) => [.. menu.DropDownItems.Cast<ToolStripMenuItem>()];
 
@@ -178,5 +181,33 @@ public sealed class TrayLanguageItemsTests : IDisposable
 
         _control.Calls.Should().BeEmpty();
         _status.Message.Should().StartWith("Language saved");
+    }
+
+    [Fact]
+    public async Task A_saved_language_also_shows_one_info_balloon_in_the_new_language()
+    {
+        var vm = ViewModel(Service());
+        using var menu = TrayLanguageItems.For(vm);
+
+        await Click(vm, Choices(menu).Single(i => i.Text == "English"));
+
+        var balloon = _notifier.Infos.Should().ContainSingle().Subject;
+        balloon.Title.Should().Be("M-Tool");
+        balloon.Message.Should().Be(_status.Message).And.StartWith("Language saved");
+        _notifier.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task A_failed_save_shows_the_warning_in_a_balloon_too()
+    {
+        var blocked = Path.Combine(_folder, "not-a-folder");
+        File.WriteAllText(blocked, "");
+        var vm = ViewModel(Service(folder: blocked));
+        using var menu = TrayLanguageItems.For(vm);
+
+        await Click(vm, Choices(menu).Single(i => i.Text == "English"));
+
+        var balloon = _notifier.Infos.Should().ContainSingle().Subject;
+        balloon.Message.Should().Be(_status.Message).And.Contain("settings.json").And.NotContain("saved");
     }
 }

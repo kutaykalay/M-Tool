@@ -16,6 +16,9 @@ public interface IConfirm
 public interface INotifier
 {
     void ShowError(string title, string message);
+
+    /// <summary>A balloon with the information icon, for good news the user should see even with the window closed.</summary>
+    void ShowInfo(string title, string message);
 }
 
 public enum MessageKind
