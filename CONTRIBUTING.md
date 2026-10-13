@@ -89,6 +89,37 @@ When every step passed:
 - The model ships as writable in a normal release. Any other firmware of the same model stays
   read-only until it is verified too.
 
+## Translations
+
+The texts are in `src/MTool.App/Resources/Strings.<language>.resx` (window, tray, command line)
+and `src/MTool.Core/Resources/CoreStrings.<language>.resx` (settings, fan rules, write results).
+The English files (`Strings.resx`, `CoreStrings.resx`) are the source: each text has a comment
+that says where it appears and what its placeholders hold.
+
+- **Correcting a language:** change the value in that language's files and open a pull request.
+  A native speaker's review removes the "machine-translated" label in the README.
+- **Adding a language:** copy both English files to `<language>.resx` names, translate the values,
+  and add the language to `SupportedLanguages` (`src/MTool.Core/Localization/SupportedLanguages.cs`)
+  and `SatelliteResourceLanguages` (`src/MTool.App/MTool.App.csproj`). The tests check that every
+  key is there and every value formats.
+
+Rules (the tests check the first three):
+
+- Keep every placeholder (`{0}`, `{1:X2}`) and every key.
+- Keep these word for word: `M-Tool.exe --unlock --confirm`, `M-Tool.exe --report --wmi2`,
+  `settings.json`, `"dryRun": false`, `write-lock.txt`, `winget install namazso.PawnIO`, `PawnIO`,
+  `Cooler Boost`, `M-Tool`, `CPU`, `GPU`.
+- The tray menu title keeps the English word: `Sprache (Language)`, so a user stuck in a language
+  they cannot read still finds it.
+- Texts whose comment starts with `SAFETY` tell the user whether something was written to the
+  laptop, whether the fans are safe, or which command to run. Translate them literally; do not
+  soften or shorten them.
+- Plain words over jargon: "laptop", "fan curve", "profile", "monitor-only mode", "dry-run (trial)
+  mode". Say what happened, what it means, and what to do. Do not write "EC" where the English
+  text does not.
+- Section headings are upper case where the script has case. Keep button texts short: the window
+  is 380 pixels wide.
+
 ## Code
 
 Open an issue before a larger change. YAMDCC and msi-ec are used as references for facts only;

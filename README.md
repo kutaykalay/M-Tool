@@ -6,9 +6,9 @@ A small Windows tray app for the **MSI P65 Creator 9SE**: fan curves, Cooler Boo
 mode and battery charge limit. One exe, no background service.
 
 > **Status:** beta (pre-release). It changes settings on one laptop and firmware only; other MSI
-> laptops with WMI1 are read-only and experimental (see below). The interface is in English and
-> Turkish: it follows the Windows display language, and the tray menu → **Language** changes it
-> (it applies the next time M-Tool starts).
+> laptops with WMI1 are read-only and experimental (see below). The interface follows the Windows
+> display language, and the tray menu → **Language** changes it (it applies the next time M-Tool
+> starts). See [Languages](#languages).
 
 ## Features
 
@@ -25,6 +25,23 @@ mode and battery charge limit. One exe, no background service.
 - Live temperatures and fan speeds, and a tray menu for quick switching.
 - A drift band when the laptop no longer holds what you chose, with one-click reapply.
 - A command line for dumps and scripted changes.
+
+## Languages
+
+| Language | Status |
+|---|---|
+| English | reviewed |
+| Türkçe (Turkish) | reviewed |
+| 中文（简体）(Chinese, Simplified) | machine-translated, review welcome |
+| Русский (Russian) | machine-translated, review welcome |
+| Español (Spanish) | machine-translated, review welcome |
+| Português (Brasil) (Portuguese, Brazil) | machine-translated, review welcome |
+| Deutsch (German) | machine-translated, review welcome |
+| Français (French) | machine-translated, review welcome |
+
+Any other Windows language gets English. The log is always in English, so a log attached to an
+issue reads the same for everyone. Corrections are welcome: see "Translations" in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Supported devices
 
