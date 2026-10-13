@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Main_SectionSensors" xml:space="preserve">
+    <value>SENSORES</value>
+  </data>
+  <data name="Mode_High" xml:space="preserve">
+    <value>Alto</value>
+  </data>
+  <data name="Mode_Balanced" xml:space="preserve">
+    <value>Equilibrado</value>
+  </data>
+  <data name="Mode_Eco" xml:space="preserve">
+    <value>Eco</value>
+  </data>
+  <data name="Common_Apply" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Sim</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>Não</value>
+  </data>
+  <data name="Main_SectionFanProfile" xml:space="preserve">
+    <value>PERFIL DE VENTOINHA</value>
+  </data>
+  <data name="Main_EditCurves" xml:space="preserve">
+    <value>Editar curvas</value>
+  </data>
+  <data name="Main_EditCurvesTip" xml:space="preserve">
+    <value>Editar as curvas das ventoinhas e os perfis personalizados</value>
+  </data>
+  <data name="Main_SectionPerformance" xml:space="preserve">
+    <value>DESEMPENHO</value>
+  </data>
+  <data name="Main_PowerSwitch" xml:space="preserve">
+    <value>Lembrar configurações separadas na tomada e na bateria</value>
+  </data>
+  <data name="Main_PowerSwitchTip" xml:space="preserve">
+    <value>Quando ativado, o perfil de ventoinha e o modo de desempenho são lembrados separadamente na tomada e na bateria. Ao conectar ou desconectar o cabo, a última configuração escolhida para essa fonte é aplicada. O limite de carga e o Cooler Boost não mudam.</value>
+  </data>
+  <data name="Main_CoolerBoostHint" xml:space="preserve">
+    <value>(ventoinhas na velocidade máxima)</value>
+  </data>
+  <data name="Main_SectionChargeLimit" xml:space="preserve">
+    <value>LIMITE DE CARGA</value>
+  </data>
+  <data name="Main_ChargeLimitNow" xml:space="preserve">
+    <value>Atual:</value>
+  </data>
+  <data name="Main_Reapply" xml:space="preserve">
+    <value>Reaplicar</value>
+  </data>
+  <data name="Charge_Unknown" xml:space="preserve">
+    <value>desconhecido</value>
+  </data>
+  <data name="Charge_Off" xml:space="preserve">
+    <value>desativado</value>
+  </data>
+  <data name="Format_Percent" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+  <data name="Editor_Title" xml:space="preserve">
+    <value>M-Tool · Curvas das ventoinhas</value>
+  </data>
+  <data name="Editor_SectionProfiles" xml:space="preserve">
+    <value>PERFIS</value>
+  </data>
+  <data name="Editor_BuiltIn" xml:space="preserve">
+    <value>integrado</value>
+  </data>
+  <data name="Editor_Copy" xml:space="preserve">
+    <value>Copiar</value>
+  </data>
+  <data name="Editor_Delete" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="Editor_SectionName" xml:space="preserve">
+    <value>NOME</value>
+  </data>
+  <data name="Editor_Rename" xml:space="preserve">
+    <value>Renomear</value>
+  </data>
+  <data name="Editor_SectionFan" xml:space="preserve">
+    <value>VENTOINHA</value>
+  </data>
+  <data name="Editor_BuiltInReadOnly" xml:space="preserve">
+    <value>Perfis integrados não podem ser alterados; copie um para editá-lo.</value>
+  </data>
+  <data name="Editor_ColPoint" xml:space="preserve">
+    <value>Ponto</value>
+  </data>
+  <data name="Editor_ColThreshold" xml:space="preserve">
+    <value>Limiar °C</value>
+  </data>
+  <data name="Editor_ColSpeed" xml:space="preserve">
+    <value>Velocidade %</value>
+  </data>
+  <data name="Editor_ColAllowed" xml:space="preserve">
+    <value>Permitido</value>
+  </data>
+  <data name="Editor_AllowedRange" xml:space="preserve">
+    <value>{0}–{1} °C, {2}–{3}%</value>
+  </data>
+  <data name="Editor_Revert" xml:space="preserve">
+    <value>Desfazer</value>
+  </data>
+  <data name="Editor_Save" xml:space="preserve">
+    <value>Salvar</value>
+  </data>
+  <data name="Editor_SaveAndApply" xml:space="preserve">
+    <value>Salvar e aplicar</value>
+  </data>
+  <data name="Tray_PowerSwitch" xml:space="preserve">
+    <value>Configurações separadas na tomada e na bateria</value>
+  </data>
+  <data name="Tray_StartAtSignIn" xml:space="preserve">
+    <value>Iniciar ao entrar</value>
+  </data>
+  <data name="Tray_OpenWindow" xml:space="preserve">
+    <value>Abrir janela</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Sair</value>
+  </data>
+  <data name="Tray_Performance" xml:space="preserve">
+    <value>Desempenho: {0}</value>
+  </data>
+  <data name="Tray_DataStale" xml:space="preserve">
+    <value> (dados desatualizados)</value>
+  </data>
+  <data name="Tray_Paused" xml:space="preserve">
+    <value> (pausado)</value>
+  </data>
+  <data name="Tray_ReadingSensors" xml:space="preserve">
+    <value>Lendo sensores…</value>
+  </data>
+  <data name="Startup_Failed" xml:space="preserve">
+    <value>O M-Tool não pôde iniciar: {0}&#10;&#10;Detalhes: {1}</value>
+  </data>
+  <data name="Startup_UnexpectedError" xml:space="preserve">
+    <value>Erro inesperado: {0}&#10;&#10;Detalhes: {1}</value>
+  </data>
+  <data name="Startup_Problem" xml:space="preserve">
+    <value>{0}&#10;&#10;Detalhes: {1}</value>
+  </data>
+  <data name="Startup_EcUnreachable" xml:space="preserve">
+    <value>Não foi possível acessar o EC: {0}&#10;&#10;Detalhes: {1}</value>
+  </data>
+  <data name="Startup_PawnIoMissing" xml:space="preserve">
+    <value>O PawnIO não está instalado. O M-Tool acessa o EC pelo driver PawnIO.&#10;&#10;Para instalar (em um prompt de comando de administrador):&#10;{0}&#10;&#10;Detalhes: {1}</value>
+  </data>
+  <data name="PawnIo_Missing" xml:space="preserve">
+    <value>O PawnIO não está instalado. Para instalar: {0}</value>
+  </data>
+  <data name="Session_FirmwareUnread" xml:space="preserve">
+    <value>Não foi possível ler o firmware na inicialização. Por segurança, o Cooler Boost e o limite de carga ficam ocultos nesta sessão e nenhuma configuração é gravada. Reinicie o M-Tool.</value>
+  </data>
+  <data name="Probe_UnsupportedWmi2" xml:space="preserve">
+    <value>Este modelo MSI ainda não é compatível: ele acessa o EC pela interface WMI2 da MSI (principalmente Intel de 11ª geração ou mais recente). Por enquanto, o M-Tool só consegue ler modelos WMI1. Para ajudar a adicionar suporte, execute "M-Tool.exe --report --wmi2" em um prompt de comando de administrador e anexe o arquivo zip criado a uma issue "Device report" no GitHub.</value>
+  </data>
+  <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
+    <value>Este computador ainda não é compatível: a interface WMI da MSI ({0} ou {1} em root\WMI) não foi encontrada.</value>
+  </data>
+  <data name="Status_FailureTitle" xml:space="preserve">
+    <value>M-Tool: não foi possível aplicar a configuração</value>
+  </data>
+  <data name="Status_ReadOnlyNote" xml:space="preserve">
+    <value>O M-Tool está no modo somente monitoramento e não pode alterar configurações.</value>
+  </data>
+  <data name="Status_DryRun" xml:space="preserve">
+    <value>Modo de teste: suas escolhas são verificadas, mas não aplicadas ao notebook. Para aplicá-las de verdade, defina "dryRun": false em settings.json.</value>
+  </data>
+  <data name="Status_FirmwareUnread" xml:space="preserve">
+    <value>Não foi possível ler a versão do firmware. {0}</value>
+  </data>
+  <data name="Status_Experimental" xml:space="preserve">
+    <value>Experimental: este firmware ({0}) é lido com a ficha de dispositivo {1}; os valores não foram verificados neste modelo e podem estar errados. {2}</value>
+  </data>
+  <data name="Status_FirmwareFamily" xml:space="preserve">
+    <value>Este firmware ({0}) pertence à família {1}, mas não foi verificado para alterar configurações. {2}</value>
+  </data>
+  <data name="Status_FirmwareUnsupported" xml:space="preserve">
+    <value>Este firmware ({0}) não é compatível. {1}</value>
+  </data>
+  <data name="Status_WritesOff" xml:space="preserve">
+    <value>A alteração de configurações está desativada; o M-Tool está no modo somente monitoramento. Motivo: {0}</value>
+  </data>
+  <data name="Status_Drift" xml:space="preserve">
+    <value>As configurações do notebook diferem das suas escolhas ({0}). Clique em "Reaplicar" para restaurá-las.</value>
+  </data>
+  <data name="Status_DriftFanTable" xml:space="preserve">
+    <value>tabela de ventoinha</value>
+  </data>
+  <data name="Status_DriftPerformance" xml:space="preserve">
+    <value>modo de desempenho</value>
+  </data>
+  <data name="Status_DriftChargeLimit" xml:space="preserve">
+    <value>limite de carga</value>
+  </data>
+  <data name="Status_DriftFanMode" xml:space="preserve">
+    <value>modo de ventoinha</value>
+  </data>
+  <data name="Status_FailedRecovered" xml:space="preserve">
+    <value>{0} Por segurança, as ventoinhas voltaram à configuração de fábrica e a alteração de configurações foi desativada. Para ativá-la de novo, execute M-Tool.exe --unlock --confirm em um prompt de comando de administrador e reinicie o M-Tool.</value>
+  </data>
+  <data name="Status_FailedUnrecovered" xml:space="preserve">
+    <value>{0} Não foi possível confirmar que as ventoinhas estão em uma configuração segura; por precaução, tentou-se ativar o Cooler Boost. Reinicie o computador; as ventoinhas voltam à configuração de fábrica.</value>
+  </data>
+  <data name="Controls_FanTableImplausible" xml:space="preserve">
+    <value>A tabela de ventoinha lida do notebook não é plausível</value>
+  </data>
+  <data name="Controls_FanProfileUnrecognized" xml:space="preserve">
+    <value>Configuração de ventoinha não reconhecida</value>
+  </data>
+  <data name="Controls_PerformanceFactory" xml:space="preserve">
+    <value>configuração de fábrica (0x{0:X2})</value>
+  </data>
+  <data name="Controls_ReadFailed" xml:space="preserve">
+    <value>Não foi possível ler as configurações atuais; os valores mostrados podem estar desatualizados. ({0})</value>
+  </data>
+  <data name="Controls_NothingToReapply" xml:space="preserve">
+    <value>Não há nada para reaplicar.</value>
+  </data>
+  <data name="Main_ReapplyStartup" xml:space="preserve">
+    <value>Não foi possível aplicar as configurações na inicialização: {0}</value>
+  </data>
+  <data name="Main_ReapplyResume" xml:space="preserve">
+    <value>Não foi possível aplicar as configurações ao sair da suspensão: {0}</value>
+  </data>
+  <data name="Main_ReapplyPowerSource" xml:space="preserve">
+    <value>Não foi possível aplicar as configurações após a mudança da fonte de energia: {0}</value>
+  </data>
+  <data name="Main_ReapplyRetry" xml:space="preserve">
+    <value>Não foi possível aplicar as configurações na nova tentativa: {0}</value>
+  </data>
+  <data name="Sensors_Reading" xml:space="preserve">
+    <value>Lendo…</value>
+  </data>
+  <data name="Sensors_Paused" xml:space="preserve">
+    <value>Pausado (suspensão)</value>
+  </data>
+  <data name="Sensors_Stale" xml:space="preserve">
+    <value>Dados desatualizados ({0})</value>
+  </data>
+  <data name="Sensors_NoData" xml:space="preserve">
+    <value>Sem dados</value>
+  </data>
+  <data name="PowerSwitch_OnAc" xml:space="preserve">
+    <value>Atual: na tomada.</value>
+  </data>
+  <data name="PowerSwitch_OnBattery" xml:space="preserve">
+    <value>Atual: na bateria.</value>
+  </data>
+  <data name="SignIn_ForeignTask" xml:space="preserve">
+    <value>uma tarefa que o M-Tool não criou</value>
+  </data>
+  <data name="SignIn_OtherExe" xml:space="preserve">
+    <value>outro exe: {0}</value>
+  </data>
+  <data name="SignIn_RepairWarning" xml:space="preserve">
+    <value>"Iniciar ao entrar" não é a tarefa esperada ({0}). Para trocá-la para este exe, desative e ative de novo no menu da bandeja.</value>
+  </data>
+  <data name="SignIn_ChangeFailed" xml:space="preserve">
+    <value>Não foi possível alterar "Iniciar ao entrar": {0}</value>
+  </data>
+  <data name="Editor_DiscardQuestion" xml:space="preserve">
+    <value>Descartar as alterações não salvas?</value>
+  </data>
+  <data name="Editor_Saved" xml:space="preserve">
+    <value>Salvo. Clique em "Aplicar" para usá-lo nas ventoinhas.</value>
+  </data>
+  <data name="Editor_SavedNotApplied" xml:space="preserve">
+    <value>O perfil foi salvo, mas não aplicado: outra ação está em andamento ou a alteração de configurações está desativada. Tente de novo em instantes.</value>
+  </data>
+  <data name="Editor_DeleteQuestion" xml:space="preserve">
+    <value>Excluir o perfil "{0}"?</value>
+  </data>
+  <data name="Editor_BusySelect" xml:space="preserve">
+    <value>Outra ação está em andamento; você poderá escolher um perfil quando ela terminar.</value>
+  </data>
+  <data name="List_Separator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="Cli_UsageHeader" xml:space="preserve">
+    <value>Uso:</value>
+  </data>
+  <data name="Cli_UsageGui" xml:space="preserve">
+    <value>  M-Tool.exe [{0}]   (janela; com --tray, somente na bandeja)</value>
+  </data>
+  <data name="Cli_UsageReport" xml:space="preserve">
+    <value>  M-Tool.exe --report [--wmi2]   (relatório para outro modelo MSI; somente leitura; --wmi2: pacotes WMI2 brutos em modelos mais novos)</value>
+  </data>
+  <data name="Cli_UsageWatch" xml:space="preserve">
+    <value>  M-Tool.exe --watch [segundos]        (somente leitura, somente WMI: registra mudanças em 0xF2, 0xF4 e nas tabelas de ventoinha; padrão 60 s, no máximo 600)</value>
+  </data>
+  <data name="Cli_UsageApply" xml:space="preserve">
+    <value>  M-Tool.exe --apply charge &lt;50-100&gt; [--confirm]&#10;  M-Tool.exe --apply boost on|off [--confirm]&#10;  M-Tool.exe --apply perf high|balanced|eco [--confirm]&#10;  M-Tool.exe --apply fan default|cool|silent [--confirm]&#10;  M-Tool.exe --apply fanmode auto|advanced [--confirm]&#10;  M-Tool.exe --restore [--confirm]   (tabela de ventoinha de fábrica)&#10;  M-Tool.exe --unlock --confirm      (remove o bloqueio deixado por uma gravação com falha)&#10;  Sem --confirm: teste, nada é gravado no notebook. A linha de comando ignora dryRun em settings.json;&#10;  toda gravação real precisa de --confirm.</value>
+  </data>
+  <data name="Cli_Saved" xml:space="preserve">
+    <value>Salvo: {0}</value>
+  </data>
+  <data name="Cli_ReportGuidance" xml:space="preserve">
+    <value>Anexe este arquivo a uma issue "Device report" no GitHub. O número de série não foi consultado, e os nomes de usuário e do computador estão ocultos em report.txt. dsdt.aml é a tabela de firmware da MSI e não é filtrado. Revise report.txt antes de enviar.</value>
+  </data>
+  <data name="Cli_NoWriteLock" xml:space="preserve">
+    <value>Não há bloqueio de gravação.</value>
+  </data>
+  <data name="Cli_LockRemoved" xml:space="preserve">
+    <value>O bloqueio foi removido. Motivo anterior: {0}</value>
+  </data>
+  <data name="Cli_Error" xml:space="preserve">
+    <value>ERRO: {0}</value>
+  </data>
+  <data name="Cli_ErrorDetails" xml:space="preserve">
+    <value>Detalhes: {0}</value>
+  </data>
+  <data name="Lang_Menu" xml:space="preserve">
+    <value>Idioma (Language)</value>
+  </data>
+  <data name="Lang_Windows" xml:space="preserve">
+    <value>Idioma do Windows</value>
+  </data>
+  <data name="Lang_Saved" xml:space="preserve">
+    <value>Idioma salvo. Ele vale na próxima vez que o M-Tool iniciar.</value>
+  </data>
+  <data name="Report_Create" xml:space="preserve">
+    <value>Criar relatório do dispositivo</value>
+  </data>
+  <data name="Report_CreateWmi2" xml:space="preserve">
+    <value>Relatório do dispositivo (com WMI2)</value>
+  </data>
+  <data name="Report_OpenFolder" xml:space="preserve">
+    <value>Abrir a pasta do último relatório</value>
+  </data>
+  <data name="Report_IssueMenu" xml:space="preserve">
+    <value>Relatar um problema (GitHub)</value>
+  </data>
+  <data name="Report_Working" xml:space="preserve">
+    <value>Criando o relatório do dispositivo. Isso pode levar alguns segundos.</value>
+  </data>
+  <data name="Report_Saved" xml:space="preserve">
+    <value>Relatório salvo: {0}. Para enviá-lo, escolha "{1}" no menu da bandeja e arraste o arquivo zip para o formulário.</value>
+  </data>
+  <data name="Report_Failed" xml:space="preserve">
+    <value>Não foi possível criar o relatório do dispositivo. Veja o arquivo de log para mais detalhes.</value>
+  </data>
+  <data name="Report_TimedOut" xml:space="preserve">
+    <value>O relatório do dispositivo demorou demais e foi interrompido. Tente de novo e veja o arquivo de log para mais detalhes.</value>
+  </data>
+  <data name="Report_OpenFailed" xml:space="preserve">
+    <value>Não foi possível abrir a pasta ou o navegador. Veja o arquivo de log para mais detalhes.</value>
+  </data>
+  <data name="Report_Wmi2Confirm" xml:space="preserve">
+    <value>Criar um relatório do dispositivo com as respostas WMI2 brutas?&#10;&#10;O M-Tool apenas lê. Ele chama uma única vez uma lista fixa de métodos WMI2 Get_* deste notebook. Nada é gravado no notebook e nada é alterado.&#10;&#10;O report.txt conterá as respostas WMI2 brutas da MSI como bytes hexadecimais. O M-Tool não consegue filtrá-las. O relatório se destina a uma issue pública no GitHub, então revise o report.txt antes de enviar.</value>
+  </data>
+</root>

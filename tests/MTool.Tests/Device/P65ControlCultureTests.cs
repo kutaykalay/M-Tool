@@ -88,11 +88,11 @@ public sealed partial class P65ControlCultureTests
 
         var turkish = await RunIn("tr", scenario);
         var english = await RunIn("en", scenario);
-        var german = await RunIn("de", scenario);
+        var finnish = await RunIn("fi", scenario);
 
         turkish.Facts.Should().NotBeEmpty();
         english.Facts.Should().Be(turkish.Facts);
-        german.Facts.Should().Be(turkish.Facts);
+        finnish.Facts.Should().Be(turkish.Facts);
     }
 
     [Theory]
@@ -106,13 +106,13 @@ public sealed partial class P65ControlCultureTests
 
     [Theory]
     [MemberData(nameof(Names))]
-    public async Task The_English_text_is_English_and_German_falls_back_to_it(string name)
+    public async Task The_English_text_is_English_and_Finnish_falls_back_to_it(string name)
     {
         var english = await RunIn("en", Find(name));
-        var german = await RunIn("de", Find(name));
+        var finnish = await RunIn("fi", Find(name));
 
         english.Texts.Should().Be(Texts[name].English).And.NotMatchRegex("[çğıöşüÇĞİÖŞÜ]");
-        german.Texts.Should().Be(english.Texts);
+        finnish.Texts.Should().Be(english.Texts);
     }
 
     [Theory]

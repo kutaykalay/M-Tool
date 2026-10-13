@@ -44,7 +44,7 @@ public sealed class TrayLanguageItemsTests : IDisposable
     {
         using var menu = TrayLanguageItems.For(ViewModel(Service()));
 
-        Choices(menu).Select(i => i.Text).Should().Equal("Windows dili", "English", "Türkçe");
+        Choices(menu).Select(i => i.Text).Should().Equal("Windows dili", "English", "Türkçe", "中文（简体）", "Русский", "Español", "Português (Brasil)", "Deutsch", "Français");
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public sealed class TrayLanguageItemsTests : IDisposable
         var names = Choices(menu).Skip(1).Select(i => i.Text).ToArray();
 
         names.Should().HaveCount(SupportedLanguages.All.Count);
-        names.Should().OnlyContain(n => n != null && n.Length > 0 && char.IsUpper(n[0]));
+        names.Should().OnlyContain(n => n != null && n.Length > 0 && !char.IsLower(n[0]), "a name starts with a capital where the script has one");
     }
 
     [Theory]
@@ -66,7 +66,7 @@ public sealed class TrayLanguageItemsTests : IDisposable
         using var _ = TestCulture.Use(interfaceLanguage);
         using var menu = TrayLanguageItems.For(ViewModel(Service()));
 
-        Choices(menu).Skip(1).Select(i => i.Text).Should().Equal("English", "Türkçe");
+        Choices(menu).Skip(1).Select(i => i.Text).Should().Equal("English", "Türkçe", "中文（简体）", "Русский", "Español", "Português (Brasil)", "Deutsch", "Français");
     }
 
     [Theory]

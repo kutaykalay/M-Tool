@@ -10,7 +10,7 @@ namespace MTool.Tests.Ec;
 
 /// <summary>
 /// The texts of the write rules, the port guard, the record's limit check and the unknown-profile error in Turkish,
-/// English and a language M-Tool lacks (German, which falls back to English). The Turkish texts are the ones from before
+/// English and a language M-Tool lacks (Finnish, which falls back to English). The Turkish texts are the ones from before
 /// the move to resources; the log twin is always English.
 /// </summary>
 public sealed class WriteRuleTextCultureTests
@@ -41,7 +41,7 @@ public sealed class WriteRuleTextCultureTests
             EcWriteRules.CheckStatic(write).Should().Be(turkish, name);
         }
 
-        foreach (var culture in new[] { "en", "de" })
+        foreach (var culture in new[] { "en", "fi" })
         {
             using var _ = TestCulture.Use(culture);
             var text = EcWriteRules.CheckStaticText(write)!;
@@ -62,7 +62,7 @@ public sealed class WriteRuleTextCultureTests
             text.Log.Should().Be("0x98=0x80: a Cooler Boost write may change only bit 7 (currently 0x02).");
         }
 
-        using (TestCulture.Use("de"))
+        using (TestCulture.Use("fi"))
         {
             EcWriteRules.CheckAgainstCurrentText(write, 0x02)!.Text
                 .Should().Be("0x98=0x80: a Cooler Boost write may change only bit 7 (currently 0x02).");
@@ -95,7 +95,7 @@ public sealed class WriteRuleTextCultureTests
             none.Describe().Should().Be(new UserAndLogText("", ""));
         }
 
-        using (TestCulture.Use("de"))
+        using (TestCulture.Use("fi"))
         {
             changed.Describe().Text.Should().Be("The port access changed other registers: 0xF2=0xC4 0x6A=0x32.");
             unreadable.Describe().Text.Should().Be("The watched registers could not be read after the port access.");

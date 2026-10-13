@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Settings_UnknownLanguage" xml:space="preserve">
+    <value>Unbekannte Sprache ({0}); die Windows-Sprache wird verwendet.</value>
+  </data>
+  <data name="Settings_LanguageNotSupported" xml:space="preserve">
+    <value>Sprache nicht unterstützt: {0}</value>
+  </data>
+  <data name="Curve_PointCount" xml:space="preserve">
+    <value>Die Kurve muss {0} Punkte haben (sie hat {1}).</value>
+  </data>
+  <data name="Curve_FirstPointThreshold" xml:space="preserve">
+    <value>Der erste Punkt ist die Leerlaufdrehzahl und hat keine Schwelle.</value>
+  </data>
+  <data name="Curve_EnvelopeFirstStep" xml:space="preserve">
+    <value>Sicherheitsregel: Die erste Stufe muss spätestens bei {0} °C beginnen.</value>
+  </data>
+  <data name="Curve_EnvelopeSpeed" xml:space="preserve">
+    <value>Sicherheitsregel: Bei {0} °C muss der Lüfter mit {1} % oder mehr laufen (derzeit {2} %).</value>
+  </data>
+  <data name="Curve_SpeedRange" xml:space="preserve">
+    <value>Punkt {0}: Die Lüfterdrehzahl muss zwischen 0 % und {1} % liegen.</value>
+  </data>
+  <data name="Curve_SpeedDecreases" xml:space="preserve">
+    <value>Punkt {0}: Die Lüfterdrehzahl darf nicht niedriger sein als beim vorherigen Punkt.</value>
+  </data>
+  <data name="Curve_ThresholdRange" xml:space="preserve">
+    <value>Punkt {0}: Die Schwelle muss {1}–{2} °C betragen.</value>
+  </data>
+  <data name="Curve_ThresholdOrder" xml:space="preserve">
+    <value>Punkt {0}: Die Schwelle muss höher sein als die des vorherigen Punkts.</value>
+  </data>
+  <data name="Curve_DownThreshold" xml:space="preserve">
+    <value>Punkt {0}: Der Lüfter fällt von diesem Punkt bei {1} °C zurück, was nicht über der Schwelle des vorherigen Punkts ({2} °C) liegt. Erhöhen Sie die Schwelle dieses Punkts.</value>
+  </data>
+  <data name="Curve_LastStepStart" xml:space="preserve">
+    <value>Sicherheitsregel: Die letzte Stufe muss spätestens bei {0} °C beginnen.</value>
+  </data>
+  <data name="Curve_LastStepSpeed" xml:space="preserve">
+    <value>Sicherheitsregel: Die letzte Stufe muss mindestens {0} % betragen.</value>
+  </data>
+  <data name="Library_TooMany" xml:space="preserve">
+    <value>Es kann höchstens {0} eigene Profile geben; löschen Sie zuerst eines.</value>
+  </data>
+  <data name="Library_BuiltInReadOnly" xml:space="preserve">
+    <value>„{0}“ ist ein integriertes Profil und kann nicht geändert werden; kopieren Sie es und bearbeiten Sie die Kopie.</value>
+  </data>
+  <data name="Library_NotFound" xml:space="preserve">
+    <value>Es gibt kein eigenes Profil namens „{0}“.</value>
+  </data>
+  <data name="Library_DesiredSelected" xml:space="preserve">
+    <value>Dieses Profil ist gerade ausgewählt; wählen Sie vor dem Löschen ein anderes Profil.</value>
+  </data>
+  <data name="Library_CurvesMissing" xml:space="preserve">
+    <value>Die Lüfterkurve ist unvollständig.</value>
+  </data>
+  <data name="Name_Empty" xml:space="preserve">
+    <value>Der Profilname darf nicht leer sein.</value>
+  </data>
+  <data name="Name_BadCharacters" xml:space="preserve">
+    <value>Der Profilname darf keine Steuer- oder ungültigen Zeichen enthalten.</value>
+  </data>
+  <data name="Name_TooLong" xml:space="preserve">
+    <value>Der Profilname darf höchstens {0} Zeichen lang sein ({1} angegeben).</value>
+  </data>
+  <data name="Name_Taken" xml:space="preserve">
+    <value>Ein Profil namens „{0}“ existiert bereits.</value>
+  </data>
+  <data name="Name_Unnamed" xml:space="preserve">
+    <value>(unbenannt)</value>
+  </data>
+  <data name="Name_CopySuffix" xml:space="preserve">
+    <value> Kopie</value>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>Unbekanntes Lüfterprofil: {0}</value>
+  </data>
+  <data name="Profile_ChargeLimitRange" xml:space="preserve">
+    <value>Das Ladelimit muss {0}–{1} % betragen (angegeben: {2} %).</value>
+  </data>
+  <data name="Profile_ChangeFailed" xml:space="preserve">
+    <value>Das Profil konnte nicht geändert werden.</value>
+  </data>
+  <data name="Settings_SaveFailed" xml:space="preserve">
+    <value>Die Einstellungen konnten nicht gespeichert werden (settings.json: {0}); nach einem Neustart gelten wieder die vorherigen Einstellungen.</value>
+  </data>
+  <data name="Settings_UnknownProfile" xml:space="preserve">
+    <value>Unbekanntes Lüfterprofil ({0}); {1} wird verwendet.</value>
+  </data>
+  <data name="Settings_EmptyValue" xml:space="preserve">
+    <value>leer</value>
+  </data>
+  <data name="Settings_InvalidPerformanceMode" xml:space="preserve">
+    <value>Ungültiger Leistungsmodus ({0}); ignoriert.</value>
+  </data>
+  <data name="Settings_InvalidFanMode" xml:space="preserve">
+    <value>Ungültiger Lüftermodus ({0}); ignoriert.</value>
+  </data>
+  <data name="Settings_InvalidChargeLimit" xml:space="preserve">
+    <value>Ungültiges Ladelimit ({0} %); es muss {1}–{2} % betragen, ignoriert.</value>
+  </data>
+  <data name="Settings_PairMissingAc" xml:space="preserve">
+    <value>Das Lüfterprofil für den Netzbetrieb wurde nicht gefunden ({0}); beim Wechsel auf Netzbetrieb bleibt die aktuelle Einstellung.</value>
+  </data>
+  <data name="Settings_PairMissingBattery" xml:space="preserve">
+    <value>Das Lüfterprofil für den Akkubetrieb wurde nicht gefunden ({0}); beim Wechsel auf Akkubetrieb bleibt die aktuelle Einstellung.</value>
+  </data>
+  <data name="Settings_ProfileDropped" xml:space="preserve">
+    <value>Das eigene Profil „{0}“ wurde beiseitegelegt: {1}.</value>
+  </data>
+  <data name="Settings_ProfilesDroppedMore" xml:space="preserve">
+    <value>{0} weitere eigene Profile wurden beiseitegelegt.</value>
+  </data>
+  <data name="Settings_DropTooMany" xml:space="preserve">
+    <value>es kann höchstens {0} eigene Profile geben</value>
+  </data>
+  <data name="Settings_DropMissingPart" xml:space="preserve">
+    <value>ein Feld fehlt.</value>
+  </data>
+  <data name="Settings_DropNameNotNormal" xml:space="preserve">
+    <value>der Name wurde mit Leerzeichen am Anfang oder Ende oder mit einem zerlegten Buchstaben gespeichert.</value>
+  </data>
+  <data name="Settings_DropCurve" xml:space="preserve">
+    <value>es verstößt gegen die Lüfterregeln ({0})</value>
+  </data>
+  <data name="Store_Unreadable" xml:space="preserve">
+    <value>settings.json konnte nicht gelesen werden ({0}); es werden Standardwerte verwendet.</value>
+  </data>
+  <data name="Store_UnreadableNotMoved" xml:space="preserve">
+    <value>settings.json konnte nicht gelesen ({0}) und nicht beiseitegelegt werden ({1}); es werden Standardwerte verwendet.</value>
+  </data>
+  <data name="Store_SetAside" xml:space="preserve">
+    <value>settings.json konnte nicht gelesen werden ({0}); die Datei wurde als {1} aufbewahrt, es werden Standardwerte verwendet.</value>
+  </data>
+  <data name="Store_ReasonTooBig" xml:space="preserve">
+    <value>größer als {0} KB</value>
+  </data>
+  <data name="Store_ReasonEmpty" xml:space="preserve">
+    <value>leer oder unvollständig</value>
+  </data>
+  <data name="Store_ReasonVersion" xml:space="preserve">
+    <value>ungültige Versionsnummer: {0}</value>
+  </data>
+  <data name="Store_NewerVersion" xml:space="preserve">
+    <value>settings.json gehört zu einer neueren Version von M-Tool; es werden Standardwerte verwendet und Änderungen nicht gespeichert. Installieren Sie die neuere Version.</value>
+  </data>
+  <data name="Store_RefuseUnread" xml:space="preserve">
+    <value>settings.json wird nicht überschrieben, weil es beim Start nicht gelesen werden konnte; starten Sie M-Tool neu</value>
+  </data>
+  <data name="Store_RefuseNewer" xml:space="preserve">
+    <value>settings.json gehört zu einer neueren Version von M-Tool, diese Version überschreibt es nicht; installieren Sie die neuere Version</value>
+  </data>
+  <data name="Store_CopyKept" xml:space="preserve">
+    <value>Die vorherige Version von settings.json wurde als {0} aufbewahrt.</value>
+  </data>
+  <data name="Store_CopyFailed" xml:space="preserve">
+    <value>Eine Kopie von settings.json konnte nicht aufbewahrt werden ({0}); die beiseitegelegten Profile gehen beim nächsten Speichern verloren.</value>
+  </data>
+  <data name="Write_Locked" xml:space="preserve">
+    <value>Das Ändern von Einstellungen ist ausgeschaltet: {0}</value>
+  </data>
+  <data name="Write_LockUnverifiedRecord" xml:space="preserve">
+    <value>die Werte werden mit einem nicht überprüften Gerätedatensatz gelesen; starten Sie M-Tool neu.</value>
+  </data>
+  <data name="Write_LockFirmware" xml:space="preserve">
+    <value>diese Firmware wird nicht unterstützt (nur {0}).</value>
+  </data>
+  <data name="Write_LockNoBackup" xml:space="preserve">
+    <value>die beim ersten Start erstellte Sicherung der Einstellungen fehlt oder ist beschädigt.</value>
+  </data>
+  <data name="Write_LockFileUnreadable" xml:space="preserve">
+    <value>die Sperrdatei (write-lock.txt) konnte nicht gelesen werden ({0}).</value>
+  </data>
+  <data name="Write_LockAfterFailure" xml:space="preserve">
+    <value>eine frühere Einstellung konnte nicht angewendet werden ({0}). Detail: {1}</value>
+  </data>
+  <data name="Write_Unreachable" xml:space="preserve">
+    <value>Der Laptop war nicht erreichbar; keine Einstellung wurde geändert. Versuchen Sie es gleich noch einmal. ({0})</value>
+  </data>
+  <data name="Write_EmptyPlan" xml:space="preserve">
+    <value>Der Plan ist leer.</value>
+  </data>
+  <data name="Write_DuplicateRegister" xml:space="preserve">
+    <value>0x{0:X2} kommt mehr als einmal im Plan vor.</value>
+  </data>
+  <data name="Write_PortUnavailable" xml:space="preserve">
+    <value>{0}: Cooler Boost und das Ladelimit sind in dieser Sitzung nicht verfügbar (kein PawnIO-Zugriff).</value>
+  </data>
+  <data name="Write_PortAlone" xml:space="preserve">
+    <value>{0}: Ein Port-Register muss der einzige Schreibvorgang in seinem Plan sein.</value>
+  </data>
+  <data name="Write_DryRun" xml:space="preserve">
+    <value>Testmodus: geprüft, nicht angewendet.</value>
+  </data>
+  <data name="Write_Applied" xml:space="preserve">
+    <value>Angewendet und überprüft.</value>
+  </data>
+  <data name="Write_ReadBackDiffers" xml:space="preserve">
+    <value>Die Einstellung wurde geschrieben, aber anders zurückgelesen ({0}).</value>
+  </data>
+  <data name="Write_OthersChanged" xml:space="preserve">
+    <value>Die Einstellung wurde geschrieben, aber auch andere Werte haben sich geändert; aus Sicherheitsgründen gestoppt.</value>
+  </data>
+  <data name="Write_ReadBackFailed" xml:space="preserve">
+    <value>Die Einstellung wurde geschrieben, konnte aber nicht zurückgelesen werden ({0}).</value>
+  </data>
+  <data name="Write_CurveUnsafe" xml:space="preserve">
+    <value>Die {0}-Kurve wäre unsicher: {1}</value>
+  </data>
+  <data name="Write_Failed" xml:space="preserve">
+    <value>Die Einstellung konnte nicht angewendet werden. {0}</value>
+  </data>
+  <data name="Write_Restored" xml:space="preserve">
+    <value>Wiederhergestellt: {0}.</value>
+  </data>
+  <data name="Write_NotRestored" xml:space="preserve">
+    <value>Nicht wiederhergestellt: {0}.</value>
+  </data>
+  <data name="Write_PortRefused" xml:space="preserve">
+    <value>{0} ist in dieser Sitzung nicht verfügbar (kein PawnIO-Zugriff).</value>
+  </data>
+  <data name="Worker_Paused" xml:space="preserve">
+    <value>Der EC-Zugriff ist wegen Energiesparmodus oder Aufwachen pausiert.</value>
+  </data>
+  <data name="Worker_LockTimeout" xml:space="preserve">
+    <value>Die EC-Sperre (Access_EC) wurde nicht innerhalb von {0} ms erhalten; ein anderes Programm verwendet möglicherweise den EC.</value>
+  </data>
+  <data name="Rule_NotWritable" xml:space="preserve">
+    <value>0x{0:X2} steht nicht in der Liste der beschreibbaren Register.</value>
+  </data>
+  <data name="Rule_UpThreshold" xml:space="preserve">
+    <value>{0}: Die Aufwärtsschwelle muss {1}–{2} °C betragen.</value>
+  </data>
+  <data name="Rule_SpeedMax" xml:space="preserve">
+    <value>{0}: Die Lüfterdrehzahl beträgt höchstens {1} %.</value>
+  </data>
+  <data name="Rule_ChargeLimit" xml:space="preserve">
+    <value>{0}: Das Ladelimit muss 0x80 | {1}–{2} % sein.</value>
+  </data>
+  <data name="Rule_PerformanceMode" xml:space="preserve">
+    <value>{0}: nicht unterstützter Leistungsmodus.</value>
+  </data>
+  <data name="Rule_FanMode" xml:space="preserve">
+    <value>{0}: nicht unterstützter Lüftermodus.</value>
+  </data>
+  <data name="Rule_CoolerBoostBits" xml:space="preserve">
+    <value>{0}: Ein Schreibvorgang für Cooler Boost darf nur Bit 7 ändern (derzeit 0x{1:X2}).</value>
+  </data>
+  <data name="PortGuard_Unreadable" xml:space="preserve">
+    <value>Die überwachten Register konnten nach dem Port-Zugriff nicht gelesen werden.</value>
+  </data>
+  <data name="PortGuard_Changed" xml:space="preserve">
+    <value>Der Port-Zugriff hat andere Register geändert: {0}.</value>
+  </data>
+  <data name="Config_OutsideLimits" xml:space="preserve">
+    <value>{0}: außerhalb der Grenzen des Datensatzes ({1}–{2} °C, höchstens {3} %).</value>
+  </data>
+</root>

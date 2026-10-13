@@ -16,7 +16,7 @@ internal sealed record WriteRun(
 
 /// <summary>
 /// A fake EC that records every access, with a gateway and a lock folder of its own. The culture tests run
-/// a scenario in Turkish, English and German over a fresh rig each and compare the runs.
+/// a scenario in Turkish, English and Finnish over a fresh rig each and compare the runs.
 /// </summary>
 internal sealed class WriteRig : IDisposable
 {

@@ -39,12 +39,12 @@ public sealed class EcWorkerCultureTests
     {
         var turkish = await LockBusyIn("tr");
         var english = await LockBusyIn("en");
-        var german = await LockBusyIn("de");
+        var finnish = await LockBusyIn("fi");
 
         turkish.Error.Message.Should().Be("EC kilidi (Access_EC) 50 ms içinde alınamadı; başka bir program EC'yi kullanıyor olabilir.");
         english.Error.Message.Should().Be("The EC lock (Access_EC) was not obtained within 50 ms; another program may be using the EC.");
-        german.Error.Message.Should().Be(english.Error.Message);
-        new[] { turkish, english, german }.Should().OnlyContain(r => r.Accesses == 0 && !r.LockTaken && !r.Error.IsAccessPaused);
+        finnish.Error.Message.Should().Be(english.Error.Message);
+        new[] { turkish, english, finnish }.Should().OnlyContain(r => r.Accesses == 0 && !r.LockTaken && !r.Error.IsAccessPaused);
     }
 
     [Fact]
@@ -52,12 +52,12 @@ public sealed class EcWorkerCultureTests
     {
         var turkish = await PausedIn("tr");
         var english = await PausedIn("en");
-        var german = await PausedIn("de");
+        var finnish = await PausedIn("fi");
 
         turkish.Error.Message.Should().Be("EC erişimi uyku/uyanış nedeniyle duraklatıldı.");
         english.Error.Message.Should().Be("EC access is paused because of sleep or wake-up.");
-        german.Error.Message.Should().Be(english.Error.Message);
-        new[] { turkish, english, german }.Should().OnlyContain(r => r.Accesses == 0 && r.Error.IsAccessPaused);
+        finnish.Error.Message.Should().Be(english.Error.Message);
+        new[] { turkish, english, finnish }.Should().OnlyContain(r => r.Accesses == 0 && r.Error.IsAccessPaused);
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public sealed class EcWorkerCultureTests
         using var worker = new EcWorker(ec, new FakeEcLock(), TimeSpan.FromMilliseconds(50));
         var results = new List<byte>();
 
-        foreach (var culture in new[] { "tr", "en", "de" })
+        foreach (var culture in new[] { "tr", "en", "fi" })
         {
             using var _ = TestCulture.Use(culture);
             results.Add(await worker.RunAsync(registers => registers.Read(0xF2)));

@@ -18,9 +18,9 @@ public sealed class StringResourcesTests
     }
 
     [Fact]
-    public void Supported_languages_are_English_and_Turkish_with_English_first()
+    public void Supported_languages_are_the_first_two_waves_with_English_first()
     {
-        SupportedLanguages.All.Should().Equal("en", "tr");
+        SupportedLanguages.All.Should().Equal("en", "tr", "zh-Hans", "ru", "es", "pt-BR", "de", "fr");
         SupportedLanguages.Neutral.Should().Be("en");
     }
 
@@ -52,9 +52,9 @@ public sealed class StringResourcesTests
     [Fact]
     public void An_unsupported_language_falls_back_to_English()
     {
-        var austrianGerman = CultureInfo.GetCultureInfo("de-AT");
+        var finnish = CultureInfo.GetCultureInfo("fi-FI");
 
-        Strings.ResourceManager.GetString(nameof(Strings.Main_SectionSensors), austrianGerman).Should().Be("SENSORS");
+        Strings.ResourceManager.GetString(nameof(Strings.Main_SectionSensors), finnish).Should().Be("SENSORS");
     }
 
     [Theory]

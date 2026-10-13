@@ -13,5 +13,5 @@ public static class SupportedLanguages
     /// <summary>English: the neutral resources, and the fallback for every language M-Tool lacks.</summary>
     public const string Neutral = "en";
 
-    public static IReadOnlyList<string> All { get; } = [Neutral, "tr"];
+    public static IReadOnlyList<string> All { get; } = [Neutral, "tr", "zh-Hans", "ru", "es", "pt-BR", "de", "fr"];
 }

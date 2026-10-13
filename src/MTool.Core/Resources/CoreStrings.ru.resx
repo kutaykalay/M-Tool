@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Settings_UnknownLanguage" xml:space="preserve">
+    <value>Неизвестный язык ({0}); используется язык Windows.</value>
+  </data>
+  <data name="Settings_LanguageNotSupported" xml:space="preserve">
+    <value>Язык не поддерживается: {0}</value>
+  </data>
+  <data name="Curve_PointCount" xml:space="preserve">
+    <value>Кривая должна содержать точек: {0} (сейчас: {1}).</value>
+  </data>
+  <data name="Curve_FirstPointThreshold" xml:space="preserve">
+    <value>Первая точка — это скорость в простое, у неё нет порога.</value>
+  </data>
+  <data name="Curve_EnvelopeFirstStep" xml:space="preserve">
+    <value>Правило безопасности: первая ступень должна начинаться не позже {0} °C.</value>
+  </data>
+  <data name="Curve_EnvelopeSpeed" xml:space="preserve">
+    <value>Правило безопасности: при {0} °C вентилятор должен работать на {1} % или больше (сейчас {2} %).</value>
+  </data>
+  <data name="Curve_SpeedRange" xml:space="preserve">
+    <value>Точка {0}: скорость вентилятора должна быть от 0 % до {1} %.</value>
+  </data>
+  <data name="Curve_SpeedDecreases" xml:space="preserve">
+    <value>Точка {0}: скорость вентилятора не может быть ниже, чем в предыдущей точке.</value>
+  </data>
+  <data name="Curve_ThresholdRange" xml:space="preserve">
+    <value>Точка {0}: порог должен быть {1}–{2} °C.</value>
+  </data>
+  <data name="Curve_ThresholdOrder" xml:space="preserve">
+    <value>Точка {0}: порог должен быть выше, чем у предыдущей точки.</value>
+  </data>
+  <data name="Curve_DownThreshold" xml:space="preserve">
+    <value>Точка {0}: вентилятор уходит с этой точки при {1} °C, а это не выше порога предыдущей точки ({2} °C). Повысьте порог этой точки.</value>
+  </data>
+  <data name="Curve_LastStepStart" xml:space="preserve">
+    <value>Правило безопасности: последняя ступень должна начинаться не позже {0} °C.</value>
+  </data>
+  <data name="Curve_LastStepSpeed" xml:space="preserve">
+    <value>Правило безопасности: последняя ступень должна быть не ниже {0} %.</value>
+  </data>
+  <data name="Library_TooMany" xml:space="preserve">
+    <value>Своих профилей может быть не больше {0}; сначала удалите один.</value>
+  </data>
+  <data name="Library_BuiltInReadOnly" xml:space="preserve">
+    <value>«{0}» — встроенный профиль, его нельзя изменить; скопируйте его и измените копию.</value>
+  </data>
+  <data name="Library_NotFound" xml:space="preserve">
+    <value>Своего профиля с именем «{0}» нет.</value>
+  </data>
+  <data name="Library_DesiredSelected" xml:space="preserve">
+    <value>Этот профиль сейчас выбран; перед удалением выберите другой профиль.</value>
+  </data>
+  <data name="Library_CurvesMissing" xml:space="preserve">
+    <value>Кривая вентилятора неполная.</value>
+  </data>
+  <data name="Name_Empty" xml:space="preserve">
+    <value>Имя профиля не может быть пустым.</value>
+  </data>
+  <data name="Name_BadCharacters" xml:space="preserve">
+    <value>Имя профиля не может содержать управляющие или недопустимые символы.</value>
+  </data>
+  <data name="Name_TooLong" xml:space="preserve">
+    <value>Имя профиля может содержать не более {0} символов (указано {1}).</value>
+  </data>
+  <data name="Name_Taken" xml:space="preserve">
+    <value>Профиль с именем «{0}» уже существует.</value>
+  </data>
+  <data name="Name_Unnamed" xml:space="preserve">
+    <value>(без имени)</value>
+  </data>
+  <data name="Name_CopySuffix" xml:space="preserve">
+    <value> копия</value>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>Неизвестный профиль вентиляторов: {0}</value>
+  </data>
+  <data name="Profile_ChargeLimitRange" xml:space="preserve">
+    <value>Лимит заряда должен быть {0}–{1} % (получено {2} %).</value>
+  </data>
+  <data name="Profile_ChangeFailed" xml:space="preserve">
+    <value>Не удалось изменить профиль.</value>
+  </data>
+  <data name="Settings_SaveFailed" xml:space="preserve">
+    <value>Не удалось сохранить настройки (settings.json: {0}); после перезапуска вернутся прежние настройки.</value>
+  </data>
+  <data name="Settings_UnknownProfile" xml:space="preserve">
+    <value>Неизвестный профиль вентиляторов ({0}); используется {1}.</value>
+  </data>
+  <data name="Settings_EmptyValue" xml:space="preserve">
+    <value>пусто</value>
+  </data>
+  <data name="Settings_InvalidPerformanceMode" xml:space="preserve">
+    <value>Недопустимый режим производительности ({0}); пропущен.</value>
+  </data>
+  <data name="Settings_InvalidFanMode" xml:space="preserve">
+    <value>Недопустимый режим вентиляторов ({0}); пропущен.</value>
+  </data>
+  <data name="Settings_InvalidChargeLimit" xml:space="preserve">
+    <value>Недопустимый лимит заряда ({0} %); он должен быть {1}–{2} %, пропущен.</value>
+  </data>
+  <data name="Settings_PairMissingAc" xml:space="preserve">
+    <value>Профиль вентиляторов для работы от сети не найден ({0}); при переходе на сеть сохраняется текущая настройка.</value>
+  </data>
+  <data name="Settings_PairMissingBattery" xml:space="preserve">
+    <value>Профиль вентиляторов для работы от батареи не найден ({0}); при переходе на батарею сохраняется текущая настройка.</value>
+  </data>
+  <data name="Settings_ProfileDropped" xml:space="preserve">
+    <value>Свой профиль «{0}» отложен: {1}.</value>
+  </data>
+  <data name="Settings_ProfilesDroppedMore" xml:space="preserve">
+    <value>Отложено ещё своих профилей: {0}.</value>
+  </data>
+  <data name="Settings_DropTooMany" xml:space="preserve">
+    <value>своих профилей может быть не больше {0}</value>
+  </data>
+  <data name="Settings_DropMissingPart" xml:space="preserve">
+    <value>отсутствует поле.</value>
+  </data>
+  <data name="Settings_DropNameNotNormal" xml:space="preserve">
+    <value>имя сохранено с пробелами в начале или в конце либо с разложенной буквой.</value>
+  </data>
+  <data name="Settings_DropCurve" xml:space="preserve">
+    <value>он нарушает правила вентиляторов ({0})</value>
+  </data>
+  <data name="Store_Unreadable" xml:space="preserve">
+    <value>Не удалось прочитать settings.json ({0}); используются значения по умолчанию.</value>
+  </data>
+  <data name="Store_UnreadableNotMoved" xml:space="preserve">
+    <value>Не удалось прочитать settings.json ({0}) и отложить его ({1}); используются значения по умолчанию.</value>
+  </data>
+  <data name="Store_SetAside" xml:space="preserve">
+    <value>Не удалось прочитать settings.json ({0}); файл сохранён как {1}, используются значения по умолчанию.</value>
+  </data>
+  <data name="Store_ReasonTooBig" xml:space="preserve">
+    <value>больше {0} КБ</value>
+  </data>
+  <data name="Store_ReasonEmpty" xml:space="preserve">
+    <value>пустой или неполный</value>
+  </data>
+  <data name="Store_ReasonVersion" xml:space="preserve">
+    <value>недопустимый номер версии: {0}</value>
+  </data>
+  <data name="Store_NewerVersion" xml:space="preserve">
+    <value>settings.json относится к более новой версии M-Tool; используются значения по умолчанию, изменения не сохраняются. Установите более новую версию.</value>
+  </data>
+  <data name="Store_RefuseUnread" xml:space="preserve">
+    <value>settings.json не перезаписывается, потому что его не удалось прочитать при запуске; перезапустите M-Tool</value>
+  </data>
+  <data name="Store_RefuseNewer" xml:space="preserve">
+    <value>settings.json относится к более новой версии M-Tool, эта версия его не перезаписывает; установите более новую версию</value>
+  </data>
+  <data name="Store_CopyKept" xml:space="preserve">
+    <value>Прежняя версия settings.json сохранена как {0}.</value>
+  </data>
+  <data name="Store_CopyFailed" xml:space="preserve">
+    <value>Не удалось сохранить копию settings.json ({0}); отложенные профили будут потеряны при следующем сохранении.</value>
+  </data>
+  <data name="Write_Locked" xml:space="preserve">
+    <value>Изменение настроек выключено: {0}</value>
+  </data>
+  <data name="Write_LockUnverifiedRecord" xml:space="preserve">
+    <value>значения читаются по непроверенной записи устройства; перезапустите M-Tool.</value>
+  </data>
+  <data name="Write_LockFirmware" xml:space="preserve">
+    <value>эта прошивка не поддерживается (только {0}).</value>
+  </data>
+  <data name="Write_LockNoBackup" xml:space="preserve">
+    <value>резервная копия настроек, сделанная при первом запуске, отсутствует или повреждена.</value>
+  </data>
+  <data name="Write_LockFileUnreadable" xml:space="preserve">
+    <value>не удалось прочитать файл блокировки (write-lock.txt) ({0}).</value>
+  </data>
+  <data name="Write_LockAfterFailure" xml:space="preserve">
+    <value>не удалось применить предыдущую настройку ({0}). Подробности: {1}</value>
+  </data>
+  <data name="Write_Unreachable" xml:space="preserve">
+    <value>Не удалось обратиться к ноутбуку; ни одна настройка не изменена. Повторите попытку чуть позже. ({0})</value>
+  </data>
+  <data name="Write_EmptyPlan" xml:space="preserve">
+    <value>План пуст.</value>
+  </data>
+  <data name="Write_DuplicateRegister" xml:space="preserve">
+    <value>0x{0:X2} встречается в плане больше одного раза.</value>
+  </data>
+  <data name="Write_PortUnavailable" xml:space="preserve">
+    <value>{0}: Cooler Boost и лимит заряда недоступны в этом сеансе (нет доступа к PawnIO).</value>
+  </data>
+  <data name="Write_PortAlone" xml:space="preserve">
+    <value>{0}: регистр порта должен быть единственной записью в своём плане.</value>
+  </data>
+  <data name="Write_DryRun" xml:space="preserve">
+    <value>Пробный режим: проверено, не применено.</value>
+  </data>
+  <data name="Write_Applied" xml:space="preserve">
+    <value>Применено и проверено.</value>
+  </data>
+  <data name="Write_ReadBackDiffers" xml:space="preserve">
+    <value>Настройка записана, но при обратном чтении значение другое ({0}).</value>
+  </data>
+  <data name="Write_OthersChanged" xml:space="preserve">
+    <value>Настройка записана, но изменились и другие значения; остановлено в целях безопасности.</value>
+  </data>
+  <data name="Write_ReadBackFailed" xml:space="preserve">
+    <value>Настройка записана, но её не удалось прочитать обратно ({0}).</value>
+  </data>
+  <data name="Write_CurveUnsafe" xml:space="preserve">
+    <value>Кривая {0} стала бы небезопасной: {1}</value>
+  </data>
+  <data name="Write_Failed" xml:space="preserve">
+    <value>Не удалось применить настройку. {0}</value>
+  </data>
+  <data name="Write_Restored" xml:space="preserve">
+    <value>Восстановлено: {0}.</value>
+  </data>
+  <data name="Write_NotRestored" xml:space="preserve">
+    <value>Не удалось восстановить: {0}.</value>
+  </data>
+  <data name="Write_PortRefused" xml:space="preserve">
+    <value>{0} недоступен в этом сеансе (нет доступа к PawnIO).</value>
+  </data>
+  <data name="Worker_Paused" xml:space="preserve">
+    <value>Доступ к EC приостановлен из-за сна или пробуждения.</value>
+  </data>
+  <data name="Worker_LockTimeout" xml:space="preserve">
+    <value>Блокировку EC (Access_EC) не удалось получить за {0} мс; возможно, EC использует другая программа.</value>
+  </data>
+  <data name="Rule_NotWritable" xml:space="preserve">
+    <value>0x{0:X2} нет в списке регистров, доступных для записи.</value>
+  </data>
+  <data name="Rule_UpThreshold" xml:space="preserve">
+    <value>{0}: порог повышения должен быть {1}–{2} °C.</value>
+  </data>
+  <data name="Rule_SpeedMax" xml:space="preserve">
+    <value>{0}: скорость вентилятора не более {1} %.</value>
+  </data>
+  <data name="Rule_ChargeLimit" xml:space="preserve">
+    <value>{0}: лимит заряда должен быть 0x80 | {1}–{2} %.</value>
+  </data>
+  <data name="Rule_PerformanceMode" xml:space="preserve">
+    <value>{0}: неподдерживаемый режим производительности.</value>
+  </data>
+  <data name="Rule_FanMode" xml:space="preserve">
+    <value>{0}: неподдерживаемый режим вентиляторов.</value>
+  </data>
+  <data name="Rule_CoolerBoostBits" xml:space="preserve">
+    <value>{0}: запись Cooler Boost может менять только бит 7 (сейчас 0x{1:X2}).</value>
+  </data>
+  <data name="PortGuard_Unreadable" xml:space="preserve">
+    <value>После обращения к порту не удалось прочитать отслеживаемые регистры.</value>
+  </data>
+  <data name="PortGuard_Changed" xml:space="preserve">
+    <value>Обращение к порту изменило другие регистры: {0}.</value>
+  </data>
+  <data name="Config_OutsideLimits" xml:space="preserve">
+    <value>{0}: за пределами ограничений записи ({1}–{2} °C, не более {3} %).</value>
+  </data>
+</root>

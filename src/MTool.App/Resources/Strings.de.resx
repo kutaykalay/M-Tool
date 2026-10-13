@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Main_SectionSensors" xml:space="preserve">
+    <value>SENSOREN</value>
+  </data>
+  <data name="Mode_High" xml:space="preserve">
+    <value>Hoch</value>
+  </data>
+  <data name="Mode_Balanced" xml:space="preserve">
+    <value>Ausgewogen</value>
+  </data>
+  <data name="Mode_Eco" xml:space="preserve">
+    <value>Eco</value>
+  </data>
+  <data name="Common_Apply" xml:space="preserve">
+    <value>Anwenden</value>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>Nein</value>
+  </data>
+  <data name="Main_SectionFanProfile" xml:space="preserve">
+    <value>LÜFTERPROFIL</value>
+  </data>
+  <data name="Main_EditCurves" xml:space="preserve">
+    <value>Kurven bearbeiten</value>
+  </data>
+  <data name="Main_EditCurvesTip" xml:space="preserve">
+    <value>Lüfterkurven und eigene Profile bearbeiten</value>
+  </data>
+  <data name="Main_SectionPerformance" xml:space="preserve">
+    <value>LEISTUNG</value>
+  </data>
+  <data name="Main_PowerSwitch" xml:space="preserve">
+    <value>Getrennte Einstellungen für Netz- und Akkubetrieb merken</value>
+  </data>
+  <data name="Main_PowerSwitchTip" xml:space="preserve">
+    <value>Wenn aktiviert, werden Lüfterprofil und Leistungsmodus für Netz- und Akkubetrieb getrennt gespeichert. Beim Ein- oder Ausstecken des Kabels wird die zuletzt gewählte Einstellung für diese Stromquelle angewendet. Ladelimit und Cooler Boost ändern sich nicht.</value>
+  </data>
+  <data name="Main_CoolerBoostHint" xml:space="preserve">
+    <value>(Lüfter auf voller Drehzahl)</value>
+  </data>
+  <data name="Main_SectionChargeLimit" xml:space="preserve">
+    <value>LADELIMIT</value>
+  </data>
+  <data name="Main_ChargeLimitNow" xml:space="preserve">
+    <value>Aktuell:</value>
+  </data>
+  <data name="Main_Reapply" xml:space="preserve">
+    <value>Erneut anwenden</value>
+  </data>
+  <data name="Charge_Unknown" xml:space="preserve">
+    <value>unbekannt</value>
+  </data>
+  <data name="Charge_Off" xml:space="preserve">
+    <value>aus</value>
+  </data>
+  <data name="Format_Percent" xml:space="preserve">
+    <value>{0} %</value>
+  </data>
+  <data name="Editor_Title" xml:space="preserve">
+    <value>M-Tool · Lüfterkurven</value>
+  </data>
+  <data name="Editor_SectionProfiles" xml:space="preserve">
+    <value>PROFILE</value>
+  </data>
+  <data name="Editor_BuiltIn" xml:space="preserve">
+    <value>integriert</value>
+  </data>
+  <data name="Editor_Copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="Editor_Delete" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="Editor_SectionName" xml:space="preserve">
+    <value>NAME</value>
+  </data>
+  <data name="Editor_Rename" xml:space="preserve">
+    <value>Umbenennen</value>
+  </data>
+  <data name="Editor_SectionFan" xml:space="preserve">
+    <value>LÜFTER</value>
+  </data>
+  <data name="Editor_BuiltInReadOnly" xml:space="preserve">
+    <value>Integrierte Profile können nicht geändert werden; kopieren Sie eines, um es zu bearbeiten.</value>
+  </data>
+  <data name="Editor_ColPoint" xml:space="preserve">
+    <value>Punkt</value>
+  </data>
+  <data name="Editor_ColThreshold" xml:space="preserve">
+    <value>Schwelle °C</value>
+  </data>
+  <data name="Editor_ColSpeed" xml:space="preserve">
+    <value>Drehzahl %</value>
+  </data>
+  <data name="Editor_ColAllowed" xml:space="preserve">
+    <value>Erlaubt</value>
+  </data>
+  <data name="Editor_AllowedRange" xml:space="preserve">
+    <value>{0}–{1} °C, {2}–{3} %</value>
+  </data>
+  <data name="Editor_Revert" xml:space="preserve">
+    <value>Verwerfen</value>
+  </data>
+  <data name="Editor_Save" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="Editor_SaveAndApply" xml:space="preserve">
+    <value>Speichern und anwenden</value>
+  </data>
+  <data name="Tray_PowerSwitch" xml:space="preserve">
+    <value>Getrennte Netz- und Akkueinstellungen</value>
+  </data>
+  <data name="Tray_StartAtSignIn" xml:space="preserve">
+    <value>Bei Anmeldung starten</value>
+  </data>
+  <data name="Tray_OpenWindow" xml:space="preserve">
+    <value>Fenster öffnen</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Beenden</value>
+  </data>
+  <data name="Tray_Performance" xml:space="preserve">
+    <value>Leistung: {0}</value>
+  </data>
+  <data name="Tray_DataStale" xml:space="preserve">
+    <value> (Daten veraltet)</value>
+  </data>
+  <data name="Tray_Paused" xml:space="preserve">
+    <value> (pausiert)</value>
+  </data>
+  <data name="Tray_ReadingSensors" xml:space="preserve">
+    <value>Sensoren werden gelesen…</value>
+  </data>
+  <data name="Startup_Failed" xml:space="preserve">
+    <value>M-Tool konnte nicht starten: {0}&#10;&#10;Details: {1}</value>
+  </data>
+  <data name="Startup_UnexpectedError" xml:space="preserve">
+    <value>Unerwarteter Fehler: {0}&#10;&#10;Details: {1}</value>
+  </data>
+  <data name="Startup_Problem" xml:space="preserve">
+    <value>{0}&#10;&#10;Details: {1}</value>
+  </data>
+  <data name="Startup_EcUnreachable" xml:space="preserve">
+    <value>Der EC war nicht erreichbar: {0}&#10;&#10;Details: {1}</value>
+  </data>
+  <data name="Startup_PawnIoMissing" xml:space="preserve">
+    <value>PawnIO ist nicht installiert. M-Tool greift über den PawnIO-Treiber auf den EC zu.&#10;&#10;Zum Installieren (in einer Eingabeaufforderung als Administrator):&#10;{0}&#10;&#10;Details: {1}</value>
+  </data>
+  <data name="PawnIo_Missing" xml:space="preserve">
+    <value>PawnIO ist nicht installiert. Zum Installieren: {0}</value>
+  </data>
+  <data name="Session_FirmwareUnread" xml:space="preserve">
+    <value>Die Firmware konnte beim Start nicht gelesen werden. Aus Sicherheitsgründen sind Cooler Boost und das Ladelimit in dieser Sitzung ausgeblendet, und es werden keine Einstellungen geschrieben. Starten Sie M-Tool neu.</value>
+  </data>
+  <data name="Probe_UnsupportedWmi2" xml:space="preserve">
+    <value>Dieses MSI-Modell wird noch nicht unterstützt: Es spricht den EC über die WMI2-Schnittstelle von MSI an (meist Intel ab der 11. Generation). M-Tool kann vorerst nur WMI1-Modelle lesen. Um bei der Unterstützung zu helfen, führen Sie "M-Tool.exe --report --wmi2" in einer Eingabeaufforderung als Administrator aus und hängen Sie die erzeugte ZIP-Datei an ein "Device report"-Issue auf GitHub an.</value>
+  </data>
+  <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
+    <value>Dieser Computer wird noch nicht unterstützt: Die MSI-WMI-Schnittstelle ({0} oder {1} in root\WMI) wurde nicht gefunden.</value>
+  </data>
+  <data name="Status_FailureTitle" xml:space="preserve">
+    <value>M-Tool: Einstellung konnte nicht angewendet werden</value>
+  </data>
+  <data name="Status_ReadOnlyNote" xml:space="preserve">
+    <value>M-Tool ist im reinen Überwachungsmodus und kann keine Einstellungen ändern.</value>
+  </data>
+  <data name="Status_DryRun" xml:space="preserve">
+    <value>Testmodus: Ihre Auswahl wird geprüft, aber nicht auf den Laptop angewendet. Um sie wirklich anzuwenden, setzen Sie "dryRun": false in settings.json.</value>
+  </data>
+  <data name="Status_FirmwareUnread" xml:space="preserve">
+    <value>Die Firmware-Version konnte nicht gelesen werden. {0}</value>
+  </data>
+  <data name="Status_Experimental" xml:space="preserve">
+    <value>Experimentell: Diese Firmware ({0}) wird mit dem Datensatz {1} gelesen; die Werte sind auf diesem Modell nicht überprüft und können falsch sein. {2}</value>
+  </data>
+  <data name="Status_FirmwareFamily" xml:space="preserve">
+    <value>Diese Firmware ({0}) gehört zur Familie {1}, ist aber nicht für das Ändern von Einstellungen überprüft. {2}</value>
+  </data>
+  <data name="Status_FirmwareUnsupported" xml:space="preserve">
+    <value>Diese Firmware ({0}) wird nicht unterstützt. {1}</value>
+  </data>
+  <data name="Status_WritesOff" xml:space="preserve">
+    <value>Das Ändern von Einstellungen ist aus, M-Tool ist im reinen Überwachungsmodus. Grund: {0}</value>
+  </data>
+  <data name="Status_Drift" xml:space="preserve">
+    <value>Die Einstellungen des Laptops weichen von Ihrer Auswahl ab ({0}). Klicken Sie auf „Erneut anwenden“, um sie wiederherzustellen.</value>
+  </data>
+  <data name="Status_DriftFanTable" xml:space="preserve">
+    <value>Lüftertabelle</value>
+  </data>
+  <data name="Status_DriftPerformance" xml:space="preserve">
+    <value>Leistungsmodus</value>
+  </data>
+  <data name="Status_DriftChargeLimit" xml:space="preserve">
+    <value>Ladelimit</value>
+  </data>
+  <data name="Status_DriftFanMode" xml:space="preserve">
+    <value>Lüftermodus</value>
+  </data>
+  <data name="Status_FailedRecovered" xml:space="preserve">
+    <value>{0} Aus Sicherheitsgründen wurden die Lüfter auf die Werkseinstellung zurückgesetzt und das Ändern von Einstellungen wurde ausgeschaltet. Um es wieder einzuschalten, führen Sie M-Tool.exe --unlock --confirm in einer Eingabeaufforderung als Administrator aus und starten Sie M-Tool dann neu.</value>
+  </data>
+  <data name="Status_FailedUnrecovered" xml:space="preserve">
+    <value>{0} Es konnte nicht bestätigt werden, dass die Lüfter auf einer sicheren Einstellung stehen; vorsorglich wurde versucht, Cooler Boost einzuschalten. Starten Sie den Computer neu; die Lüfter kehren zur Werkseinstellung zurück.</value>
+  </data>
+  <data name="Controls_FanTableImplausible" xml:space="preserve">
+    <value>Die vom Laptop gelesene Lüftertabelle ist nicht plausibel</value>
+  </data>
+  <data name="Controls_FanProfileUnrecognized" xml:space="preserve">
+    <value>Unbekannte Lüftereinstellung</value>
+  </data>
+  <data name="Controls_PerformanceFactory" xml:space="preserve">
+    <value>Werkseinstellung (0x{0:X2})</value>
+  </data>
+  <data name="Controls_ReadFailed" xml:space="preserve">
+    <value>Die aktuellen Einstellungen konnten nicht gelesen werden, die angezeigten Werte sind möglicherweise veraltet. ({0})</value>
+  </data>
+  <data name="Controls_NothingToReapply" xml:space="preserve">
+    <value>Es gibt nichts erneut anzuwenden.</value>
+  </data>
+  <data name="Main_ReapplyStartup" xml:space="preserve">
+    <value>Die Einstellungen konnten beim Start nicht angewendet werden: {0}</value>
+  </data>
+  <data name="Main_ReapplyResume" xml:space="preserve">
+    <value>Die Einstellungen konnten nach dem Aufwachen aus dem Energiesparmodus nicht angewendet werden: {0}</value>
+  </data>
+  <data name="Main_ReapplyPowerSource" xml:space="preserve">
+    <value>Die Einstellungen konnten nach dem Wechsel der Stromquelle nicht angewendet werden: {0}</value>
+  </data>
+  <data name="Main_ReapplyRetry" xml:space="preserve">
+    <value>Die Einstellungen konnten beim erneuten Versuch nicht angewendet werden: {0}</value>
+  </data>
+  <data name="Sensors_Reading" xml:space="preserve">
+    <value>Wird gelesen…</value>
+  </data>
+  <data name="Sensors_Paused" xml:space="preserve">
+    <value>Pausiert (Energiesparmodus)</value>
+  </data>
+  <data name="Sensors_Stale" xml:space="preserve">
+    <value>Daten veraltet ({0})</value>
+  </data>
+  <data name="Sensors_NoData" xml:space="preserve">
+    <value>Keine Daten</value>
+  </data>
+  <data name="PowerSwitch_OnAc" xml:space="preserve">
+    <value>Aktuell: Netzbetrieb.</value>
+  </data>
+  <data name="PowerSwitch_OnBattery" xml:space="preserve">
+    <value>Aktuell: Akkubetrieb.</value>
+  </data>
+  <data name="SignIn_ForeignTask" xml:space="preserve">
+    <value>eine Aufgabe, die nicht von M-Tool erstellt wurde</value>
+  </data>
+  <data name="SignIn_OtherExe" xml:space="preserve">
+    <value>eine andere exe: {0}</value>
+  </data>
+  <data name="SignIn_RepairWarning" xml:space="preserve">
+    <value>„Bei Anmeldung starten“ ist nicht die erwartete Aufgabe ({0}). Um sie auf diese exe umzustellen, schalten Sie die Option im Taskleistenmenü aus und wieder ein.</value>
+  </data>
+  <data name="SignIn_ChangeFailed" xml:space="preserve">
+    <value>„Bei Anmeldung starten“ konnte nicht geändert werden: {0}</value>
+  </data>
+  <data name="Editor_DiscardQuestion" xml:space="preserve">
+    <value>Ungespeicherte Änderungen verwerfen?</value>
+  </data>
+  <data name="Editor_Saved" xml:space="preserve">
+    <value>Gespeichert. Klicken Sie auf „Anwenden“, um es für die Lüfter zu verwenden.</value>
+  </data>
+  <data name="Editor_SavedNotApplied" xml:space="preserve">
+    <value>Das Profil wurde gespeichert, aber nicht angewendet: Eine andere Aktion läuft oder das Ändern von Einstellungen ist aus. Versuchen Sie es gleich noch einmal.</value>
+  </data>
+  <data name="Editor_DeleteQuestion" xml:space="preserve">
+    <value>Profil „{0}“ löschen?</value>
+  </data>
+  <data name="Editor_BusySelect" xml:space="preserve">
+    <value>Eine andere Aktion läuft; Sie können ein Profil wählen, wenn sie abgeschlossen ist.</value>
+  </data>
+  <data name="List_Separator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="Cli_UsageHeader" xml:space="preserve">
+    <value>Verwendung:</value>
+  </data>
+  <data name="Cli_UsageGui" xml:space="preserve">
+    <value>  M-Tool.exe [{0}]   (Fenster; mit --tray nur im Infobereich)</value>
+  </data>
+  <data name="Cli_UsageReport" xml:space="preserve">
+    <value>  M-Tool.exe --report [--wmi2]   (Bericht für ein anderes MSI-Modell; nur lesen; --wmi2: rohe WMI2-Pakete bei neueren Modellen)</value>
+  </data>
+  <data name="Cli_UsageWatch" xml:space="preserve">
+    <value>  M-Tool.exe --watch [Sekunden]        (nur lesen, nur WMI: zeichnet Änderungen in 0xF2, 0xF4 und den Lüftertabellen auf; Standard 60 s, höchstens 600)</value>
+  </data>
+  <data name="Cli_UsageApply" xml:space="preserve">
+    <value>  M-Tool.exe --apply charge &lt;50-100&gt; [--confirm]&#10;  M-Tool.exe --apply boost on|off [--confirm]&#10;  M-Tool.exe --apply perf high|balanced|eco [--confirm]&#10;  M-Tool.exe --apply fan default|cool|silent [--confirm]&#10;  M-Tool.exe --apply fanmode auto|advanced [--confirm]&#10;  M-Tool.exe --restore [--confirm]   (Lüftertabelle ab Werk)&#10;  M-Tool.exe --unlock --confirm      (entfernt die Sperre nach einem fehlgeschlagenen Schreibvorgang)&#10;  Ohne --confirm: Testlauf, nichts wird auf den Laptop geschrieben. Die Befehlszeile ignoriert dryRun in settings.json;&#10;  jeder echte Schreibvorgang braucht --confirm.</value>
+  </data>
+  <data name="Cli_Saved" xml:space="preserve">
+    <value>Gespeichert: {0}</value>
+  </data>
+  <data name="Cli_ReportGuidance" xml:space="preserve">
+    <value>Hängen Sie diese Datei an ein "Device report"-Issue auf GitHub an. Die Seriennummer wurde nicht abgefragt, Benutzer- und Computername sind in report.txt ausgeblendet. dsdt.aml ist die Firmware-Tabelle von MSI und wird nicht gefiltert. Sehen Sie report.txt durch, bevor Sie es senden.</value>
+  </data>
+  <data name="Cli_NoWriteLock" xml:space="preserve">
+    <value>Es gibt keine Schreibsperre.</value>
+  </data>
+  <data name="Cli_LockRemoved" xml:space="preserve">
+    <value>Die Sperre wurde entfernt. Vorheriger Grund: {0}</value>
+  </data>
+  <data name="Cli_Error" xml:space="preserve">
+    <value>FEHLER: {0}</value>
+  </data>
+  <data name="Cli_ErrorDetails" xml:space="preserve">
+    <value>Details: {0}</value>
+  </data>
+  <data name="Lang_Menu" xml:space="preserve">
+    <value>Sprache (Language)</value>
+  </data>
+  <data name="Lang_Windows" xml:space="preserve">
+    <value>Windows-Sprache</value>
+  </data>
+  <data name="Lang_Saved" xml:space="preserve">
+    <value>Sprache gespeichert. Sie gilt ab dem nächsten Start von M-Tool.</value>
+  </data>
+  <data name="Report_Create" xml:space="preserve">
+    <value>Gerätebericht erstellen</value>
+  </data>
+  <data name="Report_CreateWmi2" xml:space="preserve">
+    <value>Gerätebericht (mit WMI2)</value>
+  </data>
+  <data name="Report_OpenFolder" xml:space="preserve">
+    <value>Ordner des letzten Berichts öffnen</value>
+  </data>
+  <data name="Report_IssueMenu" xml:space="preserve">
+    <value>Problem melden (GitHub)</value>
+  </data>
+  <data name="Report_Working" xml:space="preserve">
+    <value>Der Gerätebericht wird erstellt. Das kann einige Sekunden dauern.</value>
+  </data>
+  <data name="Report_Saved" xml:space="preserve">
+    <value>Bericht gespeichert: {0}. Um ihn zu senden, wählen Sie „{1}“ im Taskleistenmenü und ziehen Sie die ZIP-Datei in das Formular.</value>
+  </data>
+  <data name="Report_Failed" xml:space="preserve">
+    <value>Der Gerätebericht konnte nicht erstellt werden. Details stehen in der Protokolldatei.</value>
+  </data>
+  <data name="Report_TimedOut" xml:space="preserve">
+    <value>Der Gerätebericht hat zu lange gedauert und wurde abgebrochen. Versuchen Sie es erneut; Details stehen in der Protokolldatei.</value>
+  </data>
+  <data name="Report_OpenFailed" xml:space="preserve">
+    <value>Der Ordner oder der Browser konnte nicht geöffnet werden. Details stehen in der Protokolldatei.</value>
+  </data>
+  <data name="Report_Wmi2Confirm" xml:space="preserve">
+    <value>Einen Gerätebericht mit den rohen WMI2-Antworten erstellen?&#10;&#10;M-Tool liest nur. Es ruft eine feste Liste der Get_*-WMI2-Methoden dieses Laptops einmal auf. Es wird nichts auf den Laptop geschrieben und nichts geändert.&#10;&#10;report.txt enthält die rohen WMI2-Antworten von MSI als Hex-Bytes. M-Tool kann sie nicht filtern. Der Bericht ist für ein öffentliches GitHub-Issue gedacht, sehen Sie report.txt also durch, bevor Sie es senden.</value>
+  </data>
+</root>

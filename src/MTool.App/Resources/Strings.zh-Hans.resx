@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Main_SectionSensors" xml:space="preserve">
+    <value>传感器</value>
+  </data>
+  <data name="Mode_High" xml:space="preserve">
+    <value>高性能</value>
+  </data>
+  <data name="Mode_Balanced" xml:space="preserve">
+    <value>平衡</value>
+  </data>
+  <data name="Mode_Eco" xml:space="preserve">
+    <value>节能</value>
+  </data>
+  <data name="Common_Apply" xml:space="preserve">
+    <value>应用</value>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="Main_SectionFanProfile" xml:space="preserve">
+    <value>风扇配置</value>
+  </data>
+  <data name="Main_EditCurves" xml:space="preserve">
+    <value>编辑曲线</value>
+  </data>
+  <data name="Main_EditCurvesTip" xml:space="preserve">
+    <value>编辑风扇曲线和自定义配置</value>
+  </data>
+  <data name="Main_SectionPerformance" xml:space="preserve">
+    <value>性能</value>
+  </data>
+  <data name="Main_PowerSwitch" xml:space="preserve">
+    <value>为接通电源和使用电池分别记住设置</value>
+  </data>
+  <data name="Main_PowerSwitchTip" xml:space="preserve">
+    <value>开启后，风扇配置和性能模式会为接通电源和使用电池分别记住。插上或拔下电源线时，会应用你上次为该电源选择的设置。充电上限和 Cooler Boost 不会改变。</value>
+  </data>
+  <data name="Main_CoolerBoostHint" xml:space="preserve">
+    <value>（风扇全速运转）</value>
+  </data>
+  <data name="Main_SectionChargeLimit" xml:space="preserve">
+    <value>充电上限</value>
+  </data>
+  <data name="Main_ChargeLimitNow" xml:space="preserve">
+    <value>当前：</value>
+  </data>
+  <data name="Main_Reapply" xml:space="preserve">
+    <value>重新应用</value>
+  </data>
+  <data name="Charge_Unknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="Charge_Off" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Format_Percent" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+  <data name="Editor_Title" xml:space="preserve">
+    <value>M-Tool · 风扇曲线</value>
+  </data>
+  <data name="Editor_SectionProfiles" xml:space="preserve">
+    <value>配置</value>
+  </data>
+  <data name="Editor_BuiltIn" xml:space="preserve">
+    <value>内置</value>
+  </data>
+  <data name="Editor_Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="Editor_Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Editor_SectionName" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Editor_Rename" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="Editor_SectionFan" xml:space="preserve">
+    <value>风扇</value>
+  </data>
+  <data name="Editor_BuiltInReadOnly" xml:space="preserve">
+    <value>内置配置无法更改；请复制一份后再编辑。</value>
+  </data>
+  <data name="Editor_ColPoint" xml:space="preserve">
+    <value>点</value>
+  </data>
+  <data name="Editor_ColThreshold" xml:space="preserve">
+    <value>阈值 °C</value>
+  </data>
+  <data name="Editor_ColSpeed" xml:space="preserve">
+    <value>转速 %</value>
+  </data>
+  <data name="Editor_ColAllowed" xml:space="preserve">
+    <value>允许范围</value>
+  </data>
+  <data name="Editor_AllowedRange" xml:space="preserve">
+    <value>{0}–{1} °C，{2}–{3}%</value>
+  </data>
+  <data name="Editor_Revert" xml:space="preserve">
+    <value>还原</value>
+  </data>
+  <data name="Editor_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Editor_SaveAndApply" xml:space="preserve">
+    <value>保存并应用</value>
+  </data>
+  <data name="Tray_PowerSwitch" xml:space="preserve">
+    <value>电源和电池分别设置</value>
+  </data>
+  <data name="Tray_StartAtSignIn" xml:space="preserve">
+    <value>登录时启动</value>
+  </data>
+  <data name="Tray_OpenWindow" xml:space="preserve">
+    <value>打开窗口</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="Tray_Performance" xml:space="preserve">
+    <value>性能：{0}</value>
+  </data>
+  <data name="Tray_DataStale" xml:space="preserve">
+    <value>（数据过期）</value>
+  </data>
+  <data name="Tray_Paused" xml:space="preserve">
+    <value>（已暂停）</value>
+  </data>
+  <data name="Tray_ReadingSensors" xml:space="preserve">
+    <value>正在读取传感器…</value>
+  </data>
+  <data name="Startup_Failed" xml:space="preserve">
+    <value>M-Tool 无法启动：{0}&#10;&#10;详细信息：{1}</value>
+  </data>
+  <data name="Startup_UnexpectedError" xml:space="preserve">
+    <value>意外错误：{0}&#10;&#10;详细信息：{1}</value>
+  </data>
+  <data name="Startup_Problem" xml:space="preserve">
+    <value>{0}&#10;&#10;详细信息：{1}</value>
+  </data>
+  <data name="Startup_EcUnreachable" xml:space="preserve">
+    <value>无法访问 EC：{0}&#10;&#10;详细信息：{1}</value>
+  </data>
+  <data name="Startup_PawnIoMissing" xml:space="preserve">
+    <value>未安装 PawnIO。M-Tool 通过 PawnIO 驱动访问 EC。&#10;&#10;安装方法（在管理员命令提示符中运行）：&#10;{0}&#10;&#10;详细信息：{1}</value>
+  </data>
+  <data name="PawnIo_Missing" xml:space="preserve">
+    <value>未安装 PawnIO。安装方法：{0}</value>
+  </data>
+  <data name="Session_FirmwareUnread" xml:space="preserve">
+    <value>启动时无法读取固件。为安全起见，本次会话中隐藏 Cooler Boost 和充电上限，并且不会写入任何设置。请重新启动 M-Tool。</value>
+  </data>
+  <data name="Probe_UnsupportedWmi2" xml:space="preserve">
+    <value>暂不支持此 MSI 型号：它通过 MSI 的 WMI2 接口访问 EC（主要是第 11 代及更新的 Intel 机型）。M-Tool 目前只能读取 WMI1 机型。如需帮助添加支持，请在管理员命令提示符中运行 "M-Tool.exe --report --wmi2"，并将生成的 zip 文件附加到 GitHub 上的“Device report”issue。</value>
+  </data>
+  <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
+    <value>暂不支持此电脑：未找到 MSI WMI 接口（root\WMI 中的 {0} 或 {1}）。</value>
+  </data>
+  <data name="Status_FailureTitle" xml:space="preserve">
+    <value>M-Tool：无法应用设置</value>
+  </data>
+  <data name="Status_ReadOnlyNote" xml:space="preserve">
+    <value>M-Tool 处于仅监控模式，无法更改设置。</value>
+  </data>
+  <data name="Status_DryRun" xml:space="preserve">
+    <value>试运行模式：会检查你的选择，但不会应用到笔记本电脑。要真正应用，请在 settings.json 中设置 "dryRun": false。</value>
+  </data>
+  <data name="Status_FirmwareUnread" xml:space="preserve">
+    <value>无法读取固件版本。{0}</value>
+  </data>
+  <data name="Status_Experimental" xml:space="preserve">
+    <value>实验性：此固件（{0}）使用 {1} 记录读取；这些数值未在此型号上验证，可能有误。{2}</value>
+  </data>
+  <data name="Status_FirmwareFamily" xml:space="preserve">
+    <value>此固件（{0}）属于 {1} 系列，但未验证可用于更改设置。{2}</value>
+  </data>
+  <data name="Status_FirmwareUnsupported" xml:space="preserve">
+    <value>不支持此固件（{0}）。{1}</value>
+  </data>
+  <data name="Status_WritesOff" xml:space="preserve">
+    <value>更改设置已关闭，M-Tool 处于仅监控模式。原因：{0}</value>
+  </data>
+  <data name="Status_Drift" xml:space="preserve">
+    <value>笔记本电脑的设置与你的选择不一致（{0}）。点击“重新应用”以恢复。</value>
+  </data>
+  <data name="Status_DriftFanTable" xml:space="preserve">
+    <value>风扇表</value>
+  </data>
+  <data name="Status_DriftPerformance" xml:space="preserve">
+    <value>性能模式</value>
+  </data>
+  <data name="Status_DriftChargeLimit" xml:space="preserve">
+    <value>充电上限</value>
+  </data>
+  <data name="Status_DriftFanMode" xml:space="preserve">
+    <value>风扇模式</value>
+  </data>
+  <data name="Status_FailedRecovered" xml:space="preserve">
+    <value>{0} 为安全起见，风扇已恢复为出厂设置，并已关闭更改设置。要重新开启，请在管理员命令提示符中运行 M-Tool.exe --unlock --confirm，然后重新启动 M-Tool。</value>
+  </data>
+  <data name="Status_FailedUnrecovered" xml:space="preserve">
+    <value>{0} 无法确认风扇处于安全设置；作为预防措施，已尝试开启 Cooler Boost。请重新启动电脑，风扇会恢复为出厂设置。</value>
+  </data>
+  <data name="Controls_FanTableImplausible" xml:space="preserve">
+    <value>从笔记本电脑读取的风扇表不合理</value>
+  </data>
+  <data name="Controls_FanProfileUnrecognized" xml:space="preserve">
+    <value>无法识别的风扇设置</value>
+  </data>
+  <data name="Controls_PerformanceFactory" xml:space="preserve">
+    <value>出厂设置（0x{0:X2}）</value>
+  </data>
+  <data name="Controls_ReadFailed" xml:space="preserve">
+    <value>无法读取当前设置，显示的数值可能已过时。（{0}）</value>
+  </data>
+  <data name="Controls_NothingToReapply" xml:space="preserve">
+    <value>没有需要重新应用的设置。</value>
+  </data>
+  <data name="Main_ReapplyStartup" xml:space="preserve">
+    <value>启动时无法应用设置：{0}</value>
+  </data>
+  <data name="Main_ReapplyResume" xml:space="preserve">
+    <value>从睡眠中唤醒后无法应用设置：{0}</value>
+  </data>
+  <data name="Main_ReapplyPowerSource" xml:space="preserve">
+    <value>电源切换后无法应用设置：{0}</value>
+  </data>
+  <data name="Main_ReapplyRetry" xml:space="preserve">
+    <value>重试时无法应用设置：{0}</value>
+  </data>
+  <data name="Sensors_Reading" xml:space="preserve">
+    <value>正在读取…</value>
+  </data>
+  <data name="Sensors_Paused" xml:space="preserve">
+    <value>已暂停（睡眠）</value>
+  </data>
+  <data name="Sensors_Stale" xml:space="preserve">
+    <value>数据过期（{0}）</value>
+  </data>
+  <data name="Sensors_NoData" xml:space="preserve">
+    <value>无数据</value>
+  </data>
+  <data name="PowerSwitch_OnAc" xml:space="preserve">
+    <value>当前：使用电源。</value>
+  </data>
+  <data name="PowerSwitch_OnBattery" xml:space="preserve">
+    <value>当前：使用电池。</value>
+  </data>
+  <data name="SignIn_ForeignTask" xml:space="preserve">
+    <value>不是由 M-Tool 创建的任务</value>
+  </data>
+  <data name="SignIn_OtherExe" xml:space="preserve">
+    <value>其他 exe：{0}</value>
+  </data>
+  <data name="SignIn_RepairWarning" xml:space="preserve">
+    <value>“登录时启动”不是预期的任务（{0}）。要将其切换到此 exe，请在托盘菜单中将其关闭后再重新开启。</value>
+  </data>
+  <data name="SignIn_ChangeFailed" xml:space="preserve">
+    <value>无法更改“登录时启动”：{0}</value>
+  </data>
+  <data name="Editor_DiscardQuestion" xml:space="preserve">
+    <value>放弃未保存的更改？</value>
+  </data>
+  <data name="Editor_Saved" xml:space="preserve">
+    <value>已保存。点击“应用”即可将其用于风扇。</value>
+  </data>
+  <data name="Editor_SavedNotApplied" xml:space="preserve">
+    <value>配置已保存但未应用：另一项操作正在进行，或更改设置已关闭。请稍后再试。</value>
+  </data>
+  <data name="Editor_DeleteQuestion" xml:space="preserve">
+    <value>删除配置“{0}”？</value>
+  </data>
+  <data name="Editor_BusySelect" xml:space="preserve">
+    <value>另一项操作正在进行；完成后即可选择配置。</value>
+  </data>
+  <data name="List_Separator" xml:space="preserve">
+    <value>、</value>
+  </data>
+  <data name="Cli_UsageHeader" xml:space="preserve">
+    <value>用法：</value>
+  </data>
+  <data name="Cli_UsageGui" xml:space="preserve">
+    <value>  M-Tool.exe [{0}]   （窗口；使用 --tray 时只在托盘中运行）</value>
+  </data>
+  <data name="Cli_UsageReport" xml:space="preserve">
+    <value>  M-Tool.exe --report [--wmi2]   （为其他 MSI 型号生成报告；只读；--wmi2：新机型上的原始 WMI2 数据包）</value>
+  </data>
+  <data name="Cli_UsageWatch" xml:space="preserve">
+    <value>  M-Tool.exe --watch [秒数]        （只读，仅 WMI：记录 0xF2、0xF4 和风扇表的变化；默认 60 秒，最多 600 秒）</value>
+  </data>
+  <data name="Cli_UsageApply" xml:space="preserve">
+    <value>  M-Tool.exe --apply charge &lt;50-100&gt; [--confirm]&#10;  M-Tool.exe --apply boost on|off [--confirm]&#10;  M-Tool.exe --apply perf high|balanced|eco [--confirm]&#10;  M-Tool.exe --apply fan default|cool|silent [--confirm]&#10;  M-Tool.exe --apply fanmode auto|advanced [--confirm]&#10;  M-Tool.exe --restore [--confirm]   （出厂风扇表）&#10;  M-Tool.exe --unlock --confirm      （解除写入失败后留下的锁定）&#10;  不加 --confirm：试运行，不会向笔记本电脑写入任何内容。命令行会忽略 settings.json 中的 dryRun；&#10;  每次真正写入都需要 --confirm。</value>
+  </data>
+  <data name="Cli_Saved" xml:space="preserve">
+    <value>已保存：{0}</value>
+  </data>
+  <data name="Cli_ReportGuidance" xml:space="preserve">
+    <value>请将此文件附加到 GitHub 上的“Device report”issue。未查询序列号，report.txt 中已隐藏用户名和计算机名。dsdt.aml 是 MSI 的固件表，未经过滤。发送前请检查 report.txt。</value>
+  </data>
+  <data name="Cli_NoWriteLock" xml:space="preserve">
+    <value>没有写入锁定。</value>
+  </data>
+  <data name="Cli_LockRemoved" xml:space="preserve">
+    <value>已解除锁定。之前的原因：{0}</value>
+  </data>
+  <data name="Cli_Error" xml:space="preserve">
+    <value>错误：{0}</value>
+  </data>
+  <data name="Cli_ErrorDetails" xml:space="preserve">
+    <value>详细信息：{0}</value>
+  </data>
+  <data name="Lang_Menu" xml:space="preserve">
+    <value>语言 (Language)</value>
+  </data>
+  <data name="Lang_Windows" xml:space="preserve">
+    <value>Windows 语言</value>
+  </data>
+  <data name="Lang_Saved" xml:space="preserve">
+    <value>语言已保存。将在下次启动 M-Tool 时生效。</value>
+  </data>
+  <data name="Report_Create" xml:space="preserve">
+    <value>创建设备报告</value>
+  </data>
+  <data name="Report_CreateWmi2" xml:space="preserve">
+    <value>设备报告（含 WMI2）</value>
+  </data>
+  <data name="Report_OpenFolder" xml:space="preserve">
+    <value>打开最近报告所在的文件夹</value>
+  </data>
+  <data name="Report_IssueMenu" xml:space="preserve">
+    <value>报告问题（GitHub）</value>
+  </data>
+  <data name="Report_Working" xml:space="preserve">
+    <value>正在创建设备报告，可能需要几秒钟。</value>
+  </data>
+  <data name="Report_Saved" xml:space="preserve">
+    <value>报告已保存：{0}。要发送报告，请在托盘菜单中选择“{1}”，并将 zip 文件拖到表单中。</value>
+  </data>
+  <data name="Report_Failed" xml:space="preserve">
+    <value>无法创建设备报告。详细信息请查看日志文件。</value>
+  </data>
+  <data name="Report_TimedOut" xml:space="preserve">
+    <value>设备报告耗时过长，已停止。请重试，并查看日志文件了解详细信息。</value>
+  </data>
+  <data name="Report_OpenFailed" xml:space="preserve">
+    <value>无法打开文件夹或浏览器。详细信息请查看日志文件。</value>
+  </data>
+  <data name="Report_Wmi2Confirm" xml:space="preserve">
+    <value>创建包含原始 WMI2 应答的设备报告？&#10;&#10;M-Tool 只读取。它会对这台笔记本电脑的一组固定 Get_* WMI2 方法各调用一次。不会向笔记本电脑写入任何内容，也不会更改任何设置。&#10;&#10;report.txt 将以十六进制字节包含 MSI 的原始 WMI2 应答。M-Tool 无法过滤这些内容。此报告将用于公开的 GitHub issue，因此发送前请检查 report.txt。</value>
+  </data>
+</root>

@@ -7,7 +7,7 @@ using MTool.Tests.Fakes;
 namespace MTool.Tests.Ec;
 
 /// <summary>
-/// The write path in Turkish, English and a language M-Tool lacks (German, which falls back to English).
+/// The write path in Turkish, English and a language M-Tool lacks (Finnish, which falls back to English).
 /// Only the text for the user may differ: status, planned writes, every EC access, the lock file and the
 /// log must be identical. The Turkish texts are the ones from before the move to resources.
 /// </summary>
@@ -182,11 +182,11 @@ public sealed partial class EcGatewayCultureTests
 
         var turkish = await RunIn("tr", scenario);
         var english = await RunIn("en", scenario);
-        var german = await RunIn("de", scenario);
+        var finnish = await RunIn("fi", scenario);
 
         turkish.Facts.Should().NotBeEmpty();
         english.Facts.Should().Be(turkish.Facts);
-        german.Facts.Should().Be(turkish.Facts);
+        finnish.Facts.Should().Be(turkish.Facts);
     }
 
     [Theory]
@@ -205,10 +205,10 @@ public sealed partial class EcGatewayCultureTests
         var scenario = Find(name);
 
         var english = await RunIn("en", scenario);
-        var german = await RunIn("de", scenario);
+        var finnish = await RunIn("fi", scenario);
 
         english.Texts.Should().Be(Texts[name].English);
-        german.Texts.Should().Be(english.Texts);
+        finnish.Texts.Should().Be(english.Texts);
         english.Texts.Should().NotMatchRegex("[çğıöşüÇĞİÖŞÜ]");
     }
 

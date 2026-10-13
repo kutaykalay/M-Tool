@@ -96,10 +96,10 @@ public sealed partial class WriteAccessBootstrapCultureTests
 
         var turkish = await RunIn("tr", scenario);
         var english = await RunIn("en", scenario);
-        var german = await RunIn("de", scenario);
+        var finnish = await RunIn("fi", scenario);
 
         english.Facts.Should().Be(turkish.Facts);
-        german.Facts.Should().Be(turkish.Facts);
+        finnish.Facts.Should().Be(turkish.Facts);
         (english.Reason is null).Should().Be(turkish.Reason is null);
     }
 
@@ -111,11 +111,11 @@ public sealed partial class WriteAccessBootstrapCultureTests
     {
         var turkish = await RunIn("tr", Find(name));
         var english = await RunIn("en", Find(name));
-        var german = await RunIn("de", Find(name));
+        var finnish = await RunIn("fi", Find(name));
 
         turkish.Reason.Should().Be(Reasons[name].Turkish);
         english.Reason.Should().Be(Reasons[name].English).And.NotMatchRegex("[çğıöşüÇĞİÖŞÜ]");
-        german.Reason.Should().Be(english.Reason);
+        finnish.Reason.Should().Be(english.Reason);
     }
 
     [Fact]

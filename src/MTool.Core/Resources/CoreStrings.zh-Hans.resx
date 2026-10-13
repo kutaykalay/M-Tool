@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Settings_UnknownLanguage" xml:space="preserve">
+    <value>未知语言（{0}）；将使用 Windows 语言。</value>
+  </data>
+  <data name="Settings_LanguageNotSupported" xml:space="preserve">
+    <value>不支持的语言：{0}</value>
+  </data>
+  <data name="Curve_PointCount" xml:space="preserve">
+    <value>曲线必须有 {0} 个点（当前有 {1} 个）。</value>
+  </data>
+  <data name="Curve_FirstPointThreshold" xml:space="preserve">
+    <value>第一个点是空闲转速，没有阈值。</value>
+  </data>
+  <data name="Curve_EnvelopeFirstStep" xml:space="preserve">
+    <value>安全规则：第一档最迟必须在 {0} °C 开始。</value>
+  </data>
+  <data name="Curve_EnvelopeSpeed" xml:space="preserve">
+    <value>安全规则：在 {0} °C 时，风扇转速必须达到 {1}% 或以上（当前为 {2}%）。</value>
+  </data>
+  <data name="Curve_SpeedRange" xml:space="preserve">
+    <value>点 {0}：风扇转速必须在 0% 到 {1}% 之间。</value>
+  </data>
+  <data name="Curve_SpeedDecreases" xml:space="preserve">
+    <value>点 {0}：风扇转速不能低于前一个点。</value>
+  </data>
+  <data name="Curve_ThresholdRange" xml:space="preserve">
+    <value>点 {0}：阈值必须为 {1}–{2} °C。</value>
+  </data>
+  <data name="Curve_ThresholdOrder" xml:space="preserve">
+    <value>点 {0}：阈值必须高于前一个点的阈值。</value>
+  </data>
+  <data name="Curve_DownThreshold" xml:space="preserve">
+    <value>点 {0}：风扇在 {1} °C 时从此点回落，该温度不高于前一个点的阈值（{2} °C）。请提高此点的阈值。</value>
+  </data>
+  <data name="Curve_LastStepStart" xml:space="preserve">
+    <value>安全规则：最后一档最迟必须在 {0} °C 开始。</value>
+  </data>
+  <data name="Curve_LastStepSpeed" xml:space="preserve">
+    <value>安全规则：最后一档至少必须为 {0}%。</value>
+  </data>
+  <data name="Library_TooMany" xml:space="preserve">
+    <value>自定义配置最多只能有 {0} 个；请先删除一个。</value>
+  </data>
+  <data name="Library_BuiltInReadOnly" xml:space="preserve">
+    <value>“{0}”是内置配置，无法更改；请复制后编辑副本。</value>
+  </data>
+  <data name="Library_NotFound" xml:space="preserve">
+    <value>不存在名为“{0}”的自定义配置。</value>
+  </data>
+  <data name="Library_DesiredSelected" xml:space="preserve">
+    <value>此配置当前已选中；删除前请先选择其他配置。</value>
+  </data>
+  <data name="Library_CurvesMissing" xml:space="preserve">
+    <value>风扇曲线不完整。</value>
+  </data>
+  <data name="Name_Empty" xml:space="preserve">
+    <value>配置名称不能为空。</value>
+  </data>
+  <data name="Name_BadCharacters" xml:space="preserve">
+    <value>配置名称不能包含控制字符或无效字符。</value>
+  </data>
+  <data name="Name_TooLong" xml:space="preserve">
+    <value>配置名称最多 {0} 个字符（当前为 {1} 个）。</value>
+  </data>
+  <data name="Name_Taken" xml:space="preserve">
+    <value>名为“{0}”的配置已存在。</value>
+  </data>
+  <data name="Name_Unnamed" xml:space="preserve">
+    <value>（未命名）</value>
+  </data>
+  <data name="Name_CopySuffix" xml:space="preserve">
+    <value> 副本</value>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>未知的风扇配置：{0}</value>
+  </data>
+  <data name="Profile_ChargeLimitRange" xml:space="preserve">
+    <value>充电上限必须为 {0}–{1}%（收到 {2}%）。</value>
+  </data>
+  <data name="Profile_ChangeFailed" xml:space="preserve">
+    <value>无法更改配置。</value>
+  </data>
+  <data name="Settings_SaveFailed" xml:space="preserve">
+    <value>无法保存设置（settings.json：{0}）；重新启动后将恢复之前的设置。</value>
+  </data>
+  <data name="Settings_UnknownProfile" xml:space="preserve">
+    <value>未知的风扇配置（{0}）；将使用 {1}。</value>
+  </data>
+  <data name="Settings_EmptyValue" xml:space="preserve">
+    <value>空</value>
+  </data>
+  <data name="Settings_InvalidPerformanceMode" xml:space="preserve">
+    <value>无效的性能模式（{0}）；已忽略。</value>
+  </data>
+  <data name="Settings_InvalidFanMode" xml:space="preserve">
+    <value>无效的风扇模式（{0}）；已忽略。</value>
+  </data>
+  <data name="Settings_InvalidChargeLimit" xml:space="preserve">
+    <value>无效的充电上限（{0}%）；必须为 {1}–{2}%，已忽略。</value>
+  </data>
+  <data name="Settings_PairMissingAc" xml:space="preserve">
+    <value>未找到接通电源时使用的风扇配置（{0}）；切换到电源时保留当前设置。</value>
+  </data>
+  <data name="Settings_PairMissingBattery" xml:space="preserve">
+    <value>未找到使用电池时的风扇配置（{0}）；切换到电池时保留当前设置。</value>
+  </data>
+  <data name="Settings_ProfileDropped" xml:space="preserve">
+    <value>自定义配置“{0}”已被搁置：{1}。</value>
+  </data>
+  <data name="Settings_ProfilesDroppedMore" xml:space="preserve">
+    <value>另有 {0} 个自定义配置被搁置。</value>
+  </data>
+  <data name="Settings_DropTooMany" xml:space="preserve">
+    <value>自定义配置最多只能有 {0} 个</value>
+  </data>
+  <data name="Settings_DropMissingPart" xml:space="preserve">
+    <value>缺少一个字段。</value>
+  </data>
+  <data name="Settings_DropNameNotNormal" xml:space="preserve">
+    <value>名称保存时开头或结尾带有空格，或包含分解形式的字母。</value>
+  </data>
+  <data name="Settings_DropCurve" xml:space="preserve">
+    <value>它违反了风扇规则（{0}）</value>
+  </data>
+  <data name="Store_Unreadable" xml:space="preserve">
+    <value>无法读取 settings.json（{0}）；将使用默认值。</value>
+  </data>
+  <data name="Store_UnreadableNotMoved" xml:space="preserve">
+    <value>无法读取 settings.json（{0}），也无法将其搁置（{1}）；将使用默认值。</value>
+  </data>
+  <data name="Store_SetAside" xml:space="preserve">
+    <value>无法读取 settings.json（{0}）；该文件已保留为 {1}，将使用默认值。</value>
+  </data>
+  <data name="Store_ReasonTooBig" xml:space="preserve">
+    <value>大于 {0} KB</value>
+  </data>
+  <data name="Store_ReasonEmpty" xml:space="preserve">
+    <value>为空或不完整</value>
+  </data>
+  <data name="Store_ReasonVersion" xml:space="preserve">
+    <value>无效的版本号：{0}</value>
+  </data>
+  <data name="Store_NewerVersion" xml:space="preserve">
+    <value>settings.json 属于更新版本的 M-Tool；将使用默认值，且不会保存更改。请安装更新的版本。</value>
+  </data>
+  <data name="Store_RefuseUnread" xml:space="preserve">
+    <value>settings.json 在启动时无法读取，因此不会覆盖它；请重新启动 M-Tool</value>
+  </data>
+  <data name="Store_RefuseNewer" xml:space="preserve">
+    <value>settings.json 属于更新版本的 M-Tool，此版本不会覆盖它；请安装更新的版本</value>
+  </data>
+  <data name="Store_CopyKept" xml:space="preserve">
+    <value>settings.json 的旧版本已保留为 {0}。</value>
+  </data>
+  <data name="Store_CopyFailed" xml:space="preserve">
+    <value>无法保留 settings.json 的副本（{0}）；被搁置的配置将在下次保存时丢失。</value>
+  </data>
+  <data name="Write_Locked" xml:space="preserve">
+    <value>更改设置已关闭：{0}</value>
+  </data>
+  <data name="Write_LockUnverifiedRecord" xml:space="preserve">
+    <value>数值是用未经验证的设备记录读取的；请重新启动 M-Tool。</value>
+  </data>
+  <data name="Write_LockFirmware" xml:space="preserve">
+    <value>不支持此固件（仅支持 {0}）。</value>
+  </data>
+  <data name="Write_LockNoBackup" xml:space="preserve">
+    <value>首次启动时创建的设置备份缺失或已损坏。</value>
+  </data>
+  <data name="Write_LockFileUnreadable" xml:space="preserve">
+    <value>无法读取锁定文件（write-lock.txt）（{0}）。</value>
+  </data>
+  <data name="Write_LockAfterFailure" xml:space="preserve">
+    <value>之前的一项设置无法应用（{0}）。详细信息：{1}</value>
+  </data>
+  <data name="Write_Unreachable" xml:space="preserve">
+    <value>无法访问笔记本电脑；未更改任何设置。请稍后再试。（{0}）</value>
+  </data>
+  <data name="Write_EmptyPlan" xml:space="preserve">
+    <value>计划为空。</value>
+  </data>
+  <data name="Write_DuplicateRegister" xml:space="preserve">
+    <value>0x{0:X2} 在计划中出现了不止一次。</value>
+  </data>
+  <data name="Write_PortUnavailable" xml:space="preserve">
+    <value>{0}：本次会话中无法使用 Cooler Boost 和充电上限（无 PawnIO 访问权限）。</value>
+  </data>
+  <data name="Write_PortAlone" xml:space="preserve">
+    <value>{0}：端口寄存器必须是其计划中唯一的写入。</value>
+  </data>
+  <data name="Write_DryRun" xml:space="preserve">
+    <value>试运行模式：已检查，未应用。</value>
+  </data>
+  <data name="Write_Applied" xml:space="preserve">
+    <value>已应用并验证。</value>
+  </data>
+  <data name="Write_ReadBackDiffers" xml:space="preserve">
+    <value>设置已写入，但读回的值不同（{0}）。</value>
+  </data>
+  <data name="Write_OthersChanged" xml:space="preserve">
+    <value>设置已写入，但其他数值也发生了变化；为安全起见已停止。</value>
+  </data>
+  <data name="Write_ReadBackFailed" xml:space="preserve">
+    <value>设置已写入，但无法读回（{0}）。</value>
+  </data>
+  <data name="Write_CurveUnsafe" xml:space="preserve">
+    <value>{0} 曲线将不安全：{1}</value>
+  </data>
+  <data name="Write_Failed" xml:space="preserve">
+    <value>无法应用设置。{0}</value>
+  </data>
+  <data name="Write_Restored" xml:space="preserve">
+    <value>已恢复：{0}。</value>
+  </data>
+  <data name="Write_NotRestored" xml:space="preserve">
+    <value>无法恢复：{0}。</value>
+  </data>
+  <data name="Write_PortRefused" xml:space="preserve">
+    <value>本次会话中无法使用 {0}（无 PawnIO 访问权限）。</value>
+  </data>
+  <data name="Worker_Paused" xml:space="preserve">
+    <value>由于睡眠或唤醒，EC 访问已暂停。</value>
+  </data>
+  <data name="Worker_LockTimeout" xml:space="preserve">
+    <value>未能在 {0} 毫秒内获得 EC 锁（Access_EC）；可能有其他程序正在使用 EC。</value>
+  </data>
+  <data name="Rule_NotWritable" xml:space="preserve">
+    <value>0x{0:X2} 不在可写寄存器列表中。</value>
+  </data>
+  <data name="Rule_UpThreshold" xml:space="preserve">
+    <value>{0}：上升阈值必须为 {1}–{2} °C。</value>
+  </data>
+  <data name="Rule_SpeedMax" xml:space="preserve">
+    <value>{0}：风扇转速最高为 {1}%。</value>
+  </data>
+  <data name="Rule_ChargeLimit" xml:space="preserve">
+    <value>{0}：充电上限必须为 0x80 | {1}–{2}%。</value>
+  </data>
+  <data name="Rule_PerformanceMode" xml:space="preserve">
+    <value>{0}：不支持的性能模式。</value>
+  </data>
+  <data name="Rule_FanMode" xml:space="preserve">
+    <value>{0}：不支持的风扇模式。</value>
+  </data>
+  <data name="Rule_CoolerBoostBits" xml:space="preserve">
+    <value>{0}：Cooler Boost 写入只能更改第 7 位（当前为 0x{1:X2}）。</value>
+  </data>
+  <data name="PortGuard_Unreadable" xml:space="preserve">
+    <value>端口访问后无法读取受监视的寄存器。</value>
+  </data>
+  <data name="PortGuard_Changed" xml:space="preserve">
+    <value>端口访问更改了其他寄存器：{0}。</value>
+  </data>
+  <data name="Config_OutsideLimits" xml:space="preserve">
+    <value>{0}：超出记录的限制范围（{1}–{2} °C，最高 {3}%）。</value>
+  </data>
+</root>

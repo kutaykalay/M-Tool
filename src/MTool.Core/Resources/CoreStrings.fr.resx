@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Settings_UnknownLanguage" xml:space="preserve">
+    <value>Langue inconnue ({0}) ; la langue de Windows est utilisée.</value>
+  </data>
+  <data name="Settings_LanguageNotSupported" xml:space="preserve">
+    <value>Langue non prise en charge : {0}</value>
+  </data>
+  <data name="Curve_PointCount" xml:space="preserve">
+    <value>La courbe doit avoir {0} points (elle en a {1}).</value>
+  </data>
+  <data name="Curve_FirstPointThreshold" xml:space="preserve">
+    <value>Le premier point est la vitesse au repos et n'a pas de seuil.</value>
+  </data>
+  <data name="Curve_EnvelopeFirstStep" xml:space="preserve">
+    <value>Règle de sécurité : le premier palier doit commencer à {0} °C au plus tard.</value>
+  </data>
+  <data name="Curve_EnvelopeSpeed" xml:space="preserve">
+    <value>Règle de sécurité : à {0} °C, le ventilateur doit tourner à {1} % ou plus (actuellement {2} %).</value>
+  </data>
+  <data name="Curve_SpeedRange" xml:space="preserve">
+    <value>Point {0} : la vitesse du ventilateur doit être comprise entre 0 % et {1} %.</value>
+  </data>
+  <data name="Curve_SpeedDecreases" xml:space="preserve">
+    <value>Point {0} : la vitesse du ventilateur ne peut pas être inférieure à celle du point précédent.</value>
+  </data>
+  <data name="Curve_ThresholdRange" xml:space="preserve">
+    <value>Point {0} : le seuil doit être de {1} à {2} °C.</value>
+  </data>
+  <data name="Curve_ThresholdOrder" xml:space="preserve">
+    <value>Point {0} : le seuil doit être supérieur à celui du point précédent.</value>
+  </data>
+  <data name="Curve_DownThreshold" xml:space="preserve">
+    <value>Point {0} : le ventilateur redescend de ce point à {1} °C, ce qui n'est pas au-dessus du seuil du point précédent ({2} °C). Augmentez le seuil de ce point.</value>
+  </data>
+  <data name="Curve_LastStepStart" xml:space="preserve">
+    <value>Règle de sécurité : le dernier palier doit commencer à {0} °C au plus tard.</value>
+  </data>
+  <data name="Curve_LastStepSpeed" xml:space="preserve">
+    <value>Règle de sécurité : le dernier palier doit être d'au moins {0} %.</value>
+  </data>
+  <data name="Library_TooMany" xml:space="preserve">
+    <value>Il peut y avoir au plus {0} profils personnalisés ; supprimez-en un d'abord.</value>
+  </data>
+  <data name="Library_BuiltInReadOnly" xml:space="preserve">
+    <value>« {0} » est un profil intégré et ne peut pas être modifié ; copiez-le et modifiez la copie.</value>
+  </data>
+  <data name="Library_NotFound" xml:space="preserve">
+    <value>Il n'existe aucun profil personnalisé nommé « {0} ».</value>
+  </data>
+  <data name="Library_DesiredSelected" xml:space="preserve">
+    <value>Ce profil est actuellement sélectionné ; choisissez un autre profil avant de le supprimer.</value>
+  </data>
+  <data name="Library_CurvesMissing" xml:space="preserve">
+    <value>La courbe de ventilation est incomplète.</value>
+  </data>
+  <data name="Name_Empty" xml:space="preserve">
+    <value>Le nom du profil ne peut pas être vide.</value>
+  </data>
+  <data name="Name_BadCharacters" xml:space="preserve">
+    <value>Le nom du profil ne peut pas contenir de caractères de contrôle ou non valides.</value>
+  </data>
+  <data name="Name_TooLong" xml:space="preserve">
+    <value>Le nom du profil peut compter au plus {0} caractères ({1} saisis).</value>
+  </data>
+  <data name="Name_Taken" xml:space="preserve">
+    <value>Un profil nommé « {0} » existe déjà.</value>
+  </data>
+  <data name="Name_Unnamed" xml:space="preserve">
+    <value>(sans nom)</value>
+  </data>
+  <data name="Name_CopySuffix" xml:space="preserve">
+    <value> copie</value>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>Profil de ventilation inconnu : {0}</value>
+  </data>
+  <data name="Profile_ChargeLimitRange" xml:space="preserve">
+    <value>La limite de charge doit être de {0} à {1} % ({2} % reçu).</value>
+  </data>
+  <data name="Profile_ChangeFailed" xml:space="preserve">
+    <value>Le profil n'a pas pu être modifié.</value>
+  </data>
+  <data name="Settings_SaveFailed" xml:space="preserve">
+    <value>Impossible d'enregistrer les réglages (settings.json : {0}) ; les réglages précédents reviennent après un redémarrage.</value>
+  </data>
+  <data name="Settings_UnknownProfile" xml:space="preserve">
+    <value>Profil de ventilation inconnu ({0}) ; {1} est utilisé.</value>
+  </data>
+  <data name="Settings_EmptyValue" xml:space="preserve">
+    <value>vide</value>
+  </data>
+  <data name="Settings_InvalidPerformanceMode" xml:space="preserve">
+    <value>Mode de performances non valide ({0}) ; ignoré.</value>
+  </data>
+  <data name="Settings_InvalidFanMode" xml:space="preserve">
+    <value>Mode de ventilation non valide ({0}) ; ignoré.</value>
+  </data>
+  <data name="Settings_InvalidChargeLimit" xml:space="preserve">
+    <value>Limite de charge non valide ({0} %) ; elle doit être de {1} à {2} %, ignorée.</value>
+  </data>
+  <data name="Settings_PairMissingAc" xml:space="preserve">
+    <value>Le profil de ventilation utilisé sur secteur est introuvable ({0}) ; le réglage actuel est conservé lors du passage sur secteur.</value>
+  </data>
+  <data name="Settings_PairMissingBattery" xml:space="preserve">
+    <value>Le profil de ventilation utilisé sur batterie est introuvable ({0}) ; le réglage actuel est conservé lors du passage sur batterie.</value>
+  </data>
+  <data name="Settings_ProfileDropped" xml:space="preserve">
+    <value>Le profil personnalisé « {0} » a été mis de côté : {1}.</value>
+  </data>
+  <data name="Settings_ProfilesDroppedMore" xml:space="preserve">
+    <value>{0} autres profils personnalisés ont été mis de côté.</value>
+  </data>
+  <data name="Settings_DropTooMany" xml:space="preserve">
+    <value>il peut y avoir au plus {0} profils personnalisés</value>
+  </data>
+  <data name="Settings_DropMissingPart" xml:space="preserve">
+    <value>un champ manque.</value>
+  </data>
+  <data name="Settings_DropNameNotNormal" xml:space="preserve">
+    <value>le nom a été enregistré avec des espaces au début ou à la fin, ou avec une lettre décomposée.</value>
+  </data>
+  <data name="Settings_DropCurve" xml:space="preserve">
+    <value>il enfreint les règles de ventilation ({0})</value>
+  </data>
+  <data name="Store_Unreadable" xml:space="preserve">
+    <value>settings.json n'a pas pu être lu ({0}) ; les valeurs par défaut sont utilisées.</value>
+  </data>
+  <data name="Store_UnreadableNotMoved" xml:space="preserve">
+    <value>settings.json n'a pas pu être lu ({0}) ni mis de côté ({1}) ; les valeurs par défaut sont utilisées.</value>
+  </data>
+  <data name="Store_SetAside" xml:space="preserve">
+    <value>settings.json n'a pas pu être lu ({0}) ; il a été conservé sous le nom {1}, les valeurs par défaut sont utilisées.</value>
+  </data>
+  <data name="Store_ReasonTooBig" xml:space="preserve">
+    <value>plus de {0} Ko</value>
+  </data>
+  <data name="Store_ReasonEmpty" xml:space="preserve">
+    <value>vide ou incomplet</value>
+  </data>
+  <data name="Store_ReasonVersion" xml:space="preserve">
+    <value>numéro de version non valide : {0}</value>
+  </data>
+  <data name="Store_NewerVersion" xml:space="preserve">
+    <value>settings.json appartient à une version plus récente de M-Tool ; les valeurs par défaut sont utilisées et les modifications ne sont pas enregistrées. Installez la version plus récente.</value>
+  </data>
+  <data name="Store_RefuseUnread" xml:space="preserve">
+    <value>settings.json n'est pas écrasé car il n'a pas pu être lu au démarrage ; redémarrez M-Tool</value>
+  </data>
+  <data name="Store_RefuseNewer" xml:space="preserve">
+    <value>settings.json appartient à une version plus récente de M-Tool, cette version ne l'écrase pas ; installez la version plus récente</value>
+  </data>
+  <data name="Store_CopyKept" xml:space="preserve">
+    <value>La version précédente de settings.json a été conservée sous le nom {0}.</value>
+  </data>
+  <data name="Store_CopyFailed" xml:space="preserve">
+    <value>Impossible de conserver une copie de settings.json ({0}) ; les profils mis de côté seront perdus au prochain enregistrement.</value>
+  </data>
+  <data name="Write_Locked" xml:space="preserve">
+    <value>La modification des réglages est désactivée : {0}</value>
+  </data>
+  <data name="Write_LockUnverifiedRecord" xml:space="preserve">
+    <value>les valeurs sont lues avec une fiche d'appareil non vérifiée ; redémarrez M-Tool.</value>
+  </data>
+  <data name="Write_LockFirmware" xml:space="preserve">
+    <value>ce firmware n'est pas pris en charge (seulement {0}).</value>
+  </data>
+  <data name="Write_LockNoBackup" xml:space="preserve">
+    <value>la sauvegarde des réglages faite au premier lancement est absente ou endommagée.</value>
+  </data>
+  <data name="Write_LockFileUnreadable" xml:space="preserve">
+    <value>le fichier de verrou (write-lock.txt) n'a pas pu être lu ({0}).</value>
+  </data>
+  <data name="Write_LockAfterFailure" xml:space="preserve">
+    <value>un réglage précédent n'a pas pu être appliqué ({0}). Détail : {1}</value>
+  </data>
+  <data name="Write_Unreachable" xml:space="preserve">
+    <value>Impossible d'accéder à l'ordinateur portable ; aucun réglage n'a été modifié. Réessayez dans un instant. ({0})</value>
+  </data>
+  <data name="Write_EmptyPlan" xml:space="preserve">
+    <value>Le plan est vide.</value>
+  </data>
+  <data name="Write_DuplicateRegister" xml:space="preserve">
+    <value>0x{0:X2} apparaît plus d'une fois dans le plan.</value>
+  </data>
+  <data name="Write_PortUnavailable" xml:space="preserve">
+    <value>{0} : Cooler Boost et la limite de charge ne sont pas disponibles dans cette session (pas d'accès PawnIO).</value>
+  </data>
+  <data name="Write_PortAlone" xml:space="preserve">
+    <value>{0} : un registre de port doit être la seule écriture de son plan.</value>
+  </data>
+  <data name="Write_DryRun" xml:space="preserve">
+    <value>Mode d'essai : vérifié, non appliqué.</value>
+  </data>
+  <data name="Write_Applied" xml:space="preserve">
+    <value>Appliqué et vérifié.</value>
+  </data>
+  <data name="Write_ReadBackDiffers" xml:space="preserve">
+    <value>Le réglage a été écrit mais relu différemment ({0}).</value>
+  </data>
+  <data name="Write_OthersChanged" xml:space="preserve">
+    <value>Le réglage a été écrit mais d'autres valeurs ont aussi changé ; arrêt par sécurité.</value>
+  </data>
+  <data name="Write_ReadBackFailed" xml:space="preserve">
+    <value>Le réglage a été écrit mais n'a pas pu être relu ({0}).</value>
+  </data>
+  <data name="Write_CurveUnsafe" xml:space="preserve">
+    <value>La courbe {0} serait dangereuse : {1}</value>
+  </data>
+  <data name="Write_Failed" xml:space="preserve">
+    <value>Le réglage n'a pas pu être appliqué. {0}</value>
+  </data>
+  <data name="Write_Restored" xml:space="preserve">
+    <value>Valeurs rétablies : {0}.</value>
+  </data>
+  <data name="Write_NotRestored" xml:space="preserve">
+    <value>Valeurs non rétablies : {0}.</value>
+  </data>
+  <data name="Write_PortRefused" xml:space="preserve">
+    <value>{0} n'est pas disponible dans cette session (pas d'accès PawnIO).</value>
+  </data>
+  <data name="Worker_Paused" xml:space="preserve">
+    <value>L'accès à l'EC est suspendu à cause de la mise en veille ou de la sortie de veille.</value>
+  </data>
+  <data name="Worker_LockTimeout" xml:space="preserve">
+    <value>Le verrou de l'EC (Access_EC) n'a pas été obtenu en {0} ms ; un autre programme utilise peut-être l'EC.</value>
+  </data>
+  <data name="Rule_NotWritable" xml:space="preserve">
+    <value>0x{0:X2} ne figure pas dans la liste des registres modifiables.</value>
+  </data>
+  <data name="Rule_UpThreshold" xml:space="preserve">
+    <value>{0} : le seuil de montée doit être de {1} à {2} °C.</value>
+  </data>
+  <data name="Rule_SpeedMax" xml:space="preserve">
+    <value>{0} : la vitesse du ventilateur est au plus de {1} %.</value>
+  </data>
+  <data name="Rule_ChargeLimit" xml:space="preserve">
+    <value>{0} : la limite de charge doit être 0x80 | {1}–{2} %.</value>
+  </data>
+  <data name="Rule_PerformanceMode" xml:space="preserve">
+    <value>{0} : mode de performances non pris en charge.</value>
+  </data>
+  <data name="Rule_FanMode" xml:space="preserve">
+    <value>{0} : mode de ventilation non pris en charge.</value>
+  </data>
+  <data name="Rule_CoolerBoostBits" xml:space="preserve">
+    <value>{0} : une écriture de Cooler Boost ne peut modifier que le bit 7 (actuellement 0x{1:X2}).</value>
+  </data>
+  <data name="PortGuard_Unreadable" xml:space="preserve">
+    <value>Les registres surveillés n'ont pas pu être lus après l'accès au port.</value>
+  </data>
+  <data name="PortGuard_Changed" xml:space="preserve">
+    <value>L'accès au port a modifié d'autres registres : {0}.</value>
+  </data>
+  <data name="Config_OutsideLimits" xml:space="preserve">
+    <value>{0} : hors des limites de la fiche ({1}–{2} °C, {3} % au plus).</value>
+  </data>
+</root>

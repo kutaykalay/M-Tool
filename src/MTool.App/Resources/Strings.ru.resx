@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Main_SectionSensors" xml:space="preserve">
+    <value>ДАТЧИКИ</value>
+  </data>
+  <data name="Mode_High" xml:space="preserve">
+    <value>Высокий</value>
+  </data>
+  <data name="Mode_Balanced" xml:space="preserve">
+    <value>Баланс</value>
+  </data>
+  <data name="Mode_Eco" xml:space="preserve">
+    <value>Эко</value>
+  </data>
+  <data name="Common_Apply" xml:space="preserve">
+    <value>Применить</value>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Да</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>Нет</value>
+  </data>
+  <data name="Main_SectionFanProfile" xml:space="preserve">
+    <value>ПРОФИЛЬ ВЕНТИЛЯТОРОВ</value>
+  </data>
+  <data name="Main_EditCurves" xml:space="preserve">
+    <value>Изменить кривые</value>
+  </data>
+  <data name="Main_EditCurvesTip" xml:space="preserve">
+    <value>Изменить кривые вентиляторов и свои профили</value>
+  </data>
+  <data name="Main_SectionPerformance" xml:space="preserve">
+    <value>ПРОИЗВОДИТЕЛЬНОСТЬ</value>
+  </data>
+  <data name="Main_PowerSwitch" xml:space="preserve">
+    <value>Запоминать отдельные настройки от сети и от батареи</value>
+  </data>
+  <data name="Main_PowerSwitchTip" xml:space="preserve">
+    <value>Если включено, профиль вентиляторов и режим производительности запоминаются отдельно для работы от сети и от батареи. При подключении или отключении кабеля применяется последняя настройка, выбранная для этого источника. Лимит заряда и Cooler Boost не меняются.</value>
+  </data>
+  <data name="Main_CoolerBoostHint" xml:space="preserve">
+    <value>(вентиляторы на максимуме)</value>
+  </data>
+  <data name="Main_SectionChargeLimit" xml:space="preserve">
+    <value>ЛИМИТ ЗАРЯДА</value>
+  </data>
+  <data name="Main_ChargeLimitNow" xml:space="preserve">
+    <value>Сейчас:</value>
+  </data>
+  <data name="Main_Reapply" xml:space="preserve">
+    <value>Применить снова</value>
+  </data>
+  <data name="Charge_Unknown" xml:space="preserve">
+    <value>неизвестно</value>
+  </data>
+  <data name="Charge_Off" xml:space="preserve">
+    <value>выкл.</value>
+  </data>
+  <data name="Format_Percent" xml:space="preserve">
+    <value>{0} %</value>
+  </data>
+  <data name="Editor_Title" xml:space="preserve">
+    <value>M-Tool · Кривые вентиляторов</value>
+  </data>
+  <data name="Editor_SectionProfiles" xml:space="preserve">
+    <value>ПРОФИЛИ</value>
+  </data>
+  <data name="Editor_BuiltIn" xml:space="preserve">
+    <value>встроенный</value>
+  </data>
+  <data name="Editor_Copy" xml:space="preserve">
+    <value>Копировать</value>
+  </data>
+  <data name="Editor_Delete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="Editor_SectionName" xml:space="preserve">
+    <value>ИМЯ</value>
+  </data>
+  <data name="Editor_Rename" xml:space="preserve">
+    <value>Переименовать</value>
+  </data>
+  <data name="Editor_SectionFan" xml:space="preserve">
+    <value>ВЕНТИЛЯТОР</value>
+  </data>
+  <data name="Editor_BuiltInReadOnly" xml:space="preserve">
+    <value>Встроенные профили нельзя изменить; скопируйте профиль, чтобы его изменить.</value>
+  </data>
+  <data name="Editor_ColPoint" xml:space="preserve">
+    <value>Точка</value>
+  </data>
+  <data name="Editor_ColThreshold" xml:space="preserve">
+    <value>Порог °C</value>
+  </data>
+  <data name="Editor_ColSpeed" xml:space="preserve">
+    <value>Скорость %</value>
+  </data>
+  <data name="Editor_ColAllowed" xml:space="preserve">
+    <value>Допустимо</value>
+  </data>
+  <data name="Editor_AllowedRange" xml:space="preserve">
+    <value>{0}–{1} °C, {2}–{3} %</value>
+  </data>
+  <data name="Editor_Revert" xml:space="preserve">
+    <value>Отменить</value>
+  </data>
+  <data name="Editor_Save" xml:space="preserve">
+    <value>Сохранить</value>
+  </data>
+  <data name="Editor_SaveAndApply" xml:space="preserve">
+    <value>Сохранить и применить</value>
+  </data>
+  <data name="Tray_PowerSwitch" xml:space="preserve">
+    <value>Отдельные настройки для сети и батареи</value>
+  </data>
+  <data name="Tray_StartAtSignIn" xml:space="preserve">
+    <value>Запускать при входе</value>
+  </data>
+  <data name="Tray_OpenWindow" xml:space="preserve">
+    <value>Открыть окно</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Выход</value>
+  </data>
+  <data name="Tray_Performance" xml:space="preserve">
+    <value>Производительность: {0}</value>
+  </data>
+  <data name="Tray_DataStale" xml:space="preserve">
+    <value> (данные устарели)</value>
+  </data>
+  <data name="Tray_Paused" xml:space="preserve">
+    <value> (пауза)</value>
+  </data>
+  <data name="Tray_ReadingSensors" xml:space="preserve">
+    <value>Чтение датчиков…</value>
+  </data>
+  <data name="Startup_Failed" xml:space="preserve">
+    <value>Не удалось запустить M-Tool: {0}&#10;&#10;Подробности: {1}</value>
+  </data>
+  <data name="Startup_UnexpectedError" xml:space="preserve">
+    <value>Непредвиденная ошибка: {0}&#10;&#10;Подробности: {1}</value>
+  </data>
+  <data name="Startup_Problem" xml:space="preserve">
+    <value>{0}&#10;&#10;Подробности: {1}</value>
+  </data>
+  <data name="Startup_EcUnreachable" xml:space="preserve">
+    <value>Не удалось обратиться к EC: {0}&#10;&#10;Подробности: {1}</value>
+  </data>
+  <data name="Startup_PawnIoMissing" xml:space="preserve">
+    <value>PawnIO не установлен. M-Tool обращается к EC через драйвер PawnIO.&#10;&#10;Для установки (в командной строке от имени администратора):&#10;{0}&#10;&#10;Подробности: {1}</value>
+  </data>
+  <data name="PawnIo_Missing" xml:space="preserve">
+    <value>PawnIO не установлен. Для установки: {0}</value>
+  </data>
+  <data name="Session_FirmwareUnread" xml:space="preserve">
+    <value>Не удалось прочитать прошивку при запуске. В целях безопасности Cooler Boost и лимит заряда скрыты в этом сеансе, и настройки не записываются. Перезапустите M-Tool.</value>
+  </data>
+  <data name="Probe_UnsupportedWmi2" xml:space="preserve">
+    <value>Эта модель MSI пока не поддерживается: она обращается к EC через интерфейс MSI WMI2 (в основном Intel 11-го поколения и новее). Пока M-Tool умеет читать только модели с WMI1. Чтобы помочь добавить поддержку, выполните "M-Tool.exe --report --wmi2" в командной строке от имени администратора и прикрепите созданный zip-файл к issue «Device report» на GitHub.</value>
+  </data>
+  <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
+    <value>Этот компьютер пока не поддерживается: интерфейс MSI WMI ({0} или {1} в root\WMI) не найден.</value>
+  </data>
+  <data name="Status_FailureTitle" xml:space="preserve">
+    <value>M-Tool: не удалось применить настройку</value>
+  </data>
+  <data name="Status_ReadOnlyNote" xml:space="preserve">
+    <value>M-Tool работает в режиме только наблюдения и не может менять настройки.</value>
+  </data>
+  <data name="Status_DryRun" xml:space="preserve">
+    <value>Пробный режим: ваш выбор проверяется, но не применяется к ноутбуку. Чтобы применять его по-настоящему, укажите "dryRun": false в settings.json.</value>
+  </data>
+  <data name="Status_FirmwareUnread" xml:space="preserve">
+    <value>Не удалось прочитать версию прошивки. {0}</value>
+  </data>
+  <data name="Status_Experimental" xml:space="preserve">
+    <value>Экспериментально: эта прошивка ({0}) читается по записи {1}; значения не проверены на этой модели и могут быть неверными. {2}</value>
+  </data>
+  <data name="Status_FirmwareFamily" xml:space="preserve">
+    <value>Эта прошивка ({0}) относится к семейству {1}, но не проверена для изменения настроек. {2}</value>
+  </data>
+  <data name="Status_FirmwareUnsupported" xml:space="preserve">
+    <value>Эта прошивка ({0}) не поддерживается. {1}</value>
+  </data>
+  <data name="Status_WritesOff" xml:space="preserve">
+    <value>Изменение настроек выключено, M-Tool работает в режиме только наблюдения. Причина: {0}</value>
+  </data>
+  <data name="Status_Drift" xml:space="preserve">
+    <value>Настройки ноутбука отличаются от выбранных вами ({0}). Нажмите «Применить снова», чтобы вернуть их.</value>
+  </data>
+  <data name="Status_DriftFanTable" xml:space="preserve">
+    <value>таблица вентиляторов</value>
+  </data>
+  <data name="Status_DriftPerformance" xml:space="preserve">
+    <value>режим производительности</value>
+  </data>
+  <data name="Status_DriftChargeLimit" xml:space="preserve">
+    <value>лимит заряда</value>
+  </data>
+  <data name="Status_DriftFanMode" xml:space="preserve">
+    <value>режим вентиляторов</value>
+  </data>
+  <data name="Status_FailedRecovered" xml:space="preserve">
+    <value>{0} В целях безопасности вентиляторы возвращены к заводской настройке, а изменение настроек выключено. Чтобы снова включить его, выполните M-Tool.exe --unlock --confirm в командной строке от имени администратора, затем перезапустите M-Tool.</value>
+  </data>
+  <data name="Status_FailedUnrecovered" xml:space="preserve">
+    <value>{0} Не удалось подтвердить, что вентиляторы работают в безопасной настройке; в качестве меры предосторожности была попытка включить Cooler Boost. Перезагрузите компьютер; вентиляторы вернутся к заводской настройке.</value>
+  </data>
+  <data name="Controls_FanTableImplausible" xml:space="preserve">
+    <value>Таблица вентиляторов, прочитанная с ноутбука, неправдоподобна</value>
+  </data>
+  <data name="Controls_FanProfileUnrecognized" xml:space="preserve">
+    <value>Неизвестная настройка вентиляторов</value>
+  </data>
+  <data name="Controls_PerformanceFactory" xml:space="preserve">
+    <value>заводская настройка (0x{0:X2})</value>
+  </data>
+  <data name="Controls_ReadFailed" xml:space="preserve">
+    <value>Не удалось прочитать текущие настройки, показанные значения могут быть устаревшими. ({0})</value>
+  </data>
+  <data name="Controls_NothingToReapply" xml:space="preserve">
+    <value>Нечего применять снова.</value>
+  </data>
+  <data name="Main_ReapplyStartup" xml:space="preserve">
+    <value>Не удалось применить настройки при запуске: {0}</value>
+  </data>
+  <data name="Main_ReapplyResume" xml:space="preserve">
+    <value>Не удалось применить настройки после выхода из сна: {0}</value>
+  </data>
+  <data name="Main_ReapplyPowerSource" xml:space="preserve">
+    <value>Не удалось применить настройки после смены источника питания: {0}</value>
+  </data>
+  <data name="Main_ReapplyRetry" xml:space="preserve">
+    <value>Не удалось применить настройки при повторной попытке: {0}</value>
+  </data>
+  <data name="Sensors_Reading" xml:space="preserve">
+    <value>Чтение…</value>
+  </data>
+  <data name="Sensors_Paused" xml:space="preserve">
+    <value>Пауза (сон)</value>
+  </data>
+  <data name="Sensors_Stale" xml:space="preserve">
+    <value>Данные устарели ({0})</value>
+  </data>
+  <data name="Sensors_NoData" xml:space="preserve">
+    <value>Нет данных</value>
+  </data>
+  <data name="PowerSwitch_OnAc" xml:space="preserve">
+    <value>Сейчас: от сети.</value>
+  </data>
+  <data name="PowerSwitch_OnBattery" xml:space="preserve">
+    <value>Сейчас: от батареи.</value>
+  </data>
+  <data name="SignIn_ForeignTask" xml:space="preserve">
+    <value>задача, созданная не M-Tool</value>
+  </data>
+  <data name="SignIn_OtherExe" xml:space="preserve">
+    <value>другой exe: {0}</value>
+  </data>
+  <data name="SignIn_RepairWarning" xml:space="preserve">
+    <value>«Запускать при входе» указывает не на ту задачу ({0}). Чтобы переключить её на этот exe, выключите и снова включите этот пункт в меню в области уведомлений.</value>
+  </data>
+  <data name="SignIn_ChangeFailed" xml:space="preserve">
+    <value>Не удалось изменить «Запускать при входе»: {0}</value>
+  </data>
+  <data name="Editor_DiscardQuestion" xml:space="preserve">
+    <value>Отменить несохранённые изменения?</value>
+  </data>
+  <data name="Editor_Saved" xml:space="preserve">
+    <value>Сохранено. Нажмите «Применить», чтобы использовать для вентиляторов.</value>
+  </data>
+  <data name="Editor_SavedNotApplied" xml:space="preserve">
+    <value>Профиль сохранён, но не применён: выполняется другое действие или изменение настроек выключено. Повторите попытку чуть позже.</value>
+  </data>
+  <data name="Editor_DeleteQuestion" xml:space="preserve">
+    <value>Удалить профиль «{0}»?</value>
+  </data>
+  <data name="Editor_BusySelect" xml:space="preserve">
+    <value>Выполняется другое действие; вы сможете выбрать профиль, когда оно завершится.</value>
+  </data>
+  <data name="List_Separator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="Cli_UsageHeader" xml:space="preserve">
+    <value>Использование:</value>
+  </data>
+  <data name="Cli_UsageGui" xml:space="preserve">
+    <value>  M-Tool.exe [{0}]   (окно; с --tray только в области уведомлений)</value>
+  </data>
+  <data name="Cli_UsageReport" xml:space="preserve">
+    <value>  M-Tool.exe --report [--wmi2]   (отчёт для другой модели MSI; только чтение; --wmi2: необработанные пакеты WMI2 на новых моделях)</value>
+  </data>
+  <data name="Cli_UsageWatch" xml:space="preserve">
+    <value>  M-Tool.exe --watch [секунды]        (только чтение, только WMI: записывает изменения в 0xF2, 0xF4 и таблицах вентиляторов; по умолчанию 60 с, не более 600)</value>
+  </data>
+  <data name="Cli_UsageApply" xml:space="preserve">
+    <value>  M-Tool.exe --apply charge &lt;50-100&gt; [--confirm]&#10;  M-Tool.exe --apply boost on|off [--confirm]&#10;  M-Tool.exe --apply perf high|balanced|eco [--confirm]&#10;  M-Tool.exe --apply fan default|cool|silent [--confirm]&#10;  M-Tool.exe --apply fanmode auto|advanced [--confirm]&#10;  M-Tool.exe --restore [--confirm]   (заводская таблица вентиляторов)&#10;  M-Tool.exe --unlock --confirm      (снимает блокировку после неудачной записи)&#10;  Без --confirm: пробный запуск, на ноутбук ничего не записывается. Командная строка не учитывает dryRun в settings.json;&#10;  каждой реальной записи нужен --confirm.</value>
+  </data>
+  <data name="Cli_Saved" xml:space="preserve">
+    <value>Сохранено: {0}</value>
+  </data>
+  <data name="Cli_ReportGuidance" xml:space="preserve">
+    <value>Прикрепите этот файл к issue «Device report» на GitHub. Серийный номер не запрашивался, а имена пользователя и компьютера скрыты в report.txt. dsdt.aml — это таблица прошивки MSI, она не фильтруется. Просмотрите report.txt перед отправкой.</value>
+  </data>
+  <data name="Cli_NoWriteLock" xml:space="preserve">
+    <value>Блокировки записи нет.</value>
+  </data>
+  <data name="Cli_LockRemoved" xml:space="preserve">
+    <value>Блокировка снята. Прежняя причина: {0}</value>
+  </data>
+  <data name="Cli_Error" xml:space="preserve">
+    <value>ОШИБКА: {0}</value>
+  </data>
+  <data name="Cli_ErrorDetails" xml:space="preserve">
+    <value>Подробности: {0}</value>
+  </data>
+  <data name="Lang_Menu" xml:space="preserve">
+    <value>Язык (Language)</value>
+  </data>
+  <data name="Lang_Windows" xml:space="preserve">
+    <value>Язык Windows</value>
+  </data>
+  <data name="Lang_Saved" xml:space="preserve">
+    <value>Язык сохранён. Он будет применён при следующем запуске M-Tool.</value>
+  </data>
+  <data name="Report_Create" xml:space="preserve">
+    <value>Создать отчёт об устройстве</value>
+  </data>
+  <data name="Report_CreateWmi2" xml:space="preserve">
+    <value>Отчёт об устройстве (с WMI2)</value>
+  </data>
+  <data name="Report_OpenFolder" xml:space="preserve">
+    <value>Открыть папку последнего отчёта</value>
+  </data>
+  <data name="Report_IssueMenu" xml:space="preserve">
+    <value>Сообщить о проблеме (GitHub)</value>
+  </data>
+  <data name="Report_Working" xml:space="preserve">
+    <value>Создаётся отчёт об устройстве. Это может занять несколько секунд.</value>
+  </data>
+  <data name="Report_Saved" xml:space="preserve">
+    <value>Отчёт сохранён: {0}. Чтобы отправить его, выберите «{1}» в меню в области уведомлений и перетащите zip-файл в форму.</value>
+  </data>
+  <data name="Report_Failed" xml:space="preserve">
+    <value>Не удалось создать отчёт об устройстве. Подробности в файле журнала.</value>
+  </data>
+  <data name="Report_TimedOut" xml:space="preserve">
+    <value>Создание отчёта об устройстве заняло слишком много времени и было остановлено. Повторите попытку; подробности в файле журнала.</value>
+  </data>
+  <data name="Report_OpenFailed" xml:space="preserve">
+    <value>Не удалось открыть папку или браузер. Подробности в файле журнала.</value>
+  </data>
+  <data name="Report_Wmi2Confirm" xml:space="preserve">
+    <value>Создать отчёт об устройстве с необработанными ответами WMI2?&#10;&#10;M-Tool только читает. Он один раз вызывает фиксированный список методов WMI2 Get_* этого ноутбука. На ноутбук ничего не записывается и ничего не меняется.&#10;&#10;report.txt будет содержать необработанные ответы WMI2 от MSI в виде шестнадцатеричных байтов. M-Tool не может их отфильтровать. Отчёт предназначен для публичного issue на GitHub, поэтому просмотрите report.txt перед отправкой.</value>
+  </data>
+</root>

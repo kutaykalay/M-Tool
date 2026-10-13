@@ -15,7 +15,7 @@
     <PublishSingleFile>true</PublishSingleFile>
     <DebugType>embedded</DebugType>
     <!-- Keep in step with SupportedLanguages; also drops the package satellites M-Tool has no UI for. -->
-    <SatelliteResourceLanguages>en;tr</SatelliteResourceLanguages>
+    <SatelliteResourceLanguages>en;tr;zh-Hans;ru;es;pt-BR;de;fr</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
