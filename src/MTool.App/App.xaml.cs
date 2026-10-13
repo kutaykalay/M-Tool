@@ -17,7 +17,8 @@ public partial class App : Application
     private SingleInstance? _instance;
     private GuiBootstrapper? _gui;
 
-    protected override async void OnStartup(StartupEventArgs e)
+    /// <summary>Not async: the UI language set here must stay for the UI thread (see <see cref="GuiBootstrapper.LoadSettings(FileLog)"/>).</summary>
+    protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
@@ -36,15 +37,30 @@ public partial class App : Application
         }
 
         HookUnhandledErrors();
+        GuiBootstrapper.LoadedSettings settings;
         try
         {
-            _gui = await GuiBootstrapper.StartAsync(this, _log, ExitFromTray);
+            settings = GuiBootstrapper.LoadSettings(_log);
         }
         catch (Exception ex)
         {
-            _log.Error("GUI failed to start", ex);
-            MessageBox.Show(string.Format(Strings.Startup_Failed, ex.Message, AppPaths.Logs), "M-Tool",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ReportStartFailure(ex);
+            Shutdown(1);
+            return;
+        }
+
+        StartGui(mode, _instance, settings);
+    }
+
+    private async void StartGui(StartupMode mode, SingleInstance instance, GuiBootstrapper.LoadedSettings settings)
+    {
+        try
+        {
+            _gui = await GuiBootstrapper.StartAsync(this, _log, ExitFromTray, settings);
+        }
+        catch (Exception ex)
+        {
+            ReportStartFailure(ex);
         }
 
         if (_gui is null)
@@ -53,7 +69,7 @@ public partial class App : Application
             return;
         }
 
-        _instance.ListenForShowRequests(() => Dispatcher.BeginInvoke(() => _gui?.Window.ShowNearTray()));
+        instance.ListenForShowRequests(() => Dispatcher.BeginInvoke(() => _gui?.Window.ShowNearTray()));
         if (mode == StartupMode.Window)
         {
             _gui.Window.ShowNearTray();
@@ -62,6 +78,13 @@ public partial class App : Application
         {
             _log.Info("Started hidden in the tray (--tray); the port is not read until the window opens.");
         }
+    }
+
+    private void ReportStartFailure(Exception ex)
+    {
+        _log.Error("GUI failed to start", ex);
+        MessageBox.Show(string.Format(Strings.Startup_Failed, ex.Message, AppPaths.Logs), "M-Tool",
+            MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
     protected override void OnExit(ExitEventArgs e)

@@ -42,11 +42,18 @@ internal sealed class GuiBootstrapper : IDisposable
 
     public MainWindow Window { get; }
 
-    /// <summary>Null when the app cannot run (PawnIO missing, EC unreachable); the user was told why.</summary>
-    public static async Task<GuiBootstrapper?> StartAsync(Application app, FileLog log, Action exit)
+    /// <summary>
+    /// Reads the settings and sets the UI language. Call it outside any async method: a culture set
+    /// inside one is undone when that method first awaits, and whatever runs later from a click (the
+    /// curve editor, messages) would come up in the Windows language.
+    /// </summary>
+    public static LoadedSettings LoadSettings(FileLog log) => LoadSettings(ProfileCatalog.BuiltIn, log);
+
+    /// <param name="settings">From <see cref="LoadSettings(FileLog)"/>, which has already set the UI language.</param>
+    /// <returns>Null when the app cannot run (PawnIO missing, EC unreachable); the user was told why.</returns>
+    public static async Task<GuiBootstrapper?> StartAsync(Application app, FileLog log, Action exit, LoadedSettings settings)
     {
         var catalog = ProfileCatalog.BuiltIn;
-        var settings = LoadSettings(catalog, log);
         var reapplyOptions = AutoReapplyOptions.Default;
         var coordinator = new PowerStateCoordinator(TimeProvider.System, reapplyOptions.GateDelay);
         if (OpenSession(log, () => coordinator.IsEcAccessAllowed) is not { } session)
@@ -256,7 +263,7 @@ internal sealed class GuiBootstrapper : IDisposable
     /// The store that read the file. Saves must go through this same store: it remembers that the file
     /// could not be read and then refuses to save over it, which a new store would not know.
     /// </param>
-    private sealed record LoadedSettings(SettingsStore Store, AppSettings Settings, IReadOnlyList<string> Warnings, CultureInfo WindowsUi);
+    internal sealed record LoadedSettings(SettingsStore Store, AppSettings Settings, IReadOnlyList<string> Warnings, CultureInfo WindowsUi);
 
     private static string CurrentExe =>
         Environment.ProcessPath ?? throw new InvalidOperationException("Çalışan exe'nin yolu bulunamadı.");
