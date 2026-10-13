@@ -132,7 +132,8 @@
                     Tag="{Binding Controls.CoolerBoostOn}"
                     CommandParameter="{Binding Controls.CoolerBoostOn, Converter={StaticResource Not}}"
                     Command="{Binding Controls.SetCoolerBoostCommand}">
-                <TextBlock>
+                <!-- Wraps instead of ending in "…": the hint is the only place this text appears. -->
+                <TextBlock TextWrapping="Wrap" TextAlignment="Center">
                     <Run Text="Cooler Boost" />
                     <Run Text="{x:Static res:Strings.Main_CoolerBoostHint}" />
                 </TextBlock>
