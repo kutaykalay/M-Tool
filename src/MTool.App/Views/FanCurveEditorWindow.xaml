@@ -51,21 +51,21 @@
                 </ListBox.ItemTemplate>
             </ListBox>
             <UniformGrid Rows="1" Margin="0,8,0,0">
-                <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Editor_Copy}" Command="{Binding CopyCommand}" />
-                <Button Style="{StaticResource Choice}" Margin="0" Content="{x:Static res:Strings.Editor_Delete}" Command="{Binding DeleteCommand}" />
+                <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Editor_Copy}" ToolTip="{x:Static res:Strings.Editor_Copy}" Command="{Binding CopyCommand}" />
+                <Button Style="{StaticResource Choice}" Margin="0" Content="{x:Static res:Strings.Editor_Delete}" ToolTip="{x:Static res:Strings.Editor_Delete}" Command="{Binding DeleteCommand}" />
             </UniformGrid>
             <TextBlock Style="{StaticResource Section}" Text="{x:Static res:Strings.Editor_SectionName}" />
             <TextBox Style="{StaticResource Field}" MaxLength="40"
                      Text="{Binding NewName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      IsReadOnly="{Binding IsBuiltIn}" />
-            <Button Style="{StaticResource Choice}" Margin="0,6,0,0" Content="{x:Static res:Strings.Editor_Rename}" Command="{Binding RenameCommand}" />
+            <Button Style="{StaticResource Choice}" Margin="0,6,0,0" Content="{x:Static res:Strings.Editor_Rename}" ToolTip="{x:Static res:Strings.Editor_Rename}" Command="{Binding RenameCommand}" />
         </StackPanel>
 
         <!-- Curve of the selected fan -->
         <StackPanel Grid.Column="2">
             <DockPanel Margin="0,12,0,6">
                 <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="{x:Static res:Strings.Editor_SectionFan}" />
-                <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right"
+                <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" TextAlignment="Right" TextWrapping="Wrap" Margin="12,0,0,0"
                            Text="{x:Static res:Strings.Editor_BuiltInReadOnly}"
                            Visibility="{Binding IsBuiltIn, Converter={StaticResource BoolToVisible}}" />
             </DockPanel>
@@ -96,10 +96,14 @@
                     <ColumnDefinition Width="90" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource Muted}" Text="{x:Static res:Strings.Editor_ColPoint}" />
-                <TextBlock Grid.Column="1" Style="{StaticResource Muted}" Text="{x:Static res:Strings.Editor_ColThreshold}" />
-                <TextBlock Grid.Column="2" Style="{StaticResource Muted}" Text="{x:Static res:Strings.Editor_ColSpeed}" />
-                <TextBlock Grid.Column="3" Style="{StaticResource Muted}" Text="{x:Static res:Strings.Editor_ColAllowed}" />
+                <TextBlock Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
+                           Text="{x:Static res:Strings.Editor_ColPoint}" ToolTip="{x:Static res:Strings.Editor_ColPoint}" />
+                <TextBlock Grid.Column="1" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
+                           Text="{x:Static res:Strings.Editor_ColThreshold}" ToolTip="{x:Static res:Strings.Editor_ColThreshold}" />
+                <TextBlock Grid.Column="2" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
+                           Text="{x:Static res:Strings.Editor_ColSpeed}" ToolTip="{x:Static res:Strings.Editor_ColSpeed}" />
+                <TextBlock Grid.Column="3" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
+                           Text="{x:Static res:Strings.Editor_ColAllowed}" ToolTip="{x:Static res:Strings.Editor_ColAllowed}" />
             </Grid>
             <ItemsControl x:Name="PointRows" ItemsSource="{Binding Points}" KeyboardNavigation.TabNavigation="Continue">
                 <ItemsControl.ItemTemplate>
@@ -148,10 +152,10 @@
             </Border>
 
             <UniformGrid Rows="1" Margin="0,12,0,0">
-                <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Editor_Revert}" Command="{Binding RevertCommand}" />
-                <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Editor_Save}" Command="{Binding SaveCommand}" />
-                <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Editor_SaveAndApply}" Command="{Binding SaveAndApplyCommand}" />
-                <Button Style="{StaticResource Choice}" Margin="0" Content="{x:Static res:Strings.Common_Apply}" Command="{Binding ApplyCommand}" />
+                <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Editor_Revert}" ToolTip="{x:Static res:Strings.Editor_Revert}" Command="{Binding RevertCommand}" />
+                <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Editor_Save}" ToolTip="{x:Static res:Strings.Editor_Save}" Command="{Binding SaveCommand}" />
+                <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Editor_SaveAndApply}" ToolTip="{x:Static res:Strings.Editor_SaveAndApply}" Command="{Binding SaveAndApplyCommand}" />
+                <Button Style="{StaticResource Choice}" Margin="0" Content="{x:Static res:Strings.Common_Apply}" ToolTip="{x:Static res:Strings.Common_Apply}" Command="{Binding ApplyCommand}" />
             </UniformGrid>
         </StackPanel>
     </Grid>
