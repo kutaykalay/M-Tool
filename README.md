@@ -5,10 +5,8 @@
 A small Windows tray app for the **MSI P65 Creator 9SE**: fan curves, Cooler Boost, performance
 mode and battery charge limit. One exe, no background service.
 
-> **Status:** beta (pre-release). It changes settings on one laptop and firmware only; other MSI
-> laptops with WMI1 are read-only and experimental (see below). The interface follows the Windows
-> display language, and the tray menu → **Language** changes it (it applies the next time M-Tool
-> starts). See [Languages](#languages).
+> **Status:** beta. M-Tool writes settings on one laptop and firmware only. Other MSI laptops with
+> WMI1 are read-only and experimental; see [Supported devices](#supported-devices).
 
 ## Features
 
@@ -39,7 +37,8 @@ mode and battery charge limit. One exe, no background service.
 | Deutsch (German) | machine-translated, review welcome |
 | Français (French) | machine-translated, review welcome |
 
-Any other Windows language gets English. The log is always in English, so a log attached to an
+M-Tool follows the Windows display language; any other language gets English. Tray menu →
+**Language** changes it from the next start. The log is always in English, so a log attached to an
 issue reads the same for everyone. Corrections are welcome: see "Translations" in
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -50,45 +49,44 @@ issue reads the same for everyone. Corrections are welcome: see "Translations" i
 | MSI P65 Creator 9SE | `16Q4EMS2.107` | WMI1 | yes | yes |
 | MSI P65 Creator 9SE, other firmware (`16Q4EMS2.1xx`) | | WMI1 | yes, unverified | no |
 | Other MSI laptops with WMI1 (mostly Intel 10th gen and older) | | WMI1 | yes, unverified | no |
-| MSI laptops with WMI2 (mostly Intel 11th gen and newer) | | WMI2 | not yet (`--report --wmi2` collects data) | no |
+| MSI laptops with WMI2 (mostly Intel 11th gen and newer) | | WMI2 | not yet; you can [send its data](#how-to-help) | no |
 
-M-Tool checks the firmware at start-up. With any other firmware it only **reads** and never writes.
-Other MSI models use different register layouts, so a wrong write could set a fan to the wrong
-speed. Each new model needs its own map, tested on that laptop. On an unverified model the values
-M-Tool shows come from the P65's map and may be wrong.
+M-Tool checks the firmware at start-up and, with any other firmware, only **reads**. Other MSI
+models use different register layouts, so a wrong write could set a fan to the wrong speed. Each new
+model needs its own map, tested on that laptop. Until then, the values M-Tool shows on it come from
+the P65's map and may be wrong.
 
 ## How to help
 
-Own another MSI laptop? M-Tool can learn its layout from a read-only report. Nothing is written to
-the EC, and the raw port is never opened. If the app says **M-Tool cannot control this laptop
-yet**, the same report actions are offered there.
+Own another MSI laptop? M-Tool can learn its layout from a read-only report: nothing is written to
+the EC, and the raw port is never opened. On a laptop M-Tool cannot control yet, it opens a small
+window with the same report actions instead of the app.
 
 ### Easiest: Send EC data
 
 1. Right-click the M-Tool tray icon and choose **Send EC data (for a config)**.
-2. M-Tool reads the data (nothing is written to a file) and shows the whole text it would send in a
-   preview window. The default button is **Don't send**.
-3. Read the text. Choose **Send** only if you agree. M-Tool then makes one HTTPS POST to the M-Tool
-   server, which checks the data and stores it as an issue in a private GitHub repository
-   (`M-Tool-reports`).
+2. M-Tool reads the data, writes nothing to disk, and shows the whole text it would send. The
+   default button is **Don't send**.
+3. Read the text and choose **Send** if you agree. M-Tool makes one HTTPS request to the M-Tool
+   server, which checks the data and stores it as an issue in a private GitHub repository.
 
-On a laptop with WMI2, M-Tool first asks whether it may read the WMI2 data. The default is **No**;
-with No, nothing is read and nothing is sent. With Yes, a fixed list of `Get_*` methods runs once;
-`Set_*` is never called. These methods run firmware code, and that they have no side effects is an
-assumption, so this part is opt-in.
+On a laptop with WMI2, M-Tool first asks whether it may read the WMI2 data; the default is **No**,
+and with No nothing is read or sent. With Yes, a fixed list of `Get_*` methods runs once and `Set_*`
+is never called. These methods run firmware code that is assumed to have no side effects, which is
+why this part is opt-in.
 
 ### More detail: zip and GitHub issue
 
-Use this path if you want to include the ACPI DSDT, or to read the report before you post it.
+Use this path to include the ACPI DSDT, or to read the report before you post it.
 
-1. Right-click the M-Tool tray icon and choose **Create device report**. On a newer MSI with WMI2
-   (mostly Intel 11th gen and later) choose **Device report (with WMI2)** instead: it also records
-   the raw answers of MSI's WMI2 read methods (`Get_*` only; nothing is set), after M-Tool explains
-   it and asks first. Prefer a terminal? Run `M-Tool.exe --report` (or
-   `M-Tool.exe --report --wmi2`) as administrator.
-2. Choose **Send report (GitHub)** in the same menu. It opens a [device report issue](https://github.com/kutaykalay/M-Tool/issues/new?template=device-report.yml)
-   with the model and firmware filled in. Attach the zip from `%AppData%\M-Tool\reports`
-   (**Open the last report's folder** shows it).
+1. Right-click the M-Tool tray icon and choose **Create device report**. On a laptop with WMI2,
+   **Device report (with WMI2)** also records the raw answers of MSI's WMI2 read methods (`Get_*`
+   only), after M-Tool explains this and asks. From a terminal: `M-Tool.exe --report` (or
+   `--report --wmi2`) as administrator.
+2. Choose **Send report (GitHub)** in the same menu. It opens a
+   [device report issue](https://github.com/kutaykalay/M-Tool/issues/new?template=device-report.yml)
+   with the model and firmware filled in. Attach the zip from `%AppData%\M-Tool\reports`;
+   **Open the last report's folder** shows it.
 
 The zip holds `report.txt` (the model, BIOS and EC firmware versions, the MSI WMI classes and the
 values M-Tool could read) and `dsdt.aml`, a copy of the laptop's ACPI DSDT table. M-Tool does not
@@ -100,8 +98,7 @@ before you post it.
 
 ### What "Send EC data" sends
 
-The preview window says: "Exactly the text below is sent, nothing else." The data format is
-version 1.
+Exactly the text shown in the preview is sent, nothing else.
 
 Sent:
 
@@ -116,34 +113,29 @@ Sent:
 Not sent:
 
 - serial number, UUID and SKU;
-- your user name, computer name, domain and profile path (where they appear in the text they
-  become `<hidden>`; if a look-alike form such as full-width letters, Turkish İ/ı or accented
-  letters is caught, the whole value is hidden);
+- your user name, computer name, domain and profile path: where one appears in a value it becomes
+  `<hidden>`, and a look-alike spelling (full-width or accented letters) hides the whole value;
 - time stamp and time zone, and the interface language;
 - your settings, profile names and log contents;
 - the DSDT, error messages and file paths;
 - MAC address, disk and network information.
 
-Your IP address reaches Cloudflare. The M-Tool server does not store it; it uses a hash of it
-(HMAC) for one minute, only to limit how often data is sent.
+Your IP address reaches Cloudflare, which hosts the server. The server does not store it; it keeps
+a hash of it for one minute, only to limit how often data is sent: 3 times a minute per address and
+100 records a day in total. Data already received for the same model, firmware and BIOS is not
+stored again.
 
-Limits: 3 submissions per minute per IP address and 100 records per day in total. If the same
-model, firmware and BIOS has already been received, the answer is "already received" and nothing
-new is stored.
-
-Received data is a hint, not proof. No model record is created from it automatically; every
-record is labelled `unverified` and goes through the checks in [CONTRIBUTING.md](CONTRIBUTING.md).
-
-Writing on a new model needs its owner to test each write step by step on their laptop. How that
-works is in [CONTRIBUTING.md](CONTRIBUTING.md).
+Received data is a hint, not proof. Nothing becomes a model record automatically: every submission
+is labelled `unverified`, and writing on a new model needs its owner to test each write step by step
+on their laptop. How that works is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Requirements
 
 - Windows 10 or 11, x64
 - [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [PawnIO](https://pawnio.eu) (`winget install namazso.PawnIO`)
 - Administrator rights (the app asks through UAC)
-- PawnIO is needed only on the supported laptop: elsewhere M-Tool reads through MSI's WMI alone
+- [PawnIO](https://pawnio.eu) (`winget install namazso.PawnIO`), only on the supported P65;
+  elsewhere M-Tool reads through MSI's WMI alone
 
 ## Download
 
@@ -160,14 +152,13 @@ anyway** only if the hash matches.
 
 ## Install
 
-1. Put `M-Tool.exe` in any folder and run it. There is no installer; the exe keeps nothing next to
+1. Put `M-Tool.exe` in a folder and run it. There is no installer, and the exe keeps nothing next to
    itself.
 2. The first start is a **dry run**: M-Tool checks and logs your choices but writes nothing. When
    the values look right, close M-Tool, set `"dryRun": false` in
    `%AppData%\M-Tool\settings.json` and start it again.
-3. Optional: tray menu → **Start at sign-in** (Turkish: *Oturum açılışında başlat*). M-Tool then starts
-   hidden in the tray when you sign in, without a UAC prompt, and applies your fan profile and
-   performance mode.
+3. Optional: tray menu → **Start at sign-in**. M-Tool then starts hidden in the tray when you sign
+   in, without a UAC prompt, and applies your fan profile and performance mode.
 
 Start at sign-in uses a Task Scheduler task that runs the exe as administrator, from the folder it
 was in when you turned the option on. If you move the exe or start another copy, M-Tool shows a
@@ -181,9 +172,8 @@ laptop keeps it across sleep and restarts.
 
 ## Uninstall
 
-1. Tray menu → turn off **Start at sign-in** (Turkish: *Oturum açılışında başlat*; this removes
-   the task).
-2. Tray menu → **Exit** (Turkish: *Çıkış*) and delete `M-Tool.exe`.
+1. Tray menu → turn off **Start at sign-in**; this removes the task.
+2. Tray menu → **Exit**, then delete `M-Tool.exe`.
 3. Optional: delete `%AppData%\M-Tool` (settings, logs, dumps). M-Tool writes nothing to the
    registry.
 
@@ -209,7 +199,7 @@ dotnet test
 dotnet publish src/MTool.App -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:DebugType=embedded
 ```
 
-The result is a single `M-Tool.exe`, about 1.5 MB.
+The result is a single `M-Tool.exe` of about 2 MB.
 
 ## Command line
 
