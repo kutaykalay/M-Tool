@@ -82,7 +82,8 @@ internal sealed class SubmissionClient : IDisposable
         {
             // HttpRequestException and IOException in practice; anything else (a proxy scheme it cannot
             // use) must not reach the tray either. The message is not kept: it may hold a path or a host.
-            return SubmissionOutcome.WithoutAnswer(SubmissionStatus.Network);
+            // Once M-Tool is closing, a failure is the client being disposed under the request, not the network.
+            return SubmissionOutcome.WithoutAnswer(stop.IsCancellationRequested ? SubmissionStatus.Cancelled : SubmissionStatus.Network);
         }
     }
 

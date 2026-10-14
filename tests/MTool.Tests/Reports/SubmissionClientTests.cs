@@ -181,6 +181,20 @@ public sealed class SubmissionClientTests
     }
 
     [Fact]
+    public async Task Any_failure_after_M_Tool_began_closing_is_cancelled_not_network()
+    {
+        using var stop = new CancellationTokenSource();
+        _handler.Answer = async (_, _) =>
+        {
+            await stop.CancelAsync();
+            throw new ObjectDisposedException("SocketsHttpHandler"); // the client was disposed under the request
+        };
+        using var client = Client();
+
+        (await client.SendAsync(Body, stop.Token)).Should().Be(SubmissionOutcome.WithoutAnswer(SubmissionStatus.Cancelled));
+    }
+
+    [Fact]
     public void Cannot_be_made_without_a_handler() =>
         FluentActions.Invoking(() => new SubmissionClient(null!, SubmissionEndpoint.Uri, "1", TimeSpan.FromSeconds(1)))
             .Should().Throw<ArgumentNullException>();
