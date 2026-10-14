@@ -58,6 +58,24 @@ public sealed class SubmissionClientTests
 
         handler.AllowAutoRedirect.Should().BeFalse();
         handler.UseCookies.Should().BeFalse();
+        handler.AutomaticDecompression.Should().Be(DecompressionMethods.None);
+        handler.MaxResponseHeadersLength.Should().Be(8);
+        handler.Credentials.Should().BeNull();
+        handler.DefaultProxyCredentials.Should().BeNull();
+        handler.PreAuthenticate.Should().BeFalse();
+        handler.UseProxy.Should().BeTrue(); // the user's proxy, without their credentials
+    }
+
+    [Theory]
+    [InlineData(typeof(NotSupportedException))]
+    [InlineData(typeof(InvalidOperationException))]
+    [InlineData(typeof(ObjectDisposedException))]
+    public async Task Any_other_failure_is_network_and_never_reaches_the_caller(Type type)
+    {
+        _handler.Answer = (_, _) => throw (Exception)Activator.CreateInstance(type, @"C:\Users\Kutay")!;
+        using var client = Client();
+
+        (await client.SendAsync(Body, CancellationToken.None)).Should().Be(SubmissionOutcome.WithoutAnswer(SubmissionStatus.Network));
     }
 
     [Fact]
@@ -113,7 +131,7 @@ public sealed class SubmissionClientTests
 
         var outcome = await client.SendAsync(Body, CancellationToken.None);
 
-        outcome.Should().Be(new SubmissionOutcome(SubmissionStatus.Created, 201)); // cut, so not understood: no id
+        outcome.Should().Be(new SubmissionOutcome(SubmissionStatus.Unavailable, 201)); // cut, so not understood
     }
 
     [Fact]

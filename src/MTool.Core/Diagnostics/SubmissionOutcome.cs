@@ -20,7 +20,7 @@ public enum SubmissionStatus
     /// <summary>The server answered with an error, a redirect or something else it should not.</summary>
     Unavailable,
 
-    /// <summary>No answer: no network, DNS, TLS or proxy failure.</summary>
+    /// <summary>The server was not reached: no network, DNS, TLS, a proxy that wants a login, or anything else that failed on the way.</summary>
     Network,
 
     /// <summary>No answer in time.</summary>
@@ -53,7 +53,10 @@ public sealed partial record SubmissionOutcome(
         var (answer, id, error) = Read(body);
         return status switch
         {
-            >= 200 and < 300 => new(answer == "duplicate" ? SubmissionStatus.Duplicate : SubmissionStatus.Created, status, Id: id),
+            // A success code alone is not the server: a captive portal or a proxy answers 200 with a page.
+            >= 200 and < 300 when answer == "created" => new(SubmissionStatus.Created, status, Id: id),
+            >= 200 and < 300 when answer == "duplicate" => new(SubmissionStatus.Duplicate, status, Id: id),
+            407 => new(SubmissionStatus.Network, status), // the proxy wants a login, the server was never reached
             429 => new(SubmissionStatus.RateLimited, status, ErrorCode: error, RetryAfter: Wait(retryAfter)),
             >= 400 and < 500 => new(SubmissionStatus.Rejected, status, ErrorCode: error),
             _ => new(SubmissionStatus.Unavailable, status, ErrorCode: error),

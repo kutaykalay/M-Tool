@@ -1,4 +1,5 @@
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using MTool.Core.Diagnostics;
@@ -14,6 +15,8 @@ namespace MTool.App.Reports;
 internal sealed class SubmissionClient : IDisposable
 {
     public const int MaxAnswerBytes = 4 * 1024;
+
+    private const int MaxResponseHeadersKilobytes = 8;
 
     public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(20);
 
@@ -38,8 +41,21 @@ internal sealed class SubmissionClient : IDisposable
         _http.DefaultRequestHeaders.UserAgent.TryParseAdd($"M-Tool/{appVersion}");
     }
 
-    /// <summary>The handler used outside tests: no redirects, no cookies, the system proxy.</summary>
-    public static SocketsHttpHandler CreateHandler() => new() { AllowAutoRedirect = false, UseCookies = false };
+    /// <summary>
+    /// The handler used outside tests: no redirects, no cookies, no decompression, small headers, and the
+    /// system proxy without the user's credentials (M-Tool runs elevated; it never signs in anywhere).
+    /// </summary>
+    public static SocketsHttpHandler CreateHandler() => new()
+    {
+        AllowAutoRedirect = false,
+        UseCookies = false,
+        AutomaticDecompression = DecompressionMethods.None,
+        MaxResponseHeadersLength = MaxResponseHeadersKilobytes,
+        UseProxy = true,
+        DefaultProxyCredentials = null,
+        Credentials = null,
+        PreAuthenticate = false,
+    };
 
     /// <param name="stop">Cancelled when M-Tool closes.</param>
     public async Task<SubmissionOutcome> SendAsync(string json, CancellationToken stop)
@@ -62,8 +78,10 @@ internal sealed class SubmissionClient : IDisposable
         {
             return SubmissionOutcome.WithoutAnswer(stop.IsCancellationRequested ? SubmissionStatus.Cancelled : SubmissionStatus.Timeout);
         }
-        catch (Exception ex) when (ex is HttpRequestException or IOException)
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
+            // HttpRequestException and IOException in practice; anything else (a proxy scheme it cannot
+            // use) must not reach the tray either. The message is not kept: it may hold a path or a host.
             return SubmissionOutcome.WithoutAnswer(SubmissionStatus.Network);
         }
     }

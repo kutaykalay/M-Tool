@@ -18,8 +18,6 @@ public sealed class SubmissionOutcomeTests
             .Should().Be(new SubmissionOutcome(SubmissionStatus.Duplicate, HttpStatus: 200, Id: "abcdef012345"));
 
     [Theory]
-    [InlineData("")]
-    [InlineData("not json")]
     [InlineData("""{"status":"created"}""")]
     [InlineData("""{"status":"created","id":42}""")]
     [InlineData("""{"status":"created","id":"0123"}""")]
@@ -27,14 +25,27 @@ public sealed class SubmissionOutcomeTests
     [InlineData("""{"status":"created","id":"0123456789abcdef0"}""")]
     [InlineData("""{"status":"created","id":"012345\n6789ab"}""")]
     [InlineData("""{"status":"created","id":"<script>alert</script>"}""")]
-    [InlineData("""["created"]""")]
-    public void A_success_with_a_body_that_is_not_understood_is_still_created_without_an_id(string body)
+    public void Created_with_an_id_that_is_not_plain_hex_is_created_without_an_id(string body)
     {
         var outcome = SubmissionOutcome.FromResponse(201, null, body);
 
         outcome.Status.Should().Be(SubmissionStatus.Created);
         outcome.Id.Should().BeNull();
     }
+
+    [Theory]
+    [InlineData(200, "")]
+    [InlineData(200, "<html>Welcome to the hotel Wi-Fi</html>")]
+    [InlineData(201, "not json")]
+    [InlineData(201, """["created"]""")]
+    [InlineData(201, """{"status":"accepted"}""")]
+    [InlineData(204, "")]
+    public void A_success_code_without_the_server_answer_is_not_taken_as_sent(int status, string body) =>
+        SubmissionOutcome.FromResponse(status, null, body).Status.Should().Be(SubmissionStatus.Unavailable);
+
+    [Fact]
+    public void Proxy_authentication_required_is_a_network_problem_not_a_refusal() =>
+        SubmissionOutcome.FromResponse(407, null, "").Should().Be(new SubmissionOutcome(SubmissionStatus.Network, 407));
 
     [Fact]
     public void Too_many_requests_waits_as_long_as_the_server_says() =>
