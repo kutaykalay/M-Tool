@@ -57,10 +57,12 @@ internal static class ReportCommand
     /// <summary>Every part of the report; a part that cannot be read is written as such.</summary>
     /// <param name="warn">Gets every part that could not be read, for the log.</param>
     /// <param name="includeWmi2">Call the WMI2 <c>Get_*</c> methods; only ever on a WMI2 laptop.</param>
-    public static ReportData Collect(IReportSources sources, string appVersion, DateTimeOffset at, Action<string> warn, bool includeWmi2 = false)
+    /// <param name="includeDsdt">Read the DSDT (the zip needs it; the EC data submission does not send it).</param>
+    public static ReportData Collect(
+        IReportSources sources, string appVersion, DateTimeOffset at, Action<string> warn, bool includeWmi2 = false, bool includeDsdt = true)
     {
         var wmi = Read("MSI WMI interface", sources.ReadInterface, warn);
-        var dsdt = Read("DSDT", sources.ReadDsdt, warn);
+        var dsdt = includeDsdt ? Read("DSDT", sources.ReadDsdt, warn) : Section.Failed<byte[]>("not read: not needed");
         var ec = !wmi.IsOk ? Section.Failed<EcReadout>("not read: MSI WMI interface unknown")
             : wmi.Value switch
             {

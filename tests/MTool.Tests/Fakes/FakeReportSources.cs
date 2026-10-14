@@ -37,6 +37,8 @@ internal sealed class FakeReportSources : IReportSources
 
     public int InterfaceReads { get; private set; }
 
+    public int DsdtReads { get; private set; }
+
     public SystemInfo ReadSystem()
     {
         Started.Set();
@@ -54,7 +56,11 @@ internal sealed class FakeReportSources : IReportSources
 
     public IReadOnlyList<WmiClassInfo> ReadClasses() => [new WmiClassInfo("MSI_CPU", ["CPU"])];
 
-    public byte[] ReadDsdt() => DsdtFails ? throw new InvalidOperationException("tablo yok") : DsdtBytes;
+    public byte[] ReadDsdt()
+    {
+        DsdtReads++;
+        return DsdtFails ? throw new InvalidOperationException("tablo yok") : DsdtBytes;
+    }
 
     public Wmi2Readout ReadWmi2()
     {

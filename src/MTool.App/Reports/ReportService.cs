@@ -52,6 +52,17 @@ internal sealed class ReportService(
     /// <exception cref="IOException">The zip could not be written; no partial file is left.</exception>
     public ReportResult CreateWithWmi2() => Run(includeWmi2: true);
 
+    /// <summary>
+    /// The text "Send EC data" shows and then sends (<see cref="EcSubmission"/>): the same parts as the
+    /// report but no DSDT, and nothing written to disk. WMI2 is called only when asked for, and only on a
+    /// WMI2 laptop; the caller asks the user first.
+    /// </summary>
+    public string CollectForSubmission(bool includeWmi2)
+    {
+        var data = ReportCommand.Collect(sources, appVersion, _time.GetLocalNow(), log.Warn, includeWmi2, includeDsdt: false);
+        return EcSubmission.ToJson(data.Input, privateWords);
+    }
+
     private ReportResult Run(bool includeWmi2)
     {
         var at = _time.GetLocalNow();
