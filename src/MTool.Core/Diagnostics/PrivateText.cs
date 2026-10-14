@@ -17,6 +17,8 @@ public static class PrivateText
     /// <summary>Shorter words would cut into ordinary text.</summary>
     private const int MinWordLength = 2;
 
+    private const char DotlessI = 'ı';
+
     /// <summary>Whole words only, ignoring case: a short name must not cut into other words.</summary>
     internal static string Mask(string text, IReadOnlyCollection<string> privateWords)
     {
@@ -29,8 +31,9 @@ public static class PrivateText
     }
 
     /// <summary>
-    /// Whether the value holds a private name anywhere. Both sides are compared in their NFKC form, so a
-    /// name written with full-width or other look-alike letters is still found. A value that is not valid
+    /// Whether the value holds a private name anywhere. Both sides are folded first: NFKC (full-width and
+    /// other look-alike letters), accents dropped and the Turkish dotted and dotless i made a plain i, then
+    /// lower case; so "İLKER-PC" holds "ilker" and "CAGLAR" holds "Çağlar". A value that is not valid
     /// Unicode (a lone surrogate) cannot be compared and counts as private.
     /// </summary>
     public static bool HoldsPrivateName(string value, IReadOnlyCollection<string> privateWords)
@@ -41,7 +44,7 @@ public static class PrivateText
         }
 
         return Usable(privateWords).Any(word =>
-            folded.Contains(TryFold(word, out var foldedWord) ? foldedWord : word, StringComparison.OrdinalIgnoreCase));
+            folded.Contains(TryFold(word, out var foldedWord) ? foldedWord : word.ToLowerInvariant(), StringComparison.Ordinal));
     }
 
     /// <summary>
@@ -66,7 +69,17 @@ public static class PrivateText
     {
         try
         {
-            folded = text.Normalize(NormalizationForm.FormKC);
+            var decomposed = text.Normalize(NormalizationForm.FormKC).Normalize(NormalizationForm.FormD);
+            var plain = new StringBuilder(decomposed.Length);
+            foreach (var c in decomposed)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                {
+                    plain.Append(c == DotlessI ? 'i' : c);
+                }
+            }
+
+            folded = plain.ToString().ToLowerInvariant();
             return true;
         }
         catch (ArgumentException)

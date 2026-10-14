@@ -61,6 +61,15 @@ public sealed class PrivateTextTests
         PrivateText.HoldsPrivateName(value, [word]).Should().BeTrue();
 
     [Theory]
+    [InlineData("İLKER-PC", "ilker")]
+    [InlineData("ılker", "ILKER")]
+    [InlineData("CAGLAR-PC", "Çağlar")]
+    [InlineData("çağlar", "CAGLAR")]
+    [InlineData("Jose's laptop", "José")]
+    public void Turkish_dotted_and_dotless_i_and_accents_do_not_hide_a_name(string value, string word) =>
+        PrivateText.HoldsPrivateName(value, [word]).Should().BeTrue();
+
+    [Theory]
     [InlineData("P65 Creator 9SE", "Kutay")]
     [InlineData("P65 Creator 9SE", "K")]
     [InlineData("P65 Creator 9SE", "")]

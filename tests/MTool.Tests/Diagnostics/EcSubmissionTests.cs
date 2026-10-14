@@ -145,6 +145,30 @@ public sealed class EcSubmissionTests
         json.Should().NotContainEquivalentOf("kutay").And.NotContain("ｋｕｔａｙ");
     }
 
+    [Theory]
+    [InlineData("Ku​tay P65")]
+    [InlineData("DESKTOP-KUTAY")]
+    [InlineData("KUTAYPC")]
+    public void A_name_split_by_a_hidden_character_or_joined_to_another_word_hides_the_whole_value(string model)
+    {
+        var json = Json(Input(system: Section.Ok(P65System with { Model = model })), "Kutay");
+
+        Parse(json).GetProperty("system").GetProperty("model").GetString().Should().Be("<hidden>");
+    }
+
+    [Fact]
+    public void Every_text_value_is_masked_not_only_the_system()
+    {
+        var ec = new EcReadout(new FirmwareInfo("Kutay1", "Kutay"), new DeviceMatch(MatchKind.Family, "kutay-record", null), "kutay-layout",
+            TestLayouts.P65.Capabilities, new FieldScan([new FieldReadout(0x68, "Kutay[1]", 1)], 0));
+        var wmi2 = new Wmi2Readout([new Wmi2Call("Get_Kutay", 0, null, null)]);
+        var input = Input(ec: Section.Ok(ec), wmi2: Section.Ok(wmi2),
+            classes: Section.Ok<IReadOnlyList<WmiClassInfo>>([new WmiClassInfo("Kutay_Class", ["Kutay"])])) with
+        { AppVersion = "1.0 Kutay" };
+
+        Json(input, "Kutay").Should().NotContainEquivalentOf("kutay");
+    }
+
     [Fact]
     public void Hidden_and_non_ASCII_text_is_written_as_is_not_escaped()
     {
