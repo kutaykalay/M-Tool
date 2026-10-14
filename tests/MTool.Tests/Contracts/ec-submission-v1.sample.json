@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "app": {
+    "version": "0.12.0-beta.1+abc1234"
+  },
+  "system": {
+    "manufacturer": "Micro-Star International Co., Ltd.",
+    "model": "P65 Creator 9SE",
+    "baseBoard": "MS-16Q4",
+    "biosVersion": "E16Q4IMS.10D",
+    "biosDate": "2019-05-13",
+    "cpu": "Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz",
+    "windows": "Windows 11 Home 10.0.26300"
+  },
+  "wmi": {
+    "interface": "WMI1",
+    "classes": [
+      {
+        "name": "MSI_CPU",
+        "properties": [
+          "Active",
+          "CPU",
+          "InstanceName"
+        ]
+      },
+      {
+        "name": "MSI_System",
+        "properties": []
+      }
+    ]
+  },
+  "ec": {
+    "status": "ok",
+    "firmware": "16Q4EMS2.107",
+    "firmwareDate": "05132019",
+    "match": {
+      "kind": "Exact",
+      "recordId": "msi-p65-creator-9se"
+    },
+    "layoutId": "msi-p65-creator-9se",
+    "fields": [
+      {
+        "register": "0x68",
+        "field": "MSI_CPU[1]",
+        "value": "0x2D"
+      },
+      {
+        "register": "0x71",
+        "field": "MSI_CPU[3]",
+        "value": null
+      }
+    ],
+    "skipped": 0
+  },
+  "wmi2": {
+    "status": "not_asked",
+    "calls": []
+  }
+}
