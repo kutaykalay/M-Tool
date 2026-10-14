@@ -346,7 +346,7 @@
     <value>打开最近报告所在的文件夹</value>
   </data>
   <data name="Report_IssueMenu" xml:space="preserve">
-    <value>报告问题（GitHub）</value>
+    <value>发送报告（GitHub）</value>
   </data>
   <data name="Report_Working" xml:space="preserve">
     <value>正在创建设备报告，可能需要几秒钟。</value>
@@ -365,5 +365,59 @@
   </data>
   <data name="Report_Wmi2Confirm" xml:space="preserve">
     <value>创建包含原始 WMI2 应答的设备报告？&#10;&#10;M-Tool 只读取。它会对这台笔记本电脑的一组固定 Get_* WMI2 方法各调用一次。不会向笔记本电脑写入任何内容，也不会更改任何设置。&#10;&#10;report.txt 将以十六进制字节包含 MSI 的原始 WMI2 应答。M-Tool 无法过滤这些内容。此报告将用于公开的 GitHub issue，因此发送前请检查 report.txt。</value>
+  </data>
+  <data name="Report_SendEcData" xml:space="preserve">
+    <value>发送 EC 数据（用于 config）</value>
+  </data>
+  <data name="Submit_Collecting" xml:space="preserve">
+    <value>正在收集 EC 数据，可能需要几秒钟。</value>
+  </data>
+  <data name="Submit_PreviewTitle" xml:space="preserve">
+    <value>发送 EC 数据</value>
+  </data>
+  <data name="Submit_PreviewNotice" xml:space="preserve">
+    <value>只会发送下方显示的文本，不会发送其他任何内容。您的用户名和计算机名已隐藏为 &lt;hidden&gt;。您的 IP 地址会到达 Cloudflare；M-Tool 服务器不会保存它，只会在一分钟内使用其哈希值来限制发送频率。这些数据会作为一条记录存入私有 GitHub 仓库，以便 M-Tool 学习新机型。</value>
+  </data>
+  <data name="Submit_Send" xml:space="preserve">
+    <value>发送</value>
+  </data>
+  <data name="Submit_DontSend" xml:space="preserve">
+    <value>不发送</value>
+  </data>
+  <data name="Submit_Wmi2Confirm" xml:space="preserve">
+    <value>读取这台笔记本电脑的 WMI2 数据用于提交吗？&#10;&#10;M-Tool 只读取。它会对这台笔记本电脑的一组固定 Get_* WMI2 方法各调用一次。不会向笔记本电脑写入任何内容，也不会更改任何设置。&#10;&#10;目前还不会发送任何内容：您会先看到完整文本，再决定是否发送。</value>
+  </data>
+  <data name="Submit_Sent" xml:space="preserve">
+    <value>已发送，谢谢。</value>
+  </data>
+  <data name="Submit_Duplicate" xml:space="preserve">
+    <value>这台笔记本电脑的数据已经收到，谢谢。</value>
+  </data>
+  <data name="Submit_Record" xml:space="preserve">
+    <value>记录：{0}。</value>
+  </data>
+  <data name="Submit_RateLimited" xml:space="preserve">
+    <value>发送次数过多。请等待 {0} 分钟后重试。</value>
+  </data>
+  <data name="Submit_Unavailable" xml:space="preserve">
+    <value>服务器目前不接受数据。请稍后重试，或通过 GitHub 发送设备报告。</value>
+  </data>
+  <data name="Submit_Rejected" xml:space="preserve">
+    <value>服务器未接受这些数据。请更新 M-Tool，或通过 GitHub 发送设备报告。</value>
+  </data>
+  <data name="Submit_Network" xml:space="preserve">
+    <value>无法连接到服务器。请检查网络连接后重试。</value>
+  </data>
+  <data name="Submit_Timeout" xml:space="preserve">
+    <value>服务器没有响应。请稍后重试。</value>
+  </data>
+  <data name="Submit_TooLarge" xml:space="preserve">
+    <value>数据比预期大，未发送。请改为通过 GitHub 发送设备报告。</value>
+  </data>
+  <data name="ReportOnly_Title" xml:space="preserve">
+    <value>M-Tool：设备报告</value>
+  </data>
+  <data name="ReportOnly_Help" xml:space="preserve">
+    <value>您仍然可以帮忙：发送这台笔记本电脑的数据，让 M-Tool 学会支持它。</value>
   </data>
 </root>

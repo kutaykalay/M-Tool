@@ -165,9 +165,13 @@ internal sealed class GuiBootstrapper : IDisposable
 
         await viewModel.InitializeAsync([.. settings.Warnings, .. session.StartupWarnings]);
         var signInStart = new SignInStartViewModel(new StartupTask(), CurrentExe, viewModel.Status, log);
+        var submissions = new SubmissionClient(SubmissionClient.CreateHandler(), SubmissionEndpoint.Uri, AppVersion, SubmissionClient.DefaultTimeout);
+        var stopSubmission = new CancellationTokenSource();
+        teardown.Push(("EC data submission", () => StopSubmissions(stopSubmission, submissions)));
         var report = new ReportViewModel(
             new ReportService(new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords()),
-            new DialogConfirm(() => window, theme), new ShellLauncher(), viewModel.Status, tray, log);
+            new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(),
+            viewModel.Status, tray, log, stop: stopSubmission.Token);
         tray.Attach(viewModel, signInStart, report); // Only now does the icon appear.
         _ = signInStart.LoadAsync(); // Off the UI thread; the menu item stays disabled until it answers.
         _ = report.LoadAsync(); // Off the UI thread; the WMI2 item stays hidden until it answers.
@@ -313,6 +317,21 @@ internal sealed class GuiBootstrapper : IDisposable
     }
 
     /// <summary>Asks over the window that is asking, so that window can close the question on exit.</summary>
+    /// <summary>A send still running ends as cancelled, without a message.</summary>
+    private static void StopSubmissions(CancellationTokenSource stop, SubmissionClient submissions)
+    {
+        stop.Cancel();
+        submissions.Dispose();
+        stop.Dispose();
+    }
+
+    private sealed class DialogPreview(Func<Window?> owner, ThemeManager theme) : ISubmissionPreview
+    {
+        public bool Confirm(string text) =>
+            new SubmissionPreviewWindow(text, theme.IsDark) { Owner = owner() is { IsLoaded: true } shown ? shown : null }
+                .ShowDialog() == true;
+    }
+
     private sealed class DialogConfirm(Func<Window?> owner, ThemeManager theme) : IConfirm
     {
         public bool Ask(string question, bool defaultYes = true) =>

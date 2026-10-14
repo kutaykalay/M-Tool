@@ -23,8 +23,8 @@ public sealed class TrayReportItemsTests : IDisposable
 
     public void Dispose() => Directory.Delete(_root, recursive: true);
 
-    private ReportViewModel ViewModel(FakeReportSources sources) =>
-        new(new ReportService(sources, _log, Path.Combine(_root, "reports"), "0.9.0", []), _confirm, _shell,
+    private ReportViewModel ViewModel(FakeReportSources sources, FakeSubmissionPreview? preview = null) =>
+        new(new ReportService(sources, _log, Path.Combine(_root, "reports"), "0.9.0", []), _confirm, preview ?? new FakeSubmissionPreview(), FakeHttpHandler.Client(), _shell,
             new StatusViewModel(_notifier, new ImmediateDispatcher(), TimeProvider.System), _notifier, _log);
 
     private static string[] Texts(ReportViewModel vm)
@@ -55,6 +55,8 @@ public sealed class TrayReportItemsTests : IDisposable
         {
             ((ToolStripMenuItem)items.Single(i => i.Text == text)).PerformClick();
             await Task.WhenAll(
+                ((IAsyncRelayCommand)vm.SendEcDataCommand).ExecutionTask ?? Task.CompletedTask,
+                ((IAsyncRelayCommand)vm.ReportIssueCommand).ExecutionTask ?? Task.CompletedTask,
                 ((IAsyncRelayCommand)vm.CreateCommand).ExecutionTask ?? Task.CompletedTask,
                 ((IAsyncRelayCommand)vm.CreateWithWmi2Command).ExecutionTask ?? Task.CompletedTask);
         }
@@ -70,7 +72,7 @@ public sealed class TrayReportItemsTests : IDisposable
         var vm = ViewModel(new FakeReportSources());
         await vm.LoadAsync();
 
-        Texts(vm).Should().Equal("Cihaz raporu oluştur", "Sorun bildir (GitHub)");
+        Texts(vm).Should().Equal("EC verisini gönder (config için)", "Cihaz raporu oluştur", "Raporu gönder (GitHub)");
     }
 
     [Fact]
@@ -79,7 +81,7 @@ public sealed class TrayReportItemsTests : IDisposable
         var vm = ViewModel(new FakeReportSources { Wmi = WmiInterface.Wmi2 });
         await vm.LoadAsync();
 
-        Texts(vm).Should().Equal("Cihaz raporu oluştur", "Cihaz raporu (WMI2 dahil)", "Sorun bildir (GitHub)");
+        Texts(vm).Should().Equal("EC verisini gönder (config için)", "Cihaz raporu oluştur", "Cihaz raporu (WMI2 dahil)", "Raporu gönder (GitHub)");
     }
 
     [Fact]
@@ -98,7 +100,7 @@ public sealed class TrayReportItemsTests : IDisposable
 
         await Click(vm, "Cihaz raporu oluştur");
 
-        Texts(vm).Should().Equal("Cihaz raporu oluştur", "Son raporun klasörünü aç", "Sorun bildir (GitHub)");
+        Texts(vm).Should().Equal("EC verisini gönder (config için)", "Cihaz raporu oluştur", "Son raporun klasörünü aç", "Raporu gönder (GitHub)");
     }
 
     [Fact]
@@ -143,13 +145,25 @@ public sealed class TrayReportItemsTests : IDisposable
     }
 
     [Fact]
+    public async Task The_send_item_previews_the_data_and_sends_it_only_after_the_preview()
+    {
+        var preview = new FakeSubmissionPreview { Answer = false };
+        var vm = ViewModel(new FakeReportSources(), preview);
+
+        await Click(vm, "EC verisini gönder (config için)");
+
+        preview.Shown.Should().ContainSingle().Which.Should().Contain("\"schemaVersion\": 1");
+        _log.Lines.Should().Contain("INFO EC submission: not sent (declined in preview).");
+    }
+
+    [Fact]
     public async Task The_issue_item_opens_the_form_only_when_clicked()
     {
         var vm = ViewModel(new FakeReportSources());
         await Click(vm, "Cihaz raporu oluştur");
         _shell.Urls.Should().BeEmpty();
 
-        await Click(vm, "Sorun bildir (GitHub)");
+        await Click(vm, "Raporu gönder (GitHub)");
 
         _shell.Urls.Should().ContainSingle().Which.Host.Should().Be("github.com");
     }
@@ -178,8 +192,7 @@ public sealed class TrayReportItemsTests : IDisposable
         var items = TrayReportItems.For(vm);
         try
         {
-            items.Where(i => i.Text is "Cihaz raporu oluştur" or "Cihaz raporu (WMI2 dahil)").Should().OnlyContain(i => !i.Enabled);
-            items.Single(i => i.Text == "Sorun bildir (GitHub)").Enabled.Should().BeTrue();
+            items.Should().HaveCount(4).And.OnlyContain(i => !i.Enabled, "nothing else may start while a report is made");
         }
         finally
         {
@@ -208,7 +221,7 @@ public sealed class TrayReportItemsTests : IDisposable
         try
         {
             items.Should().OnlyContain(i => i.Enabled);
-            ((ToolStripMenuItem)items[0]).PerformClick();
+            ((ToolStripMenuItem)items.Single(i => i.Text == "Cihaz raporu oluştur")).PerformClick();
             await (((IAsyncRelayCommand)vm.CreateCommand).ExecutionTask ?? Task.CompletedTask);
         }
         finally
@@ -227,6 +240,6 @@ public sealed class TrayReportItemsTests : IDisposable
         var vm = ViewModel(new FakeReportSources { Wmi = WmiInterface.Wmi2 });
         await vm.LoadAsync();
 
-        Texts(vm).Should().Equal("Create device report", "Device report (with WMI2)", "Report an issue (GitHub)");
+        Texts(vm).Should().Equal("Send EC data (for a config)", "Create device report", "Device report (with WMI2)", "Send report (GitHub)");
     }
 }

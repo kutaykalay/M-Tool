@@ -13,6 +13,13 @@ public interface IConfirm
     bool Ask(string question, bool defaultYes = true);
 }
 
+/// <summary>Shows the full text "Send EC data" would send; nothing is sent unless the user chooses to.</summary>
+public interface ISubmissionPreview
+{
+    /// <returns>True only when the user chose Send; the default button is Don't send.</returns>
+    bool Confirm(string text);
+}
+
 /// <summary>Tray balloon for problems the user must see even with the window closed.</summary>
 public interface INotifier
 {

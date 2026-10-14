@@ -346,7 +346,7 @@
     <value>Abrir la carpeta del último informe</value>
   </data>
   <data name="Report_IssueMenu" xml:space="preserve">
-    <value>Informar de un problema (GitHub)</value>
+    <value>Enviar informe (GitHub)</value>
   </data>
   <data name="Report_Working" xml:space="preserve">
     <value>Creando el informe del dispositivo. Puede tardar unos segundos.</value>
@@ -365,5 +365,59 @@
   </data>
   <data name="Report_Wmi2Confirm" xml:space="preserve">
     <value>¿Crear un informe del dispositivo con las respuestas WMI2 sin procesar?&#10;&#10;M-Tool solo lee. Llama una sola vez a una lista fija de métodos WMI2 Get_* de este portátil. No se escribe nada en el portátil y no se cambia nada.&#10;&#10;report.txt contendrá las respuestas WMI2 sin procesar de MSI como bytes hexadecimales. M-Tool no puede filtrarlas. El informe está pensado para una incidencia pública en GitHub, así que revise report.txt antes de enviarlo.</value>
+  </data>
+  <data name="Report_SendEcData" xml:space="preserve">
+    <value>Enviar datos EC (para una config)</value>
+  </data>
+  <data name="Submit_Collecting" xml:space="preserve">
+    <value>Recopilando los datos EC. Puede tardar unos segundos.</value>
+  </data>
+  <data name="Submit_PreviewTitle" xml:space="preserve">
+    <value>Enviar datos EC</value>
+  </data>
+  <data name="Submit_PreviewNotice" xml:space="preserve">
+    <value>Se envía exactamente el texto de abajo, nada más. Su nombre de usuario y el de su equipo se ocultan como &lt;hidden&gt;. Su dirección IP llega a Cloudflare; el servidor de M-Tool no la guarda y solo usa un hash de ella durante un minuto para limitar la frecuencia de los envíos. Los datos pasan a ser un registro en un repositorio privado de GitHub para que M-Tool pueda aprender nuevos modelos.</value>
+  </data>
+  <data name="Submit_Send" xml:space="preserve">
+    <value>Enviar</value>
+  </data>
+  <data name="Submit_DontSend" xml:space="preserve">
+    <value>No enviar</value>
+  </data>
+  <data name="Submit_Wmi2Confirm" xml:space="preserve">
+    <value>¿Leer los datos WMI2 de este portátil para el envío?&#10;&#10;M-Tool solo lee. Llama una sola vez a una lista fija de métodos WMI2 Get_* de este portátil. No se escribe nada en el portátil y no se cambia nada.&#10;&#10;Todavía no se envía nada: primero verá el texto completo y decidirá si lo envía.</value>
+  </data>
+  <data name="Submit_Sent" xml:space="preserve">
+    <value>Enviado, gracias.</value>
+  </data>
+  <data name="Submit_Duplicate" xml:space="preserve">
+    <value>Los datos de este portátil ya han llegado, gracias.</value>
+  </data>
+  <data name="Submit_Record" xml:space="preserve">
+    <value>Registro: {0}.</value>
+  </data>
+  <data name="Submit_RateLimited" xml:space="preserve">
+    <value>Demasiados envíos. Espere {0} min y vuelva a intentarlo.</value>
+  </data>
+  <data name="Submit_Unavailable" xml:space="preserve">
+    <value>El servidor no acepta datos en este momento. Inténtelo más tarde o envíe el informe del dispositivo a través de GitHub.</value>
+  </data>
+  <data name="Submit_Rejected" xml:space="preserve">
+    <value>El servidor no aceptó los datos. Actualice M-Tool o envíe el informe del dispositivo a través de GitHub.</value>
+  </data>
+  <data name="Submit_Network" xml:space="preserve">
+    <value>No se pudo conectar con el servidor. Compruebe la conexión a Internet y vuelva a intentarlo.</value>
+  </data>
+  <data name="Submit_Timeout" xml:space="preserve">
+    <value>El servidor no respondió. Inténtelo más tarde.</value>
+  </data>
+  <data name="Submit_TooLarge" xml:space="preserve">
+    <value>Los datos son más grandes de lo esperado y no se enviaron. Envíe en su lugar el informe del dispositivo a través de GitHub.</value>
+  </data>
+  <data name="ReportOnly_Title" xml:space="preserve">
+    <value>M-Tool: informes del dispositivo</value>
+  </data>
+  <data name="ReportOnly_Help" xml:space="preserve">
+    <value>Aún puede ayudar: envíe los datos de este portátil para que M-Tool pueda aprenderlo.</value>
   </data>
 </root>

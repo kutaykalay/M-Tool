@@ -457,7 +457,7 @@
     <comment>Tray menu item, shown after a report was created in this session. Opens the folder with the zip in Windows Explorer.</comment>
   </data>
   <data name="Report_IssueMenu" xml:space="preserve">
-    <value>Report an issue (GitHub)</value>
+    <value>Send report (GitHub)</value>
     <comment>Tray menu item. Opens the GitHub page where the user sends the report as a "Device report" issue, in the web browser. Keep GitHub in the text.</comment>
   </data>
   <data name="Report_Working" xml:space="preserve">
@@ -483,5 +483,79 @@
   <data name="Report_Wmi2Confirm" xml:space="preserve">
     <value>Create a device report with the raw WMI2 answers?&#10;&#10;M-Tool only reads. It calls a fixed list of this laptop's Get_* WMI2 methods once. Nothing is written to the laptop and nothing is changed.&#10;&#10;report.txt will contain MSI's raw WMI2 answers as hex bytes. M-Tool cannot filter them. The report is meant for a public GitHub issue, so look through report.txt before you send it.</value>
     <comment>SAFETY. Question in a Yes/No window before the WMI2 report. Say clearly that this only reads, that a fixed list of Get_* methods is called once, that nothing is written or changed, that the raw WMI2 answers are in report.txt as hex bytes and cannot be filtered, and that the report goes to a public GitHub issue. Keep Get_*, WMI2, report.txt and the line breaks. The answer buttons are Common_Yes and Common_No.</comment>
+  </data>
+  <data name="Report_SendEcData" xml:space="preserve">
+    <value>Send EC data (for a config)</value>
+    <comment>Tray menu item. Collects read-only data about this laptop, shows the full text, and sends it to the M-Tool server only if the user agrees. 'config' is M-Tool's settings file for a laptop model; keep EC as is.</comment>
+  </data>
+  <data name="Submit_Collecting" xml:space="preserve">
+    <value>Collecting the EC data. This can take a few seconds.</value>
+    <comment>Tray balloon and status message while the data is read.</comment>
+  </data>
+  <data name="Submit_PreviewTitle" xml:space="preserve">
+    <value>Send EC data</value>
+    <comment>Title of the window that shows the full text before sending.</comment>
+  </data>
+  <data name="Submit_PreviewNotice" xml:space="preserve">
+    <value>Exactly the text below is sent, nothing else. Your user and computer names are hidden as &lt;hidden&gt;. Your IP address reaches Cloudflare; the M-Tool server does not store it and only uses a hash of it for one minute to limit how often data is sent. The data becomes a record in a private GitHub repository so M-Tool can learn new models.</value>
+    <comment>SAFETY. Text above the preview. Say clearly: exactly the shown text is sent and nothing else; user and computer names are replaced by &lt;hidden&gt;; the IP address reaches Cloudflare, the server does not store it and uses only a hash of it for one minute for the rate limit; the data goes to a private GitHub repository. Keep &lt;hidden&gt;, Cloudflare, M-Tool, GitHub and IP as they are.</comment>
+  </data>
+  <data name="Submit_Send" xml:space="preserve">
+    <value>Send</value>
+    <comment>Button in the preview window. Not the default button.</comment>
+  </data>
+  <data name="Submit_DontSend" xml:space="preserve">
+    <value>Don't send</value>
+    <comment>Button in the preview window; the default (Enter and Esc). Short.</comment>
+  </data>
+  <data name="Submit_Wmi2Confirm" xml:space="preserve">
+    <value>Read this laptop's WMI2 data for the submission?&#10;&#10;M-Tool only reads. It calls a fixed list of this laptop's Get_* WMI2 methods once. Nothing is written to the laptop and nothing is changed.&#10;&#10;Nothing is sent yet: you will see the full text first and choose whether to send it.</value>
+    <comment>SAFETY. Yes/No question before the WMI2 data is read for the submission; No is the default. Say clearly that this only reads, that a fixed list of Get_* methods is called once, that nothing is written or changed, and that nothing is sent before the user sees the full text and chooses. Keep Get_*, WMI2, M-Tool and the line breaks (
+
+).</comment>
+  </data>
+  <data name="Submit_Sent" xml:space="preserve">
+    <value>Sent, thank you.</value>
+    <comment>Tray balloon and status message after the server took the data. May be followed by Submit_Record.</comment>
+  </data>
+  <data name="Submit_Duplicate" xml:space="preserve">
+    <value>This laptop's data has already arrived, thank you.</value>
+    <comment>After sending, when the server already had data for this model, firmware and BIOS. May be followed by Submit_Record.</comment>
+  </data>
+  <data name="Submit_Record" xml:space="preserve">
+    <value>Record: {0}.</value>
+    <comment>Second sentence after Submit_Sent or Submit_Duplicate. {0} is a short code like 0123456789ab the user can quote.</comment>
+  </data>
+  <data name="Submit_RateLimited" xml:space="preserve">
+    <value>Too many sends. Wait {0} min and try again.</value>
+    <comment>Warning. {0} is a number of minutes (1 to 60). Use the short form of 'minutes' that needs no plural.</comment>
+  </data>
+  <data name="Submit_Unavailable" xml:space="preserve">
+    <value>The server is not accepting data right now. Try again later, or send the device report through GitHub.</value>
+    <comment>Warning when the server answered with an error or is over its daily limit.</comment>
+  </data>
+  <data name="Submit_Rejected" xml:space="preserve">
+    <value>The server did not accept the data. Update M-Tool, or send the device report through GitHub.</value>
+    <comment>Warning when the server refused the data, usually because this M-Tool version is too old.</comment>
+  </data>
+  <data name="Submit_Network" xml:space="preserve">
+    <value>Could not reach the server. Check the internet connection and try again.</value>
+    <comment>Warning: no network, DNS, proxy or TLS problem.</comment>
+  </data>
+  <data name="Submit_Timeout" xml:space="preserve">
+    <value>The server did not answer. Try again later.</value>
+    <comment>Warning: no answer within 20 seconds.</comment>
+  </data>
+  <data name="Submit_TooLarge" xml:space="preserve">
+    <value>The data is larger than expected and was not sent. Send the device report through GitHub instead.</value>
+    <comment>Warning: the data is over the size limit; nothing was sent.</comment>
+  </data>
+  <data name="ReportOnly_Title" xml:space="preserve">
+    <value>M-Tool: device reports</value>
+    <comment>Title of the small window shown instead of the app on a laptop M-Tool cannot control yet.</comment>
+  </data>
+  <data name="ReportOnly_Help" xml:space="preserve">
+    <value>You can still help: send this laptop's data so M-Tool can learn it.</value>
+    <comment>Line in that window, below the explanation of why M-Tool cannot control this laptop, above the report buttons.</comment>
   </data>
 </root>

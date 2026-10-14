@@ -346,7 +346,7 @@
     <value>Ouvrir le dossier du dernier rapport</value>
   </data>
   <data name="Report_IssueMenu" xml:space="preserve">
-    <value>Signaler un problème (GitHub)</value>
+    <value>Envoyer le rapport (GitHub)</value>
   </data>
   <data name="Report_Working" xml:space="preserve">
     <value>Création du rapport d'appareil. Cela peut prendre quelques secondes.</value>
@@ -365,5 +365,59 @@
   </data>
   <data name="Report_Wmi2Confirm" xml:space="preserve">
     <value>Créer un rapport d'appareil avec les réponses WMI2 brutes ?&#10;&#10;M-Tool ne fait que lire. Il appelle une seule fois une liste fixe de méthodes WMI2 Get_* de cet ordinateur portable. Rien n'est écrit sur l'ordinateur portable et rien n'est modifié.&#10;&#10;report.txt contiendra les réponses WMI2 brutes de MSI sous forme d'octets hexadécimaux. M-Tool ne peut pas les filtrer. Le rapport est destiné à un ticket GitHub public : relisez donc report.txt avant de l'envoyer.</value>
+  </data>
+  <data name="Report_SendEcData" xml:space="preserve">
+    <value>Envoyer les données EC (pour une config)</value>
+  </data>
+  <data name="Submit_Collecting" xml:space="preserve">
+    <value>Collecte des données EC. Cela peut prendre quelques secondes.</value>
+  </data>
+  <data name="Submit_PreviewTitle" xml:space="preserve">
+    <value>Envoyer les données EC</value>
+  </data>
+  <data name="Submit_PreviewNotice" xml:space="preserve">
+    <value>Seul le texte ci-dessous est envoyé, rien d'autre. Vos noms d'utilisateur et d'ordinateur sont masqués sous la forme &lt;hidden&gt;. Votre adresse IP parvient à Cloudflare ; le serveur M-Tool ne l'enregistre pas et n'en utilise qu'une empreinte (hash) pendant une minute pour limiter la fréquence des envois. Les données deviennent un enregistrement dans un dépôt GitHub privé afin que M-Tool puisse apprendre de nouveaux modèles.</value>
+  </data>
+  <data name="Submit_Send" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="Submit_DontSend" xml:space="preserve">
+    <value>Ne pas envoyer</value>
+  </data>
+  <data name="Submit_Wmi2Confirm" xml:space="preserve">
+    <value>Lire les données WMI2 de cet ordinateur portable pour l'envoi ?&#10;&#10;M-Tool ne fait que lire. Il appelle une seule fois une liste fixe de méthodes WMI2 Get_* de cet ordinateur portable. Rien n'est écrit sur l'ordinateur portable et rien n'est modifié.&#10;&#10;Rien n'est encore envoyé : vous verrez d'abord le texte complet, puis vous déciderez de l'envoyer ou non.</value>
+  </data>
+  <data name="Submit_Sent" xml:space="preserve">
+    <value>Envoyé, merci.</value>
+  </data>
+  <data name="Submit_Duplicate" xml:space="preserve">
+    <value>Les données de cet ordinateur portable sont déjà arrivées, merci.</value>
+  </data>
+  <data name="Submit_Record" xml:space="preserve">
+    <value>Enregistrement : {0}.</value>
+  </data>
+  <data name="Submit_RateLimited" xml:space="preserve">
+    <value>Trop d'envois. Attendez {0} min, puis réessayez.</value>
+  </data>
+  <data name="Submit_Unavailable" xml:space="preserve">
+    <value>Le serveur n'accepte pas de données pour le moment. Réessayez plus tard ou envoyez le rapport d'appareil via GitHub.</value>
+  </data>
+  <data name="Submit_Rejected" xml:space="preserve">
+    <value>Le serveur n'a pas accepté les données. Mettez M-Tool à jour ou envoyez le rapport d'appareil via GitHub.</value>
+  </data>
+  <data name="Submit_Network" xml:space="preserve">
+    <value>Impossible de joindre le serveur. Vérifiez la connexion Internet et réessayez.</value>
+  </data>
+  <data name="Submit_Timeout" xml:space="preserve">
+    <value>Le serveur n'a pas répondu. Réessayez plus tard.</value>
+  </data>
+  <data name="Submit_TooLarge" xml:space="preserve">
+    <value>Les données sont plus volumineuses que prévu et n'ont pas été envoyées. Envoyez plutôt le rapport d'appareil via GitHub.</value>
+  </data>
+  <data name="ReportOnly_Title" xml:space="preserve">
+    <value>M-Tool : rapports d'appareil</value>
+  </data>
+  <data name="ReportOnly_Help" xml:space="preserve">
+    <value>Vous pouvez quand même aider : envoyez les données de cet ordinateur portable pour que M-Tool puisse l'apprendre.</value>
   </data>
 </root>

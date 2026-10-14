@@ -25,7 +25,7 @@ public sealed class ReportViewModelTests : IDisposable
     public void Dispose() => Directory.Delete(_root, recursive: true);
 
     private ReportViewModel ViewModel(FakeReportSources sources, string? folder = null, params string[] privateWords) =>
-        new(new ReportService(sources, _log, folder ?? Reports, "0.9.0", privateWords), _confirm, _shell, _status, _notifier, _log, _time);
+        new(new ReportService(sources, _log, folder ?? Reports, "0.9.0", privateWords), _confirm, new FakeSubmissionPreview(), FakeHttpHandler.Client(), _shell, _status, _notifier, _log, _time);
 
     private static Task Run(System.Windows.Input.ICommand command)
     {

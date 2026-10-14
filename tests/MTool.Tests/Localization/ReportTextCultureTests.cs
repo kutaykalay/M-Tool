@@ -16,7 +16,8 @@ public sealed partial class ReportTextCultureTests
         [nameof(Strings.Report_Create)] = "Cihaz raporu oluştur",
         [nameof(Strings.Report_CreateWmi2)] = "Cihaz raporu (WMI2 dahil)",
         [nameof(Strings.Report_OpenFolder)] = "Son raporun klasörünü aç",
-        [nameof(Strings.Report_IssueMenu)] = "Sorun bildir (GitHub)",
+        [nameof(Strings.Report_IssueMenu)] = "Raporu gönder (GitHub)",
+        [nameof(Strings.Report_SendEcData)] = "EC verisini gönder (config için)",
         [nameof(Strings.Report_Working)] = "Cihaz raporu hazırlanıyor. Birkaç saniye sürebilir.",
         [nameof(Strings.Report_Failed)] = "Cihaz raporu oluşturulamadı. Ayrıntılar günlük dosyasında.",
         [nameof(Strings.Report_TimedOut)] = "Cihaz raporu çok uzun sürdü ve durduruldu. Yeniden deneyin. Ayrıntılar günlük dosyasında.",
@@ -43,9 +44,9 @@ public sealed partial class ReportTextCultureTests
     private static string Text(string key, CultureInfo culture) => Strings.ResourceManager.GetString(key, culture)!;
 
     [Fact]
-    public void There_are_ten_report_texts()
+    public void There_are_eleven_report_texts()
     {
-        ReportKeys().Should().HaveCount(10);
+        ReportKeys().Should().HaveCount(11);
     }
 
     [Theory]

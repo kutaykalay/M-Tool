@@ -54,3 +54,20 @@ internal sealed class FakeConfirm : IConfirm
         return Answer;
     }
 }
+
+internal sealed class FakeSubmissionPreview : ISubmissionPreview
+{
+    public bool Answer { get; set; } = true;
+
+    public List<string> Shown { get; } = [];
+
+    /// <summary>Runs while the preview is open, as the user would see the app.</summary>
+    public Action? WhileOpen { get; set; }
+
+    public bool Confirm(string text)
+    {
+        Shown.Add(text);
+        WhileOpen?.Invoke();
+        return Answer;
+    }
+}

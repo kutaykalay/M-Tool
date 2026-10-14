@@ -346,7 +346,7 @@
     <value>Ordner des letzten Berichts öffnen</value>
   </data>
   <data name="Report_IssueMenu" xml:space="preserve">
-    <value>Problem melden (GitHub)</value>
+    <value>Bericht senden (GitHub)</value>
   </data>
   <data name="Report_Working" xml:space="preserve">
     <value>Der Gerätebericht wird erstellt. Das kann einige Sekunden dauern.</value>
@@ -365,5 +365,59 @@
   </data>
   <data name="Report_Wmi2Confirm" xml:space="preserve">
     <value>Einen Gerätebericht mit den rohen WMI2-Antworten erstellen?&#10;&#10;M-Tool liest nur. Es ruft eine feste Liste der Get_*-WMI2-Methoden dieses Laptops einmal auf. Es wird nichts auf den Laptop geschrieben und nichts geändert.&#10;&#10;report.txt enthält die rohen WMI2-Antworten von MSI als Hex-Bytes. M-Tool kann sie nicht filtern. Der Bericht ist für ein öffentliches GitHub-Issue gedacht, sehen Sie report.txt also durch, bevor Sie es senden.</value>
+  </data>
+  <data name="Report_SendEcData" xml:space="preserve">
+    <value>EC-Daten senden (für eine config)</value>
+  </data>
+  <data name="Submit_Collecting" xml:space="preserve">
+    <value>EC-Daten werden gesammelt. Das kann einige Sekunden dauern.</value>
+  </data>
+  <data name="Submit_PreviewTitle" xml:space="preserve">
+    <value>EC-Daten senden</value>
+  </data>
+  <data name="Submit_PreviewNotice" xml:space="preserve">
+    <value>Gesendet wird genau der Text unten, nichts anderes. Ihr Benutzer- und Computername sind als &lt;hidden&gt; verborgen. Ihre IP-Adresse erreicht Cloudflare; der M-Tool-Server speichert sie nicht und nutzt nur einen Hash davon für eine Minute, um zu begrenzen, wie oft Daten gesendet werden. Die Daten werden als Eintrag in einem privaten GitHub-Repository abgelegt, damit M-Tool neue Modelle kennenlernen kann.</value>
+  </data>
+  <data name="Submit_Send" xml:space="preserve">
+    <value>Senden</value>
+  </data>
+  <data name="Submit_DontSend" xml:space="preserve">
+    <value>Nicht senden</value>
+  </data>
+  <data name="Submit_Wmi2Confirm" xml:space="preserve">
+    <value>WMI2-Daten dieses Laptops für die Übermittlung lesen?&#10;&#10;M-Tool liest nur. Es ruft eine feste Liste der Get_*-WMI2-Methoden dieses Laptops einmal auf. Es wird nichts auf den Laptop geschrieben und nichts geändert.&#10;&#10;Es wird noch nichts gesendet: Sie sehen zuerst den vollständigen Text und entscheiden dann, ob Sie ihn senden.</value>
+  </data>
+  <data name="Submit_Sent" xml:space="preserve">
+    <value>Gesendet, danke.</value>
+  </data>
+  <data name="Submit_Duplicate" xml:space="preserve">
+    <value>Die Daten dieses Laptops sind bereits angekommen, danke.</value>
+  </data>
+  <data name="Submit_Record" xml:space="preserve">
+    <value>Eintrag: {0}.</value>
+  </data>
+  <data name="Submit_RateLimited" xml:space="preserve">
+    <value>Zu viele Sendungen. Warten Sie {0} Min. und versuchen Sie es erneut.</value>
+  </data>
+  <data name="Submit_Unavailable" xml:space="preserve">
+    <value>Der Server nimmt gerade keine Daten an. Versuchen Sie es später erneut oder senden Sie den Gerätebericht über GitHub.</value>
+  </data>
+  <data name="Submit_Rejected" xml:space="preserve">
+    <value>Der Server hat die Daten nicht angenommen. Aktualisieren Sie M-Tool oder senden Sie den Gerätebericht über GitHub.</value>
+  </data>
+  <data name="Submit_Network" xml:space="preserve">
+    <value>Der Server ist nicht erreichbar. Prüfen Sie die Internetverbindung und versuchen Sie es erneut.</value>
+  </data>
+  <data name="Submit_Timeout" xml:space="preserve">
+    <value>Der Server hat nicht geantwortet. Versuchen Sie es später erneut.</value>
+  </data>
+  <data name="Submit_TooLarge" xml:space="preserve">
+    <value>Die Daten sind größer als erwartet und wurden nicht gesendet. Senden Sie stattdessen den Gerätebericht über GitHub.</value>
+  </data>
+  <data name="ReportOnly_Title" xml:space="preserve">
+    <value>M-Tool: Geräteberichte</value>
+  </data>
+  <data name="ReportOnly_Help" xml:space="preserve">
+    <value>Sie können trotzdem helfen: Senden Sie die Daten dieses Laptops, damit M-Tool ihn kennenlernt.</value>
   </data>
 </root>

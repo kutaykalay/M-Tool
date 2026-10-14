@@ -54,7 +54,9 @@ internal sealed class FakeReportSources : IReportSources
         return ProbeFails ? throw new TimeoutException("zaman aşımı") : Wmi;
     }
 
-    public IReadOnlyList<WmiClassInfo> ReadClasses() => [new WmiClassInfo("MSI_CPU", ["CPU"])];
+    public IReadOnlyList<WmiClassInfo> Classes { get; init; } = [new WmiClassInfo("MSI_CPU", ["CPU"])];
+
+    public IReadOnlyList<WmiClassInfo> ReadClasses() => Classes;
 
     public byte[] ReadDsdt()
     {

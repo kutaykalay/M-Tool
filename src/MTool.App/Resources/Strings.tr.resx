@@ -346,7 +346,7 @@
     <value>Son raporun klasörünü aç</value>
   </data>
   <data name="Report_IssueMenu" xml:space="preserve">
-    <value>Sorun bildir (GitHub)</value>
+    <value>Raporu gönder (GitHub)</value>
   </data>
   <data name="Report_Working" xml:space="preserve">
     <value>Cihaz raporu hazırlanıyor. Birkaç saniye sürebilir.</value>
@@ -365,5 +365,59 @@
   </data>
   <data name="Report_Wmi2Confirm" xml:space="preserve">
     <value>Ham WMI2 cevaplarıyla birlikte cihaz raporu oluşturulsun mu?&#10;&#10;M-Tool yalnızca okur. Bu dizüstünün sabit bir Get_* WMI2 yöntemleri listesini bir kez çağırır. Dizüstüne hiçbir şey yazılmaz, hiçbir şey değiştirilmez.&#10;&#10;report.txt'ye MSI'ın ham WMI2 cevapları hex bayt olarak girer. M-Tool bunları filtreleyemez. Rapor herkese açık bir GitHub issue'suna eklenir; göndermeden önce report.txt'ye göz atın.</value>
+  </data>
+  <data name="Report_SendEcData" xml:space="preserve">
+    <value>EC verisini gönder (config için)</value>
+  </data>
+  <data name="Submit_Collecting" xml:space="preserve">
+    <value>EC verisi toplanıyor. Bu birkaç saniye sürebilir.</value>
+  </data>
+  <data name="Submit_PreviewTitle" xml:space="preserve">
+    <value>EC verisini gönder</value>
+  </data>
+  <data name="Submit_PreviewNotice" xml:space="preserve">
+    <value>Aşağıdaki metnin tamamı gönderilir, başka bir şey gönderilmez. Kullanıcı ve bilgisayar adınız &lt;hidden&gt; olarak gizlendi. IP adresiniz Cloudflare'e ulaşır; M-Tool sunucusu onu kaydetmez, yalnızca sıklık sınırı için bir dakikalığına özetini kullanır. Veri, M-Tool'un yeni modelleri öğrenmesi için gizli bir GitHub deposuna kayıt olarak düşer.</value>
+  </data>
+  <data name="Submit_Send" xml:space="preserve">
+    <value>Gönder</value>
+  </data>
+  <data name="Submit_DontSend" xml:space="preserve">
+    <value>Gönderme</value>
+  </data>
+  <data name="Submit_Wmi2Confirm" xml:space="preserve">
+    <value>Gönderim için bu laptopun WMI2 verisi okunsun mu?&#10;&#10;M-Tool yalnızca okur. Bu laptopun sabit bir Get_* WMI2 yöntemleri listesini bir kez çağırır. Laptopa hiçbir şey yazılmaz, hiçbir şey değiştirilmez.&#10;&#10;Henüz hiçbir şey gönderilmez: önce metnin tamamını görürsünüz, göndermeye siz karar verirsiniz.</value>
+  </data>
+  <data name="Submit_Sent" xml:space="preserve">
+    <value>Gönderildi, teşekkürler.</value>
+  </data>
+  <data name="Submit_Duplicate" xml:space="preserve">
+    <value>Bu laptopun verisi zaten gelmiş, teşekkürler.</value>
+  </data>
+  <data name="Submit_Record" xml:space="preserve">
+    <value>Kayıt: {0}.</value>
+  </data>
+  <data name="Submit_RateLimited" xml:space="preserve">
+    <value>Çok sık gönderim. {0} dk bekleyip tekrar deneyin.</value>
+  </data>
+  <data name="Submit_Unavailable" xml:space="preserve">
+    <value>Sunucu şu an veri kabul etmiyor. Daha sonra tekrar deneyin ya da cihaz raporunu GitHub ile gönderin.</value>
+  </data>
+  <data name="Submit_Rejected" xml:space="preserve">
+    <value>Sunucu veriyi kabul etmedi. M-Tool'u güncelleyin ya da cihaz raporunu GitHub ile gönderin.</value>
+  </data>
+  <data name="Submit_Network" xml:space="preserve">
+    <value>Sunucuya ulaşılamadı. İnternet bağlantısını kontrol edip tekrar deneyin.</value>
+  </data>
+  <data name="Submit_Timeout" xml:space="preserve">
+    <value>Sunucu cevap vermedi. Daha sonra tekrar deneyin.</value>
+  </data>
+  <data name="Submit_TooLarge" xml:space="preserve">
+    <value>Veri beklenenden büyük, gönderilmedi. Bunun yerine cihaz raporunu GitHub ile gönderin.</value>
+  </data>
+  <data name="ReportOnly_Title" xml:space="preserve">
+    <value>M-Tool: cihaz raporları</value>
+  </data>
+  <data name="ReportOnly_Help" xml:space="preserve">
+    <value>Yine de yardımcı olabilirsiniz: bu laptopun verisini gönderin, M-Tool onu öğrensin.</value>
   </data>
 </root>

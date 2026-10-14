@@ -346,7 +346,7 @@
     <value>Открыть папку последнего отчёта</value>
   </data>
   <data name="Report_IssueMenu" xml:space="preserve">
-    <value>Сообщить о проблеме (GitHub)</value>
+    <value>Отправить отчёт (GitHub)</value>
   </data>
   <data name="Report_Working" xml:space="preserve">
     <value>Создаётся отчёт об устройстве. Это может занять несколько секунд.</value>
@@ -365,5 +365,59 @@
   </data>
   <data name="Report_Wmi2Confirm" xml:space="preserve">
     <value>Создать отчёт об устройстве с необработанными ответами WMI2?&#10;&#10;M-Tool только читает. Он один раз вызывает фиксированный список методов WMI2 Get_* этого ноутбука. На ноутбук ничего не записывается и ничего не меняется.&#10;&#10;report.txt будет содержать необработанные ответы WMI2 от MSI в виде шестнадцатеричных байтов. M-Tool не может их отфильтровать. Отчёт предназначен для публичного issue на GitHub, поэтому просмотрите report.txt перед отправкой.</value>
+  </data>
+  <data name="Report_SendEcData" xml:space="preserve">
+    <value>Отправить данные EC (для config)</value>
+  </data>
+  <data name="Submit_Collecting" xml:space="preserve">
+    <value>Сбор данных EC. Это может занять несколько секунд.</value>
+  </data>
+  <data name="Submit_PreviewTitle" xml:space="preserve">
+    <value>Отправка данных EC</value>
+  </data>
+  <data name="Submit_PreviewNotice" xml:space="preserve">
+    <value>Отправляется ровно тот текст, что показан ниже, и ничего больше. Имена вашего пользователя и компьютера скрыты как &lt;hidden&gt;. Ваш IP-адрес попадает в Cloudflare; сервер M-Tool его не хранит и использует только его хеш в течение одной минуты, чтобы ограничить частоту отправок. Данные становятся записью в закрытом репозитории GitHub, чтобы M-Tool мог узнавать новые модели.</value>
+  </data>
+  <data name="Submit_Send" xml:space="preserve">
+    <value>Отправить</value>
+  </data>
+  <data name="Submit_DontSend" xml:space="preserve">
+    <value>Не отправлять</value>
+  </data>
+  <data name="Submit_Wmi2Confirm" xml:space="preserve">
+    <value>Прочитать данные WMI2 этого ноутбука для отправки?&#10;&#10;M-Tool только читает. Он один раз вызывает фиксированный список методов WMI2 Get_* этого ноутбука. На ноутбук ничего не записывается и ничего не меняется.&#10;&#10;Пока ничего не отправляется: сначала вы увидите весь текст и сами решите, отправлять ли его.</value>
+  </data>
+  <data name="Submit_Sent" xml:space="preserve">
+    <value>Отправлено, спасибо.</value>
+  </data>
+  <data name="Submit_Duplicate" xml:space="preserve">
+    <value>Данные этого ноутбука уже получены, спасибо.</value>
+  </data>
+  <data name="Submit_Record" xml:space="preserve">
+    <value>Запись: {0}.</value>
+  </data>
+  <data name="Submit_RateLimited" xml:space="preserve">
+    <value>Слишком много отправок. Подождите {0} мин. и повторите попытку.</value>
+  </data>
+  <data name="Submit_Unavailable" xml:space="preserve">
+    <value>Сервер сейчас не принимает данные. Повторите попытку позже или отправьте отчёт об устройстве через GitHub.</value>
+  </data>
+  <data name="Submit_Rejected" xml:space="preserve">
+    <value>Сервер не принял данные. Обновите M-Tool или отправьте отчёт об устройстве через GitHub.</value>
+  </data>
+  <data name="Submit_Network" xml:space="preserve">
+    <value>Не удалось подключиться к серверу. Проверьте подключение к интернету и повторите попытку.</value>
+  </data>
+  <data name="Submit_Timeout" xml:space="preserve">
+    <value>Сервер не ответил. Повторите попытку позже.</value>
+  </data>
+  <data name="Submit_TooLarge" xml:space="preserve">
+    <value>Данные больше ожидаемого и не были отправлены. Отправьте отчёт об устройстве через GitHub.</value>
+  </data>
+  <data name="ReportOnly_Title" xml:space="preserve">
+    <value>M-Tool: отчёты об устройстве</value>
+  </data>
+  <data name="ReportOnly_Help" xml:space="preserve">
+    <value>Вы всё равно можете помочь: отправьте данные этого ноутбука, чтобы M-Tool мог его изучить.</value>
   </data>
 </root>

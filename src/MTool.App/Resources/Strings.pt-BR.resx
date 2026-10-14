@@ -346,7 +346,7 @@
     <value>Abrir a pasta do último relatório</value>
   </data>
   <data name="Report_IssueMenu" xml:space="preserve">
-    <value>Relatar um problema (GitHub)</value>
+    <value>Enviar relatório (GitHub)</value>
   </data>
   <data name="Report_Working" xml:space="preserve">
     <value>Criando o relatório do dispositivo. Isso pode levar alguns segundos.</value>
@@ -365,5 +365,59 @@
   </data>
   <data name="Report_Wmi2Confirm" xml:space="preserve">
     <value>Criar um relatório do dispositivo com as respostas WMI2 brutas?&#10;&#10;O M-Tool apenas lê. Ele chama uma única vez uma lista fixa de métodos WMI2 Get_* deste notebook. Nada é gravado no notebook e nada é alterado.&#10;&#10;O report.txt conterá as respostas WMI2 brutas da MSI como bytes hexadecimais. O M-Tool não consegue filtrá-las. O relatório se destina a uma issue pública no GitHub, então revise o report.txt antes de enviar.</value>
+  </data>
+  <data name="Report_SendEcData" xml:space="preserve">
+    <value>Enviar dados do EC (para uma config)</value>
+  </data>
+  <data name="Submit_Collecting" xml:space="preserve">
+    <value>Coletando os dados do EC. Isso pode levar alguns segundos.</value>
+  </data>
+  <data name="Submit_PreviewTitle" xml:space="preserve">
+    <value>Enviar dados do EC</value>
+  </data>
+  <data name="Submit_PreviewNotice" xml:space="preserve">
+    <value>Exatamente o texto abaixo é enviado, nada além disso. Seus nomes de usuário e de computador ficam ocultos como &lt;hidden&gt;. Seu endereço IP chega à Cloudflare; o servidor do M-Tool não o armazena e usa apenas um hash dele por um minuto para limitar a frequência dos envios. Os dados viram um registro em um repositório privado do GitHub para que o M-Tool possa aprender novos modelos.</value>
+  </data>
+  <data name="Submit_Send" xml:space="preserve">
+    <value>Enviar</value>
+  </data>
+  <data name="Submit_DontSend" xml:space="preserve">
+    <value>Não enviar</value>
+  </data>
+  <data name="Submit_Wmi2Confirm" xml:space="preserve">
+    <value>Ler os dados WMI2 deste notebook para o envio?&#10;&#10;O M-Tool apenas lê. Ele chama uma única vez uma lista fixa de métodos WMI2 Get_* deste notebook. Nada é gravado no notebook e nada é alterado.&#10;&#10;Nada é enviado ainda: você verá primeiro o texto completo e decidirá se quer enviá-lo.</value>
+  </data>
+  <data name="Submit_Sent" xml:space="preserve">
+    <value>Enviado, obrigado.</value>
+  </data>
+  <data name="Submit_Duplicate" xml:space="preserve">
+    <value>Os dados deste notebook já chegaram, obrigado.</value>
+  </data>
+  <data name="Submit_Record" xml:space="preserve">
+    <value>Registro: {0}.</value>
+  </data>
+  <data name="Submit_RateLimited" xml:space="preserve">
+    <value>Envios demais. Aguarde {0} min e tente de novo.</value>
+  </data>
+  <data name="Submit_Unavailable" xml:space="preserve">
+    <value>O servidor não está aceitando dados no momento. Tente de novo mais tarde ou envie o relatório do dispositivo pelo GitHub.</value>
+  </data>
+  <data name="Submit_Rejected" xml:space="preserve">
+    <value>O servidor não aceitou os dados. Atualize o M-Tool ou envie o relatório do dispositivo pelo GitHub.</value>
+  </data>
+  <data name="Submit_Network" xml:space="preserve">
+    <value>Não foi possível alcançar o servidor. Verifique a conexão com a internet e tente de novo.</value>
+  </data>
+  <data name="Submit_Timeout" xml:space="preserve">
+    <value>O servidor não respondeu. Tente de novo mais tarde.</value>
+  </data>
+  <data name="Submit_TooLarge" xml:space="preserve">
+    <value>Os dados são maiores que o esperado e não foram enviados. Envie o relatório do dispositivo pelo GitHub.</value>
+  </data>
+  <data name="ReportOnly_Title" xml:space="preserve">
+    <value>M-Tool: relatórios do dispositivo</value>
+  </data>
+  <data name="ReportOnly_Help" xml:space="preserve">
+    <value>Você ainda pode ajudar: envie os dados deste notebook para que o M-Tool possa aprendê-lo.</value>
   </data>
 </root>

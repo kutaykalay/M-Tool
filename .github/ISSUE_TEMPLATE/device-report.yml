@@ -8,7 +8,7 @@ body:
       value: |
         Thanks for helping. The easy way: right-click the M-Tool tray icon and choose
         "Create device report" (on a newer MSI with WMI2 there is also "Device report (with WMI2)",
-        which asks you first). "Report an issue (GitHub)" in the same menu opens this form with the
+        which asks you first). "Send report (GitHub)" in the same menu opens this form with the
         model and firmware filled in. If you prefer a terminal: `M-Tool.exe --report` from an
         administrator terminal (`M-Tool.exe --report --wmi2` on WMI2). It only reads:
         it writes nothing to the embedded controller and never opens the raw port. It saves a zip to

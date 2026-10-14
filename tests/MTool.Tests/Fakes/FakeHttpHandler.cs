@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http;
+using MTool.App.Reports;
 
 namespace MTool.Tests.Fakes;
 
@@ -10,6 +11,9 @@ internal sealed class FakeHttpHandler : HttpMessageHandler
         (_, _) => Task.FromResult(Json(HttpStatusCode.Created, """{"status":"created","id":"0123456789ab"}"""));
 
     public List<RecordedRequest> Requests { get; } = [];
+
+    /// <summary>A client on a new fake handler, for tests that never send.</summary>
+    public static SubmissionClient Client() => new(new FakeHttpHandler(), SubmissionEndpoint.Uri, "0.9.0", SubmissionClient.DefaultTimeout);
 
     public static HttpResponseMessage Json(HttpStatusCode status, string body) =>
         new(status) { Content = new StringContent(body, System.Text.Encoding.UTF8, "application/json") };
