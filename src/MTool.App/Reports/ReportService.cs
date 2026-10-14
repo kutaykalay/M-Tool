@@ -1,5 +1,4 @@
 using System.IO;
-using System.Text;
 using MTool.App.Cli;
 using MTool.Core;
 using MTool.Core.Device.Config;
@@ -22,8 +21,6 @@ internal sealed record ReportResult(string Path, string Text, string? Model, str
 internal sealed class ReportService(
     IReportSources sources, IAppLog log, string folder, string appVersion, IReadOnlyList<string> privateWords, TimeProvider? time = null)
 {
-    private const int MinPrivateWordLength = 2;
-
     private readonly TimeProvider _time = time ?? TimeProvider.System;
 
     /// <summary>The names that must not appear in a report: the user, the computer, the profile folder.</summary>
@@ -65,34 +62,7 @@ internal sealed class ReportService(
         return new ReportResult(path, text, Safe(data.Input.Computer.Value?.Model), Safe(data.Input.Ec.Value?.Firmware?.Version));
     }
 
-    /// <summary>
-    /// The value, or null when it is blank or holds a private name. Both sides are compared in their
-    /// NFKC form, so a name written with full-width or other look-alike letters is still found.
-    /// </summary>
-    private string? Safe(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value) || !TryFold(value, out var folded))
-        {
-            return null; // text that cannot be compared is not shown in an address
-        }
-
-        var holdsPrivateName = privateWords.Any(w => w.Trim() is { Length: >= MinPrivateWordLength } word
-            && folded.Contains(TryFold(word, out var foldedWord) ? foldedWord : word, StringComparison.OrdinalIgnoreCase));
-        return holdsPrivateName ? null : value.Trim();
-    }
-
-    /// <returns>False when the text is not valid Unicode (a lone surrogate) and cannot be normalized.</returns>
-    private static bool TryFold(string text, out string folded)
-    {
-        try
-        {
-            folded = text.Normalize(NormalizationForm.FormKC);
-            return true;
-        }
-        catch (ArgumentException)
-        {
-            folded = text;
-            return false;
-        }
-    }
+    /// <summary>The value, or null when it is blank or holds a private name (see <see cref="PrivateText.HoldsPrivateName"/>).</summary>
+    private string? Safe(string? value) =>
+        string.IsNullOrWhiteSpace(value) || PrivateText.HoldsPrivateName(value, privateWords) ? null : value.Trim();
 }

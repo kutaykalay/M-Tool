@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
 using MTool.Core.Device.Config;
 
 namespace MTool.Core.Diagnostics;
@@ -12,9 +11,6 @@ namespace MTool.Core.Diagnostics;
 public static class DeviceReport
 {
     public const string DsdtFileName = "dsdt.aml";
-
-    private const string Hidden = "<hidden>";
-    private const int MinPrivateWordLength = 2;
 
     /// <param name="privateWords">The user and machine names: masked wherever they appear, as a safety net.</param>
     public static string Format(DeviceReportInput input, IReadOnlyCollection<string> privateWords)
@@ -30,7 +26,7 @@ public static class DeviceReport
             .AppendLine(Line("DSDT", Describe(input.DsdtBytes, bytes => $"{bytes} bytes ({DsdtFileName})")));
         AppendEc(text, input.Ec);
         AppendWmi2(text, input);
-        return Mask(text.ToString(), privateWords);
+        return PrivateText.Mask(text.ToString(), privateWords);
     }
 
     private static void AppendSystem(StringBuilder text, Section<SystemInfo> system)
@@ -181,15 +177,4 @@ public static class DeviceReport
         section.IsOk ? describe(section.Value!) : $"not read ({section.Error})";
 
     private static string Line(string label, string? value) => $"{label,-12} : {value ?? "?"}";
-
-    /// <summary>Whole words only, ignoring case: a short name must not cut into other words.</summary>
-    private static string Mask(string text, IReadOnlyCollection<string> privateWords)
-    {
-        foreach (var word in privateWords.Select(w => w.Trim()).Where(w => w.Length >= MinPrivateWordLength).OrderByDescending(w => w.Length))
-        {
-            text = Regex.Replace(text, $@"(?<![\w-]){Regex.Escape(word)}(?![\w-])", Hidden, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        }
-
-        return text;
-    }
 }

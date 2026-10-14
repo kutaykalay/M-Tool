@@ -1,5 +1,5 @@
-using System.Globalization;
 using System.Text;
+using MTool.Core.Diagnostics;
 
 namespace MTool.App.Reports;
 
@@ -50,20 +50,6 @@ internal static class IssueUrl
         return new UriBuilder(Uri.UriSchemeHttps, Host) { Path = FormPath, Query = string.Join('&', fields) }.Uri;
     }
 
-    /// <summary>
-    /// Characters that are not shown or that change how the text is shown: format characters (the
-    /// right-to-left override, zero-width characters), surrogates, private use, line and paragraph
-    /// separators, and control characters. A control character that is white space (tab, line break)
-    /// is not dropped here: it counts as a space.
-    /// </summary>
-    private static bool IsDropped(Rune rune) => Rune.GetUnicodeCategory(rune) switch
-    {
-        UnicodeCategory.Format or UnicodeCategory.Surrogate or UnicodeCategory.PrivateUse
-            or UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator => true,
-        UnicodeCategory.Control => !Rune.IsWhiteSpace(rune),
-        _ => false,
-    };
-
     /// <summary>Single line, no control characters, cut so its encoded form fits; null when nothing is left.</summary>
     private static string? Fit(string? value, int maxEncodedLength)
     {
@@ -71,7 +57,7 @@ internal static class IssueUrl
         var lastWasSpace = true; // also trims the start
         foreach (var rune in (value ?? "").EnumerateRunes())
         {
-            if (rune == Rune.ReplacementChar || IsDropped(rune))
+            if (rune == Rune.ReplacementChar || PrivateText.IsUnprintable(rune))
             {
                 continue;
             }
