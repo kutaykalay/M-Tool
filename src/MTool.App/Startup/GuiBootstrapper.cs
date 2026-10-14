@@ -50,13 +50,16 @@ internal sealed class GuiBootstrapper : IDisposable
     public static LoadedSettings LoadSettings(FileLog log) => LoadSettings(ProfileCatalog.BuiltIn, log);
 
     /// <param name="settings">From <see cref="LoadSettings(FileLog)"/>, which has already set the UI language.</param>
-    /// <returns>Null when the app cannot run (PawnIO missing, EC unreachable); the user was told why.</returns>
+    /// <returns>
+    /// Null when the app cannot run: PawnIO missing or the EC unreachable (the user was told why), or a
+    /// model M-Tool cannot control yet (the reports-only window was shown and has been closed).
+    /// </returns>
     public static async Task<GuiBootstrapper?> StartAsync(Application app, FileLog log, Action exit, LoadedSettings settings)
     {
         var catalog = ProfileCatalog.BuiltIn;
         var reapplyOptions = AutoReapplyOptions.Default;
         var coordinator = new PowerStateCoordinator(TimeProvider.System, reapplyOptions.GateDelay);
-        if (OpenSession(log, () => coordinator.IsEcAccessAllowed) is not { } session)
+        if (OpenSession(app, log, () => coordinator.IsEcAccessAllowed) is not { } session)
         {
             return null;
         }
@@ -275,7 +278,7 @@ internal sealed class GuiBootstrapper : IDisposable
     internal static string AppVersion =>
         typeof(GuiBootstrapper).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "sürüm yok";
 
-    private static EcSession? OpenSession(FileLog log, Func<bool> accessGate)
+    private static EcSession? OpenSession(Application app, FileLog log, Func<bool> accessGate)
     {
         try
         {
@@ -284,8 +287,8 @@ internal sealed class GuiBootstrapper : IDisposable
         }
         catch (UnsupportedDeviceException ex)
         {
-            log.Warn($"Unsupported model; GUI not opened. {ex.LogMessage}");
-            StartupProblem(string.Format(Strings.Startup_Problem, ex.Message, AppPaths.Logs));
+            log.Warn($"Unsupported model; reports-only window opened. {ex.LogMessage}");
+            ShowReportsOnly(app, log, ex.Message);
             return null;
         }
 
@@ -308,6 +311,27 @@ internal sealed class GuiBootstrapper : IDisposable
         }
     }
 
+    /// <summary>
+    /// The report actions in a window of their own, until it is closed: no EC session, no port, no tray.
+    /// What would be a balloon goes to the window's band.
+    /// </summary>
+    private static void ShowReportsOnly(Application app, FileLog log, string problem)
+    {
+        using var theme = new ThemeManager(app);
+        using var status = new StatusViewModel(BandNotifier.Silent, new DispatcherUi(app), TimeProvider.System);
+        using var submissions = new SubmissionClient(SubmissionClient.CreateHandler(), SubmissionEndpoint.Uri, AppVersion, SubmissionClient.DefaultTimeout);
+        using var stop = new CancellationTokenSource();
+        ReportOnlyWindow? window = null;
+        var report = new ReportViewModel(
+            new ReportService(new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords()),
+            new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(),
+            status, new BandNotifier(status), log, stop: stop.Token);
+        window = new ReportOnlyWindow(problem, report, status, theme.IsDark);
+        _ = report.LoadAsync(); // Off the UI thread; the WMI2 button stays hidden until it answers.
+        window.ShowDialog();
+        stop.Cancel(); // a send still running when the window closed ends as cancelled, without a message
+    }
+
     private static void StartupProblem(string message) =>
         MessageBox.Show(message, "M-Tool", MessageBoxButton.OK, MessageBoxImage.Error);
 
@@ -316,7 +340,6 @@ internal sealed class GuiBootstrapper : IDisposable
         public void Post(Action action) => app.Dispatcher.BeginInvoke(action);
     }
 
-    /// <summary>Asks over the window that is asking, so that window can close the question on exit.</summary>
     /// <summary>A send still running ends as cancelled, without a message.</summary>
     private static void StopSubmissions(CancellationTokenSource stop, SubmissionClient submissions)
     {
@@ -325,13 +348,16 @@ internal sealed class GuiBootstrapper : IDisposable
         stop.Dispose();
     }
 
+    /// <summary>Shows the text over the window that is asking, so that window can close it on exit (then nothing is sent).</summary>
     private sealed class DialogPreview(Func<Window?> owner, ThemeManager theme) : ISubmissionPreview
     {
         public bool Confirm(string text) =>
-            new SubmissionPreviewWindow(text, theme.IsDark) { Owner = owner() is { IsLoaded: true } shown ? shown : null }
-                .ShowDialog() == true;
+            new SubmissionPreviewWindow(text, theme.IsDark, Owned(owner)).ShowDialog() == true;
+
+        private static Window? Owned(Func<Window?> owner) => owner() is { IsLoaded: true, IsVisible: true } shown ? shown : null;
     }
 
+    /// <summary>Asks over the window that is asking, so that window can close the question on exit.</summary>
     private sealed class DialogConfirm(Func<Window?> owner, ThemeManager theme) : IConfirm
     {
         public bool Ask(string question, bool defaultYes = true) =>

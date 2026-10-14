@@ -8,12 +8,21 @@ namespace MTool.App.Views;
 /// </summary>
 internal partial class SubmissionPreviewWindow : Window
 {
-    public SubmissionPreviewWindow(string text, bool dark)
+    /// <param name="owner">The visible window that asked; null when M-Tool is only in the tray.</param>
+    public SubmissionPreviewWindow(string text, bool dark, Window? owner)
     {
         InitializeComponent();
         PayloadText.Text = text;
+        Owner = owner;
+        // Opened from the tray it has no owner: it must not come up behind other windows while the menu waits.
+        Topmost = owner is null;
+        WindowStartupLocation = owner is null ? WindowStartupLocation.CenterScreen : WindowStartupLocation.CenterOwner;
         // Enter presses the button that has the focus, so the default answer holds it, not the text.
-        Loaded += (_, _) => DontSendButton.Focus();
+        Loaded += (_, _) =>
+        {
+            Activate();
+            DontSendButton.Focus();
+        };
         SourceInitialized += (_, _) => TitleBar.ApplyTheme(this, dark);
     }
 

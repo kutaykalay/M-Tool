@@ -12,7 +12,7 @@
             <Button x:Name="SendButton" Style="{StaticResource Choice}" MinWidth="120" Content="{x:Static res:Strings.Submit_Send}" Click="OnSendClick" />
             <Button x:Name="DontSendButton" Style="{StaticResource Choice}" MinWidth="120" Margin="0" Content="{x:Static res:Strings.Submit_DontSend}" IsDefault="True" IsCancel="True" />
         </UniformGrid>
-        <TextBox x:Name="PayloadText" IsReadOnly="True" IsReadOnlyCaretVisible="True" FontFamily="Consolas" FontSize="12"
+        <TextBox x:Name="PayloadText" AutomationProperties.Name="{x:Static res:Strings.Submit_PreviewTitle}" IsReadOnly="True" IsReadOnlyCaretVisible="True" FontFamily="Consolas" FontSize="12"
                  TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                  Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" />
     </DockPanel>
