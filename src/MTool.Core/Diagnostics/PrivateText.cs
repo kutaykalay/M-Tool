@@ -7,6 +7,8 @@ namespace MTool.Core.Diagnostics;
 /// <summary>
 /// Keeps the user and computer names out of text that leaves the laptop (the report, the issue form)
 /// and tells which characters are not shown. One place, so every way out hides the same words.
+/// <see cref="Mask"/> works on the text as written; <see cref="HoldsPrivateName"/> also finds look-alike
+/// forms (NFKC), so a value that must not carry a name at all is checked with it.
 /// </summary>
 public static class PrivateText
 {
@@ -16,7 +18,7 @@ public static class PrivateText
     private const int MinWordLength = 2;
 
     /// <summary>Whole words only, ignoring case: a short name must not cut into other words.</summary>
-    public static string Mask(string text, IReadOnlyCollection<string> privateWords)
+    internal static string Mask(string text, IReadOnlyCollection<string> privateWords)
     {
         foreach (var word in Usable(privateWords).OrderByDescending(w => w.Length))
         {
@@ -44,7 +46,7 @@ public static class PrivateText
 
     /// <summary>
     /// Characters that are not shown or that change how the text is shown: format characters (the
-    /// right-to-left override, zero-width characters), surrogates, private use, line and paragraph
+    /// right-to-left override, zero-width characters), private use, line and paragraph
     /// separators, and control characters. A control character that is white space (tab, line break)
     /// is not unprintable: it counts as a space.
     /// </summary>

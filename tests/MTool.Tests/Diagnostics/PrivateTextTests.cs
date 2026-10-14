@@ -26,6 +26,26 @@ public sealed class PrivateTextTests
         PrivateText.Mask("host KUTAY-PC here", ["KUTAY", "KUTAY-PC"]).Should().Be("host <hidden> here");
 
     [Theory]
+    [InlineData("C++", "uses C++ daily", "uses <hidden> daily")]
+    [InlineData("a.b", "a.b and axb", "<hidden> and axb")]
+    public void Treats_regex_characters_in_a_word_as_plain_text(string word, string text, string expected) =>
+        PrivateText.Mask(text, [word]).Should().Be(expected);
+
+    [Fact]
+    public void No_private_words_change_nothing()
+    {
+        PrivateText.Mask("Kutay P65", []).Should().Be("Kutay P65");
+        PrivateText.HoldsPrivateName("Kutay P65", []).Should().BeFalse();
+    }
+
+    [Fact]
+    public void A_private_word_that_cannot_be_normalized_is_compared_as_written()
+    {
+        PrivateText.HoldsPrivateName("P65 Creator", ["Ze\uD800ki"]).Should().BeFalse();
+        PrivateText.HoldsPrivateName("P65 Creator", ["Creator\uD800"]).Should().BeFalse();
+    }
+
+    [Theory]
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("K")]
