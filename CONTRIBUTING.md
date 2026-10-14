@@ -6,6 +6,16 @@ The most useful help is a device report from an MSI laptop M-Tool does not suppo
 "How to help" in the [README](README.md#how-to-help). A report only reads; it never writes to the
 embedded controller (EC).
 
+There are two ways. The tray item **Send EC data (for a config)** shows the exact text first and,
+if the owner agrees, sends it to the M-Tool server, which keeps it as an issue in a private
+repository (what is and is not sent: [README](README.md#what-send-ec-data-sends)). The other way
+is **Create device report** and **Send report (GitHub)**, which attaches a zip that also holds the
+DSDT.
+
+Data that arrives is a hint, not proof. No model record is created from it automatically. Every
+submission is labelled `unverified`, and a record is added only after the checks below: a draft
+record, then read verification against the laptop's DSDT and the owner's confirmation.
+
 ## Write verification with a volunteer
 
 M-Tool writes to the EC only on a laptop whose record is `writeVerified`. Today that is one laptop
@@ -18,7 +28,7 @@ checked. The owner runs the tests at their own risk and can stop at any step.
 
 ### 1. Draft record
 
-1. The owner sends a device report (`M-Tool.exe --report`).
+1. The owner sends the data (**Send EC data**) or a device report (`M-Tool.exe --report`).
 2. A `draft` record for the model is added under `src/MTool.Core/Devices`. Its `sources` field
    says where each fact came from.
 3. A draft record is read-only. M-Tool shows its values with an "experimental" band, never opens

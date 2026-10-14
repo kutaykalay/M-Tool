@@ -59,16 +59,34 @@ M-Tool shows come from the P65's map and may be wrong.
 
 ## How to help
 
-Own another MSI laptop? A device report lets M-Tool learn its layout. It only reads: no EC write,
-and the raw port is never opened.
+Own another MSI laptop? M-Tool can learn its layout from a read-only report. Nothing is written to
+the EC, and the raw port is never opened. If the app says **M-Tool cannot control this laptop
+yet**, the same report actions are offered there.
+
+### Easiest: Send EC data
+
+1. Right-click the M-Tool tray icon and choose **Send EC data (for a config)**.
+2. M-Tool reads the data (nothing is written to a file) and shows the whole text it would send in a
+   preview window. The default button is **Don't send**.
+3. Read the text. Choose **Send** only if you agree. M-Tool then makes one HTTPS POST to the M-Tool
+   server, which checks the data and stores it as an issue in a private GitHub repository
+   (`M-Tool-reports`).
+
+On a laptop with WMI2, M-Tool first asks whether it may read the WMI2 data. The default is **No**;
+with No, nothing is read and nothing is sent. With Yes, a fixed list of `Get_*` methods runs once;
+`Set_*` is never called. These methods run firmware code, and that they have no side effects is an
+assumption, so this part is opt-in.
+
+### More detail: zip and GitHub issue
+
+Use this path if you want to include the ACPI DSDT, or to read the report before you post it.
 
 1. Right-click the M-Tool tray icon and choose **Create device report**. On a newer MSI with WMI2
    (mostly Intel 11th gen and later) choose **Device report (with WMI2)** instead: it also records
-   the raw answers of MSI's WMI2 read methods (`Get_*` only; nothing is set). These methods run
-   firmware code, and that they have no side effects is an assumption, so this part is opt-in:
-   M-Tool explains it and asks first. Prefer a terminal? Run `M-Tool.exe --report` (or
+   the raw answers of MSI's WMI2 read methods (`Get_*` only; nothing is set), after M-Tool explains
+   it and asks first. Prefer a terminal? Run `M-Tool.exe --report` (or
    `M-Tool.exe --report --wmi2`) as administrator.
-2. Choose **Report an issue (GitHub)** in the same menu. It opens a [device report issue](https://github.com/kutaykalay/M-Tool/issues/new?template=device-report.yml)
+2. Choose **Send report (GitHub)** in the same menu. It opens a [device report issue](https://github.com/kutaykalay/M-Tool/issues/new?template=device-report.yml)
    with the model and firmware filled in. Attach the zip from `%AppData%\M-Tool\reports`
    (**Open the last report's folder** shows it).
 
@@ -79,6 +97,42 @@ DSDT is firmware code written by MSI, not personal data, but it is a binary file
 filter. With `--wmi2`, `report.txt` also holds MSI's raw WMI2 answers as hex bytes; M-Tool does
 not know what every byte means, so it cannot hide anything in them either. Read `report.txt`
 before you post it.
+
+### What "Send EC data" sends
+
+The preview window says: "Exactly the text below is sent, nothing else." The data format is
+version 1.
+
+Sent:
+
+- the M-Tool version;
+- from SMBIOS: manufacturer, model, board, BIOS version and date, and the CPU;
+- the Windows version;
+- the MSI WMI interface and the MSI class and property names;
+- the EC firmware version and date, the matching record, and the register numbers and values of
+  the WMI1 fields M-Tool could read (live sensor values included);
+- on a WMI2 laptop, only if you said Yes: the raw `Get_*` answers.
+
+Not sent:
+
+- serial number, UUID and SKU;
+- your user name, computer name, domain and profile path (where they appear in the text they
+  become `<hidden>`; if a look-alike form such as full-width letters, Turkish İ/ı or accented
+  letters is caught, the whole value is hidden);
+- time stamp and time zone, and the interface language;
+- your settings, profile names and log contents;
+- the DSDT, error messages and file paths;
+- MAC address, disk and network information.
+
+Your IP address reaches Cloudflare. The M-Tool server does not store it; it uses a hash of it
+(HMAC) for one minute, only to limit how often data is sent.
+
+Limits: 3 submissions per minute per IP address and 100 records per day in total. If the same
+model, firmware and BIOS has already been received, the answer is "already received" and nothing
+new is stored.
+
+Received data is a hint, not proof. No model record is created from it automatically; every
+record is labelled `unverified` and goes through the checks in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Writing on a new model needs its owner to test each write step by step on their laptop. How that
 works is in [CONTRIBUTING.md](CONTRIBUTING.md).
