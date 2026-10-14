@@ -54,12 +54,13 @@ internal sealed class GuiBootstrapper : IDisposable
     /// Null when the app cannot run: PawnIO missing or the EC unreachable (the user was told why), or a
     /// model M-Tool cannot control yet (the reports-only window was shown and has been closed).
     /// </returns>
-    public static async Task<GuiBootstrapper?> StartAsync(Application app, FileLog log, Action exit, LoadedSettings settings)
+    /// <param name="instance">Held by this process; a second start asks it to show its window.</param>
+    public static async Task<GuiBootstrapper?> StartAsync(Application app, FileLog log, Action exit, LoadedSettings settings, SingleInstance instance)
     {
         var catalog = ProfileCatalog.BuiltIn;
         var reapplyOptions = AutoReapplyOptions.Default;
         var coordinator = new PowerStateCoordinator(TimeProvider.System, reapplyOptions.GateDelay);
-        if (OpenSession(app, log, () => coordinator.IsEcAccessAllowed) is not { } session)
+        if (OpenSession(app, instance, log, () => coordinator.IsEcAccessAllowed) is not { } session)
         {
             return null;
         }
@@ -278,7 +279,7 @@ internal sealed class GuiBootstrapper : IDisposable
     internal static string AppVersion =>
         typeof(GuiBootstrapper).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "sürüm yok";
 
-    private static EcSession? OpenSession(Application app, FileLog log, Func<bool> accessGate)
+    private static EcSession? OpenSession(Application app, SingleInstance instance, FileLog log, Func<bool> accessGate)
     {
         try
         {
@@ -288,7 +289,7 @@ internal sealed class GuiBootstrapper : IDisposable
         catch (UnsupportedDeviceException ex)
         {
             log.Warn($"Unsupported model; reports-only window opened. {ex.LogMessage}");
-            ShowReportsOnly(app, log, ex.Message);
+            ShowReportsOnly(app, instance, log, ex.Message);
             return null;
         }
 
@@ -312,10 +313,11 @@ internal sealed class GuiBootstrapper : IDisposable
     }
 
     /// <summary>
-    /// The report actions in a window of their own, until it is closed: no EC session, no port, no tray.
-    /// What would be a balloon goes to the window's band.
+    /// The report actions in a window of their own, until it is closed: no gateway, no port, no tray (a
+    /// report reads the EC through WMI only, as on the command line). What would be a balloon goes to the
+    /// window's band. A second start of M-Tool brings this window to the front.
     /// </summary>
-    private static void ShowReportsOnly(Application app, FileLog log, string problem)
+    private static void ShowReportsOnly(Application app, SingleInstance instance, FileLog log, string problem)
     {
         using var theme = new ThemeManager(app);
         using var status = new StatusViewModel(BandNotifier.Silent, new DispatcherUi(app), TimeProvider.System);
@@ -327,9 +329,16 @@ internal sealed class GuiBootstrapper : IDisposable
             new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(),
             status, new BandNotifier(status), log, stop: stop.Token);
         window = new ReportOnlyWindow(problem, report, status, theme.IsDark);
+        instance.ListenForShowRequests(() => app.Dispatcher.BeginInvoke(() => window.Activate()));
         _ = report.LoadAsync(); // Off the UI thread; the WMI2 button stays hidden until it answers.
-        window.ShowDialog();
-        stop.Cancel(); // a send still running when the window closed ends as cancelled, without a message
+        try
+        {
+            window.ShowDialog();
+        }
+        finally
+        {
+            stop.Cancel(); // a send still running when the window closed ends as cancelled, without a message
+        }
     }
 
     private static void StartupProblem(string message) =>

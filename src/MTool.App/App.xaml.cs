@@ -56,7 +56,7 @@ public partial class App : Application
     {
         try
         {
-            _gui = await GuiBootstrapper.StartAsync(this, _log, ExitFromTray, settings);
+            _gui = await GuiBootstrapper.StartAsync(this, _log, ExitFromTray, settings, instance);
         }
         catch (Exception ex)
         {

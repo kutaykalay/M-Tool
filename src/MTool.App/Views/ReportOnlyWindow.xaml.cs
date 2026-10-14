@@ -5,8 +5,8 @@ namespace MTool.App.Views;
 
 /// <summary>
 /// Shown instead of M-Tool on a laptop it cannot control yet (no WMI1): why, and the report actions, so
-/// the owner can still send what M-Tool needs to learn the model. It never opens an EC session, the port
-/// or the gateway; the reports only read. Closing it ends M-Tool.
+/// the owner can still send what M-Tool needs to learn the model. It never opens the port or the gateway;
+/// a report reads the EC through WMI only, as on the command line. Closing it ends M-Tool.
 /// </summary>
 internal partial class ReportOnlyWindow : Window
 {
