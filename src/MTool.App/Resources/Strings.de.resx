@@ -97,7 +97,7 @@
     <value>LÜFTER</value>
   </data>
   <data name="Editor_BuiltInReadOnly" xml:space="preserve">
-    <value>Integrierte Profile können nicht geändert werden; kopieren Sie eines, um es zu bearbeiten.</value>
+    <value>Dies ist ein integriertes Profil und kann nicht geändert werden. Zum Bearbeiten links auf „Kopieren“ klicken und die Kopie ändern.</value>
   </data>
   <data name="Editor_ColPoint" xml:space="preserve">
     <value>Punkt</value>

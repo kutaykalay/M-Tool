@@ -91,6 +91,10 @@ internal partial class FanCurveEditorWindow : Window
 
     private void OnGpuClick(object sender, RoutedEventArgs e) => _viewModel.SelectedFan = CurveFan.Gpu;
 
+    /// <summary>A drag or an arrow key on the chart: the same path as a typed number.</summary>
+    private void OnChartMoveRequested(object? sender, PointMove move) =>
+        _viewModel.MovePoint(_viewModel.SelectedFan, move.Index, move.UpC, move.SpeedPercent);
+
     /// <summary>
     /// A click on a button that is still disabled (Kaydet before the draft is dirty) takes no focus, so
     /// the box would never lose it: the value is taken first, which enables the button for this click.

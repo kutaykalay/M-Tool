@@ -125,7 +125,7 @@
     <comment>Fan curve editor, section heading above the CPU and GPU buttons. Written in upper case in every language.</comment>
   </data>
   <data name="Editor_BuiltInReadOnly" xml:space="preserve">
-    <value>Built-in profiles cannot be changed; copy one to edit it.</value>
+    <value>This is a built-in profile and cannot be changed. To edit it, press "Copy" on the left and change the copy.</value>
     <comment>Shown when a built-in fan profile is selected.</comment>
   </data>
   <data name="Editor_ColPoint" xml:space="preserve">

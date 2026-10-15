@@ -97,7 +97,7 @@
     <value>VENTOINHA</value>
   </data>
   <data name="Editor_BuiltInReadOnly" xml:space="preserve">
-    <value>Perfis integrados não podem ser alterados; copie um para editá-lo.</value>
+    <value>Este é um perfil integrado e não pode ser alterado. Para editá-lo, clique em "Copiar" à esquerda e altere a cópia.</value>
   </data>
   <data name="Editor_ColPoint" xml:space="preserve">
     <value>Ponto</value>

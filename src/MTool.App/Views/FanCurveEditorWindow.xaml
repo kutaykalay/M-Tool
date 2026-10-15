@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:MTool.App.ViewModels"
+        xmlns:local="clr-namespace:MTool.App.Views"
         xmlns:res="clr-namespace:MTool.App.Resources"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:FanCurveEditorViewModel}"
-        Title="{x:Static res:Strings.Editor_Title}" Width="780" SizeToContent="Height" ResizeMode="CanMinimize"
+        Title="{x:Static res:Strings.Editor_Title}" Width="1140" SizeToContent="Height" ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
         FontFamily="Segoe UI" FontSize="13" UseLayoutRounding="True"
@@ -63,12 +64,12 @@
 
         <!-- Curve of the selected fan -->
         <StackPanel Grid.Column="2">
-            <DockPanel Margin="0,12,0,6">
-                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="{x:Static res:Strings.Editor_SectionFan}" />
-                <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" TextAlignment="Right" TextWrapping="Wrap" Margin="12,0,0,0"
-                           Text="{x:Static res:Strings.Editor_BuiltInReadOnly}"
-                           Visibility="{Binding IsBuiltIn, Converter={StaticResource BoolToVisible}}" />
-            </DockPanel>
+            <!-- Read-only notice: a band above the curve, not a muted line, so it is seen before trying to edit. -->
+            <Border Style="{StaticResource Band}" Tag="{x:Static vm:MessageKind.Info}"
+                    Visibility="{Binding IsBuiltIn, Converter={StaticResource BoolToVisible}}">
+                <TextBlock Text="{x:Static res:Strings.Editor_BuiltInReadOnly}" TextWrapping="Wrap" FontWeight="SemiBold" />
+            </Border>
+            <TextBlock Style="{StaticResource Section}" Margin="2,12,0,6" Text="{x:Static res:Strings.Editor_SectionFan}" />
             <UniformGrid Rows="1" Width="200" HorizontalAlignment="Left">
                 <Button Style="{StaticResource Choice}" Content="CPU" Click="OnCpuClick">
                     <Button.Tag>
@@ -88,51 +89,67 @@
                 </Button>
             </UniformGrid>
 
-            <!-- Number table: a value is taken on Enter or when the box loses focus. -->
-            <Grid Margin="0,10,0,4">
+            <Grid Margin="0,10,0,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="60" />
-                    <ColumnDefinition Width="90" />
-                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="370" />
+                    <ColumnDefinition Width="16" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
-                           Text="{x:Static res:Strings.Editor_ColPoint}" ToolTip="{x:Static res:Strings.Editor_ColPoint}" />
-                <TextBlock Grid.Column="1" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
-                           Text="{x:Static res:Strings.Editor_ColThreshold}" ToolTip="{x:Static res:Strings.Editor_ColThreshold}" />
-                <TextBlock Grid.Column="2" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
-                           Text="{x:Static res:Strings.Editor_ColSpeed}" ToolTip="{x:Static res:Strings.Editor_ColSpeed}" />
-                <TextBlock Grid.Column="3" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
-                           Text="{x:Static res:Strings.Editor_ColAllowed}" ToolTip="{x:Static res:Strings.Editor_ColAllowed}" />
+
+                <!-- Before the table, so Tab goes from the fan buttons to the points and then to the boxes. -->
+                <local:FanCurveCanvas Grid.Column="2" Height="250" VerticalAlignment="Top"
+                                      Points="{Binding Points}" OtherCurve="{Binding OtherFanCurve}"
+                                      SelectedFan="{Binding SelectedFan}" IsReadOnly="{Binding IsBuiltIn}"
+                                      MoveRequested="OnChartMoveRequested" />
+
+                <StackPanel>
+                    <!-- Number table: a value is taken on Enter or when the box loses focus. -->
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="90" />
+                            <ColumnDefinition Width="90" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
+                                   Text="{x:Static res:Strings.Editor_ColPoint}" ToolTip="{x:Static res:Strings.Editor_ColPoint}" />
+                        <TextBlock Grid.Column="1" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
+                                   Text="{x:Static res:Strings.Editor_ColThreshold}" ToolTip="{x:Static res:Strings.Editor_ColThreshold}" />
+                        <TextBlock Grid.Column="2" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
+                                   Text="{x:Static res:Strings.Editor_ColSpeed}" ToolTip="{x:Static res:Strings.Editor_ColSpeed}" />
+                        <TextBlock Grid.Column="3" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
+                                   Text="{x:Static res:Strings.Editor_ColAllowed}" ToolTip="{x:Static res:Strings.Editor_ColAllowed}" />
+                    </Grid>
+                    <ItemsControl x:Name="PointRows" ItemsSource="{Binding Points}" KeyboardNavigation.TabNavigation="Continue">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:PointViewModel}">
+                                <Grid Margin="0,0,0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding Number, StringFormat='{}{0}'}" />
+                                    <TextBox Grid.Column="1" Margin="0,0,8,0" Style="{StaticResource Field}" Tag="up"
+                                             Text="{Binding UpC, Mode=OneWay}" LostKeyboardFocus="OnPointLostFocus" KeyDown="OnPointKeyDown">
+                                        <TextBox.IsReadOnly>
+                                            <MultiBinding Converter="{StaticResource AnyTrue}">
+                                                <Binding Path="IsIdle" />
+                                                <Binding Path="DataContext.IsBuiltIn" RelativeSource="{RelativeSource AncestorType=Window}" />
+                                            </MultiBinding>
+                                        </TextBox.IsReadOnly>
+                                    </TextBox>
+                                    <TextBox Grid.Column="2" Margin="0,0,8,0" Style="{StaticResource Field}" Tag="speed"
+                                             Text="{Binding SpeedPercent, Mode=OneWay}" LostKeyboardFocus="OnPointLostFocus" KeyDown="OnPointKeyDown"
+                                             IsReadOnly="{Binding DataContext.IsBuiltIn, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                    <TextBlock Grid.Column="3" VerticalAlignment="Center" Style="{StaticResource Muted}" Text="{Binding AllowedText}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
             </Grid>
-            <ItemsControl x:Name="PointRows" ItemsSource="{Binding Points}" KeyboardNavigation.TabNavigation="Continue">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type vm:PointViewModel}">
-                        <Grid Margin="0,0,0,4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="60" />
-                                <ColumnDefinition Width="90" />
-                                <ColumnDefinition Width="90" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock VerticalAlignment="Center" Text="{Binding Number, StringFormat='{}{0}'}" />
-                            <TextBox Grid.Column="1" Margin="0,0,8,0" Style="{StaticResource Field}" Tag="up"
-                                     Text="{Binding UpC, Mode=OneWay}" LostKeyboardFocus="OnPointLostFocus" KeyDown="OnPointKeyDown">
-                                <TextBox.IsReadOnly>
-                                    <MultiBinding Converter="{StaticResource AnyTrue}">
-                                        <Binding Path="IsIdle" />
-                                        <Binding Path="DataContext.IsBuiltIn" RelativeSource="{RelativeSource AncestorType=Window}" />
-                                    </MultiBinding>
-                                </TextBox.IsReadOnly>
-                            </TextBox>
-                            <TextBox Grid.Column="2" Margin="0,0,8,0" Style="{StaticResource Field}" Tag="speed"
-                                     Text="{Binding SpeedPercent, Mode=OneWay}" LostKeyboardFocus="OnPointLostFocus" KeyDown="OnPointKeyDown"
-                                     IsReadOnly="{Binding DataContext.IsBuiltIn, RelativeSource={RelativeSource AncestorType=Window}}" />
-                            <TextBlock Grid.Column="3" VerticalAlignment="Center" Style="{StaticResource Muted}" Text="{Binding AllowedText}" />
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
 
             <!-- Rules that span several points -->
             <Border Style="{StaticResource Band}" Tag="{x:Static vm:MessageKind.Warning}"

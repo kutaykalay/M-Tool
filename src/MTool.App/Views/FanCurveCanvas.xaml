@@ -1,0 +1,63 @@
+<UserControl x:Class="MTool.App.Views.FanCurveCanvas" x:ClassModifier="internal"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:MTool.App.Resources"
+             KeyboardNavigation.DirectionalNavigation="None" KeyboardNavigation.TabNavigation="Continue">
+    <UserControl.Resources>
+        <!-- A point: a ring in the series colour, filled while it has the keyboard focus. -->
+        <Style x:Key="PointThumb" TargetType="Thumb">
+            <Setter Property="Width" Value="20" />
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Focusable" Value="True" />
+            <Setter Property="IsTabStop" Value="True" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Grid Background="Transparent">
+                            <Ellipse x:Name="Ring" Width="18" Height="18" Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.5" Visibility="Collapsed" />
+                            <Ellipse x:Name="Dot" Width="12" Height="12" StrokeThickness="2"
+                                     Stroke="{TemplateBinding Foreground}" Fill="{DynamicResource Brush.Window}" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Ring" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="Dot" Property="Fill" Value="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Margin="0,0,0,4">
+            <TextBlock Style="{StaticResource Muted}" Text="{x:Static res:Strings.Chart_AxisSpeed}" />
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                <!-- Each fan keeps its colour; the one not being edited is drawn faintly. -->
+                <Rectangle Width="10" Height="10" VerticalAlignment="Center" Fill="{DynamicResource Brush.Accent}" />
+                <TextBlock Style="{StaticResource Muted}" Margin="4,0,10,0" Text="CPU" />
+                <Rectangle Width="10" Height="10" VerticalAlignment="Center" Fill="{DynamicResource Brush.ChartSecondary}" />
+                <TextBlock Style="{StaticResource Muted}" Margin="4,0,14,0" Text="GPU" />
+                <Line X1="0" Y1="0" X2="16" Y2="0" VerticalAlignment="Center" Stroke="{DynamicResource Brush.TextMuted}" StrokeThickness="2" />
+                <TextBlock Style="{StaticResource Muted}" Margin="5,0,12,0" Text="{x:Static res:Strings.Chart_LegendRise}" />
+                <Line X1="0" Y1="0" X2="16" Y2="0" VerticalAlignment="Center" Stroke="{DynamicResource Brush.TextMuted}" StrokeThickness="1.5" StrokeDashArray="2 2" />
+                <TextBlock Style="{StaticResource Muted}" Margin="5,0,0,0" Text="{x:Static res:Strings.Chart_LegendDown}" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Grid lines and labels are rebuilt on resize; the curves and points live on the surface above them. -->
+        <Canvas x:Name="GridLayer" Grid.Row="1" ClipToBounds="True" />
+        <Canvas x:Name="Surface" Grid.Row="1" Background="Transparent" SizeChanged="OnSurfaceSizeChanged" />
+
+        <TextBlock Grid.Row="2" Margin="0,2,0,0" HorizontalAlignment="Center" Style="{StaticResource Muted}"
+                   Text="{x:Static res:Strings.Chart_AxisTemperature}" />
+    </Grid>
+</UserControl>

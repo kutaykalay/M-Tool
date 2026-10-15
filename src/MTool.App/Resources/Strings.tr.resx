@@ -97,7 +97,7 @@
     <value>FAN</value>
   </data>
   <data name="Editor_BuiltInReadOnly" xml:space="preserve">
-    <value>Hazır profiller değiştirilemez; düzenlemek için kopyalayın.</value>
+    <value>Bu hazır bir profil, değiştirilemez. Düzenlemek için soldaki "Kopyala" düğmesine basın ve kopyayı değiştirin.</value>
   </data>
   <data name="Editor_ColPoint" xml:space="preserve">
     <value>Nokta</value>

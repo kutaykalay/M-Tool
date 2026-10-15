@@ -97,7 +97,7 @@
     <value>风扇</value>
   </data>
   <data name="Editor_BuiltInReadOnly" xml:space="preserve">
-    <value>内置配置无法更改；请复制一份后再编辑。</value>
+    <value>这是内置配置，无法更改。如需编辑，请点击左侧的“复制”，然后修改副本。</value>
   </data>
   <data name="Editor_ColPoint" xml:space="preserve">
     <value>点</value>

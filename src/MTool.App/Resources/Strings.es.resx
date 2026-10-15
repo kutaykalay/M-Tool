@@ -97,7 +97,7 @@
     <value>VENTILADOR</value>
   </data>
   <data name="Editor_BuiltInReadOnly" xml:space="preserve">
-    <value>Los perfiles integrados no se pueden cambiar; copie uno para editarlo.</value>
+    <value>Este es un perfil integrado y no se puede cambiar. Para editarlo, pulse «Copiar» a la izquierda y cambie la copia.</value>
   </data>
   <data name="Editor_ColPoint" xml:space="preserve">
     <value>Punto</value>
