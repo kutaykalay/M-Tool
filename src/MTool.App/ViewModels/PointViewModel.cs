@@ -13,7 +13,8 @@ public enum CurveFan
 public sealed record ProfileItem(string Name, bool IsBuiltIn);
 
 /// <summary>One point of the fan shown in the editor; <see cref="Limits"/> is where it may be moved.</summary>
-public sealed record PointViewModel(int Index, int UpC, int SpeedPercent, PointLimits Limits)
+/// <param name="DownC">Where the step drops back a speed (threshold minus the factory down offset); null for the idle point.</param>
+public sealed record PointViewModel(int Index, int UpC, int SpeedPercent, PointLimits Limits, int? DownC = null)
 {
     public bool IsIdle => Index == 0;
 
@@ -23,4 +24,12 @@ public sealed record PointViewModel(int Index, int UpC, int SpeedPercent, PointL
     /// <summary>The temperature and speed range the point may be set to.</summary>
     public string AllowedText => string.Format(
         Strings.Editor_AllowedRange, Limits.MinUpC, Limits.MaxUpC, Limits.MinSpeedPercent, Limits.MaxSpeedPercent);
+
+    /// <summary>What a screen reader says for the point on the chart.</summary>
+    public string AccessibleName => IsIdle
+        ? string.Format(Strings.Chart_IdlePointName, SpeedPercent)
+        : string.Format(Strings.Chart_PointName, Number, UpC, SpeedPercent);
+
+    /// <summary>How to move the point from the keyboard, and where it may go.</summary>
+    public string HelpText => string.Format(Strings.Chart_PointHelp, AllowedText);
 }

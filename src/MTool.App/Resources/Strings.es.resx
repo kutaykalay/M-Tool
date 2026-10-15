@@ -420,4 +420,31 @@
   <data name="ReportOnly_Help" xml:space="preserve">
     <value>Aún puede ayudar: envíe los datos de este portátil para que M-Tool pueda aprenderlo.</value>
   </data>
+  <data name="Chart_Name" xml:space="preserve">
+    <value>Curva de ventilador {0}</value>
+  </data>
+  <data name="Chart_PointName" xml:space="preserve">
+    <value>Punto {0}: {1} °C, {2} %</value>
+  </data>
+  <data name="Chart_IdlePointName" xml:space="preserve">
+    <value>Punto 1 (reposo): {0} %</value>
+  </data>
+  <data name="Chart_PointHelp" xml:space="preserve">
+    <value>Muévalo con las flechas, de 5 en 5 con Shift. Permitido: {0}</value>
+  </data>
+  <data name="Chart_AxisTemperature" xml:space="preserve">
+    <value>Temperatura (°C)</value>
+  </data>
+  <data name="Chart_AxisSpeed" xml:space="preserve">
+    <value>Velocidad del ventilador</value>
+  </data>
+  <data name="Chart_PercentTick" xml:space="preserve">
+    <value>{0} %</value>
+  </data>
+  <data name="Chart_LegendRise" xml:space="preserve">
+    <value>Acelera</value>
+  </data>
+  <data name="Chart_LegendDown" xml:space="preserve">
+    <value>Desacelera</value>
+  </data>
 </root>

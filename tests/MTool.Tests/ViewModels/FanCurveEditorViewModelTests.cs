@@ -1,4 +1,6 @@
+using System.Windows.Input;
 using MTool.App.ViewModels;
+using MTool.App.Views.Chart;
 using MTool.Core.Device;
 using MTool.Core.Ec;
 using MTool.Core.Profiles;
@@ -514,5 +516,84 @@ public sealed class FanCurveEditorViewModelTests : IDisposable
 
         editor.Profiles.Select(p => p.Name).Should().NotContain("Yeni");
         changes.Should().Be(0);
+    }
+
+    [Fact]
+    public void Each_step_point_knows_where_it_drops_back()
+    {
+        var editor = EditorOnNight();
+
+        editor.Points[0].DownC.Should().BeNull();
+        editor.Points.Skip(1).Select(p => p.DownC).Should().Equal(
+            TestCurves.Night.Cpu.DownThresholdsC(FactoryDefaults.CpuDownOffsets).Select(c => (int?)c));
+
+        editor.SelectedFan = CurveFan.Gpu;
+
+        // The GPU's last step drops back 5 °C below its threshold, the CPU's 3 °C.
+        editor.Points[6].DownC.Should().Be(TestCurves.Night.Gpu.Points[6].UpThresholdC - 5);
+    }
+
+    [Fact]
+    public void The_other_fan_follows_the_selected_one_and_the_draft()
+    {
+        var editor = EditorOnNight();
+        var notified = new List<string?>();
+        editor.PropertyChanged += (_, e) => notified.Add(e.PropertyName);
+
+        editor.OtherFanCurve.Should().Be(TestCurves.Night.Gpu);
+
+        editor.SelectedFan = CurveFan.Gpu;
+        editor.OtherFanCurve.Should().Be(TestCurves.Night.Cpu);
+        notified.Should().Contain(nameof(FanCurveEditorViewModel.OtherFanCurve));
+
+        notified.Clear();
+        editor.MovePoint(CurveFan.Cpu, 3, 76, 66);
+        editor.OtherFanCurve.Should().Be(editor.Draft.Cpu);
+        editor.OtherFanCurve.Points[3].Should().Be(new FanPoint(76, 66));
+        notified.Should().Contain(nameof(FanCurveEditorViewModel.OtherFanCurve));
+    }
+
+    [Fact]
+    public void A_drag_put_back_where_it_started_leaves_the_draft_clean()
+    {
+        var editor = EditorOnNight();
+        var start = editor.Points[2];
+
+        foreach (var (upC, pct) in new[] { (70, 60), (72, 50), (200, 200), (0, 0), (69, 58) })
+        {
+            editor.MovePoint(CurveFan.Cpu, 2, upC, pct);
+        }
+
+        editor.MovePoint(CurveFan.Cpu, 2, start.UpC, start.SpeedPercent);
+
+        editor.Draft.Should().Be(TestCurves.Night);
+        editor.IsDirty.Should().BeFalse();
+    }
+
+    [Fact]
+    public void An_arrow_key_past_the_limit_changes_nothing_but_refreshes_the_points()
+    {
+        var editor = EditorOnNight();
+        var notified = new List<string?>();
+        editor.PropertyChanged += (_, e) => notified.Add(e.PropertyName);
+
+        // The last CPU point of "Gece" already runs at 100 %.
+        var target = CurveChartScale.KeyStep(editor.Points[6], Key.Up, shift: false)!.Value;
+        editor.MovePoint(CurveFan.Cpu, 6, target.UpC, target.Pct);
+
+        editor.IsDirty.Should().BeFalse();
+        notified.Should().Contain(nameof(FanCurveEditorViewModel.Points));
+    }
+
+    [Fact]
+    public void An_arrow_key_on_a_built_in_profile_changes_nothing()
+    {
+        var editor = Select(Editor(), DesiredState.DefaultProfileName);
+
+        var target = CurveChartScale.KeyStep(editor.Points[3], Key.Right, shift: true)!.Value;
+        editor.MovePoint(CurveFan.Cpu, 3, target.UpC, target.Pct);
+
+        editor.Draft.Should().Be(FactoryDefaults.FanCurves);
+        editor.IsDirty.Should().BeFalse();
     }
 }

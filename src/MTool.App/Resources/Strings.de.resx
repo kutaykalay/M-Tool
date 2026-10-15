@@ -420,4 +420,31 @@
   <data name="ReportOnly_Help" xml:space="preserve">
     <value>Sie können trotzdem helfen: Senden Sie die Daten dieses Laptops, damit M-Tool ihn kennenlernt.</value>
   </data>
+  <data name="Chart_Name" xml:space="preserve">
+    <value>Lüfterkurve {0}</value>
+  </data>
+  <data name="Chart_PointName" xml:space="preserve">
+    <value>Punkt {0}: {1} °C, {2} %</value>
+  </data>
+  <data name="Chart_IdlePointName" xml:space="preserve">
+    <value>Punkt 1 (Leerlauf): {0} %</value>
+  </data>
+  <data name="Chart_PointHelp" xml:space="preserve">
+    <value>Mit den Pfeiltasten verschieben, mit Umschalt in 5er-Schritten. Erlaubt: {0}</value>
+  </data>
+  <data name="Chart_AxisTemperature" xml:space="preserve">
+    <value>Temperatur (°C)</value>
+  </data>
+  <data name="Chart_AxisSpeed" xml:space="preserve">
+    <value>Lüfterdrehzahl</value>
+  </data>
+  <data name="Chart_PercentTick" xml:space="preserve">
+    <value>{0} %</value>
+  </data>
+  <data name="Chart_LegendRise" xml:space="preserve">
+    <value>Beschleunigt</value>
+  </data>
+  <data name="Chart_LegendDown" xml:space="preserve">
+    <value>Verlangsamt</value>
+  </data>
 </root>

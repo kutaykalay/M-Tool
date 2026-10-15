@@ -64,6 +64,7 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Points))]
+    [NotifyPropertyChangedFor(nameof(OtherFanCurve))]
     public partial CurveFan SelectedFan { get; set; }
 
     /// <summary>The name box: the selected profile's name until the user types a new one for renaming.</summary>
@@ -93,10 +94,14 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
         {
             var curve = CurveOf(Draft, SelectedFan);
             var offsets = OffsetsOf(SelectedFan);
-            return [.. curve.Points.Select((p, i) =>
-                new PointViewModel(i, p.UpThresholdC, p.SpeedPercent, CurveEditing.Limits(curve, i, offsets)))];
+            var down = curve.DownThresholdsC(offsets);
+            return [.. curve.Points.Select((p, i) => new PointViewModel(
+                i, p.UpThresholdC, p.SpeedPercent, CurveEditing.Limits(curve, i, offsets), i == 0 ? null : down[i - 1]))];
         }
     }
+
+    /// <summary>The fan not being edited, drawn faintly on the chart for comparison.</summary>
+    public FanCurve OtherFanCurve => CurveOf(Draft, SelectedFan == CurveFan.Cpu ? CurveFan.Gpu : CurveFan.Cpu);
 
     /// <summary>Dragging and the number table both come here; the point lands on the nearest allowed place.</summary>
     public void MovePoint(CurveFan fan, int index, int upC, int speedPercent)
@@ -322,6 +327,7 @@ public sealed partial class FanCurveEditorViewModel : ObservableObject, IDisposa
         OnPropertyChanged(nameof(Errors));
         OnPropertyChanged(nameof(HasErrors));
         OnPropertyChanged(nameof(Points));
+        OnPropertyChanged(nameof(OtherFanCurve));
         NotifyCommands();
     }
 

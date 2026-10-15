@@ -420,4 +420,31 @@
   <data name="ReportOnly_Help" xml:space="preserve">
     <value>Você ainda pode ajudar: envie os dados deste notebook para que o M-Tool possa aprendê-lo.</value>
   </data>
+  <data name="Chart_Name" xml:space="preserve">
+    <value>Curva da ventoinha {0}</value>
+  </data>
+  <data name="Chart_PointName" xml:space="preserve">
+    <value>Ponto {0}: {1} °C, {2}%</value>
+  </data>
+  <data name="Chart_IdlePointName" xml:space="preserve">
+    <value>Ponto 1 (ocioso): {0}%</value>
+  </data>
+  <data name="Chart_PointHelp" xml:space="preserve">
+    <value>Mova com as setas, de 5 em 5 com Shift. Permitido: {0}</value>
+  </data>
+  <data name="Chart_AxisTemperature" xml:space="preserve">
+    <value>Temperatura (°C)</value>
+  </data>
+  <data name="Chart_AxisSpeed" xml:space="preserve">
+    <value>Velocidade da ventoinha</value>
+  </data>
+  <data name="Chart_PercentTick" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+  <data name="Chart_LegendRise" xml:space="preserve">
+    <value>Acelera</value>
+  </data>
+  <data name="Chart_LegendDown" xml:space="preserve">
+    <value>Desacelera</value>
+  </data>
 </root>

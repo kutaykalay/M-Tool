@@ -420,4 +420,31 @@
   <data name="ReportOnly_Help" xml:space="preserve">
     <value>Вы всё равно можете помочь: отправьте данные этого ноутбука, чтобы M-Tool мог его изучить.</value>
   </data>
+  <data name="Chart_Name" xml:space="preserve">
+    <value>Кривая вентилятора {0}</value>
+  </data>
+  <data name="Chart_PointName" xml:space="preserve">
+    <value>Точка {0}: {1} °C, {2} %</value>
+  </data>
+  <data name="Chart_IdlePointName" xml:space="preserve">
+    <value>Точка 1 (простой): {0} %</value>
+  </data>
+  <data name="Chart_PointHelp" xml:space="preserve">
+    <value>Перемещайте стрелками, с Shift — по 5. Допустимо: {0}</value>
+  </data>
+  <data name="Chart_AxisTemperature" xml:space="preserve">
+    <value>Температура (°C)</value>
+  </data>
+  <data name="Chart_AxisSpeed" xml:space="preserve">
+    <value>Скорость вентилятора</value>
+  </data>
+  <data name="Chart_PercentTick" xml:space="preserve">
+    <value>{0} %</value>
+  </data>
+  <data name="Chart_LegendRise" xml:space="preserve">
+    <value>Ускоряется</value>
+  </data>
+  <data name="Chart_LegendDown" xml:space="preserve">
+    <value>Замедляется</value>
+  </data>
 </root>

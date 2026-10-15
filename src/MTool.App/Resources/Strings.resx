@@ -558,4 +558,40 @@
     <value>You can still help: send this laptop's data so M-Tool can learn it.</value>
     <comment>Line in that window, below the explanation of why M-Tool cannot control this laptop, above the report buttons.</comment>
   </data>
+  <data name="Chart_Name" xml:space="preserve">
+    <value>{0} fan curve</value>
+    <comment>Screen reader name of the fan curve chart in the editor. {0} is CPU or GPU.</comment>
+  </data>
+  <data name="Chart_PointName" xml:space="preserve">
+    <value>Point {0}: {1} °C, {2}%</value>
+    <comment>Screen reader name of a draggable point on the chart: {0} point number, {1} temperature at which the fan speeds up, {2} fan speed in percent.</comment>
+  </data>
+  <data name="Chart_IdlePointName" xml:space="preserve">
+    <value>Point 1 (idle): {0}%</value>
+    <comment>Screen reader name of the first point, the speed when the laptop is cool. {0} fan speed in percent.</comment>
+  </data>
+  <data name="Chart_PointHelp" xml:space="preserve">
+    <value>Move it with the arrow keys, by 5 with Shift. Allowed: {0}</value>
+    <comment>Screen reader help for a chart point. {0} is the allowed range, e.g. "64–71 °C, 45–65%".</comment>
+  </data>
+  <data name="Chart_AxisTemperature" xml:space="preserve">
+    <value>Temperature (°C)</value>
+    <comment>Label under the chart's horizontal axis.</comment>
+  </data>
+  <data name="Chart_AxisSpeed" xml:space="preserve">
+    <value>Fan speed</value>
+    <comment>Label beside the chart's vertical axis (percent).</comment>
+  </data>
+  <data name="Chart_PercentTick" xml:space="preserve">
+    <value>{0}%</value>
+    <comment>A number on the chart's vertical axis, e.g. 60%. Put the percent sign where your language puts it.</comment>
+  </data>
+  <data name="Chart_LegendRise" xml:space="preserve">
+    <value>Speeds up</value>
+    <comment>Legend for the solid line: above this temperature the fan speeds up.</comment>
+  </data>
+  <data name="Chart_LegendDown" xml:space="preserve">
+    <value>Slows down</value>
+    <comment>Legend for the dashed lines: below this temperature the fan slows back down.</comment>
+  </data>
 </root>

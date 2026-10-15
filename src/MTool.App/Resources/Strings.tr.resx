@@ -420,4 +420,31 @@
   <data name="ReportOnly_Help" xml:space="preserve">
     <value>Yine de yardımcı olabilirsiniz: bu laptopun verisini gönderin, M-Tool onu öğrensin.</value>
   </data>
+  <data name="Chart_Name" xml:space="preserve">
+    <value>{0} fan eğrisi</value>
+  </data>
+  <data name="Chart_PointName" xml:space="preserve">
+    <value>Nokta {0}: {1} °C, %{2}</value>
+  </data>
+  <data name="Chart_IdlePointName" xml:space="preserve">
+    <value>Nokta 1 (boşta): %{0}</value>
+  </data>
+  <data name="Chart_PointHelp" xml:space="preserve">
+    <value>Ok tuşlarıyla taşıyın, Shift ile 5'er. İzin verilen: {0}</value>
+  </data>
+  <data name="Chart_AxisTemperature" xml:space="preserve">
+    <value>Sıcaklık (°C)</value>
+  </data>
+  <data name="Chart_AxisSpeed" xml:space="preserve">
+    <value>Fan hızı</value>
+  </data>
+  <data name="Chart_PercentTick" xml:space="preserve">
+    <value>%{0}</value>
+  </data>
+  <data name="Chart_LegendRise" xml:space="preserve">
+    <value>Hızlanır</value>
+  </data>
+  <data name="Chart_LegendDown" xml:space="preserve">
+    <value>Yavaşlar</value>
+  </data>
 </root>

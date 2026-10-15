@@ -420,4 +420,31 @@
   <data name="ReportOnly_Help" xml:space="preserve">
     <value>您仍然可以帮忙：发送这台笔记本电脑的数据，让 M-Tool 学会支持它。</value>
   </data>
+  <data name="Chart_Name" xml:space="preserve">
+    <value>{0} 风扇曲线</value>
+  </data>
+  <data name="Chart_PointName" xml:space="preserve">
+    <value>点 {0}：{1} °C，{2}%</value>
+  </data>
+  <data name="Chart_IdlePointName" xml:space="preserve">
+    <value>点 1（空闲）：{0}%</value>
+  </data>
+  <data name="Chart_PointHelp" xml:space="preserve">
+    <value>用方向键移动，按住 Shift 每次 5。允许范围：{0}</value>
+  </data>
+  <data name="Chart_AxisTemperature" xml:space="preserve">
+    <value>温度（°C）</value>
+  </data>
+  <data name="Chart_AxisSpeed" xml:space="preserve">
+    <value>风扇转速</value>
+  </data>
+  <data name="Chart_PercentTick" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+  <data name="Chart_LegendRise" xml:space="preserve">
+    <value>升速</value>
+  </data>
+  <data name="Chart_LegendDown" xml:space="preserve">
+    <value>降速</value>
+  </data>
 </root>
