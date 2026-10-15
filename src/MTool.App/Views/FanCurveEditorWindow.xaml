@@ -9,6 +9,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:FanCurveEditorViewModel}"
         Title="{x:Static res:Strings.Editor_Title}" Width="1140" SizeToContent="Height" ResizeMode="CanMinimize"
+        MaxWidth="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Width}"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
         FontFamily="Segoe UI" FontSize="13" UseLayoutRounding="True"
@@ -28,6 +29,7 @@
         </Style>
     </Window.Resources>
 
+    <!-- MaxWidth: on a screen narrower than the window, the chart column narrows instead of the window running off it. -->
     <Grid Margin="14,10,14,14">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
