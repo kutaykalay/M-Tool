@@ -11,168 +11,171 @@
         WindowStartupLocation="Manual" ShowActivated="True"
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
         FontFamily="Segoe UI" FontSize="13" UseLayoutRounding="True">
-    <StackPanel Margin="14,10,14,14">
+    <!-- Scrolls only on a screen shorter than the window (MaxHeight is set next to the tray). -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+        <StackPanel Margin="14,10,14,14">
 
-        <!-- Write access (dry-run, read-only) -->
-        <Border Style="{StaticResource Band}" Margin="0,0,0,4" Tag="{Binding Status.AccessBannerKind}"
-                Visibility="{Binding Status.AccessBanner, Converter={StaticResource NotNullToVisible}}">
-            <TextBlock Text="{Binding Status.AccessBanner}" TextWrapping="Wrap" />
-        </Border>
+            <!-- Write access (dry-run, read-only) -->
+            <Border Style="{StaticResource Band}" Margin="0,0,0,4" Tag="{Binding Status.AccessBannerKind}"
+                    Visibility="{Binding Status.AccessBanner, Converter={StaticResource NotNullToVisible}}">
+                <TextBlock Text="{Binding Status.AccessBanner}" TextWrapping="Wrap" />
+            </Border>
 
-        <!-- Sensors -->
-        <TextBlock Style="{StaticResource Section}" Text="{x:Static res:Strings.Main_SectionSensors}" />
-        <Border Style="{StaticResource Card}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock Style="{StaticResource Muted}" Text="CPU" />
-                <TextBlock Grid.Column="1" Style="{StaticResource Muted}" Text="GPU" Visibility="{Binding Controls.ShowGpu, Converter={StaticResource BoolToVisible}}" />
-                <TextBlock Grid.Row="1" Style="{StaticResource Value}" Text="{Binding Sensors.CpuTemperature}" />
-                <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource Value}" Text="{Binding Sensors.GpuTemperature}"
-                           Visibility="{Binding Controls.ShowGpu, Converter={StaticResource BoolToVisible}}" />
-                <TextBlock Grid.Row="2" Text="{Binding Sensors.CpuFan}" />
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Sensors.GpuFan}" Visibility="{Binding Controls.ShowGpu, Converter={StaticResource BoolToVisible}}" />
-                <TextBlock Grid.Row="3" Grid.ColumnSpan="2" Margin="0,6,0,0" Style="{StaticResource Muted}"
-                           Text="{Binding Sensors.Freshness}"
-                           Visibility="{Binding Sensors.Freshness, Converter={StaticResource NotNullToVisible}}" />
-            </Grid>
-        </Border>
+            <!-- Sensors -->
+            <TextBlock Style="{StaticResource Section}" Text="{x:Static res:Strings.Main_SectionSensors}" />
+            <Border Style="{StaticResource Card}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Style="{StaticResource Muted}" Text="CPU" />
+                    <TextBlock Grid.Column="1" Style="{StaticResource Muted}" Text="GPU" Visibility="{Binding Controls.ShowGpu, Converter={StaticResource BoolToVisible}}" />
+                    <TextBlock Grid.Row="1" Style="{StaticResource Value}" Text="{Binding Sensors.CpuTemperature}" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource Value}" Text="{Binding Sensors.GpuTemperature}"
+                               Visibility="{Binding Controls.ShowGpu, Converter={StaticResource BoolToVisible}}" />
+                    <TextBlock Grid.Row="2" Text="{Binding Sensors.CpuFan}" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Sensors.GpuFan}" Visibility="{Binding Controls.ShowGpu, Converter={StaticResource BoolToVisible}}" />
+                    <TextBlock Grid.Row="3" Grid.ColumnSpan="2" Margin="0,6,0,0" Style="{StaticResource Muted}"
+                               Text="{Binding Sensors.Freshness}"
+                               Visibility="{Binding Sensors.Freshness, Converter={StaticResource NotNullToVisible}}" />
+                </Grid>
+            </Border>
 
-        <!-- Fan profile -->
-        <StackPanel Visibility="{Binding Controls.ShowFanProfiles, Converter={StaticResource BoolToVisible}}">
-            <!-- The pill is taller than the title; negative vertical margins center it on the title line without growing the row. -->
-            <DockPanel Margin="0,12,0,10">
-                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" VerticalAlignment="Center" Text="{x:Static res:Strings.Main_SectionFanProfile}" />
-                <Button DockPanel.Dock="Right" Style="{StaticResource Pill}" Margin="10,-4,0,-4" VerticalAlignment="Center"
-                        Click="OnEditCurvesClick" ToolTip="{x:Static res:Strings.Main_EditCurvesTip}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="11" VerticalAlignment="Center"
-                                   Margin="0,0,5,0" Text="&#xE70F;" />
-                        <TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.Main_EditCurves}" />
-                    </StackPanel>
+            <!-- Fan profile -->
+            <StackPanel Visibility="{Binding Controls.ShowFanProfiles, Converter={StaticResource BoolToVisible}}">
+                <!-- The pill is taller than the title; negative vertical margins center it on the title line without growing the row. -->
+                <DockPanel Margin="0,12,0,10">
+                    <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" VerticalAlignment="Center" Text="{x:Static res:Strings.Main_SectionFanProfile}" />
+                    <Button DockPanel.Dock="Right" Style="{StaticResource Pill}" Margin="10,-4,0,-4" VerticalAlignment="Center"
+                            Click="OnEditCurvesClick" ToolTip="{x:Static res:Strings.Main_EditCurvesTip}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="11" VerticalAlignment="Center"
+                                       Margin="0,0,5,0" Text="&#xE70F;" />
+                            <TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.Main_EditCurves}" />
+                        </StackPanel>
+                    </Button>
+                    <!-- A custom profile name can be long: it ends in "…" before the pill, the tooltip shows it whole. -->
+                    <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                               Text="{Binding Controls.ActiveProfileLabel}" ToolTip="{Binding Controls.ActiveProfileLabel}" />
+                </DockPanel>
+                <!-- Three a row: the built-in profiles fill the first, custom ones wrap below. -->
+                <ItemsControl ItemsSource="{Binding Controls.ProfileNames}" Margin="0,0,0,-6">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource Choice}" Margin="0,0,6,6" CommandParameter="{Binding}" ToolTip="{Binding}"
+                                    Command="{Binding DataContext.Controls.SelectProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                                <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
+                                <Button.Tag>
+                                    <MultiBinding Converter="{StaticResource Equal}">
+                                        <Binding />
+                                        <Binding Path="DataContext.Controls.ActiveProfile" RelativeSource="{RelativeSource AncestorType=Window}" />
+                                    </MultiBinding>
+                                </Button.Tag>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <!-- Performance mode -->
+            <StackPanel Visibility="{Binding Controls.ShowPerformance, Converter={StaticResource BoolToVisible}}">
+                <DockPanel Margin="0,12,0,6">
+                    <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="{x:Static res:Strings.Main_SectionPerformance}" />
+                    <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis"
+                               Text="{Binding Controls.PerformanceLabel}" ToolTip="{Binding Controls.PerformanceLabel}" />
+                </DockPanel>
+                <ItemsControl ItemsSource="{Binding Controls.PerformanceOptions}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource Choice}" Content="{Binding Name}" ToolTip="{Binding Name}" CommandParameter="{Binding Mode}"
+                                    Command="{Binding DataContext.Controls.SetPerformanceCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                                <Button.Tag>
+                                    <MultiBinding Converter="{StaticResource Equal}">
+                                        <Binding Path="Mode" />
+                                        <Binding Path="DataContext.Controls.ActivePerformance" RelativeSource="{RelativeSource AncestorType=Window}" />
+                                    </MultiBinding>
+                                </Button.Tag>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <!-- AC/battery switching: changes only the settings file, so it is not tied to write access. -->
+            <CheckBox Margin="2,10,0,0" Foreground="{DynamicResource Brush.Text}" ToolTipService.ShowDuration="20000"
+                      IsChecked="{Binding PowerSwitch.IsOn, Mode=OneWay}" Command="{Binding PowerSwitch.ToggleCommand}"
+                      ToolTip="{x:Static res:Strings.Main_PowerSwitchTip}">
+                <TextBlock Text="{x:Static res:Strings.Main_PowerSwitch}" TextWrapping="Wrap" />
+            </CheckBox>
+            <TextBlock Style="{StaticResource Muted}" Margin="22,2,0,0" Text="{Binding PowerSwitch.SourceLabel}"
+                       Visibility="{Binding PowerSwitch.SourceLabel, Converter={StaticResource NotNullToVisible}}" />
+
+            <!-- Cooler Boost -->
+            <StackPanel Visibility="{Binding Controls.ShowCoolerBoost, Converter={StaticResource BoolToVisible}}">
+                <TextBlock Style="{StaticResource Section}" Text="COOLER BOOST" />
+                <Button Style="{StaticResource Choice}" Margin="0" HorizontalAlignment="Stretch"
+                        Tag="{Binding Controls.CoolerBoostOn}"
+                        CommandParameter="{Binding Controls.CoolerBoostOn, Converter={StaticResource Not}}"
+                        Command="{Binding Controls.SetCoolerBoostCommand}">
+                    <!-- Wraps instead of ending in "…": the hint is the only place this text appears. -->
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center">
+                        <Run Text="Cooler Boost" />
+                        <Run Text="{x:Static res:Strings.Main_CoolerBoostHint}" />
+                    </TextBlock>
                 </Button>
-                <!-- A custom profile name can be long: it ends in "…" before the pill, the tooltip shows it whole. -->
-                <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
-                           Text="{Binding Controls.ActiveProfileLabel}" ToolTip="{Binding Controls.ActiveProfileLabel}" />
-            </DockPanel>
-            <!-- Three a row: the built-in profiles fill the first, custom ones wrap below. -->
-            <ItemsControl ItemsSource="{Binding Controls.ProfileNames}" Margin="0,0,0,-6">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="3" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Style="{StaticResource Choice}" Margin="0,0,6,6" CommandParameter="{Binding}" ToolTip="{Binding}"
-                                Command="{Binding DataContext.Controls.SelectProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}">
-                            <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
-                            <Button.Tag>
-                                <MultiBinding Converter="{StaticResource Equal}">
-                                    <Binding />
-                                    <Binding Path="DataContext.Controls.ActiveProfile" RelativeSource="{RelativeSource AncestorType=Window}" />
-                                </MultiBinding>
-                            </Button.Tag>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            </StackPanel>
+
+            <!-- Charge limit -->
+            <StackPanel Visibility="{Binding Controls.ShowChargeLimit, Converter={StaticResource BoolToVisible}}">
+                <DockPanel Margin="0,12,0,6">
+                    <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="{x:Static res:Strings.Main_SectionChargeLimit}" />
+                    <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right">
+                        <Run Text="{x:Static res:Strings.Main_ChargeLimitNow}" />
+                        <Run Text="{Binding Controls.ChargeLimitLabel, Mode=OneWay}" />
+                    </TextBlock>
+                </DockPanel>
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Style="{StaticResource Choice}" Margin="8,0,0,0" Content="{x:Static res:Strings.Common_Apply}"
+                            Command="{Binding Controls.ApplyChargeLimitCommand}" />
+                    <TextBlock DockPanel.Dock="Right" Width="44" VerticalAlignment="Center" TextAlignment="Right"
+                               Text="{Binding Controls.ChargeLimitDraftLabel}" />
+                    <Slider Minimum="{Binding Controls.ChargeLimitMin, Mode=OneTime}" Maximum="{Binding Controls.ChargeLimitMax, Mode=OneTime}" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                            Value="{Binding Controls.ChargeLimitDraft, Mode=TwoWay}" IsEnabled="{Binding Controls.CanWritePort}" />
+                </DockPanel>
+            </StackPanel>
+
+            <!-- Drift after reboot / sleep -->
+            <Border Style="{StaticResource Band}" Tag="{x:Static vm:MessageKind.Warning}"
+                    Visibility="{Binding Status.ShowReapply, Converter={StaticResource BoolToVisible}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Style="{StaticResource Choice}" Margin="8,0,0,0" Content="{x:Static res:Strings.Main_Reapply}"
+                            Command="{Binding Controls.ReapplyCommand}" />
+                    <TextBlock Text="{Binding Status.DriftText}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
+
+            <!-- Result of the last command -->
+            <Border Style="{StaticResource Band}" Tag="{Binding Status.MessageKind}"
+                    Visibility="{Binding Status.Message, Converter={StaticResource NotNullToVisible}}">
+                <TextBlock Text="{Binding Status.Message}" TextWrapping="Wrap" />
+            </Border>
         </StackPanel>
-
-        <!-- Performance mode -->
-        <StackPanel Visibility="{Binding Controls.ShowPerformance, Converter={StaticResource BoolToVisible}}">
-            <DockPanel Margin="0,12,0,6">
-                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="{x:Static res:Strings.Main_SectionPerformance}" />
-                <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis"
-                           Text="{Binding Controls.PerformanceLabel}" ToolTip="{Binding Controls.PerformanceLabel}" />
-            </DockPanel>
-            <ItemsControl ItemsSource="{Binding Controls.PerformanceOptions}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Rows="1" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Style="{StaticResource Choice}" Content="{Binding Name}" ToolTip="{Binding Name}" CommandParameter="{Binding Mode}"
-                                Command="{Binding DataContext.Controls.SetPerformanceCommand, RelativeSource={RelativeSource AncestorType=Window}}">
-                            <Button.Tag>
-                                <MultiBinding Converter="{StaticResource Equal}">
-                                    <Binding Path="Mode" />
-                                    <Binding Path="DataContext.Controls.ActivePerformance" RelativeSource="{RelativeSource AncestorType=Window}" />
-                                </MultiBinding>
-                            </Button.Tag>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
-
-        <!-- AC/battery switching: changes only the settings file, so it is not tied to write access. -->
-        <CheckBox Margin="2,10,0,0" Foreground="{DynamicResource Brush.Text}" ToolTipService.ShowDuration="20000"
-                  IsChecked="{Binding PowerSwitch.IsOn, Mode=OneWay}" Command="{Binding PowerSwitch.ToggleCommand}"
-                  ToolTip="{x:Static res:Strings.Main_PowerSwitchTip}">
-            <TextBlock Text="{x:Static res:Strings.Main_PowerSwitch}" TextWrapping="Wrap" />
-        </CheckBox>
-        <TextBlock Style="{StaticResource Muted}" Margin="22,2,0,0" Text="{Binding PowerSwitch.SourceLabel}"
-                   Visibility="{Binding PowerSwitch.SourceLabel, Converter={StaticResource NotNullToVisible}}" />
-
-        <!-- Cooler Boost -->
-        <StackPanel Visibility="{Binding Controls.ShowCoolerBoost, Converter={StaticResource BoolToVisible}}">
-            <TextBlock Style="{StaticResource Section}" Text="COOLER BOOST" />
-            <Button Style="{StaticResource Choice}" Margin="0" HorizontalAlignment="Stretch"
-                    Tag="{Binding Controls.CoolerBoostOn}"
-                    CommandParameter="{Binding Controls.CoolerBoostOn, Converter={StaticResource Not}}"
-                    Command="{Binding Controls.SetCoolerBoostCommand}">
-                <!-- Wraps instead of ending in "…": the hint is the only place this text appears. -->
-                <TextBlock TextWrapping="Wrap" TextAlignment="Center">
-                    <Run Text="Cooler Boost" />
-                    <Run Text="{x:Static res:Strings.Main_CoolerBoostHint}" />
-                </TextBlock>
-            </Button>
-        </StackPanel>
-
-        <!-- Charge limit -->
-        <StackPanel Visibility="{Binding Controls.ShowChargeLimit, Converter={StaticResource BoolToVisible}}">
-            <DockPanel Margin="0,12,0,6">
-                <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" Text="{x:Static res:Strings.Main_SectionChargeLimit}" />
-                <TextBlock Style="{StaticResource Muted}" HorizontalAlignment="Right">
-                    <Run Text="{x:Static res:Strings.Main_ChargeLimitNow}" />
-                    <Run Text="{Binding Controls.ChargeLimitLabel, Mode=OneWay}" />
-                </TextBlock>
-            </DockPanel>
-            <DockPanel>
-                <Button DockPanel.Dock="Right" Style="{StaticResource Choice}" Margin="8,0,0,0" Content="{x:Static res:Strings.Common_Apply}"
-                        Command="{Binding Controls.ApplyChargeLimitCommand}" />
-                <TextBlock DockPanel.Dock="Right" Width="44" VerticalAlignment="Center" TextAlignment="Right"
-                           Text="{Binding Controls.ChargeLimitDraftLabel}" />
-                <Slider Minimum="{Binding Controls.ChargeLimitMin, Mode=OneTime}" Maximum="{Binding Controls.ChargeLimitMax, Mode=OneTime}" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"
-                        Value="{Binding Controls.ChargeLimitDraft, Mode=TwoWay}" IsEnabled="{Binding Controls.CanWritePort}" />
-            </DockPanel>
-        </StackPanel>
-
-        <!-- Drift after reboot / sleep -->
-        <Border Style="{StaticResource Band}" Tag="{x:Static vm:MessageKind.Warning}"
-                Visibility="{Binding Status.ShowReapply, Converter={StaticResource BoolToVisible}}">
-            <DockPanel>
-                <Button DockPanel.Dock="Right" Style="{StaticResource Choice}" Margin="8,0,0,0" Content="{x:Static res:Strings.Main_Reapply}"
-                        Command="{Binding Controls.ReapplyCommand}" />
-                <TextBlock Text="{Binding Status.DriftText}" TextWrapping="Wrap" VerticalAlignment="Center" />
-            </DockPanel>
-        </Border>
-
-        <!-- Result of the last command -->
-        <Border Style="{StaticResource Band}" Tag="{Binding Status.MessageKind}"
-                Visibility="{Binding Status.Message, Converter={StaticResource NotNullToVisible}}">
-            <TextBlock Text="{Binding Status.Message}" TextWrapping="Wrap" />
-        </Border>
-    </StackPanel>
+    </ScrollViewer>
 </Window>

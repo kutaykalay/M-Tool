@@ -1,5 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Threading;
 using MTool.App.ViewModels;
 
 namespace MTool.App.Views;
@@ -107,10 +109,28 @@ internal partial class MainWindow : Window
         }
     }
 
+    /// <summary>After a display scale change the old corner may be off screen: place it again once laid out.</summary>
+    protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
+    {
+        base.OnDpiChanged(oldDpi, newDpi);
+        Dispatcher.BeginInvoke(DispatcherPriority.Loaded, MoveToCorner);
+    }
+
+    // The live work area in pixels: SystemParameters.WorkArea keeps the scale the app started with.
     private void MoveToCorner()
     {
-        var area = SystemParameters.WorkArea;
-        Left = area.Right - ActualWidth - ScreenMargin;
-        Top = area.Bottom - ActualHeight - ScreenMargin;
+        if (System.Windows.Forms.Screen.PrimaryScreen?.WorkingArea is not { } pixels)
+        {
+            return;
+        }
+
+        var corner = TrayPlacement.Corner(
+            new Rect(pixels.X, pixels.Y, pixels.Width, pixels.Height),
+            VisualTreeHelper.GetDpi(this),
+            new Size(ActualWidth, ActualHeight),
+            ScreenMargin);
+        MaxHeight = corner.MaxHeight;
+        Left = corner.Left;
+        Top = corner.Top;
     }
 }
