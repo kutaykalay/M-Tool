@@ -169,7 +169,7 @@
     <value>Açılışta firmware okunamadı. Güvenlik için Cooler Boost ve şarj limiti bu oturumda gizli, ayarlar yazılmıyor. M-Tool'u yeniden başlatın.</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>Bu MSI modeli henüz desteklenmiyor: EC'ye MSI'ın WMI2 arayüzüyle erişiliyor (çoğunlukla 11. nesil Intel ve sonrası). M-Tool şimdilik yalnızca WMI1 modellerini okuyabiliyor. Desteğe katkı için yönetici komut isteminde "M-Tool.exe --report --wmi2" çalıştırıp oluşan zip'i GitHub'da "Device report" issue'suna ekleyebilirsiniz.</value>
+    <value>M-Tool bu MSI modelini henüz yönetemiyor: EC'ye MSI'ın WMI2 arayüzüyle erişiliyor (çoğunlukla 11. nesil Intel ve sonrası). M-Tool penceresi bazı değerlerini salt okunur ve deneysel olarak gösterebilir. Desteğe katkı için yönetici komut isteminde "M-Tool.exe --report --wmi2" çalıştırıp oluşan zip'i GitHub'da "Device report" issue'suna ekleyebilirsiniz.</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Bu bilgisayar henüz desteklenmiyor: MSI WMI arayüzü (root\WMI içinde {0} ya da {1}) bulunamadı.</value>
@@ -446,5 +446,83 @@
   </data>
   <data name="Chart_LegendDown" xml:space="preserve">
     <value>Yavaşlar</value>
+  </data>
+  <data name="Wmi2_Confirm" xml:space="preserve">
+    <value>Bu dizüstünün canlı değerleri gösterilsin mi?&#10;&#10;M-Tool yalnızca okur. Bu pencere açıkken bu dizüstünün sabit bir Get_* WMI2 yöntemleri listesini en sık 2 saniyede bir çağırır. Dizüstüne hiçbir şey yazılmaz, hiçbir şey değiştirilmez.&#10;&#10;Değerler deneyseldir: M-Tool bu modelde doğrulanmadı, değerler yanlış olabilir. Bunlara güvenmeden önce MSI Center ya da HWiNFO ile karşılaştırın.</value>
+  </data>
+  <data name="Wmi2_SectionTitle" xml:space="preserve">
+    <value>Canlı değerler (deneysel)</value>
+  </data>
+  <data name="Wmi2_ExperimentalBand" xml:space="preserve">
+    <value>Yalnızca okuma. Bu değerler MSI'ın WMI2 arayüzünden gelir ve bu modelde doğrulanmadı, yanlış olabilir. M-Tool bu dizüstünde hiçbir şeyi değiştirmez.</value>
+  </data>
+  <data name="Wmi2_Show" xml:space="preserve">
+    <value>Canlı değerleri göster</value>
+  </data>
+  <data name="Wmi2_Refresh" xml:space="preserve">
+    <value>Yenile</value>
+  </data>
+  <data name="Wmi2_Stop" xml:space="preserve">
+    <value>Durdur</value>
+  </data>
+  <data name="Wmi2_TryAgain" xml:space="preserve">
+    <value>Yeniden dene</value>
+  </data>
+  <data name="Wmi2_Stopped" xml:space="preserve">
+    <value>Okuma durdu: dizüstü art arda iki kez cevap vermedi. Hiçbir şey değiştirilmedi. Yeniden deneyin; sürerse bir cihaz raporu gönderin.</value>
+  </data>
+  <data name="Wmi2_ReadFailed" xml:space="preserve">
+    <value>Dizüstü bu sefer cevap vermedi. Gösterilen değerler eski olabilir.</value>
+  </data>
+  <data name="Wmi2_Unavailable" xml:space="preserve">
+    <value>M-Tool WMI2 arayüzünü açamadı. Hiçbir şey okunmadı. Ayrıntılar günlük dosyasında.</value>
+  </data>
+  <data name="Wmi2_Unverified" xml:space="preserve">
+    <value>{0} ({1}, doğrulanmadı)</value>
+  </data>
+  <data name="Wmi2_Raw" xml:space="preserve">
+    <value>— (ham {0})</value>
+  </data>
+  <data name="Wmi2_Firmware" xml:space="preserve">
+    <value>EC firmware</value>
+  </data>
+  <data name="Wmi2_CpuTemperature" xml:space="preserve">
+    <value>CPU sıcaklığı</value>
+  </data>
+  <data name="Wmi2_GpuTemperature" xml:space="preserve">
+    <value>GPU sıcaklığı</value>
+  </data>
+  <data name="Wmi2_CpuFan" xml:space="preserve">
+    <value>CPU fanı</value>
+  </data>
+  <data name="Wmi2_GpuFan" xml:space="preserve">
+    <value>GPU fanı</value>
+  </data>
+  <data name="Wmi2_PerformanceMode" xml:space="preserve">
+    <value>Performans modu</value>
+  </data>
+  <data name="Wmi2_FanMode" xml:space="preserve">
+    <value>Fan modu</value>
+  </data>
+  <data name="Wmi2_ChargeLimit" xml:space="preserve">
+    <value>Şarj limiti</value>
+  </data>
+  <data name="Wmi2_CoolerBoost" xml:space="preserve">
+    <value>Cooler Boost</value>
+  </data>
+  <data name="Wmi2_FanAuto" xml:space="preserve">
+    <value>Otomatik</value>
+  </data>
+  <data name="Wmi2_FanSilent" xml:space="preserve">
+    <value>Sessiz</value>
+  </data>
+  <data name="Wmi2_FanAdvanced" xml:space="preserve">
+    <value>Gelişmiş</value>
+  </data>
+  <data name="Wmi2_On" xml:space="preserve">
+    <value>Açık</value>
+  </data>
+  <data name="Wmi2_Off" xml:space="preserve">
+    <value>Kapalı</value>
   </data>
 </root>

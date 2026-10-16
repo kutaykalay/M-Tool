@@ -169,7 +169,7 @@
     <value>No se pudo leer el firmware al iniciar. Por seguridad, Cooler Boost y el límite de carga están ocultos en esta sesión y no se escribe ningún ajuste. Reinicie M-Tool.</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>Este modelo de MSI aún no es compatible: accede al EC mediante la interfaz WMI2 de MSI (sobre todo Intel de 11.ª generación y posteriores). Por ahora, M-Tool solo puede leer modelos WMI1. Para ayudar a añadir compatibilidad, ejecute "M-Tool.exe --report --wmi2" en un símbolo del sistema de administrador y adjunte el archivo zip que crea a una incidencia "Device report" en GitHub.</value>
+    <value>M-Tool aún no puede controlar este modelo de MSI: accede al EC mediante la interfaz WMI2 de MSI (sobre todo Intel de 11.ª generación y posteriores). La ventana de M-Tool puede mostrar algunos de sus valores, solo lectura y experimental. Para ayudar a añadir compatibilidad, ejecute "M-Tool.exe --report --wmi2" en un símbolo del sistema de administrador y adjunte el archivo zip que crea a una incidencia "Device report" en GitHub.</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Este equipo aún no es compatible: no se encontró la interfaz WMI de MSI ({0} o {1} en root\WMI).</value>
@@ -446,5 +446,83 @@
   </data>
   <data name="Chart_LegendDown" xml:space="preserve">
     <value>Desacelera</value>
+  </data>
+  <data name="Wmi2_Confirm" xml:space="preserve">
+    <value>¿Mostrar los valores en vivo de este portátil?&#10;&#10;M-Tool solo lee. Mientras esta ventana esté abierta, llama a una lista fija de métodos WMI2 Get_* de este portátil, como máximo una vez cada 2 segundos. No se escribe nada en el portátil y no se cambia nada.&#10;&#10;Los valores son experimentales: M-Tool no se ha comprobado en este modelo, así que pueden ser incorrectos. Compárelos con MSI Center o HWiNFO antes de fiarse de ellos.</value>
+  </data>
+  <data name="Wmi2_SectionTitle" xml:space="preserve">
+    <value>Valores en vivo (experimental)</value>
+  </data>
+  <data name="Wmi2_ExperimentalBand" xml:space="preserve">
+    <value>Solo lectura. Estos valores proceden de la interfaz WMI2 de MSI y no se han verificado en este modelo, así que pueden ser incorrectos. M-Tool no cambia nada en este portátil.</value>
+  </data>
+  <data name="Wmi2_Show" xml:space="preserve">
+    <value>Mostrar valores en vivo</value>
+  </data>
+  <data name="Wmi2_Refresh" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="Wmi2_Stop" xml:space="preserve">
+    <value>Detener</value>
+  </data>
+  <data name="Wmi2_TryAgain" xml:space="preserve">
+    <value>Reintentar</value>
+  </data>
+  <data name="Wmi2_Stopped" xml:space="preserve">
+    <value>Lectura detenida: el portátil no respondió dos veces seguidas. No se cambió nada. Inténtelo de nuevo o envíe un informe del dispositivo si sigue ocurriendo.</value>
+  </data>
+  <data name="Wmi2_ReadFailed" xml:space="preserve">
+    <value>El portátil no respondió esta vez. Es posible que los valores mostrados sean antiguos.</value>
+  </data>
+  <data name="Wmi2_Unavailable" xml:space="preserve">
+    <value>M-Tool no pudo abrir la interfaz WMI2. No se leyó nada. Consulte el archivo de registro para más detalles.</value>
+  </data>
+  <data name="Wmi2_Unverified" xml:space="preserve">
+    <value>{0} ({1}, sin verificar)</value>
+  </data>
+  <data name="Wmi2_Raw" xml:space="preserve">
+    <value>— (sin procesar {0})</value>
+  </data>
+  <data name="Wmi2_Firmware" xml:space="preserve">
+    <value>Firmware del EC</value>
+  </data>
+  <data name="Wmi2_CpuTemperature" xml:space="preserve">
+    <value>Temperatura de la CPU</value>
+  </data>
+  <data name="Wmi2_GpuTemperature" xml:space="preserve">
+    <value>Temperatura de la GPU</value>
+  </data>
+  <data name="Wmi2_CpuFan" xml:space="preserve">
+    <value>Ventilador de la CPU</value>
+  </data>
+  <data name="Wmi2_GpuFan" xml:space="preserve">
+    <value>Ventilador de la GPU</value>
+  </data>
+  <data name="Wmi2_PerformanceMode" xml:space="preserve">
+    <value>Modo de rendimiento</value>
+  </data>
+  <data name="Wmi2_FanMode" xml:space="preserve">
+    <value>Modo de ventilador</value>
+  </data>
+  <data name="Wmi2_ChargeLimit" xml:space="preserve">
+    <value>Límite de carga</value>
+  </data>
+  <data name="Wmi2_CoolerBoost" xml:space="preserve">
+    <value>Cooler Boost</value>
+  </data>
+  <data name="Wmi2_FanAuto" xml:space="preserve">
+    <value>Auto</value>
+  </data>
+  <data name="Wmi2_FanSilent" xml:space="preserve">
+    <value>Silencioso</value>
+  </data>
+  <data name="Wmi2_FanAdvanced" xml:space="preserve">
+    <value>Avanzado</value>
+  </data>
+  <data name="Wmi2_On" xml:space="preserve">
+    <value>Activado</value>
+  </data>
+  <data name="Wmi2_Off" xml:space="preserve">
+    <value>Desactivado</value>
   </data>
 </root>

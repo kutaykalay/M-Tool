@@ -35,7 +35,7 @@ internal sealed class EcSession : IDisposable
 {
     private const int FirmwareAttempts = 2;
 
-    private static readonly TimeSpan LockTimeout = TimeSpan.FromMilliseconds(500);
+    internal static readonly TimeSpan LockTimeout = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan FirmwareRetryDelay = TimeSpan.FromSeconds(1);
 
     private readonly PawnIoPortIo? _ports;

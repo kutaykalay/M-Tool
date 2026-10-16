@@ -221,7 +221,7 @@
     <comment>SAFETY. Warning banner. Firmware = the laptop's embedded controller firmware. Cooler Boost is MSI's name: keep it.</comment>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>This MSI model is not supported yet: it reaches the EC through MSI's WMI2 interface (mostly 11th-generation Intel and later). M-Tool can only read WMI1 models for now. To help add support, run "M-Tool.exe --report --wmi2" in an administrator command prompt and attach the zip it creates to a "Device report" issue on GitHub.</value>
+    <value>M-Tool cannot control this MSI model yet: it reaches the EC through MSI's WMI2 interface (mostly 11th-generation Intel and later). The M-Tool window can show some of its values, read only and experimental. To help add support, run "M-Tool.exe --report --wmi2" in an administrator command prompt and attach the zip it creates to a "Device report" issue on GitHub.</value>
     <comment>SAFETY. Error box. EC = the laptop's embedded controller. Copy the command M-Tool.exe --report --wmi2 unchanged. "Device report" is the name of the GitHub issue type: keep it in English.</comment>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
@@ -593,5 +593,109 @@
   <data name="Chart_LegendDown" xml:space="preserve">
     <value>Slows down</value>
     <comment>Legend for the dashed lines: below this temperature the fan slows back down.</comment>
+  </data>
+  <data name="Wmi2_Confirm" xml:space="preserve">
+    <value>Show this laptop's live values?&#10;&#10;M-Tool only reads. While this window is open, it calls a fixed list of this laptop's Get_* WMI2 methods, at most once every 2 seconds. Nothing is written to the laptop and nothing is changed.&#10;&#10;The values are experimental: M-Tool has not been checked on this model, so they may be wrong. Compare them with MSI Center or HWiNFO before you rely on them.</value>
+    <comment>SAFETY. Question in a Yes/No window before the live WMI2 values are read (asked once per session, No is the default). Say clearly that M-Tool only reads, that a fixed list of Get_* methods is called at most every 2 seconds while the window is open, that nothing is written or changed, and that the values are unverified and may be wrong. Keep Get_*, WMI2, MSI Center, HWiNFO and the line breaks. The answer buttons are Common_Yes and Common_No.</comment>
+  </data>
+  <data name="Wmi2_SectionTitle" xml:space="preserve">
+    <value>Live values (experimental)</value>
+    <comment>Section heading in the reports-only window on WMI2 laptops.</comment>
+  </data>
+  <data name="Wmi2_ExperimentalBand" xml:space="preserve">
+    <value>Read only. These values come from MSI's WMI2 interface and have not been verified on this model, so they may be wrong. M-Tool changes nothing on this laptop.</value>
+    <comment>SAFETY. Band under Wmi2_SectionTitle, always shown. Say that it only reads, that the values are unverified and may be wrong, and that nothing is changed. Keep WMI2.</comment>
+  </data>
+  <data name="Wmi2_Show" xml:space="preserve">
+    <value>Show live values</value>
+    <comment>Button that starts reading (asks Wmi2_Confirm first).</comment>
+  </data>
+  <data name="Wmi2_Refresh" xml:space="preserve">
+    <value>Refresh</value>
+    <comment>Button: reads the values once more now.</comment>
+  </data>
+  <data name="Wmi2_Stop" xml:space="preserve">
+    <value>Stop</value>
+    <comment>Button: stops reading the live values.</comment>
+  </data>
+  <data name="Wmi2_TryAgain" xml:space="preserve">
+    <value>Try again</value>
+    <comment>Button shown after Wmi2_Stopped: starts reading again.</comment>
+  </data>
+  <data name="Wmi2_Stopped" xml:space="preserve">
+    <value>Reading stopped: the laptop did not answer twice in a row. Nothing was changed. Try again, or send a device report if it keeps happening.</value>
+    <comment>Message in the live values section after two failed reads in a row; M-Tool reads nothing more until the user presses Wmi2_TryAgain.</comment>
+  </data>
+  <data name="Wmi2_ReadFailed" xml:space="preserve">
+    <value>The laptop did not answer this time. The values shown may be old.</value>
+    <comment>Message in the live values section after one failed read.</comment>
+  </data>
+  <data name="Wmi2_Unavailable" xml:space="preserve">
+    <value>M-Tool could not open the WMI2 interface. Nothing was read. See the log file for details.</value>
+    <comment>Message in the live values section when the interface cannot be opened. Keep WMI2.</comment>
+  </data>
+  <data name="Wmi2_Unverified" xml:space="preserve">
+    <value>{0} ({1}, not verified)</value>
+    <comment>A value with its raw byte: {0} = the suggested name (e.g. Balanced), {1} = the raw byte in hex (e.g. 0xC1).</comment>
+  </data>
+  <data name="Wmi2_Raw" xml:space="preserve">
+    <value>— (raw {0})</value>
+    <comment>A fan speed that cannot be worked out: {0} = the raw bytes in hex (e.g. 0x00 0x5A). Keep the dash.</comment>
+  </data>
+  <data name="Wmi2_Firmware" xml:space="preserve">
+    <value>EC firmware</value>
+    <comment>Row name. EC = the laptop's embedded controller.</comment>
+  </data>
+  <data name="Wmi2_CpuTemperature" xml:space="preserve">
+    <value>CPU temperature</value>
+    <comment>Row name.</comment>
+  </data>
+  <data name="Wmi2_GpuTemperature" xml:space="preserve">
+    <value>GPU temperature</value>
+    <comment>Row name.</comment>
+  </data>
+  <data name="Wmi2_CpuFan" xml:space="preserve">
+    <value>CPU fan</value>
+    <comment>Row name; the value is a percent and a speed (e.g. 45% · 3044 rpm).</comment>
+  </data>
+  <data name="Wmi2_GpuFan" xml:space="preserve">
+    <value>GPU fan</value>
+    <comment>Row name; the value is a percent and a speed.</comment>
+  </data>
+  <data name="Wmi2_PerformanceMode" xml:space="preserve">
+    <value>Performance mode</value>
+    <comment>Row name.</comment>
+  </data>
+  <data name="Wmi2_FanMode" xml:space="preserve">
+    <value>Fan mode</value>
+    <comment>Row name.</comment>
+  </data>
+  <data name="Wmi2_ChargeLimit" xml:space="preserve">
+    <value>Charge limit</value>
+    <comment>Row name: the battery charge limit.</comment>
+  </data>
+  <data name="Wmi2_CoolerBoost" xml:space="preserve">
+    <value>Cooler Boost</value>
+    <comment>Row name. Cooler Boost is MSI's name for full fan speed: keep it in English.</comment>
+  </data>
+  <data name="Wmi2_FanAuto" xml:space="preserve">
+    <value>Auto</value>
+    <comment>Fan mode name, as MSI Center shows it.</comment>
+  </data>
+  <data name="Wmi2_FanSilent" xml:space="preserve">
+    <value>Silent</value>
+    <comment>Fan mode name, as MSI Center shows it.</comment>
+  </data>
+  <data name="Wmi2_FanAdvanced" xml:space="preserve">
+    <value>Advanced</value>
+    <comment>Fan mode name (a custom fan curve), as MSI Center shows it.</comment>
+  </data>
+  <data name="Wmi2_On" xml:space="preserve">
+    <value>On</value>
+    <comment>Cooler Boost state.</comment>
+  </data>
+  <data name="Wmi2_Off" xml:space="preserve">
+    <value>Off</value>
+    <comment>Cooler Boost state.</comment>
   </data>
 </root>

@@ -169,7 +169,7 @@
     <value>Не удалось прочитать прошивку при запуске. В целях безопасности Cooler Boost и лимит заряда скрыты в этом сеансе, и настройки не записываются. Перезапустите M-Tool.</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>Эта модель MSI пока не поддерживается: она обращается к EC через интерфейс MSI WMI2 (в основном Intel 11-го поколения и новее). Пока M-Tool умеет читать только модели с WMI1. Чтобы помочь добавить поддержку, выполните "M-Tool.exe --report --wmi2" в командной строке от имени администратора и прикрепите созданный zip-файл к issue «Device report» на GitHub.</value>
+    <value>M-Tool пока не может управлять этой моделью MSI: она обращается к EC через интерфейс MSI WMI2 (в основном Intel 11-го поколения и новее). Окно M-Tool может показать некоторые её значения, только для чтения и экспериментально. Чтобы помочь добавить поддержку, выполните "M-Tool.exe --report --wmi2" в командной строке от имени администратора и прикрепите созданный zip-файл к issue «Device report» на GitHub.</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Этот компьютер пока не поддерживается: интерфейс MSI WMI ({0} или {1} в root\WMI) не найден.</value>
@@ -446,5 +446,83 @@
   </data>
   <data name="Chart_LegendDown" xml:space="preserve">
     <value>Замедляется</value>
+  </data>
+  <data name="Wmi2_Confirm" xml:space="preserve">
+    <value>Показать текущие значения этого ноутбука?&#10;&#10;M-Tool только читает. Пока это окно открыто, он вызывает фиксированный список методов WMI2 Get_* этого ноутбука, не чаще одного раза в 2 секунды. На ноутбук ничего не записывается и ничего не меняется.&#10;&#10;Значения экспериментальные: M-Tool не проверялся на этой модели, поэтому они могут быть неверными. Сравните их с MSI Center или HWiNFO, прежде чем на них полагаться.</value>
+  </data>
+  <data name="Wmi2_SectionTitle" xml:space="preserve">
+    <value>Текущие значения (экспериментально)</value>
+  </data>
+  <data name="Wmi2_ExperimentalBand" xml:space="preserve">
+    <value>Только чтение. Эти значения получены через интерфейс MSI WMI2 и не проверялись на этой модели, поэтому могут быть неверными. M-Tool ничего не меняет на этом ноутбуке.</value>
+  </data>
+  <data name="Wmi2_Show" xml:space="preserve">
+    <value>Показать текущие значения</value>
+  </data>
+  <data name="Wmi2_Refresh" xml:space="preserve">
+    <value>Обновить</value>
+  </data>
+  <data name="Wmi2_Stop" xml:space="preserve">
+    <value>Остановить</value>
+  </data>
+  <data name="Wmi2_TryAgain" xml:space="preserve">
+    <value>Повторить</value>
+  </data>
+  <data name="Wmi2_Stopped" xml:space="preserve">
+    <value>Чтение остановлено: ноутбук не ответил два раза подряд. Ничего не было изменено. Повторите попытку или отправьте отчёт об устройстве, если проблема не исчезнет.</value>
+  </data>
+  <data name="Wmi2_ReadFailed" xml:space="preserve">
+    <value>На этот раз ноутбук не ответил. Показанные значения могут быть устаревшими.</value>
+  </data>
+  <data name="Wmi2_Unavailable" xml:space="preserve">
+    <value>M-Tool не смог открыть интерфейс WMI2. Ничего не было прочитано. Подробности в файле журнала.</value>
+  </data>
+  <data name="Wmi2_Unverified" xml:space="preserve">
+    <value>{0} ({1}, не проверено)</value>
+  </data>
+  <data name="Wmi2_Raw" xml:space="preserve">
+    <value>— (сырые {0})</value>
+  </data>
+  <data name="Wmi2_Firmware" xml:space="preserve">
+    <value>Прошивка EC</value>
+  </data>
+  <data name="Wmi2_CpuTemperature" xml:space="preserve">
+    <value>Температура CPU</value>
+  </data>
+  <data name="Wmi2_GpuTemperature" xml:space="preserve">
+    <value>Температура GPU</value>
+  </data>
+  <data name="Wmi2_CpuFan" xml:space="preserve">
+    <value>Вентилятор CPU</value>
+  </data>
+  <data name="Wmi2_GpuFan" xml:space="preserve">
+    <value>Вентилятор GPU</value>
+  </data>
+  <data name="Wmi2_PerformanceMode" xml:space="preserve">
+    <value>Режим производительности</value>
+  </data>
+  <data name="Wmi2_FanMode" xml:space="preserve">
+    <value>Режим вентилятора</value>
+  </data>
+  <data name="Wmi2_ChargeLimit" xml:space="preserve">
+    <value>Лимит заряда</value>
+  </data>
+  <data name="Wmi2_CoolerBoost" xml:space="preserve">
+    <value>Cooler Boost</value>
+  </data>
+  <data name="Wmi2_FanAuto" xml:space="preserve">
+    <value>Авто</value>
+  </data>
+  <data name="Wmi2_FanSilent" xml:space="preserve">
+    <value>Тихий</value>
+  </data>
+  <data name="Wmi2_FanAdvanced" xml:space="preserve">
+    <value>Расширенный</value>
+  </data>
+  <data name="Wmi2_On" xml:space="preserve">
+    <value>Вкл.</value>
+  </data>
+  <data name="Wmi2_Off" xml:space="preserve">
+    <value>Выкл.</value>
   </data>
 </root>

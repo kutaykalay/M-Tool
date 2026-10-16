@@ -26,7 +26,7 @@ public class WmiProbeTests
     [Fact]
     public void Wmi2_models_get_a_clear_unsupported_message()
     {
-        WmiProbe.UnsupportedMessage(WmiInterface.Wmi2).Should().Contain("henüz desteklenmiyor").And.Contain("WMI2");
+        WmiProbe.UnsupportedMessage(WmiInterface.Wmi2).Should().Contain("henüz yönetemiyor").And.Contain("WMI2").And.Contain("salt okunur");
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class WmiProbeTests
 
         var act = () => check.EnsureWmi1(new ListLog());
 
-        var thrown = act.Should().Throw<UnsupportedDeviceException>().WithMessage("*henüz desteklenmiyor*").Which;
+        var thrown = act.Should().Throw<UnsupportedDeviceException>().WithMessage("*henüz*").Which;
         thrown.LogMessage.Should().Contain("not supported yet");
         thrown.Detected.Should().Be(detected, "the reports-only window shows the WMI2 values only when WMI2 was detected");
     }

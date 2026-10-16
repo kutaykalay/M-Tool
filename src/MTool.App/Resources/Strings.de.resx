@@ -169,7 +169,7 @@
     <value>Die Firmware konnte beim Start nicht gelesen werden. Aus Sicherheitsgründen sind Cooler Boost und das Ladelimit in dieser Sitzung ausgeblendet, und es werden keine Einstellungen geschrieben. Starten Sie M-Tool neu.</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>Dieses MSI-Modell wird noch nicht unterstützt: Es spricht den EC über die WMI2-Schnittstelle von MSI an (meist Intel ab der 11. Generation). M-Tool kann vorerst nur WMI1-Modelle lesen. Um bei der Unterstützung zu helfen, führen Sie "M-Tool.exe --report --wmi2" in einer Eingabeaufforderung als Administrator aus und hängen Sie die erzeugte ZIP-Datei an ein "Device report"-Issue auf GitHub an.</value>
+    <value>M-Tool kann dieses MSI-Modell noch nicht steuern: Es spricht den EC über die WMI2-Schnittstelle von MSI an (meist Intel ab der 11. Generation). Das M-Tool-Fenster kann einige seiner Werte anzeigen, nur lesend und experimentell. Um bei der Unterstützung zu helfen, führen Sie "M-Tool.exe --report --wmi2" in einer Eingabeaufforderung als Administrator aus und hängen Sie die erzeugte ZIP-Datei an ein "Device report"-Issue auf GitHub an.</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Dieser Computer wird noch nicht unterstützt: Die MSI-WMI-Schnittstelle ({0} oder {1} in root\WMI) wurde nicht gefunden.</value>
@@ -446,5 +446,83 @@
   </data>
   <data name="Chart_LegendDown" xml:space="preserve">
     <value>Verlangsamt</value>
+  </data>
+  <data name="Wmi2_Confirm" xml:space="preserve">
+    <value>Live-Werte dieses Laptops anzeigen?&#10;&#10;M-Tool liest nur. Solange dieses Fenster geöffnet ist, ruft es eine feste Liste der Get_*-WMI2-Methoden dieses Laptops auf, höchstens alle 2 Sekunden. Es wird nichts auf den Laptop geschrieben und nichts geändert.&#10;&#10;Die Werte sind experimentell: M-Tool wurde auf diesem Modell nicht überprüft, daher können sie falsch sein. Vergleichen Sie sie mit MSI Center oder HWiNFO, bevor Sie sich darauf verlassen.</value>
+  </data>
+  <data name="Wmi2_SectionTitle" xml:space="preserve">
+    <value>Live-Werte (experimentell)</value>
+  </data>
+  <data name="Wmi2_ExperimentalBand" xml:space="preserve">
+    <value>Nur Lesen. Diese Werte stammen von der WMI2-Schnittstelle von MSI und wurden auf diesem Modell nicht überprüft, daher können sie falsch sein. M-Tool ändert nichts an diesem Laptop.</value>
+  </data>
+  <data name="Wmi2_Show" xml:space="preserve">
+    <value>Live-Werte anzeigen</value>
+  </data>
+  <data name="Wmi2_Refresh" xml:space="preserve">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="Wmi2_Stop" xml:space="preserve">
+    <value>Stopp</value>
+  </data>
+  <data name="Wmi2_TryAgain" xml:space="preserve">
+    <value>Erneut versuchen</value>
+  </data>
+  <data name="Wmi2_Stopped" xml:space="preserve">
+    <value>Lesen angehalten: Der Laptop hat zweimal hintereinander nicht geantwortet. Es wurde nichts geändert. Versuchen Sie es erneut oder senden Sie einen Gerätebericht, falls es weiterhin auftritt.</value>
+  </data>
+  <data name="Wmi2_ReadFailed" xml:space="preserve">
+    <value>Der Laptop hat diesmal nicht geantwortet. Die angezeigten Werte sind möglicherweise veraltet.</value>
+  </data>
+  <data name="Wmi2_Unavailable" xml:space="preserve">
+    <value>M-Tool konnte die WMI2-Schnittstelle nicht öffnen. Es wurde nichts gelesen. Details stehen in der Protokolldatei.</value>
+  </data>
+  <data name="Wmi2_Unverified" xml:space="preserve">
+    <value>{0} ({1}, nicht überprüft)</value>
+  </data>
+  <data name="Wmi2_Raw" xml:space="preserve">
+    <value>— (roh {0})</value>
+  </data>
+  <data name="Wmi2_Firmware" xml:space="preserve">
+    <value>EC-Firmware</value>
+  </data>
+  <data name="Wmi2_CpuTemperature" xml:space="preserve">
+    <value>CPU-Temperatur</value>
+  </data>
+  <data name="Wmi2_GpuTemperature" xml:space="preserve">
+    <value>GPU-Temperatur</value>
+  </data>
+  <data name="Wmi2_CpuFan" xml:space="preserve">
+    <value>CPU-Lüfter</value>
+  </data>
+  <data name="Wmi2_GpuFan" xml:space="preserve">
+    <value>GPU-Lüfter</value>
+  </data>
+  <data name="Wmi2_PerformanceMode" xml:space="preserve">
+    <value>Leistungsmodus</value>
+  </data>
+  <data name="Wmi2_FanMode" xml:space="preserve">
+    <value>Lüftermodus</value>
+  </data>
+  <data name="Wmi2_ChargeLimit" xml:space="preserve">
+    <value>Ladelimit</value>
+  </data>
+  <data name="Wmi2_CoolerBoost" xml:space="preserve">
+    <value>Cooler Boost</value>
+  </data>
+  <data name="Wmi2_FanAuto" xml:space="preserve">
+    <value>Auto</value>
+  </data>
+  <data name="Wmi2_FanSilent" xml:space="preserve">
+    <value>Leise</value>
+  </data>
+  <data name="Wmi2_FanAdvanced" xml:space="preserve">
+    <value>Erweitert</value>
+  </data>
+  <data name="Wmi2_On" xml:space="preserve">
+    <value>An</value>
+  </data>
+  <data name="Wmi2_Off" xml:space="preserve">
+    <value>Aus</value>
   </data>
 </root>

@@ -169,7 +169,7 @@
     <value>启动时无法读取固件。为安全起见，本次会话中隐藏 Cooler Boost 和充电上限，并且不会写入任何设置。请重新启动 M-Tool。</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>暂不支持此 MSI 型号：它通过 MSI 的 WMI2 接口访问 EC（主要是第 11 代及更新的 Intel 机型）。M-Tool 目前只能读取 WMI1 机型。如需帮助添加支持，请在管理员命令提示符中运行 "M-Tool.exe --report --wmi2"，并将生成的 zip 文件附加到 GitHub 上的“Device report”issue。</value>
+    <value>M-Tool 暂时无法控制此 MSI 型号：它通过 MSI 的 WMI2 接口访问 EC（主要是第 11 代及更新的 Intel 机型）。M-Tool 窗口可以显示其中一些数值，只读且为实验性。如需帮助添加支持，请在管理员命令提示符中运行 "M-Tool.exe --report --wmi2"，并将生成的 zip 文件附加到 GitHub 上的“Device report”issue。</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>暂不支持此电脑：未找到 MSI WMI 接口（root\WMI 中的 {0} 或 {1}）。</value>
@@ -446,5 +446,83 @@
   </data>
   <data name="Chart_LegendDown" xml:space="preserve">
     <value>降速</value>
+  </data>
+  <data name="Wmi2_Confirm" xml:space="preserve">
+    <value>显示这台笔记本电脑的实时数值？&#10;&#10;M-Tool 只读取。此窗口打开期间，它会调用这台笔记本电脑的一组固定 Get_* WMI2 方法，最多每 2 秒一次。不会向笔记本电脑写入任何内容，也不会更改任何设置。&#10;&#10;这些数值是实验性的：M-Tool 尚未在此型号上验证，因此可能有误。请先与 MSI Center 或 HWiNFO 对比，再决定是否采信。</value>
+  </data>
+  <data name="Wmi2_SectionTitle" xml:space="preserve">
+    <value>实时数值（实验性）</value>
+  </data>
+  <data name="Wmi2_ExperimentalBand" xml:space="preserve">
+    <value>只读。这些数值来自 MSI 的 WMI2 接口，尚未在此型号上验证，因此可能有误。M-Tool 不会更改这台笔记本电脑上的任何内容。</value>
+  </data>
+  <data name="Wmi2_Show" xml:space="preserve">
+    <value>显示实时数值</value>
+  </data>
+  <data name="Wmi2_Refresh" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="Wmi2_Stop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="Wmi2_TryAgain" xml:space="preserve">
+    <value>重试</value>
+  </data>
+  <data name="Wmi2_Stopped" xml:space="preserve">
+    <value>读取已停止：笔记本电脑连续两次没有响应。未更改任何内容。请重试，如果问题持续出现，请发送设备报告。</value>
+  </data>
+  <data name="Wmi2_ReadFailed" xml:space="preserve">
+    <value>这次笔记本电脑没有响应。显示的数值可能已过时。</value>
+  </data>
+  <data name="Wmi2_Unavailable" xml:space="preserve">
+    <value>M-Tool 无法打开 WMI2 接口。未读取任何内容。详细信息请查看日志文件。</value>
+  </data>
+  <data name="Wmi2_Unverified" xml:space="preserve">
+    <value>{0}（{1}，未验证）</value>
+  </data>
+  <data name="Wmi2_Raw" xml:space="preserve">
+    <value>—（原始值 {0}）</value>
+  </data>
+  <data name="Wmi2_Firmware" xml:space="preserve">
+    <value>EC 固件</value>
+  </data>
+  <data name="Wmi2_CpuTemperature" xml:space="preserve">
+    <value>CPU 温度</value>
+  </data>
+  <data name="Wmi2_GpuTemperature" xml:space="preserve">
+    <value>GPU 温度</value>
+  </data>
+  <data name="Wmi2_CpuFan" xml:space="preserve">
+    <value>CPU 风扇</value>
+  </data>
+  <data name="Wmi2_GpuFan" xml:space="preserve">
+    <value>GPU 风扇</value>
+  </data>
+  <data name="Wmi2_PerformanceMode" xml:space="preserve">
+    <value>性能模式</value>
+  </data>
+  <data name="Wmi2_FanMode" xml:space="preserve">
+    <value>风扇模式</value>
+  </data>
+  <data name="Wmi2_ChargeLimit" xml:space="preserve">
+    <value>充电上限</value>
+  </data>
+  <data name="Wmi2_CoolerBoost" xml:space="preserve">
+    <value>Cooler Boost</value>
+  </data>
+  <data name="Wmi2_FanAuto" xml:space="preserve">
+    <value>自动</value>
+  </data>
+  <data name="Wmi2_FanSilent" xml:space="preserve">
+    <value>静音</value>
+  </data>
+  <data name="Wmi2_FanAdvanced" xml:space="preserve">
+    <value>高级</value>
+  </data>
+  <data name="Wmi2_On" xml:space="preserve">
+    <value>开</value>
+  </data>
+  <data name="Wmi2_Off" xml:space="preserve">
+    <value>关</value>
   </data>
 </root>
