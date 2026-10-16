@@ -62,9 +62,13 @@ public static class Wmi2Calls
 
     /// <summary>The <c>Get_Data</c> call for a register in <see cref="DataRegisters"/>.</summary>
     /// <exception cref="InvalidOperationException">The register is not in the list.</exception>
-    public static Wmi2Request DataRequest(byte register) =>
-        Allowed.FirstOrDefault(r => r.Method == GetData && r.Sub == register)
-        ?? throw new InvalidOperationException($"0x{register:X2} is not a WMI2 register M-Tool may read.");
+    public static Wmi2Request DataRequest(byte register) => Request(GetData, register);
+
+    /// <summary>The call in <see cref="Allowed"/> with this method and sub.</summary>
+    /// <exception cref="InvalidOperationException">No such call is allowed.</exception>
+    public static Wmi2Request Request(string method, byte sub) =>
+        Allowed.FirstOrDefault(r => r.Method == method && r.Sub == sub)
+        ?? throw new InvalidOperationException($"{method}(0x{sub:X2}) is not a WMI2 call M-Tool may make.");
 
     /// <summary>Exact match against <see cref="Allowed"/>: the method name is compared ordinally.</summary>
     public static bool IsAllowed(string method, byte sub) => Allowed.Any(r => r.Method == method && r.Sub == sub);

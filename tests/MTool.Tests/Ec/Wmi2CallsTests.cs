@@ -109,6 +109,25 @@ public class Wmi2CallsTests
     }
 
     [Fact]
+    public void A_listed_call_is_found_by_name_and_sub()
+    {
+        Wmi2Calls.Request("Get_Fan", 1).Should().BeSameAs(Wmi2Calls.Report[6]);
+        Wmi2Calls.DataRequest(0xD7).Should().BeSameAs(Wmi2Calls.Status[3]);
+        Wmi2Calls.Request("Get_Data", 0x68).Should().BeSameAs(Wmi2Calls.Live[0]);
+    }
+
+    [Theory]
+    [InlineData("Set_Data", 0x98)]
+    [InlineData("Get_Data", 0x00)]
+    [InlineData("Get_X", 0)]
+    public void An_unlisted_call_cannot_be_found(string method, byte sub)
+    {
+        var find = () => Wmi2Calls.Request(method, sub);
+
+        find.Should().Throw<InvalidOperationException>().WithMessage($"*{method}(0x{sub:X2})*");
+    }
+
+    [Fact]
     public void A_request_cannot_be_made_outside_the_lists()
     {
         // No public or protected constructor, and no setter or init accessor that a "with" could use.

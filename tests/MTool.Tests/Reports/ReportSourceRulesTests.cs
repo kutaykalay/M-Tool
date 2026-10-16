@@ -25,7 +25,8 @@ public sealed partial class ReportSourceRulesTests
     }
 
     [Theory]
-    [InlineData("src/MTool.App/Hardware/MsiWmi2Methods.cs")]
+    [InlineData("src/MTool.App/Hardware/MsiWmi2Session.cs")]
+    [InlineData("src/MTool.App/Hardware/Wmi2Live.cs")]
     [InlineData("src/MTool.App/Cli/ReportCommand.cs")]
     public void Log_and_report_text_in_these_files_is_english(string file)
     {

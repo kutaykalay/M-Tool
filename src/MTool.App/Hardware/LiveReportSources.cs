@@ -39,7 +39,7 @@ internal sealed class LiveReportSources(IAppLog log) : IReportSources
 
     /// <summary>Checks the interface again itself: the WMI2 methods must never run on a WMI1 laptop.</summary>
     public Wmi2Readout ReadWmi2() => WmiProbe.Detect() == WmiInterface.Wmi2
-        ? MsiWmi2Methods.Probe()
+        ? MsiWmi2Session.Probe()
         : throw new InvalidOperationException("WMI2 arayüzü yok; WMI2 yöntemleri çağrılmadı.");
 
     public EcReadout ReadEc()

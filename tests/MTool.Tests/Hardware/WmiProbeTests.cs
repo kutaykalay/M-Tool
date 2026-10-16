@@ -47,7 +47,9 @@ public class WmiProbeTests
 
         var act = () => check.EnsureWmi1(new ListLog());
 
-        act.Should().Throw<UnsupportedDeviceException>().WithMessage("*henüz desteklenmiyor*").Which.LogMessage.Should().Contain("not supported yet");
+        var thrown = act.Should().Throw<UnsupportedDeviceException>().WithMessage("*henüz desteklenmiyor*").Which;
+        thrown.LogMessage.Should().Contain("not supported yet");
+        thrown.Detected.Should().Be(detected, "the reports-only window shows the WMI2 values only when WMI2 was detected");
     }
 
     [Fact]

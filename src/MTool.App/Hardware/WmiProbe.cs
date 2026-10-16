@@ -10,9 +10,12 @@ namespace MTool.App.Hardware;
 /// <summary>A model M-Tool cannot read yet; the message is meant for the user.</summary>
 /// <param name="message">In the language of the window.</param>
 /// <param name="logMessage">The same sentence in English, for the log.</param>
-internal sealed class UnsupportedDeviceException(string message, string logMessage) : Exception(message)
+/// <param name="detected">The interface the probe found (never WMI1 here): WMI2, or null for none.</param>
+internal sealed class UnsupportedDeviceException(string message, string logMessage, WmiInterface? detected) : Exception(message)
 {
     public string LogMessage { get; } = logMessage;
+
+    public WmiInterface? Detected { get; } = detected;
 }
 
 /// <summary>
@@ -113,7 +116,7 @@ internal sealed class WmiInterfaceCheck(Func<WmiInterface?> detect)
 
         if (detected != WmiInterface.Wmi1)
         {
-            throw new UnsupportedDeviceException(WmiProbe.UnsupportedMessage(detected), WmiProbe.UnsupportedLogMessage(detected));
+            throw new UnsupportedDeviceException(WmiProbe.UnsupportedMessage(detected), WmiProbe.UnsupportedLogMessage(detected), detected);
         }
 
         _wmi1Confirmed = true;
