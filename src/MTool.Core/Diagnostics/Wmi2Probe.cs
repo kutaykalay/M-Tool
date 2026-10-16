@@ -1,4 +1,5 @@
 using System.Text;
+using MTool.Core.Ec;
 
 namespace MTool.Core.Diagnostics;
 
@@ -89,22 +90,9 @@ public static class Wmi2Probe
     /// <summary>A method that hangs usually blocks the next ones too: after this many failures in a row the rest are skipped.</summary>
     public const int MaxFailuresInARow = 2;
 
-    /// <summary>Every call, in order. Names starting with "Get_" only: a test pins it.</summary>
-    public static IReadOnlyList<(string Method, byte Sub)> Calls { get; } = Array.AsReadOnly(new (string, byte)[]
-    {
-        ("Get_WMI", 0),
-        ("Get_EC", 0),
-        ("Get_Temperature", 0),
-        ("Get_Temperature", 1),
-        ("Get_Temperature", 2),
-        ("Get_Fan", 0),
-        ("Get_Fan", 1),
-        ("Get_Fan", 2),
-        ("Get_Thermal", 1),
-        ("Get_Thermal", 2),
-        ("Get_AP", 0),
-        ("Get_AP", 1),
-    });
+    /// <summary>Every call, in order: <see cref="Wmi2Calls.Report"/>.</summary>
+    public static IReadOnlyList<(string Method, byte Sub)> Calls { get; } =
+        Array.AsReadOnly(Wmi2Calls.Report.Select(r => (r.Method, r.Sub)).ToArray());
 
     /// <param name="call">Calls one method with a packet whose first byte is <c>sub</c>; may throw.</param>
     public static Wmi2Readout Run(Func<string, byte, byte[]> call)
