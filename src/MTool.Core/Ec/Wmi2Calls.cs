@@ -60,6 +60,12 @@ public static class Wmi2Calls
 
     public static IReadOnlyList<Wmi2Request> Allowed { get; } = ReadOnly([.. Report, .. Live, .. Status]);
 
+    /// <summary>The <c>Get_Data</c> call for a register in <see cref="DataRegisters"/>.</summary>
+    /// <exception cref="InvalidOperationException">The register is not in the list.</exception>
+    public static Wmi2Request DataRequest(byte register) =>
+        Allowed.FirstOrDefault(r => r.Method == GetData && r.Sub == register)
+        ?? throw new InvalidOperationException($"0x{register:X2} is not a WMI2 register M-Tool may read.");
+
     /// <summary>Exact match against <see cref="Allowed"/>: the method name is compared ordinally.</summary>
     public static bool IsAllowed(string method, byte sub) => Allowed.Any(r => r.Method == method && r.Sub == sub);
 
