@@ -22,7 +22,7 @@ public sealed record Wmi2Readout(IReadOnlyList<Wmi2Call> Calls)
     private const int DateStart = 14;
     private const int DateLength = 16;
 
-    /// <summary>The fan period to RPM constant YAMDCC uses for WMI2 (the WMI1 EC uses another).</summary>
+    /// <summary>The fan period to RPM constant YAMDCC uses for WMI2; the same as the WMI1 EC's (<see cref="Device.RpmCodec"/>).</summary>
     private const int RpmConstant = 478_000;
 
     /// <summary>The fields YAMDCC (da7d9d8, Wmi2FanController) reads from these packets: [assumption], unverified.</summary>

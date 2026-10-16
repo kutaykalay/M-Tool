@@ -7,9 +7,6 @@ namespace MTool.Core.Device;
 /// <summary>Typed read access to the EC through a <see cref="DeviceLayout"/>. Knows the register map, never the protocol.</summary>
 public sealed class P65Device
 {
-    private const int MinPlausibleTempC = 1;
-    private const int MaxPlausibleTempC = 110;
-
     private readonly IEcRegisters _ec;
     private readonly DeviceLayout _layout;
 
@@ -52,11 +49,7 @@ public sealed class P65Device
         _ec.ReadBlock(fan.UpThresholdsStart, EcMap.ThresholdCount),
         _ec.ReadBlock(fan.SpeedsStart, EcMap.SpeedCount));
 
-    private int? ReadTemperature(FanRegisters fan)
-    {
-        int value = _ec.Read(fan.Temperature);
-        return value is >= MinPlausibleTempC and <= MaxPlausibleTempC ? value : null;
-    }
+    private int? ReadTemperature(FanRegisters fan) => SensorRead.Temperature(_ec, fan.Temperature);
 
     private int ReadRpm(FanRegisters fan)
     {
