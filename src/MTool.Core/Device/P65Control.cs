@@ -196,10 +196,34 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
     }
 
     /// <summary>
+    /// Call on wake: the EC turns Cooler Boost off in sleep (measured), so the cache becomes unknown.
+    /// Never reads the port; the next read that may use it (window shown, a port write) reads it again.
+    /// </summary>
+    public async Task ForgetPortStateAsync(CancellationToken cancellationToken = default)
+    {
+        if (!PortAvailable)
+        {
+            return;
+        }
+
+        await _portGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            (_port, _portSettled) = (null, false);
+        }
+        finally
+        {
+            _portGate.Release();
+        }
+
+        log.Info("Cooler Boost/charge limit: port state unknown after wake, read again on the next port use (window shown, a port write).");
+    }
+
+    /// <summary>
     /// Read on first use and after a failed read when the port may be used; otherwise the cache.
     /// Without the port the cache is returned without waiting for <see cref="_portGate"/>: it is null
-    /// until a read succeeded, and one reference read is atomic. A cached value from before a reboot
-    /// or sleep is still right for the charge limit, which the EC keeps then (measured).
+    /// until a read succeeded, and one reference read is atomic. After a wake the cache is unknown
+    /// (<see cref="ForgetPortStateAsync"/>), though the EC keeps the charge limit then (measured).
     /// </summary>
     private async Task<PortState?> CachedPortStateAsync(PortUse portUse, CancellationToken cancellationToken)
     {

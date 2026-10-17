@@ -313,6 +313,49 @@ public sealed class P65ControlTests : IDisposable
     }
 
     [Fact]
+    public async Task After_sleep_the_port_state_is_unknown_without_reading_the_port()
+    {
+        var control = Control();
+        await control.SetCoolerBoostAsync(true);
+        _ec[0x98] = 0x02; // measured: the EC turns Cooler Boost off in sleep
+        (await control.ReadControlStateAsync(PortUse.None)).Port!.CoolerBoostOn.Should().BeTrue(); // the stale cache
+        var portReads = RecordPortReads();
+
+        await control.ForgetPortStateAsync();
+        var state = await control.ReadControlStateAsync(PortUse.None);
+
+        state.Port.Should().BeNull();
+        portReads.Should().BeEmpty();
+        _log.Lines.Should().Contain(l => l.StartsWith("INFO") && l.Contains("after wake"));
+    }
+
+    [Fact]
+    public async Task After_sleep_the_next_read_with_port_access_reads_the_port_again()
+    {
+        var control = Control();
+        await control.SetCoolerBoostAsync(true);
+        _ec[0x98] = 0x02;
+
+        await control.ForgetPortStateAsync();
+        var portReads = RecordPortReads();
+        var state = await control.ReadControlStateAsync(PortUse.Allowed);
+
+        state.Port.Should().Be(new PortState(0x02, 0xD0));
+        portReads.Should().BeEquivalentTo([0x98, 0xEF]);
+    }
+
+    [Fact]
+    public async Task Forgetting_the_port_state_without_a_port_does_nothing()
+    {
+        var control = Control(Live with { PortAvailable = false });
+
+        await control.ForgetPortStateAsync();
+
+        (await control.ReadControlStateAsync(PortUse.Allowed)).Port.Should().BeNull();
+        _log.Lines.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task A_state_read_without_port_access_leaves_an_unread_port_unknown_for_the_next_read()
     {
         var portReads = RecordPortReads();

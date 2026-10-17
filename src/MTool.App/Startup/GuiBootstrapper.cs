@@ -122,6 +122,23 @@ internal sealed class GuiBootstrapper : IDisposable
         // and the start-up reapply below writes that pair.
         var powerEvents = new SystemPowerEvents(log);
         teardown.Push(("power events", powerEvents.Dispose));
+
+        // The resume reapply's refresh must not show Cooler Boost from before sleep. The clear is immediate
+        // unless a port access holds the gate, and the reapply waits its resume delay first.
+        async void ForgetPortState()
+        {
+            try
+            {
+                await control.ForgetPortStateAsync();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Port state could not be reset after wake", ex);
+            }
+        }
+
+        powerEvents.Resumed += ForgetPortState;
+        teardown.Push(("port state on wake", () => powerEvents.Resumed -= ForgetPortState));
         await AlignToStartSourceAsync(service, powerEvents.Current, log);
 
         var ui = new DispatcherUi(app);
