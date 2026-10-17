@@ -175,10 +175,10 @@
     <value>PawnIO kurulu değil. Kurmak için: {0}</value>
   </data>
   <data name="Session_FirmwareUnread" xml:space="preserve">
-    <value>Açılışta firmware okunamadı. Güvenlik için Cooler Boost ve şarj limiti bu oturumda gizli, ayarlar yazılmıyor. M-Tool'u yeniden başlatın.</value>
+    <value>Firmware okunamadı, bu oturumda ayar değiştirme kapalı. M-Tool'u yeniden başlatın.</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>M-Tool bu MSI modelini henüz yönetemiyor: EC'ye MSI'ın WMI2 arayüzüyle erişiliyor (çoğunlukla 11. nesil Intel ve sonrası). M-Tool penceresi bazı değerlerini salt okunur ve deneysel olarak gösterebilir. Desteğe katkı için yönetici komut isteminde "M-Tool.exe --report --wmi2" çalıştırıp oluşan zip'i GitHub'da "Device report" issue'suna ekleyebilirsiniz.</value>
+    <value>Bu model (WMI2) henüz desteklenmiyor; bazı değerler salt okunur ve deneysel gösterilir. Desteğe katkı için "M-Tool.exe --report --wmi2" raporunu GitHub'da bir "Device report" issue'suna ekleyin.</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Bu bilgisayar henüz desteklenmiyor: MSI WMI arayüzü (root\WMI içinde {0} ya da {1}) bulunamadı.</value>
@@ -187,28 +187,28 @@
     <value>M-Tool: ayar uygulanamadı</value>
   </data>
   <data name="Status_ReadOnlyNote" xml:space="preserve">
-    <value>M-Tool yalnızca izleme modunda, ayar değiştiremez.</value>
+    <value>Ayarlar değiştirilemez.</value>
   </data>
   <data name="Status_DryRun" xml:space="preserve">
-    <value>Deneme modu: seçimler kontrol ediliyor ama dizüstüne uygulanmıyor. Gerçek uygulama için settings.json'da "dryRun": false yapın.</value>
+    <value>Deneme modu: seçimler kontrol ediliyor, uygulanmıyor. Uygulamak için settings.json'da "dryRun": false yapın.</value>
   </data>
   <data name="Status_FirmwareUnread" xml:space="preserve">
     <value>Firmware sürümü okunamadı. {0}</value>
   </data>
   <data name="Status_Experimental" xml:space="preserve">
-    <value>Deneysel: bu firmware ({0}) {1} kaydıyla okunuyor; değerler bu modelde doğrulanmadı ve yanlış olabilir. {2}</value>
+    <value>Deneysel: {0} firmware'i {1} kaydıyla okunuyor, değerler bu modelde doğrulanmadı. {2}</value>
   </data>
   <data name="Status_FirmwareFamily" xml:space="preserve">
-    <value>Bu firmware ({0}) {1} ailesinden, ama ayar değiştirme için doğrulanmadı. {2}</value>
+    <value>{0} firmware'i ({1} ailesi) ayar değiştirme için doğrulanmadı. {2}</value>
   </data>
   <data name="Status_FirmwareUnsupported" xml:space="preserve">
-    <value>Bu firmware ({0}) desteklenmiyor. {1}</value>
+    <value>{0} firmware'i desteklenmiyor. {1}</value>
   </data>
   <data name="Status_WritesOff" xml:space="preserve">
-    <value>Ayar değiştirme kapalı, M-Tool yalnızca izleme modunda. Sebep: {0}</value>
+    <value>Ayar değiştirme kapalı: {0}</value>
   </data>
   <data name="Status_Drift" xml:space="preserve">
-    <value>Dizüstündeki ayarlar seçtiklerinizden farklı ({0}). Geri getirmek için Yeniden uygula'ya basın.</value>
+    <value>Dizüstündeki ayarlar seçiminizden farklı: {0}.</value>
   </data>
   <data name="Status_DriftFanTable" xml:space="preserve">
     <value>fan tablosu</value>
@@ -223,10 +223,10 @@
     <value>fan modu</value>
   </data>
   <data name="Status_FailedRecovered" xml:space="preserve">
-    <value>{0} Güvenlik için fanlar fabrika ayarına alındı ve ayar değiştirme kapatıldı. Yeniden açmak için yönetici komut isteminde M-Tool.exe --unlock --confirm çalıştırın, sonra M-Tool'u yeniden başlatın.</value>
+    <value>{0} Fanlar fabrika ayarına alındı, ayar değiştirme kapatıldı. Açmak için M-Tool.exe --unlock --confirm komutunu yönetici olarak çalıştırıp M-Tool'u yeniden başlatın.</value>
   </data>
   <data name="Status_FailedUnrecovered" xml:space="preserve">
-    <value>{0} Fanların güvenli ayarda olduğu doğrulanamadı; önlem olarak Cooler Boost açılmaya çalışıldı. Bilgisayarı yeniden başlatın, fanlar fabrika ayarına döner.</value>
+    <value>{0} Fanların güvenli ayarda olduğu doğrulanamadı, önlem olarak Cooler Boost açılmaya çalışıldı. Bilgisayarı yeniden başlatın.</value>
   </data>
   <data name="Controls_FanTableImplausible" xml:space="preserve">
     <value>Okunan fan tablosu makul değil</value>
@@ -238,7 +238,7 @@
     <value>fabrika ayarı (0x{0:X2})</value>
   </data>
   <data name="Controls_ReadFailed" xml:space="preserve">
-    <value>Güncel ayarlar okunamadı, gösterilen değerler eski olabilir. ({0})</value>
+    <value>Ayarlar okunamadı, değerler eski olabilir ({0}).</value>
   </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>Yeniden uygulanacak bir şey yok.</value>
@@ -367,7 +367,7 @@
     <value>Cihaz raporu oluşturulamadı. Ayrıntılar günlük dosyasında.</value>
   </data>
   <data name="Report_TimedOut" xml:space="preserve">
-    <value>Cihaz raporu çok uzun sürdü ve durduruldu. Yeniden deneyin. Ayrıntılar günlük dosyasında.</value>
+    <value>Cihaz raporu zaman aşımına uğradı. Yeniden deneyin; ayrıntılar günlükte.</value>
   </data>
   <data name="Report_OpenFailed" xml:space="preserve">
     <value>Klasör ya da tarayıcı açılamadı. Ayrıntılar günlük dosyasında.</value>
@@ -463,7 +463,7 @@
     <value>Canlı değerler (deneysel)</value>
   </data>
   <data name="Wmi2_ExperimentalBand" xml:space="preserve">
-    <value>Yalnızca okuma. Bu değerler MSI'ın WMI2 arayüzünden gelir ve bu modelde doğrulanmadı, yanlış olabilir. M-Tool bu dizüstünde hiçbir şeyi değiştirmez.</value>
+    <value>Salt okunur ve deneysel: değerler bu modelde doğrulanmadı. M-Tool bu dizüstünde hiçbir şeyi değiştirmez.</value>
   </data>
   <data name="Wmi2_Show" xml:space="preserve">
     <value>Canlı değerleri göster</value>
@@ -478,13 +478,13 @@
     <value>Yeniden dene</value>
   </data>
   <data name="Wmi2_Stopped" xml:space="preserve">
-    <value>Okuma durdu: dizüstü art arda iki kez cevap vermedi. Hiçbir şey değiştirilmedi. Yeniden deneyin; sürerse bir cihaz raporu gönderin.</value>
+    <value>Okuma durdu: dizüstü art arda iki kez yanıt vermedi. Yeniden deneyin; sürerse cihaz raporu gönderin.</value>
   </data>
   <data name="Wmi2_ReadFailed" xml:space="preserve">
-    <value>Dizüstü bu sefer cevap vermedi. Gösterilen değerler eski olabilir.</value>
+    <value>Dizüstü yanıt vermedi, değerler eski olabilir.</value>
   </data>
   <data name="Wmi2_Unavailable" xml:space="preserve">
-    <value>M-Tool WMI2 arayüzünü açamadı. Hiçbir şey okunmadı. Ayrıntılar günlük dosyasında.</value>
+    <value>WMI2 arayüzü açılamadı; ayrıntılar günlükte.</value>
   </data>
   <data name="Wmi2_Unverified" xml:space="preserve">
     <value>{0} ({1}, doğrulanmadı)</value>

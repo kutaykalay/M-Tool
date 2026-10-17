@@ -175,10 +175,10 @@
     <value>PawnIO ist nicht installiert. Zum Installieren: {0}</value>
   </data>
   <data name="Session_FirmwareUnread" xml:space="preserve">
-    <value>Die Firmware konnte beim Start nicht gelesen werden. Aus Sicherheitsgründen sind Cooler Boost und das Ladelimit in dieser Sitzung ausgeblendet, und es werden keine Einstellungen geschrieben. Starten Sie M-Tool neu.</value>
+    <value>Die Firmware konnte nicht gelesen werden, daher ist das Ändern von Einstellungen in dieser Sitzung aus. Starten Sie M-Tool neu.</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>M-Tool kann dieses MSI-Modell noch nicht steuern: Es spricht den EC über die WMI2-Schnittstelle von MSI an (meist Intel ab der 11. Generation). Das M-Tool-Fenster kann einige seiner Werte anzeigen, nur lesend und experimentell. Um bei der Unterstützung zu helfen, führen Sie "M-Tool.exe --report --wmi2" in einer Eingabeaufforderung als Administrator aus und hängen Sie die erzeugte ZIP-Datei an ein "Device report"-Issue auf GitHub an.</value>
+    <value>Dieses Modell (WMI2) wird noch nicht unterstützt; einige Werte werden nur lesend und experimentell angezeigt. Um bei der Unterstützung zu helfen, hängen Sie den Bericht von "M-Tool.exe --report --wmi2" an ein "Device report"-Issue auf GitHub an.</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Dieser Computer wird noch nicht unterstützt: Die MSI-WMI-Schnittstelle ({0} oder {1} in root\WMI) wurde nicht gefunden.</value>
@@ -187,28 +187,28 @@
     <value>M-Tool: Einstellung konnte nicht angewendet werden</value>
   </data>
   <data name="Status_ReadOnlyNote" xml:space="preserve">
-    <value>M-Tool ist im reinen Überwachungsmodus und kann keine Einstellungen ändern.</value>
+    <value>Einstellungen können nicht geändert werden.</value>
   </data>
   <data name="Status_DryRun" xml:space="preserve">
-    <value>Testmodus: Ihre Auswahl wird geprüft, aber nicht auf den Laptop angewendet. Um sie wirklich anzuwenden, setzen Sie "dryRun": false in settings.json.</value>
+    <value>Testmodus: Ihre Auswahl wird geprüft, aber nicht angewendet. Zum Anwenden setzen Sie "dryRun": false in settings.json.</value>
   </data>
   <data name="Status_FirmwareUnread" xml:space="preserve">
     <value>Die Firmware-Version konnte nicht gelesen werden. {0}</value>
   </data>
   <data name="Status_Experimental" xml:space="preserve">
-    <value>Experimentell: Diese Firmware ({0}) wird mit dem Datensatz {1} gelesen; die Werte sind auf diesem Modell nicht überprüft und können falsch sein. {2}</value>
+    <value>Experimentell: Die Firmware {0} wird mit dem Datensatz {1} gelesen, die Werte sind auf diesem Modell nicht überprüft. {2}</value>
   </data>
   <data name="Status_FirmwareFamily" xml:space="preserve">
-    <value>Diese Firmware ({0}) gehört zur Familie {1}, ist aber nicht für das Ändern von Einstellungen überprüft. {2}</value>
+    <value>Die Firmware {0} (Familie {1}) ist für das Ändern von Einstellungen nicht überprüft. {2}</value>
   </data>
   <data name="Status_FirmwareUnsupported" xml:space="preserve">
-    <value>Diese Firmware ({0}) wird nicht unterstützt. {1}</value>
+    <value>Die Firmware {0} wird nicht unterstützt. {1}</value>
   </data>
   <data name="Status_WritesOff" xml:space="preserve">
-    <value>Das Ändern von Einstellungen ist aus, M-Tool ist im reinen Überwachungsmodus. Grund: {0}</value>
+    <value>Das Ändern von Einstellungen ist aus: {0}</value>
   </data>
   <data name="Status_Drift" xml:space="preserve">
-    <value>Die Einstellungen des Laptops weichen von Ihrer Auswahl ab ({0}). Klicken Sie auf „Erneut anwenden“, um sie wiederherzustellen.</value>
+    <value>Die Einstellungen des Laptops weichen von Ihrer Auswahl ab: {0}.</value>
   </data>
   <data name="Status_DriftFanTable" xml:space="preserve">
     <value>Lüftertabelle</value>
@@ -223,10 +223,10 @@
     <value>Lüftermodus</value>
   </data>
   <data name="Status_FailedRecovered" xml:space="preserve">
-    <value>{0} Aus Sicherheitsgründen wurden die Lüfter auf die Werkseinstellung zurückgesetzt und das Ändern von Einstellungen wurde ausgeschaltet. Um es wieder einzuschalten, führen Sie M-Tool.exe --unlock --confirm in einer Eingabeaufforderung als Administrator aus und starten Sie M-Tool dann neu.</value>
+    <value>{0} Die Lüfter wurden auf die Werkseinstellung gesetzt und das Ändern von Einstellungen wurde ausgeschaltet. Zum Einschalten führen Sie M-Tool.exe --unlock --confirm als Administrator aus und starten M-Tool neu.</value>
   </data>
   <data name="Status_FailedUnrecovered" xml:space="preserve">
-    <value>{0} Es konnte nicht bestätigt werden, dass die Lüfter auf einer sicheren Einstellung stehen; vorsorglich wurde versucht, Cooler Boost einzuschalten. Starten Sie den Computer neu; die Lüfter kehren zur Werkseinstellung zurück.</value>
+    <value>{0} Es konnte nicht bestätigt werden, dass die Lüfter sicher eingestellt sind; vorsorglich wurde versucht, Cooler Boost einzuschalten. Starten Sie den Computer neu.</value>
   </data>
   <data name="Controls_FanTableImplausible" xml:space="preserve">
     <value>Die vom Laptop gelesene Lüftertabelle ist nicht plausibel</value>
@@ -238,7 +238,7 @@
     <value>Werkseinstellung (0x{0:X2})</value>
   </data>
   <data name="Controls_ReadFailed" xml:space="preserve">
-    <value>Die aktuellen Einstellungen konnten nicht gelesen werden, die angezeigten Werte sind möglicherweise veraltet. ({0})</value>
+    <value>Die Einstellungen konnten nicht gelesen werden; die angezeigten Werte sind möglicherweise veraltet ({0}).</value>
   </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>Es gibt nichts erneut anzuwenden.</value>
@@ -367,7 +367,7 @@
     <value>Der Gerätebericht konnte nicht erstellt werden. Details stehen in der Protokolldatei.</value>
   </data>
   <data name="Report_TimedOut" xml:space="preserve">
-    <value>Der Gerätebericht hat zu lange gedauert und wurde abgebrochen. Versuchen Sie es erneut; Details stehen in der Protokolldatei.</value>
+    <value>Der Gerätebericht hat das Zeitlimit überschritten. Versuchen Sie es erneut; Details stehen in der Protokolldatei.</value>
   </data>
   <data name="Report_OpenFailed" xml:space="preserve">
     <value>Der Ordner oder der Browser konnte nicht geöffnet werden. Details stehen in der Protokolldatei.</value>
@@ -463,7 +463,7 @@
     <value>Live-Werte (experimentell)</value>
   </data>
   <data name="Wmi2_ExperimentalBand" xml:space="preserve">
-    <value>Nur Lesen. Diese Werte stammen von der WMI2-Schnittstelle von MSI und wurden auf diesem Modell nicht überprüft, daher können sie falsch sein. M-Tool ändert nichts an diesem Laptop.</value>
+    <value>Nur lesend und experimentell: Die Werte sind auf diesem Modell nicht überprüft. M-Tool ändert nichts an diesem Laptop.</value>
   </data>
   <data name="Wmi2_Show" xml:space="preserve">
     <value>Live-Werte anzeigen</value>
@@ -478,13 +478,13 @@
     <value>Erneut versuchen</value>
   </data>
   <data name="Wmi2_Stopped" xml:space="preserve">
-    <value>Lesen angehalten: Der Laptop hat zweimal hintereinander nicht geantwortet. Es wurde nichts geändert. Versuchen Sie es erneut oder senden Sie einen Gerätebericht, falls es weiterhin auftritt.</value>
+    <value>Lesen angehalten: Der Laptop hat zweimal hintereinander nicht geantwortet. Versuchen Sie es erneut oder senden Sie einen Gerätebericht, falls es weiter auftritt.</value>
   </data>
   <data name="Wmi2_ReadFailed" xml:space="preserve">
-    <value>Der Laptop hat diesmal nicht geantwortet. Die angezeigten Werte sind möglicherweise veraltet.</value>
+    <value>Der Laptop hat nicht geantwortet; die angezeigten Werte sind möglicherweise veraltet.</value>
   </data>
   <data name="Wmi2_Unavailable" xml:space="preserve">
-    <value>M-Tool konnte die WMI2-Schnittstelle nicht öffnen. Es wurde nichts gelesen. Details stehen in der Protokolldatei.</value>
+    <value>Die WMI2-Schnittstelle konnte nicht geöffnet werden; Details stehen in der Protokolldatei.</value>
   </data>
   <data name="Wmi2_Unverified" xml:space="preserve">
     <value>{0} ({1}, nicht überprüft)</value>

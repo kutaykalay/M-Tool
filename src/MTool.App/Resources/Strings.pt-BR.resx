@@ -175,10 +175,10 @@
     <value>O PawnIO não está instalado. Para instalar: {0}</value>
   </data>
   <data name="Session_FirmwareUnread" xml:space="preserve">
-    <value>Não foi possível ler o firmware na inicialização. Por segurança, o Cooler Boost e o limite de carga ficam ocultos nesta sessão e nenhuma configuração é gravada. Reinicie o M-Tool.</value>
+    <value>Não foi possível ler o firmware, então a alteração de configurações está desativada nesta sessão. Reinicie o M-Tool.</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>O M-Tool ainda não consegue controlar este modelo MSI: ele acessa o EC pela interface WMI2 da MSI (principalmente Intel de 11ª geração ou mais recente). A janela do M-Tool pode mostrar alguns de seus valores, somente leitura e experimental. Para ajudar a adicionar suporte, execute "M-Tool.exe --report --wmi2" em um prompt de comando de administrador e anexe o arquivo zip criado a uma issue "Device report" no GitHub.</value>
+    <value>Este modelo (WMI2) ainda não é compatível; alguns valores são mostrados somente leitura e experimentais. Para ajudar, anexe o relatório de "M-Tool.exe --report --wmi2" a uma issue "Device report" no GitHub.</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Este computador ainda não é compatível: a interface WMI da MSI ({0} ou {1} em root\WMI) não foi encontrada.</value>
@@ -187,28 +187,28 @@
     <value>M-Tool: não foi possível aplicar a configuração</value>
   </data>
   <data name="Status_ReadOnlyNote" xml:space="preserve">
-    <value>O M-Tool está no modo somente monitoramento e não pode alterar configurações.</value>
+    <value>As configurações não podem ser alteradas.</value>
   </data>
   <data name="Status_DryRun" xml:space="preserve">
-    <value>Modo de teste: suas escolhas são verificadas, mas não aplicadas ao notebook. Para aplicá-las de verdade, defina "dryRun": false em settings.json.</value>
+    <value>Modo de teste: suas escolhas são verificadas, mas não aplicadas. Para aplicá-las, defina "dryRun": false em settings.json.</value>
   </data>
   <data name="Status_FirmwareUnread" xml:space="preserve">
     <value>Não foi possível ler a versão do firmware. {0}</value>
   </data>
   <data name="Status_Experimental" xml:space="preserve">
-    <value>Experimental: este firmware ({0}) é lido com a ficha de dispositivo {1}; os valores não foram verificados neste modelo e podem estar errados. {2}</value>
+    <value>Experimental: o firmware {0} é lido com a ficha de dispositivo {1}, e os valores não foram verificados neste modelo. {2}</value>
   </data>
   <data name="Status_FirmwareFamily" xml:space="preserve">
-    <value>Este firmware ({0}) pertence à família {1}, mas não foi verificado para alterar configurações. {2}</value>
+    <value>O firmware {0} (família {1}) não foi verificado para alterar configurações. {2}</value>
   </data>
   <data name="Status_FirmwareUnsupported" xml:space="preserve">
-    <value>Este firmware ({0}) não é compatível. {1}</value>
+    <value>O firmware {0} não é compatível. {1}</value>
   </data>
   <data name="Status_WritesOff" xml:space="preserve">
-    <value>A alteração de configurações está desativada; o M-Tool está no modo somente monitoramento. Motivo: {0}</value>
+    <value>A alteração de configurações está desativada: {0}</value>
   </data>
   <data name="Status_Drift" xml:space="preserve">
-    <value>As configurações do notebook diferem das suas escolhas ({0}). Clique em "Reaplicar" para restaurá-las.</value>
+    <value>As configurações do notebook diferem das suas escolhas: {0}.</value>
   </data>
   <data name="Status_DriftFanTable" xml:space="preserve">
     <value>tabela de ventoinha</value>
@@ -223,10 +223,10 @@
     <value>modo de ventoinha</value>
   </data>
   <data name="Status_FailedRecovered" xml:space="preserve">
-    <value>{0} Por segurança, as ventoinhas voltaram à configuração de fábrica e a alteração de configurações foi desativada. Para ativá-la de novo, execute M-Tool.exe --unlock --confirm em um prompt de comando de administrador e reinicie o M-Tool.</value>
+    <value>{0} As ventoinhas voltaram à configuração de fábrica e a alteração de configurações foi desativada. Para ativá-la, execute M-Tool.exe --unlock --confirm como administrador e reinicie o M-Tool.</value>
   </data>
   <data name="Status_FailedUnrecovered" xml:space="preserve">
-    <value>{0} Não foi possível confirmar que as ventoinhas estão em uma configuração segura; por precaução, tentou-se ativar o Cooler Boost. Reinicie o computador; as ventoinhas voltam à configuração de fábrica.</value>
+    <value>{0} Não foi possível confirmar que as ventoinhas estão em uma configuração segura; por precaução, tentou-se ativar o Cooler Boost. Reinicie o computador.</value>
   </data>
   <data name="Controls_FanTableImplausible" xml:space="preserve">
     <value>A tabela de ventoinha lida do notebook não é plausível</value>
@@ -238,7 +238,7 @@
     <value>configuração de fábrica (0x{0:X2})</value>
   </data>
   <data name="Controls_ReadFailed" xml:space="preserve">
-    <value>Não foi possível ler as configurações atuais; os valores mostrados podem estar desatualizados. ({0})</value>
+    <value>Não foi possível ler as configurações; os valores mostrados podem estar desatualizados ({0}).</value>
   </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>Não há nada para reaplicar.</value>
@@ -367,7 +367,7 @@
     <value>Não foi possível criar o relatório do dispositivo. Veja o arquivo de log para mais detalhes.</value>
   </data>
   <data name="Report_TimedOut" xml:space="preserve">
-    <value>O relatório do dispositivo demorou demais e foi interrompido. Tente de novo e veja o arquivo de log para mais detalhes.</value>
+    <value>O relatório do dispositivo excedeu o tempo limite. Tente novamente; veja o arquivo de log para detalhes.</value>
   </data>
   <data name="Report_OpenFailed" xml:space="preserve">
     <value>Não foi possível abrir a pasta ou o navegador. Veja o arquivo de log para mais detalhes.</value>
@@ -463,7 +463,7 @@
     <value>Valores ao vivo (experimental)</value>
   </data>
   <data name="Wmi2_ExperimentalBand" xml:space="preserve">
-    <value>Somente leitura. Estes valores vêm da interface WMI2 da MSI e não foram verificados neste modelo, então podem estar errados. O M-Tool não altera nada neste notebook.</value>
+    <value>Somente leitura e experimental: os valores não foram verificados neste modelo. O M-Tool não altera nada neste notebook.</value>
   </data>
   <data name="Wmi2_Show" xml:space="preserve">
     <value>Mostrar valores ao vivo</value>
@@ -478,13 +478,13 @@
     <value>Tentar novamente</value>
   </data>
   <data name="Wmi2_Stopped" xml:space="preserve">
-    <value>Leitura interrompida: o notebook não respondeu duas vezes seguidas. Nada foi alterado. Tente novamente ou envie um relatório do dispositivo se continuar acontecendo.</value>
+    <value>Leitura interrompida: o notebook não respondeu duas vezes seguidas. Tente novamente ou envie um relatório do dispositivo se continuar.</value>
   </data>
   <data name="Wmi2_ReadFailed" xml:space="preserve">
-    <value>O notebook não respondeu desta vez. Os valores exibidos podem estar desatualizados.</value>
+    <value>O notebook não respondeu; os valores mostrados podem estar desatualizados.</value>
   </data>
   <data name="Wmi2_Unavailable" xml:space="preserve">
-    <value>O M-Tool não conseguiu abrir a interface WMI2. Nada foi lido. Veja o arquivo de log para mais detalhes.</value>
+    <value>Não foi possível abrir a interface WMI2; veja o arquivo de log para detalhes.</value>
   </data>
   <data name="Wmi2_Unverified" xml:space="preserve">
     <value>{0} ({1}, não verificado)</value>

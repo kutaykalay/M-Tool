@@ -15,8 +15,8 @@ public sealed partial class P65ControlCultureTests
     private static readonly WritePolicy Live = new(FirmwareSupported: true, PreStateSaved: true, DryRun: false, PortAvailable: true);
     private static readonly WritePolicy NoPort = Live with { PortAvailable = false };
 
-    private const string TurkishUnreachable = "Dizüstüne ulaşılamadı, hiçbir ayar değişmedi. Biraz sonra tekrar deneyin. (port bug)";
-    private const string EnglishUnreachable = "Could not reach the laptop; no setting was changed. Try again in a moment. (port bug)";
+    private const string TurkishUnreachable = "Dizüstüne ulaşılamadı, hiçbir ayar değişmedi; biraz sonra yeniden deneyin (port bug).";
+    private const string EnglishUnreachable = "The laptop could not be reached and no setting changed; try again shortly (port bug).";
 
     private static readonly Scenario[] Scenarios =
     [

@@ -190,7 +190,7 @@
     <value>не удалось применить предыдущую настройку ({0}). Подробности: {1}</value>
   </data>
   <data name="Write_Unreachable" xml:space="preserve">
-    <value>Не удалось обратиться к ноутбуку; ни одна настройка не изменена. Повторите попытку чуть позже. ({0})</value>
+    <value>Не удалось связаться с ноутбуком, настройки не изменились; повторите попытку чуть позже ({0}).</value>
   </data>
   <data name="Write_EmptyPlan" xml:space="preserve">
     <value>План пуст.</value>
@@ -235,7 +235,7 @@
     <value>{0} недоступен в этом сеансе (нет доступа к PawnIO).</value>
   </data>
   <data name="Write_NoKeyboardBacklight" xml:space="preserve">
-    <value>У этого ноутбука нет подсветки клавиатуры, которую M-Tool может настроить; ничего не записано.</value>
+    <value>У этого ноутбука нет настраиваемой подсветки клавиатуры.</value>
   </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>Доступ к EC приостановлен из-за сна или пробуждения.</value>

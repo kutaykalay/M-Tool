@@ -26,7 +26,7 @@ public class WmiProbeTests
     [Fact]
     public void Wmi2_models_get_a_clear_unsupported_message()
     {
-        WmiProbe.UnsupportedMessage(WmiInterface.Wmi2).Should().Contain("henüz yönetemiyor").And.Contain("WMI2").And.Contain("salt okunur");
+        WmiProbe.UnsupportedMessage(WmiInterface.Wmi2).Should().Contain("henüz desteklenmiyor").And.Contain("WMI2").And.Contain("salt okunur");
     }
 
     [Fact]

@@ -36,7 +36,7 @@ public sealed class ExperimentalRecordTests : IDisposable
         _status.SetAccess(Draft("1541EMS1.115"));
 
         _status.AccessBanner.Should().Contain("Deneysel").And.Contain("1541EMS1.115").And.Contain("MSI WMI1 (generic)")
-            .And.Contain("doğrulanmadı").And.Contain("yalnızca izleme");
+            .And.Contain("doğrulanmadı").And.Contain("Ayarlar değiştirilemez");
         _status.AccessBannerKind.Should().Be(MessageKind.Warning);
     }
 
@@ -93,7 +93,7 @@ public sealed class ExperimentalRecordTests : IDisposable
             new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: false,
             TestLayouts.P65.Capabilities, new DeviceMatch(MatchKind.Family, EmbeddedDevices.P65Id, "MSI P65 Creator 9SE")));
 
-        _status.AccessBanner.Should().Contain("ailesinden").And.NotContain("Deneysel");
+        _status.AccessBanner.Should().Contain("ailesi)").And.NotContain("Deneysel");
     }
 
     [Fact]

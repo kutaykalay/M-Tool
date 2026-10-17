@@ -190,7 +190,7 @@
     <value>un réglage précédent n'a pas pu être appliqué ({0}). Détail : {1}</value>
   </data>
   <data name="Write_Unreachable" xml:space="preserve">
-    <value>Impossible d'accéder à l'ordinateur portable ; aucun réglage n'a été modifié. Réessayez dans un instant. ({0})</value>
+    <value>L'ordinateur portable était inaccessible et aucun réglage n'a changé ; réessayez dans un instant ({0}).</value>
   </data>
   <data name="Write_EmptyPlan" xml:space="preserve">
     <value>Le plan est vide.</value>
@@ -235,7 +235,7 @@
     <value>{0} n'est pas disponible dans cette session (pas d'accès PawnIO).</value>
   </data>
   <data name="Write_NoKeyboardBacklight" xml:space="preserve">
-    <value>Ce portable n'a pas de rétroéclairage du clavier que M-Tool peut régler ; rien n'a été écrit.</value>
+    <value>Cet ordinateur portable n'a pas de rétroéclairage du clavier réglable.</value>
   </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>L'accès à l'EC est suspendu à cause de la mise en veille ou de la sortie de veille.</value>

@@ -175,10 +175,10 @@
     <value>未安装 PawnIO。安装方法：{0}</value>
   </data>
   <data name="Session_FirmwareUnread" xml:space="preserve">
-    <value>启动时无法读取固件。为安全起见，本次会话中隐藏 Cooler Boost 和充电上限，并且不会写入任何设置。请重新启动 M-Tool。</value>
+    <value>无法读取固件，本次会话中更改设置已关闭。请重新启动 M-Tool。</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>M-Tool 暂时无法控制此 MSI 型号：它通过 MSI 的 WMI2 接口访问 EC（主要是第 11 代及更新的 Intel 机型）。M-Tool 窗口可以显示其中一些数值，只读且为实验性。如需帮助添加支持，请在管理员命令提示符中运行 "M-Tool.exe --report --wmi2"，并将生成的 zip 文件附加到 GitHub 上的“Device report”issue。</value>
+    <value>暂不支持此型号（WMI2）；部分数值以只读和实验性方式显示。如需帮助添加支持，请将 "M-Tool.exe --report --wmi2" 生成的报告附加到 GitHub 上的“Device report”issue。</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>暂不支持此电脑：未找到 MSI WMI 接口（root\WMI 中的 {0} 或 {1}）。</value>
@@ -187,28 +187,28 @@
     <value>M-Tool：无法应用设置</value>
   </data>
   <data name="Status_ReadOnlyNote" xml:space="preserve">
-    <value>M-Tool 处于仅监控模式，无法更改设置。</value>
+    <value>无法更改设置。</value>
   </data>
   <data name="Status_DryRun" xml:space="preserve">
-    <value>试运行模式：会检查你的选择，但不会应用到笔记本电脑。要真正应用，请在 settings.json 中设置 "dryRun": false。</value>
+    <value>试运行模式：会检查你的选择，但不会应用。要应用，请在 settings.json 中设置 "dryRun": false。</value>
   </data>
   <data name="Status_FirmwareUnread" xml:space="preserve">
     <value>无法读取固件版本。{0}</value>
   </data>
   <data name="Status_Experimental" xml:space="preserve">
-    <value>实验性：此固件（{0}）使用 {1} 记录读取；这些数值未在此型号上验证，可能有误。{2}</value>
+    <value>实验性：固件 {0} 使用 {1} 记录读取，数值未在此型号上验证。{2}</value>
   </data>
   <data name="Status_FirmwareFamily" xml:space="preserve">
-    <value>此固件（{0}）属于 {1} 系列，但未验证可用于更改设置。{2}</value>
+    <value>固件 {0}（{1} 系列）尚未验证可用于更改设置。{2}</value>
   </data>
   <data name="Status_FirmwareUnsupported" xml:space="preserve">
-    <value>不支持此固件（{0}）。{1}</value>
+    <value>不支持固件 {0}。{1}</value>
   </data>
   <data name="Status_WritesOff" xml:space="preserve">
-    <value>更改设置已关闭，M-Tool 处于仅监控模式。原因：{0}</value>
+    <value>更改设置已关闭：{0}</value>
   </data>
   <data name="Status_Drift" xml:space="preserve">
-    <value>笔记本电脑的设置与你的选择不一致（{0}）。点击“重新应用”以恢复。</value>
+    <value>笔记本电脑的设置与你的选择不一致：{0}。</value>
   </data>
   <data name="Status_DriftFanTable" xml:space="preserve">
     <value>风扇表</value>
@@ -223,10 +223,10 @@
     <value>风扇模式</value>
   </data>
   <data name="Status_FailedRecovered" xml:space="preserve">
-    <value>{0} 为安全起见，风扇已恢复为出厂设置，并已关闭更改设置。要重新开启，请在管理员命令提示符中运行 M-Tool.exe --unlock --confirm，然后重新启动 M-Tool。</value>
+    <value>{0} 风扇已恢复为出厂设置，更改设置已关闭。要重新开启，请以管理员身份运行 M-Tool.exe --unlock --confirm，然后重新启动 M-Tool。</value>
   </data>
   <data name="Status_FailedUnrecovered" xml:space="preserve">
-    <value>{0} 无法确认风扇处于安全设置；作为预防措施，已尝试开启 Cooler Boost。请重新启动电脑，风扇会恢复为出厂设置。</value>
+    <value>{0} 无法确认风扇处于安全设置，已尝试开启 Cooler Boost 作为预防措施。请重新启动电脑。</value>
   </data>
   <data name="Controls_FanTableImplausible" xml:space="preserve">
     <value>从笔记本电脑读取的风扇表不合理</value>
@@ -238,7 +238,7 @@
     <value>出厂设置（0x{0:X2}）</value>
   </data>
   <data name="Controls_ReadFailed" xml:space="preserve">
-    <value>无法读取当前设置，显示的数值可能已过时。（{0}）</value>
+    <value>无法读取设置，显示的数值可能已过时（{0}）。</value>
   </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>没有需要重新应用的设置。</value>
@@ -367,7 +367,7 @@
     <value>无法创建设备报告。详细信息请查看日志文件。</value>
   </data>
   <data name="Report_TimedOut" xml:space="preserve">
-    <value>设备报告耗时过长，已停止。请重试，并查看日志文件了解详细信息。</value>
+    <value>设备报告超时。请重试，详细信息请查看日志文件。</value>
   </data>
   <data name="Report_OpenFailed" xml:space="preserve">
     <value>无法打开文件夹或浏览器。详细信息请查看日志文件。</value>
@@ -463,7 +463,7 @@
     <value>实时数值（实验性）</value>
   </data>
   <data name="Wmi2_ExperimentalBand" xml:space="preserve">
-    <value>只读。这些数值来自 MSI 的 WMI2 接口，尚未在此型号上验证，因此可能有误。M-Tool 不会更改这台笔记本电脑上的任何内容。</value>
+    <value>只读且为实验性：数值未在此型号上验证。M-Tool 不会更改这台笔记本电脑上的任何内容。</value>
   </data>
   <data name="Wmi2_Show" xml:space="preserve">
     <value>显示实时数值</value>
@@ -478,13 +478,13 @@
     <value>重试</value>
   </data>
   <data name="Wmi2_Stopped" xml:space="preserve">
-    <value>读取已停止：笔记本电脑连续两次没有响应。未更改任何内容。请重试，如果问题持续出现，请发送设备报告。</value>
+    <value>读取已停止：笔记本电脑连续两次没有响应。请重试；如果问题持续，请发送设备报告。</value>
   </data>
   <data name="Wmi2_ReadFailed" xml:space="preserve">
-    <value>这次笔记本电脑没有响应。显示的数值可能已过时。</value>
+    <value>笔记本电脑没有响应，显示的数值可能已过时。</value>
   </data>
   <data name="Wmi2_Unavailable" xml:space="preserve">
-    <value>M-Tool 无法打开 WMI2 接口。未读取任何内容。详细信息请查看日志文件。</value>
+    <value>无法打开 WMI2 接口，详细信息请查看日志文件。</value>
   </data>
   <data name="Wmi2_Unverified" xml:space="preserve">
     <value>{0}（{1}，未验证）</value>

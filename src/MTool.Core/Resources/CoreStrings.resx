@@ -249,7 +249,7 @@
     <comment>SAFETY. Reason in Write_Locked, kept for later sessions. {0}: what was being applied (an English name, not translated). {1}: what went wrong (a Write text or a message from the system).</comment>
   </data>
   <data name="Write_Unreachable" xml:space="preserve">
-    <value>Could not reach the laptop; no setting was changed. Try again in a moment. ({0})</value>
+    <value>The laptop could not be reached and no setting changed; try again shortly ({0}).</value>
     <comment>SAFETY. Outcome when the laptop's controller could not be reached before anything was written. {0}: the reason from the system or from the controller worker (one of the Worker texts).</comment>
   </data>
   <data name="Write_EmptyPlan" xml:space="preserve">
@@ -309,7 +309,7 @@
     <comment>SAFETY. Outcome for Cooler Boost without port access. {0}: the feature name; Cooler Boost is not translated. Keep PawnIO.</comment>
   </data>
   <data name="Write_NoKeyboardBacklight" xml:space="preserve">
-    <value>This laptop has no keyboard backlight that M-Tool can set; nothing was written.</value>
+    <value>This laptop has no keyboard backlight that can be set.</value>
     <comment>SAFETY. Outcome when the keyboard backlight is set on a laptop whose device record has none. Nothing was written.</comment>
   </data>
   <data name="Worker_Paused" xml:space="preserve">

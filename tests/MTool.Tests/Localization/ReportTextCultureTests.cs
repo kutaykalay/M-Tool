@@ -20,7 +20,7 @@ public sealed partial class ReportTextCultureTests
         [nameof(Strings.Report_SendEcData)] = "EC verisini gönder (config için)",
         [nameof(Strings.Report_Working)] = "Cihaz raporu hazırlanıyor. Birkaç saniye sürebilir.",
         [nameof(Strings.Report_Failed)] = "Cihaz raporu oluşturulamadı. Ayrıntılar günlük dosyasında.",
-        [nameof(Strings.Report_TimedOut)] = "Cihaz raporu çok uzun sürdü ve durduruldu. Yeniden deneyin. Ayrıntılar günlük dosyasında.",
+        [nameof(Strings.Report_TimedOut)] = "Cihaz raporu zaman aşımına uğradı. Yeniden deneyin; ayrıntılar günlükte.",
         [nameof(Strings.Report_OpenFailed)] = "Klasör ya da tarayıcı açılamadı. Ayrıntılar günlük dosyasında.",
     };
 

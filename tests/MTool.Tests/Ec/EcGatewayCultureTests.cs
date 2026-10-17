@@ -103,8 +103,8 @@ public sealed partial class EcGatewayCultureTests
 
     private const string TurkishReadBack = "Ayar uygulanamadı. Ayar yazıldı ama geri okunduğunda farklı çıktı (0x72=0x32).";
     private const string EnglishReadBack = "The setting could not be applied. The setting was written but read back differently (0x72=0x32).";
-    private const string TurkishUnreachable = "Dizüstüne ulaşılamadı, hiçbir ayar değişmedi. Biraz sonra tekrar deneyin. (";
-    private const string EnglishUnreachable = "Could not reach the laptop; no setting was changed. Try again in a moment. (";
+    private const string TurkishUnreachable = "Dizüstüne ulaşılamadı, hiçbir ayar değişmedi; biraz sonra yeniden deneyin (";
+    private const string EnglishUnreachable = "The laptop could not be reached and no setting changed; try again shortly (";
     private const string TurkishSecondRead = "Ayar yazıldı ama geri okunduğunda farklı çıktı (0xF2=0xC1)";
     private const string EnglishSecondRead = "The setting was written but read back differently (0xF2=0xC1)";
 
@@ -153,9 +153,9 @@ public sealed partial class EcGatewayCultureTests
             $"Ayar uygulanamadı. {TurkishSecondRead}. | Ayar değiştirme kapalı: önceki bir ayar uygulanamadı (Performance mode: Balanced). Ayrıntı: {TurkishSecondRead}.",
             $"The setting could not be applied. {EnglishSecondRead}. | Changing settings is turned off: a previous setting could not be applied (Performance mode: Balanced). Detail: {EnglishSecondRead}."),
         ["EC lock busy"] = (
-            TurkishUnreachable + "EC kilidi (Access_EC) 50 ms içinde alınamadı; başka bir program EC'yi kullanıyor olabilir.)",
-            EnglishUnreachable + "The EC lock (Access_EC) was not obtained within 50 ms; another program may be using the EC.)"),
-        ["port read fails before writing"] = (TurkishUnreachable + "EC silent)", EnglishUnreachable + "EC silent)"),
+            TurkishUnreachable + "EC kilidi (Access_EC) 50 ms içinde alınamadı; başka bir program EC'yi kullanıyor olabilir.).",
+            EnglishUnreachable + "The EC lock (Access_EC) was not obtained within 50 ms; another program may be using the EC.)."),
+        ["port read fails before writing"] = (TurkishUnreachable + "EC silent).", EnglishUnreachable + "EC silent)."),
         ["port write disturbs performance mode"] = (
             "Ayar uygulanamadı. Ayar yazıldı ama başka değerler de değişti; güvenlik için durduruldu. Port erişimi başka register'ları değiştirdi: 0xF2=0xC4. Geri yüklendi: 0xF2=0xC0.",
             "The setting could not be applied. The setting was written but other values changed too; stopped for safety. The port access changed other registers: 0xF2=0xC4. Restored: 0xF2=0xC0."),

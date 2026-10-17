@@ -175,10 +175,10 @@
     <value>PawnIO n'est pas installé. Pour l'installer : {0}</value>
   </data>
   <data name="Session_FirmwareUnread" xml:space="preserve">
-    <value>Le firmware n'a pas pu être lu au démarrage. Par sécurité, Cooler Boost et la limite de charge sont masqués pendant cette session et aucun réglage n'est écrit. Redémarrez M-Tool.</value>
+    <value>Le firmware n'a pas pu être lu, la modification des réglages est donc désactivée pour cette session. Redémarrez M-Tool.</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>M-Tool ne peut pas encore contrôler ce modèle MSI : il accède à l'EC par l'interface WMI2 de MSI (surtout Intel de 11e génération et plus récents). La fenêtre de M-Tool peut afficher certaines de ses valeurs, en lecture seule et à titre expérimental. Pour aider à ajouter la prise en charge, exécutez "M-Tool.exe --report --wmi2" dans une invite de commandes administrateur et joignez le fichier zip créé à un ticket « Device report » sur GitHub.</value>
+    <value>Ce modèle (WMI2) n'est pas encore pris en charge ; certaines valeurs sont affichées en lecture seule, à titre expérimental. Pour aider, joignez le rapport de "M-Tool.exe --report --wmi2" à un ticket « Device report » sur GitHub.</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Cet ordinateur n'est pas encore pris en charge : l'interface WMI de MSI ({0} ou {1} dans root\WMI) est introuvable.</value>
@@ -187,28 +187,28 @@
     <value>M-Tool : le réglage n'a pas pu être appliqué</value>
   </data>
   <data name="Status_ReadOnlyNote" xml:space="preserve">
-    <value>M-Tool est en mode surveillance seule et ne peut pas modifier les réglages.</value>
+    <value>Les réglages ne peuvent pas être modifiés.</value>
   </data>
   <data name="Status_DryRun" xml:space="preserve">
-    <value>Mode d'essai : vos choix sont vérifiés mais pas appliqués à l'ordinateur portable. Pour les appliquer réellement, mettez "dryRun": false dans settings.json.</value>
+    <value>Mode d'essai : vos choix sont vérifiés mais pas appliqués. Pour les appliquer, mettez "dryRun": false dans settings.json.</value>
   </data>
   <data name="Status_FirmwareUnread" xml:space="preserve">
     <value>La version du firmware n'a pas pu être lue. {0}</value>
   </data>
   <data name="Status_Experimental" xml:space="preserve">
-    <value>Expérimental : ce firmware ({0}) est lu avec la fiche d'appareil {1} ; les valeurs ne sont pas vérifiées sur ce modèle et peuvent être fausses. {2}</value>
+    <value>Expérimental : le firmware {0} est lu avec la fiche d'appareil {1}, et les valeurs ne sont pas vérifiées sur ce modèle. {2}</value>
   </data>
   <data name="Status_FirmwareFamily" xml:space="preserve">
-    <value>Ce firmware ({0}) appartient à la famille {1}, mais n'est pas vérifié pour la modification des réglages. {2}</value>
+    <value>Le firmware {0} (famille {1}) n'est pas vérifié pour modifier les réglages. {2}</value>
   </data>
   <data name="Status_FirmwareUnsupported" xml:space="preserve">
-    <value>Ce firmware ({0}) n'est pas pris en charge. {1}</value>
+    <value>Le firmware {0} n'est pas pris en charge. {1}</value>
   </data>
   <data name="Status_WritesOff" xml:space="preserve">
-    <value>La modification des réglages est désactivée, M-Tool est en mode surveillance seule. Raison : {0}</value>
+    <value>La modification des réglages est désactivée : {0}</value>
   </data>
   <data name="Status_Drift" xml:space="preserve">
-    <value>Les réglages de l'ordinateur portable diffèrent de vos choix ({0}). Cliquez sur « Réappliquer » pour les rétablir.</value>
+    <value>Les réglages de l'ordinateur portable diffèrent de vos choix : {0}.</value>
   </data>
   <data name="Status_DriftFanTable" xml:space="preserve">
     <value>table de ventilation</value>
@@ -223,10 +223,10 @@
     <value>mode de ventilation</value>
   </data>
   <data name="Status_FailedRecovered" xml:space="preserve">
-    <value>{0} Par sécurité, les ventilateurs ont été remis au réglage d'usine et la modification des réglages a été désactivée. Pour la réactiver, exécutez M-Tool.exe --unlock --confirm dans une invite de commandes administrateur, puis redémarrez M-Tool.</value>
+    <value>{0} Les ventilateurs ont été remis au réglage d'usine et la modification des réglages a été désactivée. Pour la réactiver, exécutez M-Tool.exe --unlock --confirm en administrateur, puis redémarrez M-Tool.</value>
   </data>
   <data name="Status_FailedUnrecovered" xml:space="preserve">
-    <value>{0} Impossible de confirmer que les ventilateurs sont sur un réglage sûr ; par précaution, une tentative d'activation de Cooler Boost a été faite. Redémarrez l'ordinateur ; les ventilateurs reviennent au réglage d'usine.</value>
+    <value>{0} Impossible de confirmer que les ventilateurs sont à un réglage sûr ; par précaution, une tentative d'activation de Cooler Boost a été faite. Redémarrez l'ordinateur.</value>
   </data>
   <data name="Controls_FanTableImplausible" xml:space="preserve">
     <value>La table de ventilation lue sur l'ordinateur portable n'est pas plausible</value>
@@ -238,7 +238,7 @@
     <value>réglage d'usine (0x{0:X2})</value>
   </data>
   <data name="Controls_ReadFailed" xml:space="preserve">
-    <value>Les réglages actuels n'ont pas pu être lus, les valeurs affichées peuvent être anciennes. ({0})</value>
+    <value>Les réglages n'ont pas pu être lus ; les valeurs affichées peuvent être périmées ({0}).</value>
   </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>Il n'y a rien à réappliquer.</value>
@@ -367,7 +367,7 @@
     <value>Le rapport d'appareil n'a pas pu être créé. Consultez le fichier journal pour plus de détails.</value>
   </data>
   <data name="Report_TimedOut" xml:space="preserve">
-    <value>Le rapport d'appareil a pris trop de temps et a été arrêté. Réessayez, et consultez le fichier journal pour plus de détails.</value>
+    <value>Le rapport d'appareil a dépassé le délai. Réessayez ; consultez le fichier journal pour les détails.</value>
   </data>
   <data name="Report_OpenFailed" xml:space="preserve">
     <value>Impossible d'ouvrir le dossier ou le navigateur. Consultez le fichier journal pour plus de détails.</value>
@@ -463,7 +463,7 @@
     <value>Valeurs en direct (expérimental)</value>
   </data>
   <data name="Wmi2_ExperimentalBand" xml:space="preserve">
-    <value>Lecture seule. Ces valeurs proviennent de l'interface WMI2 de MSI et n'ont pas été vérifiées sur ce modèle, elles peuvent donc être fausses. M-Tool ne modifie rien sur cet ordinateur portable.</value>
+    <value>Lecture seule et expérimental : les valeurs ne sont pas vérifiées sur ce modèle. M-Tool ne modifie rien sur cet ordinateur portable.</value>
   </data>
   <data name="Wmi2_Show" xml:space="preserve">
     <value>Afficher les valeurs en direct</value>
@@ -478,13 +478,13 @@
     <value>Réessayer</value>
   </data>
   <data name="Wmi2_Stopped" xml:space="preserve">
-    <value>Lecture arrêtée : l'ordinateur portable n'a pas répondu deux fois de suite. Rien n'a été modifié. Réessayez, ou envoyez un rapport d'appareil si le problème persiste.</value>
+    <value>Lecture arrêtée : l'ordinateur portable n'a pas répondu deux fois de suite. Réessayez, ou envoyez un rapport d'appareil si le problème persiste.</value>
   </data>
   <data name="Wmi2_ReadFailed" xml:space="preserve">
-    <value>L'ordinateur portable n'a pas répondu cette fois. Les valeurs affichées sont peut-être anciennes.</value>
+    <value>L'ordinateur portable n'a pas répondu ; les valeurs affichées peuvent être périmées.</value>
   </data>
   <data name="Wmi2_Unavailable" xml:space="preserve">
-    <value>M-Tool n'a pas pu ouvrir l'interface WMI2. Rien n'a été lu. Consultez le fichier journal pour plus de détails.</value>
+    <value>L'interface WMI2 n'a pas pu être ouverte ; consultez le fichier journal pour les détails.</value>
   </data>
   <data name="Wmi2_Unverified" xml:space="preserve">
     <value>{0} ({1}, non vérifié)</value>

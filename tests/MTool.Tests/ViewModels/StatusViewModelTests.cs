@@ -54,7 +54,7 @@ public class StatusViewModelTests
         status.SetAccess(new DeviceAccess(new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true, TestLayouts.P65.Capabilities, match));
 
         status.AccessBanner.Should().Contain("16Q4EMS2.108").And.Contain("MSI P65 Creator 9SE").And.Contain("doğrulanmadı")
-            .And.Contain("yalnızca izleme");
+            .And.Contain("Ayarlar değiştirilemez");
         status.AccessBannerKind.Should().Be(MessageKind.Warning);
     }
 
@@ -65,7 +65,7 @@ public class StatusViewModelTests
 
         status.SetAccess(new DeviceAccess(new FirmwareInfo("16Q4EMS2.108", ""), WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true, TestLayouts.P65.Capabilities));
 
-        status.AccessBanner.Should().Contain("16Q4EMS2.108").And.Contain("desteklenmiyor").And.Contain("yalnızca izleme");
+        status.AccessBanner.Should().Contain("16Q4EMS2.108").And.Contain("desteklenmiyor").And.Contain("Ayarlar değiştirilemez");
         status.AccessBannerKind.Should().Be(MessageKind.Warning);
     }
 
@@ -76,7 +76,7 @@ public class StatusViewModelTests
 
         status.SetAccess(new DeviceAccess(null, WriteMode.Locked, "tanınmayan firmware", PortFeaturesAvailable: true, TestLayouts.P65.Capabilities));
 
-        status.AccessBanner.Should().Contain("okunamadı").And.Contain("yalnızca izleme");
+        status.AccessBanner.Should().Contain("okunamadı").And.Contain("Ayarlar değiştirilemez");
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class StatusViewModelTests
         status.SetDrift(new StateDrift(FanTable: true, Performance: true, ChargeLimit: false, FanMode: false), dryRun: false);
 
         status.ShowReapply.Should().BeTrue();
-        status.DriftText.Should().Contain("fan tablosu").And.Contain("performans modu").And.Contain("Yeniden uygula").And.NotContain("EC");
+        status.DriftText.Should().Contain("fan tablosu").And.Contain("performans modu").And.NotContain("EC");
     }
 
     [Fact]

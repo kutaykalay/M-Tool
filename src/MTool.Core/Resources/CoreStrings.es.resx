@@ -190,7 +190,7 @@
     <value>no se pudo aplicar un ajuste anterior ({0}). Detalle: {1}</value>
   </data>
   <data name="Write_Unreachable" xml:space="preserve">
-    <value>No se pudo acceder al portátil; no se cambió ningún ajuste. Vuelva a intentarlo en un momento. ({0})</value>
+    <value>No se pudo acceder al portátil y no cambió ningún ajuste; inténtelo de nuevo en un momento ({0}).</value>
   </data>
   <data name="Write_EmptyPlan" xml:space="preserve">
     <value>El plan está vacío.</value>
@@ -235,7 +235,7 @@
     <value>{0} no está disponible en esta sesión (sin acceso a PawnIO).</value>
   </data>
   <data name="Write_NoKeyboardBacklight" xml:space="preserve">
-    <value>Este portátil no tiene una retroiluminación del teclado que M-Tool pueda ajustar; no se escribió nada.</value>
+    <value>Este portátil no tiene una retroiluminación del teclado ajustable.</value>
   </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>El acceso al EC está en pausa por la suspensión o la reanudación.</value>

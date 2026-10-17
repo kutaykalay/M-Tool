@@ -190,7 +190,7 @@
     <value>uma configuração anterior não pôde ser aplicada ({0}). Detalhe: {1}</value>
   </data>
   <data name="Write_Unreachable" xml:space="preserve">
-    <value>Não foi possível acessar o notebook; nenhuma configuração foi alterada. Tente de novo em instantes. ({0})</value>
+    <value>Não foi possível acessar o notebook e nenhuma configuração mudou; tente novamente em instantes ({0}).</value>
   </data>
   <data name="Write_EmptyPlan" xml:space="preserve">
     <value>O plano está vazio.</value>
@@ -235,7 +235,7 @@
     <value>{0} não está disponível nesta sessão (sem acesso ao PawnIO).</value>
   </data>
   <data name="Write_NoKeyboardBacklight" xml:space="preserve">
-    <value>Este notebook não tem uma iluminação do teclado que o M-Tool possa ajustar; nada foi gravado.</value>
+    <value>Este notebook não tem uma iluminação do teclado ajustável.</value>
   </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>O acesso ao EC está pausado por causa da suspensão ou do retorno dela.</value>

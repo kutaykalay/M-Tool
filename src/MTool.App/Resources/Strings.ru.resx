@@ -175,10 +175,10 @@
     <value>PawnIO не установлен. Для установки: {0}</value>
   </data>
   <data name="Session_FirmwareUnread" xml:space="preserve">
-    <value>Не удалось прочитать прошивку при запуске. В целях безопасности Cooler Boost и лимит заряда скрыты в этом сеансе, и настройки не записываются. Перезапустите M-Tool.</value>
+    <value>Не удалось прочитать прошивку, поэтому изменение настроек в этом сеансе выключено. Перезапустите M-Tool.</value>
   </data>
   <data name="Probe_UnsupportedWmi2" xml:space="preserve">
-    <value>M-Tool пока не может управлять этой моделью MSI: она обращается к EC через интерфейс MSI WMI2 (в основном Intel 11-го поколения и новее). Окно M-Tool может показать некоторые её значения, только для чтения и экспериментально. Чтобы помочь добавить поддержку, выполните "M-Tool.exe --report --wmi2" в командной строке от имени администратора и прикрепите созданный zip-файл к issue «Device report» на GitHub.</value>
+    <value>Эта модель (WMI2) пока не поддерживается; некоторые значения показываются только для чтения и экспериментально. Чтобы помочь, прикрепите отчёт "M-Tool.exe --report --wmi2" к issue «Device report» на GitHub.</value>
   </data>
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Этот компьютер пока не поддерживается: интерфейс MSI WMI ({0} или {1} в root\WMI) не найден.</value>
@@ -187,28 +187,28 @@
     <value>M-Tool: не удалось применить настройку</value>
   </data>
   <data name="Status_ReadOnlyNote" xml:space="preserve">
-    <value>M-Tool работает в режиме только наблюдения и не может менять настройки.</value>
+    <value>Настройки нельзя изменить.</value>
   </data>
   <data name="Status_DryRun" xml:space="preserve">
-    <value>Пробный режим: ваш выбор проверяется, но не применяется к ноутбуку. Чтобы применять его по-настоящему, укажите "dryRun": false в settings.json.</value>
+    <value>Пробный режим: ваш выбор проверяется, но не применяется. Чтобы применить его, укажите "dryRun": false в settings.json.</value>
   </data>
   <data name="Status_FirmwareUnread" xml:space="preserve">
     <value>Не удалось прочитать версию прошивки. {0}</value>
   </data>
   <data name="Status_Experimental" xml:space="preserve">
-    <value>Экспериментально: эта прошивка ({0}) читается по записи {1}; значения не проверены на этой модели и могут быть неверными. {2}</value>
+    <value>Экспериментально: прошивка {0} читается по записи {1}, значения не проверены на этой модели. {2}</value>
   </data>
   <data name="Status_FirmwareFamily" xml:space="preserve">
-    <value>Эта прошивка ({0}) относится к семейству {1}, но не проверена для изменения настроек. {2}</value>
+    <value>Прошивка {0} (семейство {1}) не проверена для изменения настроек. {2}</value>
   </data>
   <data name="Status_FirmwareUnsupported" xml:space="preserve">
-    <value>Эта прошивка ({0}) не поддерживается. {1}</value>
+    <value>Прошивка {0} не поддерживается. {1}</value>
   </data>
   <data name="Status_WritesOff" xml:space="preserve">
-    <value>Изменение настроек выключено, M-Tool работает в режиме только наблюдения. Причина: {0}</value>
+    <value>Изменение настроек выключено: {0}</value>
   </data>
   <data name="Status_Drift" xml:space="preserve">
-    <value>Настройки ноутбука отличаются от выбранных вами ({0}). Нажмите «Применить снова», чтобы вернуть их.</value>
+    <value>Настройки ноутбука отличаются от выбранных вами: {0}.</value>
   </data>
   <data name="Status_DriftFanTable" xml:space="preserve">
     <value>таблица вентиляторов</value>
@@ -223,10 +223,10 @@
     <value>режим вентиляторов</value>
   </data>
   <data name="Status_FailedRecovered" xml:space="preserve">
-    <value>{0} В целях безопасности вентиляторы возвращены к заводской настройке, а изменение настроек выключено. Чтобы снова включить его, выполните M-Tool.exe --unlock --confirm в командной строке от имени администратора, затем перезапустите M-Tool.</value>
+    <value>{0} Вентиляторы возвращены к заводской настройке, изменение настроек выключено. Чтобы включить его, выполните M-Tool.exe --unlock --confirm от имени администратора и перезапустите M-Tool.</value>
   </data>
   <data name="Status_FailedUnrecovered" xml:space="preserve">
-    <value>{0} Не удалось подтвердить, что вентиляторы работают в безопасной настройке; в качестве меры предосторожности была попытка включить Cooler Boost. Перезагрузите компьютер; вентиляторы вернутся к заводской настройке.</value>
+    <value>{0} Не удалось подтвердить, что вентиляторы в безопасной настройке; в качестве меры предосторожности была попытка включить Cooler Boost. Перезагрузите компьютер.</value>
   </data>
   <data name="Controls_FanTableImplausible" xml:space="preserve">
     <value>Таблица вентиляторов, прочитанная с ноутбука, неправдоподобна</value>
@@ -238,7 +238,7 @@
     <value>заводская настройка (0x{0:X2})</value>
   </data>
   <data name="Controls_ReadFailed" xml:space="preserve">
-    <value>Не удалось прочитать текущие настройки, показанные значения могут быть устаревшими. ({0})</value>
+    <value>Не удалось прочитать настройки; показанные значения могут быть устаревшими ({0}).</value>
   </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>Нечего применять снова.</value>
@@ -367,7 +367,7 @@
     <value>Не удалось создать отчёт об устройстве. Подробности в файле журнала.</value>
   </data>
   <data name="Report_TimedOut" xml:space="preserve">
-    <value>Создание отчёта об устройстве заняло слишком много времени и было остановлено. Повторите попытку; подробности в файле журнала.</value>
+    <value>Время создания отчёта об устройстве истекло. Повторите попытку; подробности в файле журнала.</value>
   </data>
   <data name="Report_OpenFailed" xml:space="preserve">
     <value>Не удалось открыть папку или браузер. Подробности в файле журнала.</value>
@@ -463,7 +463,7 @@
     <value>Текущие значения (экспериментально)</value>
   </data>
   <data name="Wmi2_ExperimentalBand" xml:space="preserve">
-    <value>Только чтение. Эти значения получены через интерфейс MSI WMI2 и не проверялись на этой модели, поэтому могут быть неверными. M-Tool ничего не меняет на этом ноутбуке.</value>
+    <value>Только чтение, экспериментально: значения не проверены на этой модели. M-Tool ничего не меняет на этом ноутбуке.</value>
   </data>
   <data name="Wmi2_Show" xml:space="preserve">
     <value>Показать текущие значения</value>
@@ -478,13 +478,13 @@
     <value>Повторить</value>
   </data>
   <data name="Wmi2_Stopped" xml:space="preserve">
-    <value>Чтение остановлено: ноутбук не ответил два раза подряд. Ничего не было изменено. Повторите попытку или отправьте отчёт об устройстве, если проблема не исчезнет.</value>
+    <value>Чтение остановлено: ноутбук не ответил два раза подряд. Повторите попытку или отправьте отчёт об устройстве, если это повторится.</value>
   </data>
   <data name="Wmi2_ReadFailed" xml:space="preserve">
-    <value>На этот раз ноутбук не ответил. Показанные значения могут быть устаревшими.</value>
+    <value>Ноутбук не ответил; показанные значения могут быть устаревшими.</value>
   </data>
   <data name="Wmi2_Unavailable" xml:space="preserve">
-    <value>M-Tool не смог открыть интерфейс WMI2. Ничего не было прочитано. Подробности в файле журнала.</value>
+    <value>Не удалось открыть интерфейс WMI2; подробности в файле журнала.</value>
   </data>
   <data name="Wmi2_Unverified" xml:space="preserve">
     <value>{0} ({1}, не проверено)</value>

@@ -190,7 +190,7 @@
     <value>eine frühere Einstellung konnte nicht angewendet werden ({0}). Detail: {1}</value>
   </data>
   <data name="Write_Unreachable" xml:space="preserve">
-    <value>Der Laptop war nicht erreichbar; keine Einstellung wurde geändert. Versuchen Sie es gleich noch einmal. ({0})</value>
+    <value>Der Laptop war nicht erreichbar, keine Einstellung wurde geändert; versuchen Sie es gleich erneut ({0}).</value>
   </data>
   <data name="Write_EmptyPlan" xml:space="preserve">
     <value>Der Plan ist leer.</value>
@@ -235,7 +235,7 @@
     <value>{0} ist in dieser Sitzung nicht verfügbar (kein PawnIO-Zugriff).</value>
   </data>
   <data name="Write_NoKeyboardBacklight" xml:space="preserve">
-    <value>Dieser Laptop hat keine Tastaturbeleuchtung, die M-Tool einstellen kann; es wurde nichts geschrieben.</value>
+    <value>Dieser Laptop hat keine einstellbare Tastaturbeleuchtung.</value>
   </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>Der EC-Zugriff ist wegen Energiesparmodus oder Aufwachen pausiert.</value>

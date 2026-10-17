@@ -190,7 +190,7 @@
     <value>önceki bir ayar uygulanamadı ({0}). Ayrıntı: {1}</value>
   </data>
   <data name="Write_Unreachable" xml:space="preserve">
-    <value>Dizüstüne ulaşılamadı, hiçbir ayar değişmedi. Biraz sonra tekrar deneyin. ({0})</value>
+    <value>Dizüstüne ulaşılamadı, hiçbir ayar değişmedi; biraz sonra yeniden deneyin ({0}).</value>
   </data>
   <data name="Write_EmptyPlan" xml:space="preserve">
     <value>Plan boş.</value>
@@ -235,7 +235,7 @@
     <value>{0} bu oturumda kullanılamıyor (PawnIO erişimi yok).</value>
   </data>
   <data name="Write_NoKeyboardBacklight" xml:space="preserve">
-    <value>Bu laptopta M-Tool'un ayarlayabileceği bir klavye ışığı yok; hiçbir şey yazılmadı.</value>
+    <value>Bu dizüstünde ayarlanabilir klavye ışığı yok.</value>
   </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>EC erişimi uyku/uyanış nedeniyle duraklatıldı.</value>

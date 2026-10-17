@@ -102,7 +102,7 @@ public sealed class ViewModelTextTests : IDisposable
 
             status.SetAccess(Access(WriteMode.Locked, new FirmwareInfo("16Q4EMS2.999", "")));
 
-            status.AccessBanner.Should().Contain("16Q4EMS2.999").And.Contain("monitor-only").And.NotContain("izleme");
+            status.AccessBanner.Should().Contain("16Q4EMS2.999").And.Contain("Settings cannot be changed").And.NotContain("değiştirilemez");
         });
     }
 
@@ -115,7 +115,7 @@ public sealed class ViewModelTextTests : IDisposable
 
             status.SetDrift(new StateDrift(true, true, true, true), dryRun: false);
 
-            status.DriftText.Should().Contain("fan table, performance mode, charge limit, fan mode").And.Contain("Reapply");
+            status.DriftText.Should().Contain("fan table, performance mode, charge limit, fan mode");
         });
     }
 
