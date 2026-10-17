@@ -47,6 +47,9 @@ public sealed class EcGateway
     /// <summary>Why writes are refused (firmware, missing backup, a failed write), or null when open. Read-only.</summary>
     public string? LockReason => Volatile.Read(ref _lockReason)?.Text;
 
+    /// <summary><see cref="LockReason"/> for the log: English whatever the user reads.</summary>
+    public string? LockReasonForLog => Volatile.Read(ref _lockReason)?.Log;
+
     public bool IsDryRun => _policy.DryRun;
 
     /// <summary>Cooler Boost and the charge limit can be written (the raw port is open).</summary>

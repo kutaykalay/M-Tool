@@ -137,7 +137,7 @@ internal sealed class GuiBootstrapper : IDisposable
         theme.Changed += () => window.ApplyTitleBarTheme(theme.IsDark);
 
         log.Info($"GUI started ({AppVersion}). Firmware: {setup.Firmware?.Version ?? "unreadable"}, writes: {control.Access.WriteMode}" +
-                 (control.Access.LockReason is { } reason ? $" ({reason})" : ""));
+                 (setup.Gateway.LockReasonForLog is { } reason ? $" ({reason})" : ""));
 
         var reapplier = new AutoReapplier(service.ReapplyAsync, powerEvents, coordinator, TimeProvider.System, log, reapplyOptions);
         var switcher = new PowerSourceSwitcher(

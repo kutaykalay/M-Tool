@@ -239,6 +239,41 @@ public sealed partial class EcGatewayCultureTests
     }
 
     [Fact]
+    public void The_start_up_lock_reason_for_the_log_is_English_whatever_the_user_reads()
+    {
+        using var rig = new WriteRig();
+        using var _ = TestCulture.Use("tr");
+
+        var gateway = rig.Gateway(Live with { PreStateSaved = false });
+
+        gateway.LockReason.Should().Be("ilk açılışta alınan ayar yedeği bulunamadı ya da bozuk.");
+        gateway.LockReasonForLog.Should().Be("the settings backup taken at first launch is missing or damaged.");
+    }
+
+    [Fact]
+    public async Task The_lock_reason_after_a_failure_is_English_in_the_log()
+    {
+        using var rig = new WriteRig();
+        using var _ = TestCulture.Use("tr");
+        rig.Ec.StuckRegisters.Add(0xF2);
+        var gateway = rig.Gateway();
+
+        await gateway.ApplyAsync(WritePlans.Performance(PerformanceMode.Balanced));
+
+        gateway.LockReason.Should().StartWith("önceki bir ayar uygulanamadı (");
+        gateway.LockReasonForLog.Should().Be(
+            $"a previous setting could not be applied (Performance mode: Balanced). Detail: {EnglishSecondRead}.");
+    }
+
+    [Fact]
+    public void An_open_gateway_has_no_lock_reason_for_the_log()
+    {
+        using var rig = new WriteRig();
+
+        rig.Gateway().LockReasonForLog.Should().BeNull();
+    }
+
+    [Fact]
     public async Task A_rejection_and_a_failure_are_logged_in_English_whatever_the_user_reads()
     {
         var rejected = await RunIn("tr", Find("firmware not supported"));
