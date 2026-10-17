@@ -34,11 +34,11 @@ public class P65LayoutGoldenTests
     }
 
     [Fact]
-    public void Wmi_fields_are_the_56_golden_ones()
+    public void Wmi_fields_are_the_57_golden_ones()
     {
         Layout.Wmi.Fields.ToDictionary(f => f.Key, f => (f.Value.ClassName, f.Value.Index))
             .Should().BeEquivalentTo(P65Golden.WmiFields);
-        Layout.Wmi.Fields.Should().HaveCount(56);
+        Layout.Wmi.Fields.Should().HaveCount(57);
     }
 
     [Fact]

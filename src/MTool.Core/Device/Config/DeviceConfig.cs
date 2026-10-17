@@ -79,7 +79,8 @@ public sealed record FeatureSet(
     CoolerBoostFeature? CoolerBoost,
     ChargeLimitFeature? ChargeLimit,
     PerformanceModeFeature? PerformanceMode,
-    FanModeFeature? FanMode);
+    FanModeFeature? FanMode,
+    KeyboardBacklightFeature? KeyboardBacklight = null);
 
 public sealed record CoolerBoostFeature(byte Register, int Bit);
 
@@ -92,6 +93,9 @@ public sealed record PerformanceModeFeature(byte Register, IReadOnlyList<ModeVal
 public sealed record ModeValue(string Id, byte Value);
 
 public sealed record FanModeFeature(byte Register, byte Auto, byte Advanced);
+
+/// <param name="Levels">The bytes for off and each brightness step, in order (the P65: 0x80-0x83).</param>
+public sealed record KeyboardBacklightFeature(byte Register, IReadOnlyList<byte> Levels);
 
 public sealed record Wmi1Layout(IReadOnlyList<WmiFieldSpec> Fields);
 

@@ -23,6 +23,7 @@ internal static class P65Golden
     public const byte CoolerBoost = 0x98;
     public const byte ChargeLimit = 0xEF;
     public const byte PerformanceMode = 0xF2;
+    public const byte KeyboardBacklight = 0xF3;
     public const byte FanMode = 0xF4;
 
     public static readonly byte[] CpuUpThresholds = [0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F];
@@ -39,14 +40,14 @@ internal static class P65Golden
         0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90,
     ];
 
-    /// <summary>The 30 registers the gateway may write, in register order.</summary>
+    /// <summary>The 31 registers the gateway may write, in register order.</summary>
     public static readonly byte[] WritableRegisters =
     [
         0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
         0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78,
         0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
         0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90,
-        0x98, 0xEF, 0xF2, 0xF4,
+        0x98, 0xEF, 0xF2, 0xF3, 0xF4,
     ];
 
     /// <summary>What <c>PortWriteGuard</c> reads around a port plan: both tables, performance and fan mode.</summary>
@@ -61,12 +62,15 @@ internal static class P65Golden
 
     public static readonly byte[] PortRegisters = [0x98, 0xEF];
 
+    /// <summary>Off, 1, 2, 3, as Fn+PgDn/PgUp set them (ec-erisim-karari.md §7).</summary>
+    public static readonly byte[] KeyboardBacklightLevels = [0x80, 0x81, 0x82, 0x83];
+
     /// <summary>Gateway write order: speeds 0, up thresholds 1, other settings 2, fan mode 3.</summary>
     public static readonly (byte Register, int Order)[] WriteOrder =
     [
         (0x72, 0), (0x78, 0), (0x8A, 0), (0x90, 0),
         (0x6A, 1), (0x6F, 1), (0x82, 1), (0x87, 1),
-        (0x98, 2), (0xEF, 2), (0xF2, 2),
+        (0x98, 2), (0xEF, 2), (0xF2, 2), (0xF3, 2),
         (0xF4, 3),
     ];
 
@@ -136,6 +140,7 @@ internal static class P65Golden
             [0xCA] = ("MSI_AP", 5),
 
             [0xF2] = ("MSI_System", 7),
+            [0xF3] = ("MSI_System", 8),
             [0xF4] = ("MSI_System", 9),
         };
 
@@ -182,7 +187,7 @@ internal static class P65Golden
 
     /// <summary>
     /// <c>CheckStatic</c> boundaries: register, value, accepted. Fan table limits 30-95 °C and 100 %,
-    /// charge limit 0x80 | 50-100, exact mode values, nothing outside the whitelist.
+    /// charge limit 0x80 | 50-100, exact mode values, keyboard backlight 0x80-0x83, nothing outside the whitelist.
     /// </summary>
     public static readonly (byte Register, byte Value, bool Accepted)[] StaticRules =
     [
@@ -196,6 +201,7 @@ internal static class P65Golden
         (0xF2, 0xC4, false), (0xF2, 0x80, false),
         (0xF4, 0x0D, true), (0xF4, 0x8D, true),
         (0xF4, 0x4D, false), (0xF4, 0x0C, false),
+        (0xF3, 0x80, true), (0xF3, 0x83, true), (0xF3, 0x7F, false), (0xF3, 0x84, false), (0xF3, 0x00, false),
         (0x98, 0x02, true), (0x98, 0x82, true),
         (0x7A, 8, false), (0x92, 8, false), (0xA0, 0x31, false), (0x68, 50, false), (0xCC, 0, false),
     ];

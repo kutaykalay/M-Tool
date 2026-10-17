@@ -36,7 +36,7 @@ public class MsiWmiFieldsTests
     [Theory]
     [InlineData(WmiMap.CpuClass, 0)] // exists in WMI, not in the map
     [InlineData(WmiMap.CpuClass, 99)]
-    [InlineData(WmiMap.SystemClass, 8)]
+    [InlineData(WmiMap.SystemClass, 10)]
     [InlineData("Win32_Process", 1)]
     [InlineData("MSI_CPU.InstanceName=\"x\" or 1", 1)]
     public void Anything_outside_the_map_is_refused(string className, int index)

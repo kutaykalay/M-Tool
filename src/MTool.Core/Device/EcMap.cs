@@ -39,6 +39,7 @@ public static class EcMap
     public const byte CoolerBoost = 0x98;
     public const byte ChargeLimit = 0xEF;
     public const byte PerformanceMode = 0xF2;
+    public const byte KeyboardBacklight = 0xF3;
     public const byte FanMode = 0xF4;
 
     /// <summary>Up thresholds and speeds of both fans, in register order.</summary>

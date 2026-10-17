@@ -37,11 +37,12 @@ public class P65GoldenTests
         EcMap.CoolerBoost.Should().Be(P65Golden.CoolerBoost);
         EcMap.ChargeLimit.Should().Be(P65Golden.ChargeLimit);
         EcMap.PerformanceMode.Should().Be(P65Golden.PerformanceMode);
+        EcMap.KeyboardBacklight.Should().Be(P65Golden.KeyboardBacklight);
         EcMap.FanMode.Should().Be(P65Golden.FanMode);
     }
 
     [Fact]
-    public void Writable_registers_are_the_30_golden_ones()
+    public void Writable_registers_are_the_31_golden_ones()
     {
         EcWriteRules.WritableRegisters.Should().Equal(P65Golden.WritableRegisters);
     }
@@ -61,11 +62,11 @@ public class P65GoldenTests
     }
 
     [Fact]
-    public void Wmi_fields_are_the_56_golden_ones()
+    public void Wmi_fields_are_the_57_golden_ones()
     {
         WmiMap.Fields.ToDictionary(f => f.Key, f => (f.Value.ClassName, f.Value.Index))
             .Should().BeEquivalentTo(P65Golden.WmiFields);
-        WmiMap.Fields.Should().HaveCount(56);
+        WmiMap.Fields.Should().HaveCount(57);
     }
 
     [Fact]

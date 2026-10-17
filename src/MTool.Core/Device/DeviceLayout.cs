@@ -17,6 +17,7 @@ public sealed class DeviceLayout
 
     private readonly FrozenDictionary<byte, PerformanceMode> _performanceModes;
     private readonly FrozenDictionary<byte, FanMode> _fanModes;
+    private readonly FrozenDictionary<byte, int> _keyboardBacklightLevels;
 
     private DeviceLayout(DeviceConfig config, FanRegisters cpu, FanRegisters gpu, FeatureSet features, Wmi1Layout wmi)
     {
@@ -28,6 +29,9 @@ public sealed class DeviceLayout
         ChargeLimit = features.ChargeLimit?.Register;
         PerformanceMode = features.PerformanceMode!.Register;
         FanMode = features.FanMode!.Register;
+        KeyboardBacklight = features.KeyboardBacklight?.Register;
+        _keyboardBacklightLevels = (features.KeyboardBacklight?.Levels ?? []).Select((value, level) => (value, level))
+            .ToFrozenDictionary(l => l.value, l => l.level);
         Wmi = WmiFieldMap.From(config, wmi);
         Capabilities = DeviceCapabilities.From(config);
         _performanceModes = features.PerformanceMode!.Modes
@@ -50,6 +54,7 @@ public sealed class DeviceLayout
         (Id, DisplayName, Status) = (source.Id, source.DisplayName, source.Status);
         (Firmware, CpuFan, GpuFan) = (source.Firmware, source.CpuFan, source.GpuFan);
         (CoolerBoost, ChargeLimit, PerformanceMode, FanMode) = (source.CoolerBoost, source.ChargeLimit, source.PerformanceMode, source.FanMode);
+        (KeyboardBacklight, _keyboardBacklightLevels) = (source.KeyboardBacklight, source._keyboardBacklightLevels);
         (Wmi, WatchedRegisters) = (source.Wmi, source.WatchedRegisters);
         (_performanceModes, _fanModes) = (source._performanceModes, source._fanModes);
         Capabilities = capabilities;
@@ -79,6 +84,9 @@ public sealed class DeviceLayout
 
     public byte FanMode { get; }
 
+    /// <summary>Null when the model has no keyboard backlight.</summary>
+    public byte? KeyboardBacklight { get; }
+
     public WmiFieldMap Wmi { get; }
 
     /// <summary>The controls the record has, for the UI.</summary>
@@ -92,6 +100,9 @@ public sealed class DeviceLayout
 
     /// <summary>The record's fan mode for a byte; null for anything else.</summary>
     public FanMode? DecodeFanMode(byte value) => _fanModes.TryGetValue(value, out var mode) ? mode : null;
+
+    /// <summary>The step (0 = off) the record lists for a byte; null for anything else.</summary>
+    public int? DecodeKeyboardBacklight(byte value) => _keyboardBacklightLevels.TryGetValue(value, out var level) ? level : null;
 
     /// <summary>
     /// For a session without the raw port (an unverified model or firmware): Cooler Boost and the

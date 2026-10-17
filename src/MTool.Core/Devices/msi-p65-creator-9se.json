@@ -39,7 +39,8 @@
         { "id": "eco", "value": "0xC2" }
       ]
     },
-    "fanMode": { "register": "0xF4", "auto": "0x0D", "advanced": "0x8D" }
+    "fanMode": { "register": "0xF4", "auto": "0x0D", "advanced": "0x8D" },
+    "keyboardBacklight": { "register": "0xF3", "levels": ["0x80", "0x81", "0x82", "0x83"] }
   },
   "wmi1": {
     "fields": [
@@ -102,6 +103,7 @@
       { "register": "0xCA", "class": "MSI_AP", "index": 5 },
 
       { "register": "0xF2", "class": "MSI_System", "index": 7 },
+      { "register": "0xF3", "class": "MSI_System", "index": 8 },
       { "register": "0xF4", "class": "MSI_System", "index": 9 }
     ]
   },

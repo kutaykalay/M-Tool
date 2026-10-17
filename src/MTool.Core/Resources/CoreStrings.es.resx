@@ -255,6 +255,9 @@
   <data name="Rule_FanMode" xml:space="preserve">
     <value>{0}: modo de ventilador no compatible.</value>
   </data>
+  <data name="Rule_KeyboardBacklight" xml:space="preserve">
+    <value>{0}: nivel de retroiluminación del teclado no compatible.</value>
+  </data>
   <data name="Rule_CoolerBoostBits" xml:space="preserve">
     <value>{0}: una escritura de Cooler Boost solo puede cambiar el bit 7 (ahora 0x{1:X2}).</value>
   </data>

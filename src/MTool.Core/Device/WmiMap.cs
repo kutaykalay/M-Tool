@@ -11,7 +11,7 @@ public sealed record WmiField(string ClassName, int Index)
 /// <summary>
 /// Which WMI1 field reaches each EC register M-Tool uses, for firmware 16Q4EMS2.107. Read from this
 /// laptop's DSDT (WQAx/WSAx methods) and checked on hardware: firmware text, factory fan tables,
-/// modes and RPM matched the port dump. Cooler Boost and the charge limit have no WMI1 field and
+/// modes, RPM and the keyboard backlight (Fn+PgUp/PgDn) matched. Cooler Boost and the charge limit have no WMI1 field and
 /// stay on the port (<see cref="PortRegisters"/>); every other register is unreachable.
 /// </summary>
 public static class WmiMap
@@ -47,6 +47,7 @@ public static class WmiMap
         fields.Add(0xCA, new WmiField(ApClass, 5));
 
         fields.Add(EcMap.PerformanceMode, new WmiField(SystemClass, 7));
+        fields.Add(EcMap.KeyboardBacklight, new WmiField(SystemClass, 8));
         fields.Add(EcMap.FanMode, new WmiField(SystemClass, 9));
         return fields;
     }

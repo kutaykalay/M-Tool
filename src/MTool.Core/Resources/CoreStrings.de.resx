@@ -255,6 +255,9 @@
   <data name="Rule_FanMode" xml:space="preserve">
     <value>{0}: nicht unterstützter Lüftermodus.</value>
   </data>
+  <data name="Rule_KeyboardBacklight" xml:space="preserve">
+    <value>{0}: nicht unterstützte Stufe der Tastaturbeleuchtung.</value>
+  </data>
   <data name="Rule_CoolerBoostBits" xml:space="preserve">
     <value>{0}: Ein Schreibvorgang für Cooler Boost darf nur Bit 7 ändern (derzeit 0x{1:X2}).</value>
   </data>

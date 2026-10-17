@@ -52,3 +52,24 @@ public class FanTableCodecTests
         act.Should().Throw<ArgumentException>();
     }
 }
+
+public class KeyboardBacklightCodeTests
+{
+    [Theory]
+    [InlineData(0, 0x80)]
+    [InlineData(1, 0x81)]
+    [InlineData(2, 0x82)]
+    [InlineData(3, 0x83)]
+    public void Levels_map_to_the_bytes_the_fn_key_sets(int level, byte value)
+    {
+        ModeCodes.KeyboardBacklightByte(level).Should().Be(value);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(4)]
+    public void A_level_outside_0_to_3_has_no_byte(int level)
+    {
+        ((Action)(() => ModeCodes.KeyboardBacklightByte(level))).Should().Throw<ArgumentOutOfRangeException>();
+    }
+}

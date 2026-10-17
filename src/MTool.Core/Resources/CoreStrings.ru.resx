@@ -255,6 +255,9 @@
   <data name="Rule_FanMode" xml:space="preserve">
     <value>{0}: неподдерживаемый режим вентиляторов.</value>
   </data>
+  <data name="Rule_KeyboardBacklight" xml:space="preserve">
+    <value>{0}: неподдерживаемый уровень подсветки клавиатуры.</value>
+  </data>
   <data name="Rule_CoolerBoostBits" xml:space="preserve">
     <value>{0}: запись Cooler Boost может менять только бит 7 (сейчас 0x{1:X2}).</value>
   </data>

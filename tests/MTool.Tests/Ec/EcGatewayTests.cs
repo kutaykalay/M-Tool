@@ -62,7 +62,7 @@ public sealed class EcGatewayTests : IDisposable
     }
 
     [Theory]
-    [InlineData(0xF3, 0x83)] // keyboard light: readable, not writable in v1
+    [InlineData(0xF5, 0x83)] // MSI_System field M-Tool does not map
     [InlineData(0x68, 0x10)] // CPU temperature sensor
     [InlineData(0x00, 0x00)]
     public async Task Registers_outside_the_whitelist_are_rejected(byte register, byte value)
@@ -143,7 +143,7 @@ public sealed class EcGatewayTests : IDisposable
     [Fact]
     public async Task Dry_run_still_validates()
     {
-        var outcome = await Gateway(Live with { DryRun = true }).ApplyAsync(Plan(new RegisterWrite(0xF3, 0x83)));
+        var outcome = await Gateway(Live with { DryRun = true }).ApplyAsync(Plan(new RegisterWrite(0xF5, 0x83)));
 
         outcome.Status.Should().Be(WriteStatus.Rejected);
     }
@@ -495,12 +495,12 @@ public sealed class EcGatewayTests : IDisposable
         var writes = new List<RegisterWrite> { new(0xEF, 0x80 | 79) };
 
         var pending = Gateway().ApplyAsync(new WritePlan("mutable", writes));
-        writes.Add(new RegisterWrite(0xF3, 0x83));
+        writes.Add(new RegisterWrite(0xF5, 0x83));
         gate.Set();
         await blocker;
 
         (await pending).Status.Should().Be(WriteStatus.Applied);
-        _ec.Writes.Should().NotContain(w => w.Register == 0xF3);
+        _ec.Writes.Should().NotContain(w => w.Register == 0xF5);
     }
 
     [Fact]

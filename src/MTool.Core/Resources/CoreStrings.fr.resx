@@ -255,6 +255,9 @@
   <data name="Rule_FanMode" xml:space="preserve">
     <value>{0} : mode de ventilation non pris en charge.</value>
   </data>
+  <data name="Rule_KeyboardBacklight" xml:space="preserve">
+    <value>{0} : niveau de rétroéclairage du clavier non pris en charge.</value>
+  </data>
   <data name="Rule_CoolerBoostBits" xml:space="preserve">
     <value>{0} : une écriture de Cooler Boost ne peut modifier que le bit 7 (actuellement 0x{1:X2}).</value>
   </data>

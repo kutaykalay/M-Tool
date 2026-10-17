@@ -1,5 +1,6 @@
 using MTool.Core.Device;
 using MTool.Tests.Fakes;
+using static MTool.Tests.Device.Config.DeviceConfigFixtures;
 
 namespace MTool.Tests.Device;
 
@@ -14,7 +15,38 @@ public class ControlStateTests
         state.Performance.Should().Be(PerformanceMode.High);
         state.PerformanceRaw.Should().Be(0xC0);
         state.FanMode.Should().Be(FanMode.Advanced);
+        state.KeyboardBacklight.Should().Be(new KeyboardBacklightState(Level: 1, Raw: 0x81));
         state.Port.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(0x80, 0)]
+    [InlineData(0x83, 3)]
+    [InlineData(0x84, null)]
+    [InlineData(0x00, null)]
+    public void The_keyboard_backlight_level_is_decoded_with_the_records_levels(byte value, int? level)
+    {
+        var ec = P65Memory.FactorySnapshot();
+        ec.Load(0xF3, value);
+
+        new P65Device(ec, TestLayouts.P65).ReadControlState().KeyboardBacklight
+            .Should().Be(new KeyboardBacklightState(level, value));
+    }
+
+    [Fact]
+    public void A_model_without_a_keyboard_backlight_never_reads_0xF3()
+    {
+        var ec = P65Memory.FactorySnapshot();
+        var reads = new List<byte>();
+        ec.ReadHook = register =>
+        {
+            reads.Add(register);
+            return null;
+        };
+        var layout = DeviceLayout.From(P65() with { Features = P65().Features with { KeyboardBacklight = null } });
+
+        new P65Device(ec, layout).ReadControlState().KeyboardBacklight.Should().BeNull();
+        reads.Should().NotContain(0xF3);
     }
 
     [Fact]

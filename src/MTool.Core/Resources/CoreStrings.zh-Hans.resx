@@ -255,6 +255,9 @@
   <data name="Rule_FanMode" xml:space="preserve">
     <value>{0}：不支持的风扇模式。</value>
   </data>
+  <data name="Rule_KeyboardBacklight" xml:space="preserve">
+    <value>{0}：不支持的键盘背光级别。</value>
+  </data>
   <data name="Rule_CoolerBoostBits" xml:space="preserve">
     <value>{0}：Cooler Boost 写入只能更改第 7 位（当前为 0x{1:X2}）。</value>
   </data>

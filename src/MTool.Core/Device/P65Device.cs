@@ -35,7 +35,19 @@ public sealed class P65Device
             Performance: _layout.DecodePerformance(performance),
             PerformanceRaw: performance,
             FanMode: _layout.DecodeFanMode(_ec.Read(_layout.FanMode)),
-            Port: null);
+            Port: null,
+            KeyboardBacklight: ReadKeyboardBacklight());
+    }
+
+    private KeyboardBacklightState? ReadKeyboardBacklight()
+    {
+        if (_layout.KeyboardBacklight is not { } register)
+        {
+            return null;
+        }
+
+        var value = _ec.Read(register);
+        return new KeyboardBacklightState(_layout.DecodeKeyboardBacklight(value), value);
     }
 
     /// <summary>Cooler Boost and the charge limit: two raw port accesses, so read them only when needed.</summary>

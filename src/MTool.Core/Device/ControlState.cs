@@ -8,12 +8,17 @@ namespace MTool.Core.Device;
 /// Everything but <see cref="Port"/> is read through WMI.
 /// </summary>
 /// <param name="Port">Cooler Boost and charge limit, reachable only through the raw port: null when not known.</param>
+/// <param name="KeyboardBacklight">Null when the model has none.</param>
 public sealed record ControlState(
     FanCurves FanCurves,
     PerformanceMode? Performance,
     byte PerformanceRaw,
     FanMode? FanMode,
-    PortState? Port);
+    PortState? Port,
+    KeyboardBacklightState? KeyboardBacklight = null);
+
+/// <summary>The keyboard backlight byte and its step (0 = off); a null step means a byte the record does not list.</summary>
+public sealed record KeyboardBacklightState(int? Level, byte Raw);
 
 /// <summary>The two registers only the raw port reaches (0x98, 0xEF), as raw bytes.</summary>
 public sealed record PortState(byte CoolerBoostRaw, byte ChargeLimitRaw)

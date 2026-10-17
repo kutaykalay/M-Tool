@@ -1,3 +1,4 @@
+using MTool.Core.Device;
 using MTool.Core.Device.Config;
 using MTool.Core.Profiles;
 using MTool.Tests.Fakes;
@@ -59,6 +60,15 @@ public class P65ConfigEquivalenceTests
     }
 
     [Fact]
+    public void Keyboard_backlight_levels_are_the_four_the_gateway_allows()
+    {
+        _p65.Features.KeyboardBacklight.Should().BeEquivalentTo(
+            new KeyboardBacklightFeature(P65Golden.KeyboardBacklight, P65Golden.KeyboardBacklightLevels), o => o.WithStrictOrdering());
+        P65Golden.KeyboardBacklightLevels.Select((value, level) => (value, level))
+            .Should().AllSatisfy(l => ModeCodes.KeyboardBacklightByte(l.level).Should().Be(l.value));
+    }
+
+    [Fact]
     public void Performance_modes_keep_the_enum_order_and_bytes()
     {
         _p65.Features.PerformanceMode!.Modes.Select(m => (m.Id, m.Value))
@@ -66,10 +76,11 @@ public class P65ConfigEquivalenceTests
     }
 
     [Fact]
-    public void Writable_registers_derive_to_the_30_golden_ones()
+    public void Writable_registers_derive_to_the_31_golden_ones()
     {
         var f = _p65.Features;
-        byte[] features = [f.CoolerBoost!.Register, f.ChargeLimit!.Register, f.PerformanceMode!.Register, f.FanMode!.Register];
+        byte[] features =
+            [f.CoolerBoost!.Register, f.ChargeLimit!.Register, f.PerformanceMode!.Register, f.FanMode!.Register, f.KeyboardBacklight!.Register];
 
         FanTables().Concat(features).Order().Should().Equal(P65Golden.WritableRegisters);
     }
@@ -86,7 +97,7 @@ public class P65ConfigEquivalenceTests
     {
         _p65.Wmi1!.Fields.ToDictionary(f => f.Register, f => (f.Class, f.Index))
             .Should().BeEquivalentTo(P65Golden.WmiFields);
-        _p65.Wmi1.Fields.Should().HaveCount(56);
+        _p65.Wmi1.Fields.Should().HaveCount(57);
     }
 
     [Fact]

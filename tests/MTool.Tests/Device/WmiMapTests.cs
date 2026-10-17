@@ -27,6 +27,7 @@ public class WmiMapTests
     [InlineData(0xCB, "MSI_AP", 4)]
     [InlineData(0xCA, "MSI_AP", 5)]
     [InlineData(0xF2, "MSI_System", 7)]
+    [InlineData(0xF3, "MSI_System", 8)]
     [InlineData(0xF4, "MSI_System", 9)]
     public void Maps_registers_to_the_verified_wmi_fields(byte register, string className, int index)
     {
@@ -34,10 +35,10 @@ public class WmiMapTests
     }
 
     [Fact]
-    public void Maps_exactly_firmware_sensors_rpm_tables_and_the_two_modes()
+    public void Maps_exactly_firmware_sensors_rpm_tables_the_two_modes_and_the_keyboard_backlight()
     {
-        // 20 firmware bytes + 4 sensors + 4 RPM bytes + 2 x 13 table bytes + 0xF2 + 0xF4.
-        WmiMap.Fields.Should().HaveCount(56);
+        // 20 firmware bytes + 4 sensors + 4 RPM bytes + 2 x 13 table bytes + 0xF2 + 0xF3 + 0xF4.
+        WmiMap.Fields.Should().HaveCount(57);
     }
 
     [Fact]

@@ -14,7 +14,7 @@ public class EmbeddedDevicesTests
         var layout = EmbeddedDevices.LoadP65(log);
 
         layout.Id.Should().Be(EmbeddedDevices.P65Id);
-        layout.Wmi.Fields.Should().HaveCount(56);
+        layout.Wmi.Fields.Should().HaveCount(57);
         log.Lines.Should().BeEmpty();
     }
 

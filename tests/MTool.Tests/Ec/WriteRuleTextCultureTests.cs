@@ -17,13 +17,14 @@ public sealed class WriteRuleTextCultureTests
 {
     public static TheoryData<string, byte, byte, string, string> StaticCases => new()
     {
-        { "not on the whitelist", 0xF3, 0x83, "0xF3 yazılabilir register listesinde değil.", "0xF3 is not in the list of writable registers." },
+        { "not on the whitelist", 0xF5, 0x83, "0xF5 yazılabilir register listesinde değil.", "0xF5 is not in the list of writable registers." },
         { "up threshold low", 0x6A, 29, "0x6A=0x1D: yukarı eşik 30-95 °C olmalı.", "0x6A=0x1D: the up threshold must be 30-95 °C." },
         { "up threshold high", 0x6A, 96, "0x6A=0x60: yukarı eşik 30-95 °C olmalı.", "0x6A=0x60: the up threshold must be 30-95 °C." },
         { "speed", 0x72, 101, "0x72=0x65: fan hızı en fazla %100.", "0x72=0x65: the fan speed is at most 100%." },
         { "charge limit", 0xEF, 0x80 | 49, "0xEF=0xB1: şarj limiti 0x80 | %50-100 olmalı.", "0xEF=0xB1: the charge limit must be 0x80 | 50-100%." },
         { "performance", 0xF2, 0xC3, "0xF2=0xC3: desteklenmeyen performans modu.", "0xF2=0xC3: unsupported performance mode." },
         { "fan mode", 0xF4, 0x0E, "0xF4=0x0E: desteklenmeyen fan modu.", "0xF4=0x0E: unsupported fan mode." },
+        { "keyboard backlight", 0xF3, 0x84, "0xF3=0x84: desteklenmeyen klavye ışığı kademesi.", "0xF3=0x84: unsupported keyboard backlight level." },
     };
 
     [Theory]
@@ -139,7 +140,7 @@ public sealed class WriteRuleTextCultureTests
         UserAndLogText.LookupFault.Value = key => throw new InvalidOperationException($"no resource {key}");
         try
         {
-            var text = EcWriteRules.CheckStaticText(new RegisterWrite(0xF3, 0x83));
+            var text = EcWriteRules.CheckStaticText(new RegisterWrite(0xF5, 0x83));
             var current = EcWriteRules.CheckAgainstCurrentText(new RegisterWrite(0x98, 0x80), 0x02);
             var guard = new PortDisturbance([new RegisterWrite(0xF2, 0xC4)], Unreadable: false).Describe();
             var plan = () => new DesiredState("Turbo").ToPlans(ProfileCatalog.BuiltIn);

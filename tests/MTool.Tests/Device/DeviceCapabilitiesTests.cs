@@ -23,7 +23,15 @@ public class DeviceCapabilitiesTests
             CoolerBoost = true,
             ChargeLimit = true,
             PerformanceModes = new[] { PerformanceMode.High, PerformanceMode.Balanced, PerformanceMode.Eco },
+            KeyboardBacklight = true,
         }, o => o.WithStrictOrdering());
+    }
+
+    [Fact]
+    public void A_model_without_the_record_field_has_no_keyboard_backlight()
+    {
+        DeviceCapabilities.From(P65() with { Features = P65().Features with { KeyboardBacklight = null } })
+            .KeyboardBacklight.Should().BeFalse();
     }
 
     [Fact]

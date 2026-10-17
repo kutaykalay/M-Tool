@@ -56,9 +56,11 @@ public sealed class DraftRecordsTests : IDisposable
         var generic = DeviceLayout.From(Generic);
         var p65 = DeviceLayout.From(P65);
 
-        generic.Wmi.Fields.Should().BeEquivalentTo(p65.Wmi.Fields);
+        // Without the keyboard backlight: 0xF3 was checked only on the P65 (ec-erisim-karari.md §7).
+        generic.Wmi.Fields.Should().BeEquivalentTo(p65.Wmi.Fields.Where(f => f.Key != 0xF3));
         generic.WatchedRegisters.Should().Equal(p65.WatchedRegisters);
-        generic.Capabilities.Should().BeEquivalentTo(p65.Capabilities, o => o.WithStrictOrdering());
+        generic.Capabilities.Should().BeEquivalentTo(p65.Capabilities with { KeyboardBacklight = false }, o => o.WithStrictOrdering());
+        generic.KeyboardBacklight.Should().BeNull();
     }
 
     [Fact]

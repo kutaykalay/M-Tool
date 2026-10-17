@@ -59,7 +59,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
 
     [Theory]
     [InlineData(0x7A)]
-    [InlineData(0xF3)]
+    [InlineData(0xF5)]
     [InlineData(0x00)]
     public void Unmapped_registers_are_refused_without_any_ec_access(byte register)
     {

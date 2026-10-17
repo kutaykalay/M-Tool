@@ -55,6 +55,7 @@ public static partial class DeviceConfigValidator
             (features.ChargeLimit?.Register, "chargeLimit"),
             (features.PerformanceMode?.Register, "performanceMode"),
             (features.FanMode?.Register, "fanMode"),
+            (features.KeyboardBacklight?.Register, "keyboardBacklight"),
         ];
         return all.Where(f => f.Register is not null).Select(f => ((int)f.Register!.Value, f.Owner));
     }

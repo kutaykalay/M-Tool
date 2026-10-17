@@ -255,6 +255,9 @@
   <data name="Rule_FanMode" xml:space="preserve">
     <value>{0}: desteklenmeyen fan modu.</value>
   </data>
+  <data name="Rule_KeyboardBacklight" xml:space="preserve">
+    <value>{0}: desteklenmeyen klavye ışığı kademesi.</value>
+  </data>
   <data name="Rule_CoolerBoostBits" xml:space="preserve">
     <value>{0}: Cooler Boost yazmasında yalnızca bit 7 değişebilir (şu an 0x{1:X2}).</value>
   </data>

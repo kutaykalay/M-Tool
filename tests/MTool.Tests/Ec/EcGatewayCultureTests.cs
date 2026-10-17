@@ -25,7 +25,7 @@ public sealed partial class EcGatewayCultureTests
         new("duplicate register", r => One(r.Gateway(), new WritePlan("test", [new(0xF2, 0xC1), new(0xF2, 0xC2)]))),
         new("port plan without a port", r => One(r.Gateway(Live with { PortAvailable = false }), WritePlans.ChargeLimit(79))),
         new("port register not alone", r => One(r.Gateway(), new WritePlan("test", [new(0xEF, 0x80 | 79), new(0x72, 50)]))),
-        new("register not on the whitelist", r => One(r.Gateway(), new WritePlan("test", [new(0xF3, 0x83)]))),
+        new("register not on the whitelist", r => One(r.Gateway(), new WritePlan("test", [new(0xF5, 0x83)]))),
         new("cooler boost touches other bits", r => One(r.Gateway(), new WritePlan("test", [new(0x98, 0x80)]))),
         new("unsafe fan table", r => One(r.Gateway(), new WritePlan("test", [new(0x78, 70)]))),
         new("fan mode on an unsafe table", r =>
@@ -131,7 +131,7 @@ public sealed partial class EcGatewayCultureTests
         ["port register not alone"] = (
             "0xEF=0xCF: port register'ı planda tek başına olmalı.",
             "0xEF=0xCF: a port register must be the only write in its plan."),
-        ["register not on the whitelist"] = ("0xF3 yazılabilir register listesinde değil.", "0xF3 is not in the list of writable registers."),
+        ["register not on the whitelist"] = ("0xF5 yazılabilir register listesinde değil.", "0xF5 is not in the list of writable registers."),
         ["cooler boost touches other bits"] = (
             "0x98=0x80: Cooler Boost yazmasında yalnızca bit 7 değişebilir (şu an 0x02).",
             "0x98=0x80: a Cooler Boost write may change only bit 7 (currently 0x02)."),

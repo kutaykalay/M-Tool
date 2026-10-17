@@ -595,6 +595,42 @@ public class DeviceConfigValidatorTests
         DeviceConfigValidator.FindConflicts([P65(), Draft()]).Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData(new byte[] { 0x80, 0x81, 0x82 })]
+    [InlineData(new byte[] { 0x80, 0x81, 0x82, 0x83, 0x84 })]
+    [InlineData(new byte[] { 0x80, 0x81, 0x81, 0x83 })]
+    public void Rejects_a_keyboard_backlight_without_four_distinct_levels(byte[] levels)
+    {
+        var light = new KeyboardBacklightFeature(0xF3, levels);
+
+        Rejects(P65() with { Features = P65().Features with { KeyboardBacklight = light } }, "*keyboardBacklight*");
+    }
+
+    [Fact]
+    public void Rejects_a_keyboard_backlight_on_another_features_register()
+    {
+        var light = new KeyboardBacklightFeature(0xF2, [0x80, 0x81, 0x82, 0x83]);
+
+        Rejects(P65() with { Features = P65().Features with { KeyboardBacklight = light } }, "*0xF2 is used in more than one place*");
+    }
+
+    [Fact]
+    public void Rejects_a_keyboard_backlight_wmi_cannot_reach()
+    {
+        var light = new KeyboardBacklightFeature(0xF5, [0x80, 0x81, 0x82, 0x83]);
+
+        Rejects(P65() with { Features = P65().Features with { KeyboardBacklight = light } }, "*0xF5 has no read path*");
+    }
+
+    [Fact]
+    public void Rejects_a_keyboard_backlight_on_the_port()
+    {
+        var light = new KeyboardBacklightFeature(0xEF, [0x80, 0x81, 0x82, 0x83]);
+        var features = P65().Features with { ChargeLimit = null, KeyboardBacklight = light };
+
+        Rejects(P65() with { Features = features }, "*0xEF belongs to no feature*");
+    }
+
     private static void Rejects(DeviceConfig config, string pattern) =>
         DeviceConfigValidator.Validate(config).Should().ContainMatch(pattern);
 }

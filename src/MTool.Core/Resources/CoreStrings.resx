@@ -336,6 +336,10 @@
     <value>{0}: unsupported fan mode.</value>
     <comment>SAFETY. Rejection of a fan mode value the laptop does not know. {0}: the register and value; keep it.</comment>
   </data>
+  <data name="Rule_KeyboardBacklight" xml:space="preserve">
+    <value>{0}: unsupported keyboard backlight level.</value>
+    <comment>SAFETY. Rejection of a keyboard backlight value outside the four levels (0x80-0x83). {0}: the register and value; keep it.</comment>
+  </data>
   <data name="Rule_CoolerBoostBits" xml:space="preserve">
     <value>{0}: a Cooler Boost write may change only bit 7 (currently 0x{1:X2}).</value>
     <comment>SAFETY. Rejection of a Cooler Boost write that would change bits other than the switch. {0}: the register and value; keep it. {1}: the value the register holds now, as two hex digits.</comment>

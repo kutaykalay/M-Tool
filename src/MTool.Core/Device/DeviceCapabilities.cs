@@ -11,8 +11,10 @@ namespace MTool.Core.Device;
 /// <param name="GpuFan">A second fan with its own temperature, RPM and curve.</param>
 /// <param name="FanCurve">Fan tables can be written: needs the fan mode switch.</param>
 /// <param name="PerformanceModes">In the record's order. Modes M-Tool has no name for yet are left out.</param>
+/// <param name="KeyboardBacklight">Off and three brightness steps, set from the main window.</param>
 public sealed record DeviceCapabilities(
-    bool GpuFan, bool FanCurve, bool CoolerBoost, bool ChargeLimit, IReadOnlyList<PerformanceMode> PerformanceModes)
+    bool GpuFan, bool FanCurve, bool CoolerBoost, bool ChargeLimit, IReadOnlyList<PerformanceMode> PerformanceModes,
+    bool KeyboardBacklight = false)
 {
     private const string GpuFanId = "gpu";
 
@@ -25,7 +27,8 @@ public sealed record DeviceCapabilities(
             CoolerBoost: features.CoolerBoost is not null,
             ChargeLimit: features.ChargeLimit is not null,
             PerformanceModes: Array.AsReadOnly(
-                [.. (features.PerformanceMode?.Modes ?? []).Select(m => ModeOf(m.Id)).OfType<PerformanceMode>()]));
+                [.. (features.PerformanceMode?.Modes ?? []).Select(m => ModeOf(m.Id)).OfType<PerformanceMode>()]),
+            KeyboardBacklight: features.KeyboardBacklight is not null);
     }
 
     /// <summary>The same as <see cref="Restrict(DesiredState, ICollection{string})"/> without the warnings: for comparing, not writing.</summary>

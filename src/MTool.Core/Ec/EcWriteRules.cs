@@ -24,7 +24,10 @@ public static class EcWriteRules
     private static readonly HashSet<byte> PerformanceValues = [0xC0, 0xC1, 0xC2];
     private static readonly HashSet<byte> FanModeValues = [0x0D, 0x8D];
 
-    private enum Kind { UpThreshold, Speed, CoolerBoost, ChargeLimit, Performance, FanMode }
+    // The firmware stores any byte written to 0xF3 (WSAH[8] has no check), so this set is the only guard.
+    private static readonly HashSet<byte> KeyboardBacklightValues = [0x80, 0x81, 0x82, 0x83];
+
+    private enum Kind { UpThreshold, Speed, CoolerBoost, ChargeLimit, Performance, FanMode, KeyboardBacklight }
 
     private static readonly IReadOnlyDictionary<byte, Kind> Kinds = BuildKinds();
 
@@ -69,6 +72,8 @@ public static class EcWriteRules
                 Say(nameof(CoreStrings.Rule_PerformanceMode), write),
             Kind.FanMode when !FanModeValues.Contains(write.Value) =>
                 Say(nameof(CoreStrings.Rule_FanMode), write),
+            Kind.KeyboardBacklight when !KeyboardBacklightValues.Contains(write.Value) =>
+                Say(nameof(CoreStrings.Rule_KeyboardBacklight), write),
             _ => null,
         };
     }
@@ -97,6 +102,7 @@ public static class EcWriteRules
             [EcMap.ChargeLimit] = Kind.ChargeLimit,
             [EcMap.PerformanceMode] = Kind.Performance,
             [EcMap.FanMode] = Kind.FanMode,
+            [EcMap.KeyboardBacklight] = Kind.KeyboardBacklight,
         };
 
         foreach (var fan in Fans)

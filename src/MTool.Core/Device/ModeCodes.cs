@@ -20,6 +20,9 @@ public static class ModeCodes
 {
     public const byte CoolerBoostBit = 0x80;
     public const byte ChargeLimitEnableBit = 0x80;
+    public const int MaxKeyboardBacklightLevel = 3;
+
+    private const byte KeyboardBacklightOff = 0x80;
 
     public static byte PerformanceByte(PerformanceMode mode) => mode switch
     {
@@ -72,4 +75,12 @@ public static class ModeCodes
     }
 
     public static bool IsCoolerBoostOn(byte value) => (value & CoolerBoostBit) != 0;
+
+    /// <summary>Level 0 (off) to 3, as the Fn key sets it: 0x80-0x83.</summary>
+    public static byte KeyboardBacklightByte(int level)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(level);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(level, MaxKeyboardBacklightLevel);
+        return (byte)(KeyboardBacklightOff + level);
+    }
 }
