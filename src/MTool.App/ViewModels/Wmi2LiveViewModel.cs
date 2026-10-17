@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MTool.App.Resources;
 using MTool.Core;
 using MTool.Core.Device;
+using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 using MTool.Core.Sensors;
 
@@ -88,6 +89,16 @@ internal sealed partial class Wmi2LiveViewModel(
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ShowCommand))]
     public partial bool IsUnavailable { get; private set; }
+
+    /// <summary>
+    /// The section for a laptop whose probe found <paramref name="detected"/>: only a WMI2 laptop gets
+    /// one, with a breaker of its own. Nothing is opened or read until the user asks.
+    /// </summary>
+    public static Wmi2LiveViewModel? For(
+        WmiInterface? detected, Func<IWmi2LiveSource?> open, IConfirm confirm, Func<bool> accessGate, IAppLog log) =>
+        detected == WmiInterface.Wmi2
+            ? new Wmi2LiveViewModel(open, new Wmi2CircuitBreaker(), confirm, accessGate, TimeProvider.System, log)
+            : null;
 
     /// <summary>Stops a running round (it does not count as a failure) and closes the interface.</summary>
     public void Dispose()

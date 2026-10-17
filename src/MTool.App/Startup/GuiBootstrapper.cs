@@ -11,6 +11,7 @@ using MTool.App.ViewModels;
 using MTool.App.Views;
 using MTool.Core;
 using MTool.Core.Device;
+using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 using MTool.Core.Localization;
 using MTool.Core.Power;
@@ -281,6 +282,15 @@ internal sealed class GuiBootstrapper : IDisposable
 
     private static EcSession? OpenSession(Application app, SingleInstance instance, FileLog log, Func<bool> accessGate)
     {
+#if DEBUG
+        if (Wmi2Preview.Current is { } preview)
+        {
+            log.Warn($"{Wmi2Preview.Variable}={preview}: reports-only window with made-up WMI2 values (Debug build).");
+            ShowReportsOnly(app, instance, log, WmiProbe.UnsupportedMessage(WmiInterface.Wmi2), WmiInterface.Wmi2, _ => Wmi2Preview.Opener(preview)());
+            return null;
+        }
+#endif
+
         try
         {
             // First: no PawnIO question for a model M-Tool cannot read at all.
@@ -289,7 +299,7 @@ internal sealed class GuiBootstrapper : IDisposable
         catch (UnsupportedDeviceException ex)
         {
             log.Warn($"Unsupported model; reports-only window opened. {ex.LogMessage}");
-            ShowReportsOnly(app, instance, log, ex.Message);
+            ShowReportsOnly(app, instance, log, ex.Message, ex.Detected, gate => Wmi2LiveSource.Open(gate, log));
             return null;
         }
 
@@ -315,20 +325,32 @@ internal sealed class GuiBootstrapper : IDisposable
     /// <summary>
     /// The report actions in a window of their own, until it is closed: no gateway, no port, no tray (a
     /// report reads the EC through WMI only, as on the command line). What would be a balloon goes to the
-    /// window's band. A second start of M-Tool brings this window to the front.
+    /// window's band. A second start of M-Tool brings this window to the front. On a WMI2 laptop the
+    /// window also offers the live values; sleep closes their access gate, and closing the window
+    /// closes the interface before anything else.
     /// </summary>
-    private static void ShowReportsOnly(Application app, SingleInstance instance, FileLog log, string problem)
+    /// <param name="openLive">Opens the WMI2 interface with the given access gate; null when there is none.</param>
+    private static void ShowReportsOnly(
+        Application app, SingleInstance instance, FileLog log, string problem,
+        WmiInterface? detected, Func<Func<bool>, IWmi2LiveSource?> openLive)
     {
         using var theme = new ThemeManager(app);
         using var status = new StatusViewModel(BandNotifier.Silent, new DispatcherUi(app), TimeProvider.System);
         using var submissions = new SubmissionClient(SubmissionClient.CreateHandler(), SubmissionEndpoint.Uri, AppVersion, SubmissionClient.DefaultTimeout);
         using var stop = new CancellationTokenSource();
+        var coordinator = new PowerStateCoordinator(TimeProvider.System, AutoReapplyOptions.Default.GateDelay);
+        using var powerEvents = new SystemPowerEvents(log);
+        using var following = coordinator.Follow(powerEvents);
+        bool AccessAllowed() => coordinator.IsEcAccessAllowed;
+
         ReportOnlyWindow? window = null;
         var report = new ReportViewModel(
             new ReportService(new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords()),
             new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(),
             status, new BandNotifier(status), log, stop: stop.Token);
-        window = new ReportOnlyWindow(problem, report, status, theme.IsDark);
+        using var live = Wmi2LiveViewModel.For(
+            detected, () => openLive(AccessAllowed), new DialogConfirm(() => window, theme), AccessAllowed, log);
+        window = new ReportOnlyWindow(problem, report, status, live, theme.IsDark);
         instance.ListenForShowRequests(() => app.Dispatcher.BeginInvoke(() => window.Activate()));
         _ = report.LoadAsync(); // Off the UI thread; the WMI2 button stays hidden until it answers.
         try

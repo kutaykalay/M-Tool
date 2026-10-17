@@ -2,25 +2,103 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:res="clr-namespace:MTool.App.Resources"
+        xmlns:vm="clr-namespace:MTool.App.ViewModels"
         Title="{x:Static res:Strings.ReportOnly_Title}" Width="440" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
         FontFamily="Segoe UI" FontSize="13" UseLayoutRounding="True">
-    <StackPanel Margin="16,14,16,16">
-        <TextBlock x:Name="ProblemText" TextWrapping="Wrap" />
-        <TextBlock Text="{x:Static res:Strings.ReportOnly_Help}" TextWrapping="Wrap" Margin="0,12,0,12" />
-        <Button Style="{StaticResource Choice}" Margin="0,0,0,6" Content="{x:Static res:Strings.Report_SendEcData}" Command="{Binding Report.SendEcDataCommand}" />
-        <Button Style="{StaticResource Choice}" Margin="0,0,0,6" Content="{x:Static res:Strings.Report_Create}" Command="{Binding Report.CreateCommand}" />
-        <Button Style="{StaticResource Choice}" Margin="0,0,0,6" Content="{x:Static res:Strings.Report_CreateWmi2}" Command="{Binding Report.CreateWithWmi2Command}"
-                Visibility="{Binding Report.HasWmi2, Converter={StaticResource BoolToVisible}}" />
-        <Button Style="{StaticResource Choice}" Margin="0,0,0,6" Content="{x:Static res:Strings.Report_OpenFolder}" Command="{Binding Report.OpenFolderCommand}"
-                Visibility="{Binding Report.LastReportPath, Converter={StaticResource NotNullToVisible}}" />
-        <Button Style="{StaticResource Choice}" Margin="0" Content="{x:Static res:Strings.Report_IssueMenu}" Command="{Binding Report.ReportIssueCommand}" />
-        <Border Style="{StaticResource Band}" Margin="0,12,0,0" Tag="{Binding Status.MessageKind}"
-                Visibility="{Binding Status.Message, Converter={StaticResource NotNullToVisible}}">
-            <TextBlock Text="{Binding Status.Message}" TextWrapping="Wrap" />
-        </Border>
-        <Button Style="{StaticResource Choice}" Margin="0,16,0,0" HorizontalAlignment="Right" MinWidth="100"
-                Content="{x:Static res:Strings.Tray_Exit}" IsCancel="True" />
-    </StackPanel>
+    <!-- Scrolls only on a screen shorter than the window (MaxHeight follows the live work area). -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+        <StackPanel Margin="16,14,16,16">
+            <TextBlock x:Name="ProblemText" TextWrapping="Wrap" />
+            <TextBlock Text="{x:Static res:Strings.ReportOnly_Help}" TextWrapping="Wrap" Margin="0,12,0,12" />
+            <Button Style="{StaticResource Choice}" Margin="0,0,0,6" Content="{x:Static res:Strings.Report_SendEcData}" Command="{Binding Report.SendEcDataCommand}" />
+            <Button Style="{StaticResource Choice}" Margin="0,0,0,6" Content="{x:Static res:Strings.Report_Create}" Command="{Binding Report.CreateCommand}" />
+            <Button Style="{StaticResource Choice}" Margin="0,0,0,6" Content="{x:Static res:Strings.Report_CreateWmi2}" Command="{Binding Report.CreateWithWmi2Command}"
+                    Visibility="{Binding Report.HasWmi2, Converter={StaticResource BoolToVisible}}" />
+            <Button Style="{StaticResource Choice}" Margin="0,0,0,6" Content="{x:Static res:Strings.Report_OpenFolder}" Command="{Binding Report.OpenFolderCommand}"
+                    Visibility="{Binding Report.LastReportPath, Converter={StaticResource NotNullToVisible}}" />
+            <Button Style="{StaticResource Choice}" Margin="0" Content="{x:Static res:Strings.Report_IssueMenu}" Command="{Binding Report.ReportIssueCommand}" />
+            <Border Style="{StaticResource Band}" Margin="0,12,0,0" Tag="{Binding Status.MessageKind}"
+                    Visibility="{Binding Status.Message, Converter={StaticResource NotNullToVisible}}">
+                <TextBlock Text="{Binding Status.Message}" TextWrapping="Wrap" />
+            </Border>
+            <StackPanel Visibility="{Binding Live, Converter={StaticResource NotNullToVisible}}">
+                <TextBlock Style="{StaticResource Section}" Margin="2,16,0,6" Text="{x:Static res:Strings.Wmi2_SectionTitle}" />
+                <Border Style="{StaticResource Band}" Margin="0,0,0,8" Tag="{x:Static vm:MessageKind.Warning}">
+                    <TextBlock Text="{x:Static res:Strings.Wmi2_ExperimentalBand}" TextWrapping="Wrap" />
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.Resources>
+                            <Style x:Key="LiveLabel" TargetType="TextBlock" BasedOn="{StaticResource Muted}">
+                                <Setter Property="Margin" Value="0,2,12,2" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+                            <Style x:Key="LiveValue" TargetType="TextBlock">
+                                <Setter Property="Grid.Column" Value="1" />
+                                <Setter Property="Margin" Value="0,2,0,2" />
+                                <Setter Property="TextWrapping" Value="Wrap" />
+                            </Style>
+                        </Grid.Resources>
+                        <TextBlock Grid.Row="0" Style="{StaticResource LiveLabel}" Text="{x:Static res:Strings.Wmi2_Firmware}" />
+                        <TextBlock Grid.Row="0" Style="{StaticResource LiveValue}" Text="{Binding Live.Firmware}" />
+                        <TextBlock Grid.Row="1" Style="{StaticResource LiveLabel}" Text="{x:Static res:Strings.Wmi2_CpuTemperature}" />
+                        <TextBlock Grid.Row="1" Style="{StaticResource LiveValue}" Text="{Binding Live.CpuTemperature}" />
+                        <TextBlock Grid.Row="2" Style="{StaticResource LiveLabel}" Text="{x:Static res:Strings.Wmi2_GpuTemperature}" />
+                        <TextBlock Grid.Row="2" Style="{StaticResource LiveValue}" Text="{Binding Live.GpuTemperature}" />
+                        <TextBlock Grid.Row="3" Style="{StaticResource LiveLabel}" Text="{x:Static res:Strings.Wmi2_CpuFan}" />
+                        <TextBlock Grid.Row="3" Style="{StaticResource LiveValue}" Text="{Binding Live.CpuFan}" />
+                        <TextBlock Grid.Row="4" Style="{StaticResource LiveLabel}" Text="{x:Static res:Strings.Wmi2_GpuFan}" />
+                        <TextBlock Grid.Row="4" Style="{StaticResource LiveValue}" Text="{Binding Live.GpuFan}" />
+                        <TextBlock Grid.Row="5" Style="{StaticResource LiveLabel}" Text="{x:Static res:Strings.Wmi2_PerformanceMode}" />
+                        <TextBlock Grid.Row="5" Style="{StaticResource LiveValue}" Text="{Binding Live.PerformanceMode}" />
+                        <TextBlock Grid.Row="6" Style="{StaticResource LiveLabel}" Text="{x:Static res:Strings.Wmi2_FanMode}" />
+                        <TextBlock Grid.Row="6" Style="{StaticResource LiveValue}" Text="{Binding Live.FanMode}" />
+                        <TextBlock Grid.Row="7" Style="{StaticResource LiveLabel}" Text="{x:Static res:Strings.Wmi2_ChargeLimit}" />
+                        <TextBlock Grid.Row="7" Style="{StaticResource LiveValue}" Text="{Binding Live.ChargeLimit}" />
+                        <TextBlock Grid.Row="8" Style="{StaticResource LiveLabel}" Text="{x:Static res:Strings.Wmi2_CoolerBoost}" />
+                        <TextBlock Grid.Row="8" Style="{StaticResource LiveValue}" Text="{Binding Live.CoolerBoost}" />
+                    </Grid>
+                </Border>
+                <WrapPanel Margin="0,8,0,0">
+                    <Button Content="{x:Static res:Strings.Wmi2_Show}" Command="{Binding Live.ShowCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource Choice}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Live.IsStarted}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Wmi2_Refresh}" Command="{Binding Live.RefreshCommand}"
+                            Visibility="{Binding Live.IsStarted, Converter={StaticResource BoolToVisible}}" />
+                    <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Wmi2_TryAgain}" Command="{Binding Live.TryAgainCommand}"
+                            Visibility="{Binding Live.IsStopped, Converter={StaticResource BoolToVisible}}" />
+                </WrapPanel>
+                <Border Style="{StaticResource Band}" Visibility="{Binding Live.Message, Converter={StaticResource NotNullToVisible}}">
+                    <TextBlock Text="{Binding Live.Message}" TextWrapping="Wrap" />
+                </Border>
+            </StackPanel>
+            <Button Style="{StaticResource Choice}" Margin="0,16,0,0" HorizontalAlignment="Right" MinWidth="100"
+                    Content="{x:Static res:Strings.Tray_Exit}" IsCancel="True" />
+        </StackPanel>
+    </ScrollViewer>
 </Window>
