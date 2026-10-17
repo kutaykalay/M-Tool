@@ -16,6 +16,24 @@ Data that arrives is a hint, not proof. No model record is created from it autom
 submission is labelled `unverified`, and a record is added only after the checks below: a draft
 record, then read verification against the laptop's DSDT and the owner's confirmation.
 
+## Checking the WMI2 values
+
+On a WMI2 laptop the live values are read at fixed EC addresses taken from GhostDeck, msi-ec and
+YAMDCC (`Wmi2Family` in `src/MTool.Core/Device`). They have not been checked with M-Tool on a
+WMI2 laptop yet. An owner can help with the steps in
+[WMI2 testers wanted](README.md#wmi2-testers-wanted). The most useful result names:
+
+- the model and the EC firmware;
+- the tool the values were compared with (HWiNFO or MSI Center);
+- for each value (CPU and GPU temperature, fan percent and speed, performance mode, fan mode,
+  charge limit, Cooler Boost) whether it matched;
+- whether reading stopped, and whether MSI Center was running at the time.
+
+A device report with WMI2 holds the same values twice: in the raw packets and read through
+`Get_Data`. When both agree with the owner's tool, the addresses can be trusted for that model.
+Showing values on a WMI2 laptop never leads to writing on it: M-Tool never calls a `Set_*`
+method, and WMI2 writes would need a plan of their own and the step-by-step tests below.
+
 ## Write verification with a volunteer
 
 M-Tool writes to the EC only on a laptop whose record is `writeVerified`. Today that is one laptop

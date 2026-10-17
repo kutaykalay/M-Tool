@@ -17,10 +17,11 @@ for programs that use only that interface) is not distributed with M-Tool; users
 
 ## Data sources
 
-The device records in `src/MTool.Core/Devices/` and the WMI2 report are M-Tool's own files in
-M-Tool's own format. Facts about MSI embedded controllers (register addresses, bit meanings,
-mode values, firmware name prefixes, WMI method names and packet positions) were taken by hand
-from the projects below. No code, files, file structure, comments or descriptions were copied.
+The device records in `src/MTool.Core/Devices/`, the WMI2 report and the live WMI2 values are
+M-Tool's own files in M-Tool's own format. Facts about MSI embedded controllers (register
+addresses, bit meanings, mode values, firmware name prefixes, WMI method names and packet
+positions) were taken by hand from the projects below. No code, files, file structure, comments
+or descriptions were copied.
 
 - **YAMDCC** by Sparronator9999, <https://codeberg.org/Sparronator9999/YAMDCC>, commit
   `da7d9d8068625217605f2dd1f5057b7b55974700`. Licence: GNU General Public License v3.0 or later.
@@ -30,6 +31,11 @@ from the projects below. No code, files, file structure, comments or description
   `d7fbbd88e6831e56801b860e46475cbf8ddbc7c1`. Licence: GNU General Public License v2.0 or later.
   Used for: the firmware families and features of the older WMI1 record (`CONF_G1_10`), and a
   cross-check of the Cooler Boost, charge limit and mode registers.
+- **GhostDeck** by wygodad, <https://github.com/wygodad/ghostdeck>, commit
+  `7f3a67040da2626a60231f2b31a8f531ecf1112a` (v1.38.0). Licence: GNU General Public License v3.0.
+  Used for: only the entries its project marks as tested on a laptop. The `Get_Data` packet layout,
+  the EC addresses of the live WMI2 values, the two tach formats and the plausible speed limit
+  (issues #1, #6, #14, #47, #52, #90, #92, #180, #228).
 
 The P65 Creator 9SE record was measured on that laptop; the references only confirmed it. Each
 record lists its own sources in its `sources` field.
