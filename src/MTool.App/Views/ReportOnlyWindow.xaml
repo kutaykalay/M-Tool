@@ -95,7 +95,7 @@
                     <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Wmi2_TryAgain}" Command="{Binding Live.TryAgainCommand}"
                             Visibility="{Binding Live.IsStopped, Converter={StaticResource BoolToVisible}}" />
                 </WrapPanel>
-                <Border Style="{StaticResource Band}" Visibility="{Binding Live.Message, Converter={StaticResource NotNullToVisible}}">
+                <Border Style="{StaticResource Band}" Tag="{Binding Live.MessageKind}" Visibility="{Binding Live.Message, Converter={StaticResource NotNullToVisible}}">
                     <TextBlock Text="{Binding Live.Message}" TextWrapping="Wrap" />
                 </Border>
             </StackPanel>

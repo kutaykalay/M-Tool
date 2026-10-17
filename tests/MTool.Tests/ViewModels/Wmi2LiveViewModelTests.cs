@@ -102,6 +102,7 @@ public class Wmi2LiveViewModelTests
         _opened.Should().Be(0);
         _source.Reads.Should().Be(0);
         live.Message.Should().Be(Strings.Sensors_Paused);
+        live.MessageKind.Should().Be(MessageKind.Info);
     }
 
     [Fact]
@@ -134,6 +135,7 @@ public class Wmi2LiveViewModelTests
         await live.RefreshCommand.ExecuteAsync(null);
 
         live.Message.Should().Be(Strings.Wmi2_ReadFailed);
+        live.MessageKind.Should().Be(MessageKind.Warning);
         live.IsStopped.Should().BeFalse();
         live.CpuTemperature.Should().Be("60 °C");
         live.RefreshCommand.CanExecute(null).Should().BeTrue();
@@ -152,6 +154,7 @@ public class Wmi2LiveViewModelTests
         await live.RefreshCommand.ExecuteAsync(null);
 
         live.Message.Should().Be(Strings.Wmi2_Stopped);
+        live.MessageKind.Should().Be(MessageKind.Warning);
         live.IsStopped.Should().BeTrue();
         live.RefreshCommand.CanExecute(null).Should().BeFalse();
         live.TryAgainCommand.CanExecute(null).Should().BeTrue();
@@ -209,6 +212,7 @@ public class Wmi2LiveViewModelTests
         await live.ShowCommand.ExecuteAsync(null);
 
         live.Message.Should().Be(Strings.Wmi2_Unavailable);
+        live.MessageKind.Should().Be(MessageKind.Warning);
         live.IsStarted.Should().BeFalse();
         live.ShowCommand.CanExecute(null).Should().BeFalse();
         _log.Lines.Should().Contain(line => line.StartsWith("WARN WMI2 live read", StringComparison.Ordinal) && line.Contains("did not answer"));

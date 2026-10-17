@@ -90,7 +90,16 @@ internal sealed partial class Wmi2LiveViewModel(
 
     /// <summary>Null while all is well; otherwise why the values are missing or may be old.</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MessageKind))]
     public partial string? Message { get; private set; }
+
+    /// <summary>A pause (sleep, wake-up) is information; anything that stops or fails the reading is a warning.</summary>
+    public MessageKind MessageKind => Message switch
+    {
+        null => MessageKind.None,
+        var text when text == Strings.Sensors_Paused => MessageKind.Info,
+        _ => MessageKind.Warning,
+    };
 
     /// <summary>The user said yes and the interface is open.</summary>
     [ObservableProperty]
