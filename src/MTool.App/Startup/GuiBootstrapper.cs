@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Windows;
 using MTool.App.Hardware;
@@ -169,7 +170,7 @@ internal sealed class GuiBootstrapper : IDisposable
         switcher.Switched += ShowOnUi;
 
         await viewModel.InitializeAsync([.. settings.Warnings, .. session.StartupWarnings]);
-        var signInStart = new SignInStartViewModel(new StartupTask(), CurrentExe, viewModel.Status, log);
+        var signInStart = new SignInStartViewModel(new StartupTask(), CurrentExe, viewModel.Status, log, File.Exists);
         var submissions = new SubmissionClient(SubmissionClient.CreateHandler(), SubmissionEndpoint.Uri, AppVersion, SubmissionClient.DefaultTimeout);
         var stopSubmission = new CancellationTokenSource();
         teardown.Push(("EC data submission", () => StopSubmissions(stopSubmission, submissions)));

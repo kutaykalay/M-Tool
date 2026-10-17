@@ -14,8 +14,9 @@ namespace MTool.App.ViewModels;
 /// registers it where it is now. Task Scheduler calls run off the UI thread; until the first query
 /// answers, the state is unknown and the switch is disabled.
 /// </summary>
+/// <param name="exeExists">Tells a task for a moved or deleted exe apart from one for another exe; <c>File.Exists</c> outside tests.</param>
 public sealed partial class SignInStartViewModel(
-    IStartupTask task, string exePath, StatusViewModel status, IAppLog log) : ObservableObject
+    IStartupTask task, string exePath, StatusViewModel status, IAppLog log, Func<string, bool> exeExists) : ObservableObject
 {
     private string? _repairWarning;
 
@@ -36,7 +37,9 @@ public sealed partial class SignInStartViewModel(
         // The band is in the UI language; the log is always English.
         var (found, foundForLog) = registered.Length == 0
             ? (Strings.SignIn_ForeignTask, "a task M-Tool did not create")
-            : (string.Format(Strings.SignIn_OtherExe, registered), $"another exe: {registered}");
+            : !await Task.Run(() => exeExists(registered))
+                ? (string.Format(Strings.SignIn_MissingExe, registered), $"an exe that no longer exists: {registered}")
+                : (string.Format(Strings.SignIn_OtherExe, registered), $"another exe: {registered}");
         _repairWarning = string.Format(Strings.SignIn_RepairWarning, found);
         log.Warn($"Start at sign-in task is not the expected one ({foundForLog}). " +
             "To move it to this exe, switch it off and on again from the tray menu.");

@@ -279,6 +279,9 @@
   <data name="SignIn_OtherExe" xml:space="preserve">
     <value>otro exe: {0}</value>
   </data>
+  <data name="SignIn_MissingExe" xml:space="preserve">
+    <value>un exe que ya no existe: {0}</value>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>«Iniciar al iniciar sesión» no es la tarea esperada ({0}). Para cambiarla a este exe, desactívela y vuelva a activarla en el menú de la bandeja.</value>
   </data>

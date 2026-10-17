@@ -11,8 +11,10 @@ public class SignInStartViewModelTests
     private readonly FakeStartupTask _task = new();
     private readonly StatusViewModel _status = new(new FakeNotifier(), new ImmediateDispatcher(), TimeProvider.System);
     private readonly ListLog _log = new();
+    private readonly HashSet<string> _missingExes = [];
 
-    private SignInStartViewModel ViewModel(string exe = InstalledExe) => new(_task, exe, _status, _log);
+    private SignInStartViewModel ViewModel(string exe = InstalledExe) =>
+        new(_task, exe, _status, _log, path => !_missingExes.Contains(path));
 
     private async Task<SignInStartViewModel> Loaded(string exe = InstalledExe)
     {
@@ -63,6 +65,31 @@ public class SignInStartViewModelTests
         _status.Message.Should().Contain(DownloadedExe);
         _log.Lines.Should().Contain(l => l.StartsWith("WARN") && l.Contains(DownloadedExe));
         _task.Calls.Should().Equal("query");
+    }
+
+    [Fact]
+    public async Task A_task_for_an_exe_that_no_longer_exists_says_so()
+    {
+        _task.RegisteredExe = DownloadedExe;
+        _missingExes.Add(DownloadedExe);
+
+        await Loaded();
+
+        _status.MessageKind.Should().Be(MessageKind.Warning);
+        _status.Message.Should().Contain("artık var olmayan bir exe").And.Contain(DownloadedExe);
+        _log.Lines.Should().ContainSingle().Which.Should().Contain($"an exe that no longer exists: {DownloadedExe}");
+        _task.Calls.Should().Equal("query");
+    }
+
+    [Fact]
+    public async Task A_task_for_this_exe_is_not_checked_for_a_missing_file()
+    {
+        _task.RegisteredExe = InstalledExe;
+        _missingExes.Add(InstalledExe);
+
+        await Loaded();
+
+        _status.Message.Should().BeNull();
     }
 
     [Fact]

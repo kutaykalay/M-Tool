@@ -368,6 +368,10 @@
     <value>another exe: {0}</value>
     <comment>Part of SignIn_RepairWarning ({0}): the task starts another program. {0} is its file path. Lower case, no full stop.</comment>
   </data>
+  <data name="SignIn_MissingExe" xml:space="preserve">
+    <value>an exe that no longer exists: {0}</value>
+    <comment>Part of SignIn_RepairWarning ({0}): the task starts a program that was moved or deleted. {0} is its file path. Lower case, no full stop.</comment>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>Start at sign-in is not the expected task ({0}). To switch it to this exe, turn it off and on again from the tray menu.</value>
     <comment>Warning band. {0} is SignIn_ForeignTask or SignIn_OtherExe. The tray menu item is Tray_StartAtSignIn: use the same wording.</comment>

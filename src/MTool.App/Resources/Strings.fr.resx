@@ -279,6 +279,9 @@
   <data name="SignIn_OtherExe" xml:space="preserve">
     <value>un autre exe : {0}</value>
   </data>
+  <data name="SignIn_MissingExe" xml:space="preserve">
+    <value>un exe qui n'existe plus : {0}</value>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>« Démarrer à l'ouverture de session » n'est pas la tâche attendue ({0}). Pour la faire pointer vers cet exe, désactivez puis réactivez l'option dans le menu de la zone de notification.</value>
   </data>

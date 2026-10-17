@@ -285,7 +285,7 @@ public sealed class ViewModelTextTests : IDisposable
         var task = new FakeStartupTask { RegisteredExe = @"C:\Users\PC\Downloads\M-Tool.exe" };
         var log = new ListLog();
         var status = Status();
-        var vm = new SignInStartViewModel(task, @"C:\Program Files\M-Tool\M-Tool.exe", status, log);
+        var vm = new SignInStartViewModel(task, @"C:\Program Files\M-Tool\M-Tool.exe", status, log, _ => true);
         var (ui, culture) = (CultureInfo.CurrentUICulture, CultureInfo.CurrentCulture);
         CultureInfo.CurrentUICulture = English;
         try
@@ -313,7 +313,7 @@ public sealed class ViewModelTextTests : IDisposable
             CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(language);
             try
             {
-                await new SignInStartViewModel(task, @"C:\Program Files\M-Tool\M-Tool.exe", Status(), log).LoadAsync();
+                await new SignInStartViewModel(task, @"C:\Program Files\M-Tool\M-Tool.exe", Status(), log, _ => true).LoadAsync();
                 lines.Add(log.Lines.Single());
             }
             finally

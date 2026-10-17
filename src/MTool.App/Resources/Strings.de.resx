@@ -279,6 +279,9 @@
   <data name="SignIn_OtherExe" xml:space="preserve">
     <value>eine andere exe: {0}</value>
   </data>
+  <data name="SignIn_MissingExe" xml:space="preserve">
+    <value>eine exe, die es nicht mehr gibt: {0}</value>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>„Bei Anmeldung starten“ ist nicht die erwartete Aufgabe ({0}). Um sie auf diese exe umzustellen, schalten Sie die Option im Taskleistenmenü aus und wieder ein.</value>
   </data>

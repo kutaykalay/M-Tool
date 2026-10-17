@@ -279,6 +279,9 @@
   <data name="SignIn_OtherExe" xml:space="preserve">
     <value>其他 exe：{0}</value>
   </data>
+  <data name="SignIn_MissingExe" xml:space="preserve">
+    <value>已不存在的 exe：{0}</value>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>“登录时启动”不是预期的任务（{0}）。要将其切换到此 exe，请在托盘菜单中将其关闭后再重新开启。</value>
   </data>
