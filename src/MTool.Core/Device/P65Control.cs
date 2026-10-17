@@ -89,6 +89,9 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
     public Task<WriteOutcome> SetFanModeAsync(FanMode mode, CancellationToken cancellationToken = default) =>
         setup.Gateway.ApplyAsync(WritePlans.Fan(mode), cancellationToken);
 
+    public Task<WriteOutcome> SetKeyboardBacklightAsync(int level, CancellationToken cancellationToken = default) =>
+        setup.Gateway.ApplyAsync(WritePlans.KeyboardBacklight(level), cancellationToken);
+
     /// <remarks>
     /// A charge limit the EC already holds adds no outcome. The fan table is always part of the
     /// desired state, so the list is never empty.

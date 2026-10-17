@@ -93,6 +93,26 @@ public class WritePlansTests
         WritePlans.Fan(mode).Writes.Should().Equal(new RegisterWrite(0xF4, expected));
     }
 
+    [Theory]
+    [InlineData(0, 0x80)]
+    [InlineData(1, 0x81)]
+    [InlineData(2, 0x82)]
+    [InlineData(3, 0x83)]
+    public void Keyboard_backlight_levels_map_to_ec_values(int level, byte expected)
+    {
+        WritePlans.KeyboardBacklight(level).Writes.Should().Equal(new RegisterWrite(0xF3, expected));
+    }
+
+    [Theory]
+    [InlineData(0, "Keyboard backlight: off")]
+    [InlineData(2, "Keyboard backlight: 2")]
+    public void Keyboard_backlight_plans_are_described_in_English(int level, string expected)
+    {
+        using var _ = TestCulture.Use("tr");
+
+        WritePlans.KeyboardBacklight(level).Description.Should().Be(expected);
+    }
+
     // Plan descriptions are log text, so they are English in every UI language.
     [Theory]
     [InlineData(PerformanceMode.High, "Performance mode: High")]

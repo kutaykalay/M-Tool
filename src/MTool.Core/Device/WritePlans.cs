@@ -1,3 +1,4 @@
+using System.Globalization;
 using MTool.Core.Ec;
 using MTool.Core.Profiles;
 
@@ -26,6 +27,11 @@ public static class WritePlans
 
     public static WritePlan Fan(FanMode mode) =>
         Single($"Fan mode: {ModeNames.Of(mode)}", EcMap.FanMode, ModeCodes.FanModeByte(mode));
+
+    /// <param name="level">0 (off) to <see cref="ModeCodes.MaxKeyboardBacklightLevel"/>.</param>
+    public static WritePlan KeyboardBacklight(int level) =>
+        Single($"Keyboard backlight: {(level == 0 ? "off" : level.ToString(CultureInfo.InvariantCulture))}",
+            EcMap.KeyboardBacklight, ModeCodes.KeyboardBacklightByte(level));
 
     private static WritePlan Single(string description, byte register, byte value) =>
         new(description, [new RegisterWrite(register, value)]);

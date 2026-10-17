@@ -56,6 +56,12 @@ public interface IP65Control
     Task<WriteOutcome> SetFanModeAsync(FanMode mode, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// One write, never reapplied: the Fn key sets the backlight too, so M-Tool does not keep it.
+    /// </summary>
+    /// <param name="level">0 (off) to <see cref="ModeCodes.MaxKeyboardBacklightLevel"/>.</param>
+    Task<WriteOutcome> SetKeyboardBacklightAsync(int level, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Writes every set part of <paramref name="desired"/> (fan table first) and stops at the first
     /// part that was not written (rejected or failed). One outcome per attempted part.
     /// </summary>

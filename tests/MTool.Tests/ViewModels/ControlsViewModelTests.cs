@@ -450,6 +450,9 @@ public sealed class ControlsViewModelTests : IDisposable
         public Task<WriteOutcome> SetFanModeAsync(FanMode mode, CancellationToken cancellationToken = default) =>
             inner.SetFanModeAsync(mode, cancellationToken);
 
+        public Task<WriteOutcome> SetKeyboardBacklightAsync(int level, CancellationToken cancellationToken = default) =>
+            inner.SetKeyboardBacklightAsync(level, cancellationToken);
+
         public Task<IReadOnlyList<WriteOutcome>> ApplyDesiredAsync(
             DesiredState desired, ProfileCatalog catalog, CancellationToken cancellationToken = default) =>
             inner.ApplyDesiredAsync(desired, catalog, cancellationToken);

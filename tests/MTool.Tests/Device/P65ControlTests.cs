@@ -419,6 +419,28 @@ public sealed class P65ControlTests : IDisposable
         _ec[0xF4].Should().Be(0x0D);
     }
 
+    [Theory]
+    [InlineData(0, 0x80)]
+    [InlineData(3, 0x83)]
+    public async Task Sets_the_keyboard_backlight_through_wmi_and_reads_it_back(int level, byte expected)
+    {
+        var control = Control();
+
+        (await control.SetKeyboardBacklightAsync(level)).Status.Should().Be(WriteStatus.Applied);
+
+        _ec[0xF3].Should().Be(expected);
+        (await control.ReadControlStateAsync(PortUse.None)).KeyboardBacklight.Should().Be(new KeyboardBacklightState(level, expected));
+    }
+
+    [Fact]
+    public async Task A_dry_run_keyboard_backlight_writes_nothing()
+    {
+        var outcome = await Control(Live with { DryRun = true }).SetKeyboardBacklightAsync(2);
+
+        outcome.Status.Should().Be(WriteStatus.DryRun);
+        _ec.Writes.Should().BeEmpty();
+    }
+
     [Fact]
     public async Task Dry_run_writes_nothing()
     {

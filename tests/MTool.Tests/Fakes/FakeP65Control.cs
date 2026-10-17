@@ -16,7 +16,8 @@ internal sealed class FakeP65Control : IP65Control
     public DeviceAccess Access { get; set; } = new(SupportedFirmware, WriteMode.Enabled, null, PortFeaturesAvailable: true, TestLayouts.P65.Capabilities);
 
     public ControlState State { get; set; } = new(
-        FactoryDefaults.FanCurves, PerformanceMode.High, 0xC0, FanMode.Advanced, new PortState(CoolerBoostRaw: 0x02, ChargeLimitRaw: 0xD0));
+        FactoryDefaults.FanCurves, PerformanceMode.High, 0xC0, FanMode.Advanced, new PortState(CoolerBoostRaw: 0x02, ChargeLimitRaw: 0xD0),
+        new KeyboardBacklightState(Level: 1, Raw: 0x81));
 
     public SensorSnapshot Sensors { get; set; } = new(60, 46, 50, 0, 3044, 0);
 
@@ -68,6 +69,9 @@ internal sealed class FakeP65Control : IP65Control
 
     public Task<WriteOutcome> SetFanModeAsync(FanMode mode, CancellationToken cancellationToken = default) =>
         WriteAsync($"fan mode {mode}", s => s with { FanMode = mode });
+
+    public Task<WriteOutcome> SetKeyboardBacklightAsync(int level, CancellationToken cancellationToken = default) =>
+        WriteAsync($"keyboard backlight {level}", s => s with { KeyboardBacklight = new(level, ModeCodes.KeyboardBacklightByte(level)) });
 
     public async Task<IReadOnlyList<WriteOutcome>> ApplyDesiredAsync(
         DesiredState desired, ProfileCatalog catalog, CancellationToken cancellationToken = default) =>
