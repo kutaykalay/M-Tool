@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using MTool.Core.Localization;
+using MTool.Core.Resources;
 
 namespace MTool.Core.Ec;
 
@@ -93,10 +95,10 @@ public sealed class EcController : IEcRegisters, IEcWritableRegisters
         }
 
         Report(operation, register, succeeded: false, failures);
-        var verb = operation == EcOperation.Read ? "okunamadı" : "yazılamadı";
-        throw new EcAccessException(
-            $"EC register 0x{register:X2} {_options.MaxAttempts} denemede {verb} " +
-            $"({string.Join(", ", failures!.Select(f => f.Kind))}).");
+        var failed = UserAndLogText.Say(
+            operation == EcOperation.Read ? nameof(CoreStrings.Ec_ReadFailed) : nameof(CoreStrings.Ec_WriteFailed),
+            $"0x{register:X2}", _options.MaxAttempts, string.Join(", ", failures!.Select(f => f.Kind)));
+        throw new EcAccessException(failed.Text).WithLog(failed.Log);
     }
 
     private void Report(EcOperation operation, byte register, bool succeeded, List<EcFailedAttempt>? failures)

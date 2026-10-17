@@ -243,6 +243,12 @@
   <data name="Worker_LockTimeout" xml:space="preserve">
     <value>未能在 {0} 毫秒内获得 EC 锁（Access_EC）；可能有其他程序正在使用 EC。</value>
   </data>
+  <data name="Ec_ReadFailed" xml:space="preserve">
+    <value>EC 寄存器 {0} 在 {1} 次尝试中均无法读取（{2}）。</value>
+  </data>
+  <data name="Ec_WriteFailed" xml:space="preserve">
+    <value>EC 寄存器 {0} 在 {1} 次尝试中均无法写入（{2}）。</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} 不在可写寄存器列表中。</value>
   </data>

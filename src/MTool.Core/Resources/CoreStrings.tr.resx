@@ -243,6 +243,12 @@
   <data name="Worker_LockTimeout" xml:space="preserve">
     <value>EC kilidi (Access_EC) {0} ms içinde alınamadı; başka bir program EC'yi kullanıyor olabilir.</value>
   </data>
+  <data name="Ec_ReadFailed" xml:space="preserve">
+    <value>EC register {0} {1} denemede okunamadı ({2}).</value>
+  </data>
+  <data name="Ec_WriteFailed" xml:space="preserve">
+    <value>EC register {0} {1} denemede yazılamadı ({2}).</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} yazılabilir register listesinde değil.</value>
   </data>

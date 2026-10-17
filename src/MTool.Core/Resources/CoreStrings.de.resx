@@ -243,6 +243,12 @@
   <data name="Worker_LockTimeout" xml:space="preserve">
     <value>Die EC-Sperre (Access_EC) wurde nicht innerhalb von {0} ms erhalten; ein anderes Programm verwendet möglicherweise den EC.</value>
   </data>
+  <data name="Ec_ReadFailed" xml:space="preserve">
+    <value>EC-Register {0} konnte in {1} Versuchen nicht gelesen werden ({2}).</value>
+  </data>
+  <data name="Ec_WriteFailed" xml:space="preserve">
+    <value>EC-Register {0} konnte in {1} Versuchen nicht geschrieben werden ({2}).</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} steht nicht in der Liste der beschreibbaren Register.</value>
   </data>

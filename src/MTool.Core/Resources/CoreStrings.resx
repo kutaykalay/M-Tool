@@ -320,6 +320,14 @@
     <value>The EC lock (Access_EC) was not obtained within {0} ms; another program may be using the EC.</value>
     <comment>Message when the shared controller (EC) lock stayed taken. {0}: the time waited in milliseconds. Keep Access_EC. It appears inside Write_Unreachable.</comment>
   </data>
+  <data name="Ec_ReadFailed" xml:space="preserve">
+    <value>EC register {0} could not be read in {1} attempts ({2}).</value>
+    <comment>A port read failed every attempt. {0}: register address such as 0xEF. {1}: number of attempts. {2}: technical failure kinds, keep as is. It appears inside Write_Unreachable.</comment>
+  </data>
+  <data name="Ec_WriteFailed" xml:space="preserve">
+    <value>EC register {0} could not be written in {1} attempts ({2}).</value>
+    <comment>A port write failed every attempt. {0}: register address such as 0xF2. {1}: number of attempts. {2}: technical failure kinds, keep as is. It appears inside Write_Failed.</comment>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} is not in the list of writable registers.</value>
     <comment>SAFETY. Rejection when a write targets a register outside the whitelist, so nothing was written. {0}: the register number as two hex digits; keep the 0x prefix.</comment>

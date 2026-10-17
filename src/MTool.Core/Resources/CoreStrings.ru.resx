@@ -243,6 +243,12 @@
   <data name="Worker_LockTimeout" xml:space="preserve">
     <value>Блокировку EC (Access_EC) не удалось получить за {0} мс; возможно, EC использует другая программа.</value>
   </data>
+  <data name="Ec_ReadFailed" xml:space="preserve">
+    <value>Не удалось прочитать регистр EC {0} за {1} попыток ({2}).</value>
+  </data>
+  <data name="Ec_WriteFailed" xml:space="preserve">
+    <value>Не удалось записать регистр EC {0} за {1} попыток ({2}).</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} нет в списке регистров, доступных для записи.</value>
   </data>

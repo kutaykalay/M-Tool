@@ -243,6 +243,12 @@
   <data name="Worker_LockTimeout" xml:space="preserve">
     <value>Le verrou de l'EC (Access_EC) n'a pas été obtenu en {0} ms ; un autre programme utilise peut-être l'EC.</value>
   </data>
+  <data name="Ec_ReadFailed" xml:space="preserve">
+    <value>Le registre EC {0} n'a pas pu être lu en {1} tentatives ({2}).</value>
+  </data>
+  <data name="Ec_WriteFailed" xml:space="preserve">
+    <value>Le registre EC {0} n'a pas pu être écrit en {1} tentatives ({2}).</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} ne figure pas dans la liste des registres modifiables.</value>
   </data>
