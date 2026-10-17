@@ -94,8 +94,15 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
     public Task<WriteOutcome> SetFanModeAsync(FanMode mode, CancellationToken cancellationToken = default) =>
         setup.Gateway.ApplyAsync(WritePlans.Fan(mode), cancellationToken);
 
+    /// <summary>
+    /// Refused before the gateway when the record has no backlight at 0xF3: the session map would
+    /// then have no route for it, and a routing error inside the gateway locks every write.
+    /// </summary>
     public Task<WriteOutcome> SetKeyboardBacklightAsync(int level, CancellationToken cancellationToken = default) =>
-        setup.Gateway.ApplyAsync(WritePlans.KeyboardBacklight(level), cancellationToken);
+        layout.KeyboardBacklight == EcMap.KeyboardBacklight
+            ? setup.Gateway.ApplyAsync(WritePlans.KeyboardBacklight(level), cancellationToken)
+            : Task.FromResult(new WriteOutcome(
+                WriteStatus.Rejected, [], CoreText.Get(nameof(CoreStrings.Write_NoKeyboardBacklight), CultureInfo.CurrentUICulture)));
 
     /// <remarks>
     /// A charge limit the EC already holds adds no outcome. The fan table is always part of the

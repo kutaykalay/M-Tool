@@ -30,6 +30,8 @@ public sealed partial class ControlsViewModel : ObservableObject
     private KeyboardBacklightState? _backlight; // what the EC holds; null before the first read
     private bool _showingBacklight; // the EC, not the user, is moving the bar
     private bool _draggingBacklight;
+    private int? _pendingBacklight; // chosen while a command ran; written when it is done
+    private int _backlightShows; // a follow read started before the last show is stale
 
     public ControlsViewModel(ProfileService service, IP65Control control, StatusViewModel status, IUiDispatcher ui)
     {
@@ -125,7 +127,7 @@ public sealed partial class ControlsViewModel : ObservableObject
     public partial bool IsBusy { get; private set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanWrite), nameof(CanWritePort))]
+    [NotifyPropertyChangedFor(nameof(CanWrite), nameof(CanWritePort), nameof(CanChangeKeyboardBacklight))]
     [NotifyCanExecuteChangedFor(nameof(SelectProfileCommand), nameof(SetPerformanceCommand), nameof(SetCoolerBoostCommand))]
     [NotifyCanExecuteChangedFor(nameof(ApplyChargeLimitCommand), nameof(ReapplyCommand))]
     public partial WriteMode WriteMode { get; private set; }
@@ -136,6 +138,12 @@ public sealed partial class ControlsViewModel : ObservableObject
     public partial bool PortFeaturesAvailable { get; private set; } = true;
 
     public bool CanWrite => WriteMode != WriteMode.Locked && !IsBusy;
+
+    /// <summary>
+    /// Only a lock disables the bar: disabled while a write runs, it would lose the keyboard focus.
+    /// A step chosen during a command waits for it instead.
+    /// </summary>
+    public bool CanChangeKeyboardBacklight => WriteMode != WriteMode.Locked;
 
     /// <summary>Cooler Boost and the charge limit: also need the raw port.</summary>
     public bool CanWritePort => CanWrite && PortFeaturesAvailable;
@@ -255,29 +263,37 @@ public sealed partial class ControlsViewModel : ObservableObject
         _ = WriteKeyboardBacklightAsync(KeyboardBacklightLevel);
     }
 
+    /// <summary>The window was hidden mid-press: no release will come, so the press ends without a write.</summary>
+    public void CancelKeyboardBacklightDrag()
+    {
+        _draggingBacklight = false;
+        ShowBacklight(_backlight);
+    }
+
     /// <summary>
     /// Reads only the backlight, to follow the Fn key while the window is open. Skipped while a
-    /// command runs or the bar is held: the command's refresh, or the release, shows the EC then.
+    /// command runs, a step waits or the bar is held; a read that a newer EC state overtook is dropped.
     /// </summary>
     public async Task FollowKeyboardBacklightAsync()
     {
-        if (!ShowKeyboardBacklight || IsBusy || _draggingBacklight)
+        if (!ShowKeyboardBacklight || IsBusy || _pendingBacklight is not null || _draggingBacklight)
         {
             return;
         }
 
+        var shownBefore = _backlightShows;
         KeyboardBacklightState? state;
         try
         {
             state = await _control.ReadKeyboardBacklightAsync();
         }
-        catch (EcAccessException)
+        catch (Exception)
         {
-            // A silent EC period, as in a sensor poll: the next round reads again.
+            // A missed round, as in a sensor poll (which logs its misses): the next round reads again.
             return;
         }
 
-        if (!IsBusy && !_draggingBacklight)
+        if (shownBefore == _backlightShows && !IsBusy && _pendingBacklight is null && !_draggingBacklight)
         {
             ShowBacklight(state);
         }
@@ -292,26 +308,59 @@ public sealed partial class ControlsViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Not a command: the bar is a slider, and a step it may not write (locked, busy, already in the
-    /// EC) snaps back to the EC's step instead.
+    /// Not a command: the bar is a slider. While a command runs the step waits (the last one wins);
+    /// when locked, or when the EC already holds it, the bar snaps back to the EC's step.
     /// </summary>
     private async Task WriteKeyboardBacklightAsync(int level)
     {
-        if (!CanWrite || _backlight?.Level == level)
+        if (!CanChangeKeyboardBacklight)
+        {
+            _pendingBacklight = null;
+            ShowBacklight(_backlight);
+            return;
+        }
+
+        if (IsBusy)
+        {
+            _pendingBacklight = level;
+            return;
+        }
+
+        if (_backlight?.Level == level)
         {
             ShowBacklight(_backlight);
             return;
         }
 
-        await RunAsync(PortUse.None, () => _service.SetKeyboardBacklightAsync(level));
+        try
+        {
+            await RunAsync(PortUse.None, () => _service.SetKeyboardBacklightAsync(level));
+        }
+        catch (Exception ex)
+        {
+            // Started from a property change, not a command: nothing else would see the error.
+            _status.ShowWarning(ex.Message);
+        }
+    }
+
+    /// <summary>Runs after every command: the step chosen while it ran.</summary>
+    private void WritePendingBacklight()
+    {
+        if (_pendingBacklight is { } level)
+        {
+            _pendingBacklight = null;
+            _ = WriteKeyboardBacklightAsync(level);
+        }
     }
 
     private void ShowBacklight(KeyboardBacklightState? state)
     {
         _backlight = state;
+        _backlightShows++;
         KeyboardBacklightKnown = state?.Level is not null;
         OnPropertyChanged(nameof(KeyboardBacklightLabel));
-        if (_draggingBacklight || state?.Level is not { } level)
+        // A held or waiting step stays on the bar until it is written.
+        if (_draggingBacklight || _pendingBacklight is not null || state?.Level is not { } level)
         {
             return;
         }
@@ -356,6 +405,8 @@ public sealed partial class ControlsViewModel : ObservableObject
         {
             IsBusy = false;
         }
+
+        WritePendingBacklight();
     }
 
     private void Show(ControlState state)

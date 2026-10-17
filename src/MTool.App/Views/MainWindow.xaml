@@ -151,11 +151,10 @@
                         <Run Text="{Binding Controls.KeyboardBacklightLabel, Mode=OneWay}" />
                     </TextBlock>
                 </DockPanel>
-                <Slider Style="{StaticResource StepSlider}" Maximum="{Binding Controls.KeyboardBacklightMax, Mode=OneTime}"
+                <!-- Press and release are hooked in code with handledEventsToo: the Slider handles a track click itself. -->
+                <Slider x:Name="BacklightBar" Style="{StaticResource StepSlider}" Maximum="{Binding Controls.KeyboardBacklightMax, Mode=OneTime}"
                         Value="{Binding Controls.KeyboardBacklightLevel, Mode=TwoWay}" Tag="{Binding Controls.KeyboardBacklightKnown}"
-                        IsEnabled="{Binding Controls.CanWrite}" AutomationProperties.Name="{x:Static res:Strings.Main_SectionKeyboardBacklight}"
-                        PreviewMouseLeftButtonDown="OnBacklightPressed" PreviewMouseLeftButtonUp="OnBacklightReleased"
-                        LostMouseCapture="OnBacklightCaptureLost" />
+                        IsEnabled="{Binding Controls.CanChangeKeyboardBacklight}" AutomationProperties.Name="{x:Static res:Strings.Main_SectionKeyboardBacklight}" />
                 <!-- Six columns: the middle labels span two, so each is centred under its dot. -->
                 <Grid Margin="0,2,0,0">
                     <Grid.ColumnDefinitions>

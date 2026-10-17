@@ -234,6 +234,9 @@
   <data name="Write_PortRefused" xml:space="preserve">
     <value>{0} n'est pas disponible dans cette session (pas d'accès PawnIO).</value>
   </data>
+  <data name="Write_NoKeyboardBacklight" xml:space="preserve">
+    <value>Ce portable n'a pas de rétroéclairage du clavier que M-Tool peut régler ; rien n'a été écrit.</value>
+  </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>L'accès à l'EC est suspendu à cause de la mise en veille ou de la sortie de veille.</value>
   </data>

@@ -38,9 +38,18 @@ internal sealed class FakeP65Control : IP65Control
     /// <summary>When true, <see cref="ReadKeyboardBacklightAsync"/> throws like a silent EC.</summary>
     public bool BacklightReadFails { get; set; }
 
+    /// <summary>When set, the next backlight read answers with this task instead of <see cref="State"/>.</summary>
+    public TaskCompletionSource<KeyboardBacklightState?>? BacklightReadResult { get; set; }
+
     public Task<KeyboardBacklightState?> ReadKeyboardBacklightAsync(CancellationToken cancellationToken = default)
     {
         Calls.Enqueue("read backlight");
+        if (BacklightReadResult is { } result)
+        {
+            BacklightReadResult = null;
+            return result.Task;
+        }
+
         return BacklightReadFails
             ? Task.FromException<KeyboardBacklightState?>(new EcAccessException("EC silent"))
             : Task.FromResult(State.KeyboardBacklight);

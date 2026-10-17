@@ -459,6 +459,24 @@ public sealed class P65ControlTests : IDisposable
         _ec.Writes.Should().BeEmpty();
     }
 
+    // Without the field the router would refuse 0xF3 inside the gateway, which locks writes: refuse first.
+    [Fact]
+    public async Task A_keyboard_backlight_write_on_a_model_without_one_is_refused_without_locking()
+    {
+        var layout = DeviceLayout.From(DeviceConfigFixtures.P65() with
+        {
+            Features = DeviceConfigFixtures.P65().Features with { KeyboardBacklight = null },
+        });
+        var control = Control(layout: layout);
+
+        var outcome = await control.SetKeyboardBacklightAsync(2);
+
+        outcome.Status.Should().Be(WriteStatus.Rejected);
+        outcome.Message.Should().Contain("klavye ışığı");
+        control.Access.WriteMode.Should().Be(WriteMode.Enabled);
+        _ec.Writes.Should().BeEmpty();
+    }
+
     [Fact]
     public async Task A_dry_run_keyboard_backlight_writes_nothing()
     {

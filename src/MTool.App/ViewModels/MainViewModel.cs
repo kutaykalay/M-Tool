@@ -120,6 +120,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         _windowVisible = false;
         _poller.SetInterval(HiddenInterval);
+        Controls.CancelKeyboardBacklightDrag();
     }
 
     /// <summary>A new editor for one editor window; the window disposes it when it closes.</summary>

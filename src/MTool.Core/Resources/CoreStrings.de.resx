@@ -234,6 +234,9 @@
   <data name="Write_PortRefused" xml:space="preserve">
     <value>{0} ist in dieser Sitzung nicht verfügbar (kein PawnIO-Zugriff).</value>
   </data>
+  <data name="Write_NoKeyboardBacklight" xml:space="preserve">
+    <value>Dieser Laptop hat keine Tastaturbeleuchtung, die M-Tool einstellen kann; es wurde nichts geschrieben.</value>
+  </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>Der EC-Zugriff ist wegen Energiesparmodus oder Aufwachen pausiert.</value>
   </data>

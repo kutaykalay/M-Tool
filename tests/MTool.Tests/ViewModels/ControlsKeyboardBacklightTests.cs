@@ -192,26 +192,115 @@ public sealed class ControlsKeyboardBacklightTests : IDisposable
 
         _controls.KeyboardBacklightLevel = 3;
 
-        _controls.CanWrite.Should().BeFalse();
+        _controls.CanChangeKeyboardBacklight.Should().BeFalse();
         BacklightWrites.Should().BeEmpty();
         _controls.KeyboardBacklightLevel.Should().Be(1);
     }
 
-    // The bar is disabled while a write runs (CanWrite); a value that still arrives is not queued.
+    // The bar stays enabled while a write runs, so it keeps the keyboard focus; the last step chosen
+    // meanwhile is written when the running command is done.
     [Fact]
-    public async Task A_step_chosen_while_another_write_runs_is_dropped_and_the_bar_shows_the_ec()
+    public async Task The_last_step_chosen_while_a_write_runs_is_written_after_it()
     {
         await _controls.RefreshAsync(PortUse.None);
         var gate = new TaskCompletionSource();
         _control.WriteGate = gate;
 
         _controls.KeyboardBacklightLevel = 2;
-        _controls.CanWrite.Should().BeFalse();
+        _controls.CanChangeKeyboardBacklight.Should().BeTrue();
+        _controls.KeyboardBacklightLevel = 3;
+        _controls.KeyboardBacklightLevel = 0;
+        _controls.KeyboardBacklightLevel.Should().Be(0, "the bar keeps the queued step");
+        gate.SetResult();
+
+        BacklightWrites.Should().Equal("keyboard backlight 2", "keyboard backlight 0");
+        _controls.KeyboardBacklightLevel.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task A_step_chosen_while_a_profile_is_written_follows_it()
+    {
+        await _controls.RefreshAsync(PortUse.None);
+        var gate = new TaskCompletionSource();
+        _control.WriteGate = gate;
+        var profile = _controls.SelectProfileCommand.ExecuteAsync("Cool");
+
         _controls.KeyboardBacklightLevel = 3;
         gate.SetResult();
+        await profile;
+
+        _control.Calls.Where(c => c.StartsWith("fan ", StringComparison.Ordinal) || c.StartsWith("keyboard", StringComparison.Ordinal))
+            .Should().Equal("fan Cool", "keyboard backlight 3");
+    }
+
+    [Fact]
+    public async Task A_queued_step_the_ec_holds_by_then_is_not_written()
+    {
         await _controls.RefreshAsync(PortUse.None);
+        var gate = new TaskCompletionSource();
+        _control.WriteGate = gate;
+
+        _controls.KeyboardBacklightLevel = 2;
+        _controls.KeyboardBacklightLevel = 3;
+        _controls.KeyboardBacklightLevel = 2;
+        gate.SetResult();
 
         BacklightWrites.Should().Equal("keyboard backlight 2");
+    }
+
+    [Fact]
+    public async Task Only_a_lock_disables_the_bar()
+    {
+        _controls.CanChangeKeyboardBacklight.Should().BeTrue();
+        _control.Access = _control.Access with { WriteMode = WriteMode.Locked, LockReason = "test" };
+
+        await _controls.RefreshAsync(PortUse.None);
+
+        _controls.CanChangeKeyboardBacklight.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task A_follow_read_that_overlaps_a_newer_ec_state_is_dropped()
+    {
+        await _controls.RefreshAsync(PortUse.None);
+        var read = new TaskCompletionSource<KeyboardBacklightState?>();
+        _control.BacklightReadResult = read;
+        var follow = _controls.FollowKeyboardBacklightAsync();
+        EcHolds(2, 0x82);
+        await _controls.RefreshAsync(PortUse.None);
+
+        read.SetResult(new KeyboardBacklightState(1, 0x81));
+        await follow;
+
+        _controls.KeyboardBacklightLevel.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Any_failed_follow_read_is_skipped_until_the_next_round()
+    {
+        await _controls.RefreshAsync(PortUse.None);
+        var read = new TaskCompletionSource<KeyboardBacklightState?>();
+        _control.BacklightReadResult = read;
+        read.SetException(new TimeoutException("worker"));
+
+        await _controls.FollowKeyboardBacklightAsync();
+
+        _controls.KeyboardBacklightLevel.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Hiding_the_window_mid_press_ends_the_press_without_writing()
+    {
+        await _controls.RefreshAsync(PortUse.None);
+        _controls.BeginKeyboardBacklightDrag();
+        _controls.KeyboardBacklightLevel = 3;
+
+        _controls.CancelKeyboardBacklightDrag();
+        _controls.EndKeyboardBacklightDrag();
+        EcHolds(2, 0x82);
+        await _controls.FollowKeyboardBacklightAsync();
+
+        BacklightWrites.Should().BeEmpty();
         _controls.KeyboardBacklightLevel.Should().Be(2);
     }
 

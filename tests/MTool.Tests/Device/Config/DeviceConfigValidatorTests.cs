@@ -599,7 +599,10 @@ public class DeviceConfigValidatorTests
     [InlineData(new byte[] { 0x80, 0x81, 0x82 })]
     [InlineData(new byte[] { 0x80, 0x81, 0x82, 0x83, 0x84 })]
     [InlineData(new byte[] { 0x80, 0x81, 0x81, 0x83 })]
-    public void Rejects_a_keyboard_backlight_without_four_distinct_levels(byte[] levels)
+    [InlineData(new byte[] { 0x00, 0x01, 0x02, 0x03 })]
+    [InlineData(new byte[] { 0x83, 0x82, 0x81, 0x80 })]
+    // Writes use the code's bytes (ModeCodes), so a record may not decode with any others.
+    public void Rejects_keyboard_backlight_levels_other_than_0x80_to_0x83_in_order(byte[] levels)
     {
         var light = new KeyboardBacklightFeature(0xF3, levels);
 

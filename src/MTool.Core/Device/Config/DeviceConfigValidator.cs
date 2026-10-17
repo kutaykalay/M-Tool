@@ -31,7 +31,9 @@ public static partial class DeviceConfigValidator
     private const int MaxBit = 7;
     private const int ChargeLimitEnableBit = 7;
     private const int RegisterSpace = 256;
-    private const int KeyboardBacklightLevelCount = ModeCodes.MaxKeyboardBacklightLevel + 1;
+
+    private static readonly byte[] KeyboardBacklightLevels =
+        [.. Enumerable.Range(0, ModeCodes.MaxKeyboardBacklightLevel + 1).Select(ModeCodes.KeyboardBacklightByte)];
 
     /// <summary>
     /// The second key for writes: only firmware listed here, in code, may be
@@ -335,10 +337,10 @@ public static partial class DeviceConfigValidator
             errors.Add("fanMode.auto and fanMode.advanced must differ.");
         }
 
-        if (features.KeyboardBacklight is { } light
-            && (light.Levels.Count != KeyboardBacklightLevelCount || light.Levels.Distinct().Count() != light.Levels.Count))
+        // Writes use the code's bytes (ModeCodes), so a record must decode with exactly those.
+        if (features.KeyboardBacklight is { } light && !light.Levels.SequenceEqual(KeyboardBacklightLevels))
         {
-            errors.Add($"keyboardBacklight.levels must list {KeyboardBacklightLevelCount} different values (off and each step).");
+            errors.Add($"keyboardBacklight.levels must be {string.Join(", ", KeyboardBacklightLevels.Select(l => $"0x{l:X2}"))} (off and each step).");
         }
     }
 

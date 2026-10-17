@@ -308,6 +308,10 @@
     <value>{0} is not available in this session (no PawnIO access).</value>
     <comment>SAFETY. Outcome for Cooler Boost without port access. {0}: the feature name; Cooler Boost is not translated. Keep PawnIO.</comment>
   </data>
+  <data name="Write_NoKeyboardBacklight" xml:space="preserve">
+    <value>This laptop has no keyboard backlight that M-Tool can set; nothing was written.</value>
+    <comment>SAFETY. Outcome when the keyboard backlight is set on a laptop whose device record has none. Nothing was written.</comment>
+  </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>EC access is paused because of sleep or wake-up.</value>
     <comment>Message when the laptop is asleep or just woke up, so its controller (EC) was not touched. It appears inside Write_Unreachable.</comment>

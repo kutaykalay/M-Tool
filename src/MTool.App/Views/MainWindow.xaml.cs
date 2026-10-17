@@ -25,6 +25,7 @@ internal partial class MainWindow : Window
         (_viewModel, _createEditor) = (viewModel, createEditor);
         DataContext = viewModel;
         InitializeComponent();
+        HookBacklightBar();
         IsVisibleChanged += OnIsVisibleChanged;
         SizeChanged += (_, _) => MoveToCorner();
     }
@@ -85,13 +86,20 @@ internal partial class MainWindow : Window
         _editor.Activate();
     }
 
-    // A click or drag on the keyboard backlight bar writes once, on release; the lost capture covers a
-    // release outside the window and the bar being disabled mid-press. A second end is ignored.
-    private void OnBacklightPressed(object sender, MouseButtonEventArgs e) => _viewModel.Controls.BeginKeyboardBacklightDrag();
-
-    private void OnBacklightReleased(object sender, MouseButtonEventArgs e) => _viewModel.Controls.EndKeyboardBacklightDrag();
-
-    private void OnBacklightCaptureLost(object sender, MouseEventArgs e) => _viewModel.Controls.EndKeyboardBacklightDrag();
+    /// <summary>
+    /// A click or drag on the keyboard backlight bar writes once, on release. handledEventsToo: with
+    /// IsMoveToPointEnabled the Slider handles a track click itself, so a plain handler would miss the
+    /// press. The lost capture covers a release outside the window; a second end is ignored.
+    /// </summary>
+    private void HookBacklightBar()
+    {
+        BacklightBar.AddHandler(PreviewMouseLeftButtonDownEvent,
+            new MouseButtonEventHandler((_, _) => _viewModel.Controls.BeginKeyboardBacklightDrag()), handledEventsToo: true);
+        BacklightBar.AddHandler(PreviewMouseLeftButtonUpEvent,
+            new MouseButtonEventHandler((_, _) => _viewModel.Controls.EndKeyboardBacklightDrag()), handledEventsToo: true);
+        BacklightBar.AddHandler(LostMouseCaptureEvent,
+            new MouseEventHandler((_, _) => _viewModel.Controls.EndKeyboardBacklightDrag()), handledEventsToo: true);
+    }
 
     public void ApplyTitleBarTheme(bool dark) => TitleBar.ApplyTheme(this, dark);
 

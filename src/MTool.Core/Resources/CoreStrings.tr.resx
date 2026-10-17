@@ -234,6 +234,9 @@
   <data name="Write_PortRefused" xml:space="preserve">
     <value>{0} bu oturumda kullanılamıyor (PawnIO erişimi yok).</value>
   </data>
+  <data name="Write_NoKeyboardBacklight" xml:space="preserve">
+    <value>Bu laptopta M-Tool'un ayarlayabileceği bir klavye ışığı yok; hiçbir şey yazılmadı.</value>
+  </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>EC erişimi uyku/uyanış nedeniyle duraklatıldı.</value>
   </data>

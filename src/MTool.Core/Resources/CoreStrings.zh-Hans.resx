@@ -234,6 +234,9 @@
   <data name="Write_PortRefused" xml:space="preserve">
     <value>本次会话中无法使用 {0}（无 PawnIO 访问权限）。</value>
   </data>
+  <data name="Write_NoKeyboardBacklight" xml:space="preserve">
+    <value>此笔记本电脑没有 M-Tool 可以设置的键盘背光；未写入任何内容。</value>
+  </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>由于睡眠或唤醒，EC 访问已暂停。</value>
   </data>

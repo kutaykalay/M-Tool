@@ -234,6 +234,9 @@
   <data name="Write_PortRefused" xml:space="preserve">
     <value>{0} недоступен в этом сеансе (нет доступа к PawnIO).</value>
   </data>
+  <data name="Write_NoKeyboardBacklight" xml:space="preserve">
+    <value>У этого ноутбука нет подсветки клавиатуры, которую M-Tool может настроить; ничего не записано.</value>
+  </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>Доступ к EC приостановлен из-за сна или пробуждения.</value>
   </data>

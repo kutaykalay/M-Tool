@@ -234,6 +234,9 @@
   <data name="Write_PortRefused" xml:space="preserve">
     <value>{0} no está disponible en esta sesión (sin acceso a PawnIO).</value>
   </data>
+  <data name="Write_NoKeyboardBacklight" xml:space="preserve">
+    <value>Este portátil no tiene una retroiluminación del teclado que M-Tool pueda ajustar; no se escribió nada.</value>
+  </data>
   <data name="Worker_Paused" xml:space="preserve">
     <value>El acceso al EC está en pausa por la suspensión o la reanudación.</value>
   </data>
