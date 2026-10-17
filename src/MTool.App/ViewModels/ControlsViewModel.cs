@@ -251,14 +251,12 @@ public sealed partial class ControlsViewModel : ObservableObject
     /// <summary>A press on the bar: until <see cref="EndKeyboardBacklightDrag"/>, moving it writes nothing.</summary>
     public void BeginKeyboardBacklightDrag() => _draggingBacklight = true;
 
-    /// <summary>The release that ends a click or a drag: writes the step the bar ends on. Once per press.</summary>
+    /// <summary>
+    /// The release that ends a click or a drag: writes the step the bar ends on. A second release
+    /// (the lost capture after the button) finds that step written or waiting and writes nothing.
+    /// </summary>
     public void EndKeyboardBacklightDrag()
     {
-        if (!_draggingBacklight)
-        {
-            return;
-        }
-
         _draggingBacklight = false;
         _ = WriteKeyboardBacklightAsync(KeyboardBacklightLevel);
     }

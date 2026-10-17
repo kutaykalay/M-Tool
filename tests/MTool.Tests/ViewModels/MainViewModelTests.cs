@@ -97,6 +97,19 @@ public sealed class MainViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task Hiding_the_window_mid_press_drops_the_press()
+    {
+        await _main.OnWindowShownAsync();
+        _main.Controls.BeginKeyboardBacklightDrag();
+        _main.Controls.KeyboardBacklightLevel = 3;
+
+        _main.OnWindowHidden();
+
+        _main.Controls.KeyboardBacklightLevel.Should().Be(1, "the bar shows the EC again");
+        _control.Calls.Should().NotContain(c => c.StartsWith("keyboard backlight", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task Sensor_readings_reach_the_window_and_the_tooltip()
     {
         await _main.InitializeAsync([]);
