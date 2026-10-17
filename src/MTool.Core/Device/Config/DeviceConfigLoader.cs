@@ -61,7 +61,7 @@ public static class DeviceConfigLoader
 
     /// <exception cref="JsonException">The text is not a single, complete record.</exception>
     public static DeviceConfig Parse(string json) =>
-        JsonSerializer.Deserialize<DeviceConfig>(json, Options) ?? throw new JsonException("Kayıt boş (null).");
+        JsonSerializer.Deserialize<DeviceConfig>(json, Options) ?? throw new JsonException("The record is empty (null).");
 
     private static DeviceConfig? TryRead(string name, string json, IAppLog log)
     {

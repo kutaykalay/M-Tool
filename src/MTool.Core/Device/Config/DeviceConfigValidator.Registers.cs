@@ -22,7 +22,7 @@ public static partial class DeviceConfigValidator
     {
         foreach (var group in UsedRegisters(config).GroupBy(u => u.Register).Where(g => g.Count() > 1).OrderBy(g => g.Key))
         {
-            errors.Add($"0x{group.Key:X2} birden çok yerde kullanılıyor: {string.Join(", ", group.Select(u => u.Owner))}.");
+            errors.Add($"0x{group.Key:X2} is used in more than one place: {string.Join(", ", group.Select(u => u.Owner))}.");
         }
     }
 
@@ -37,11 +37,11 @@ public static partial class DeviceConfigValidator
         {
             var id = ConfigText.Show(fan.Id);
             used = used
-                .Append((fan.Temperature, $"{id} sıcaklık"))
-                .Append((fan.SpeedPercent, $"{id} hız yüzdesi"))
+                .Append((fan.Temperature, $"{id} temperature"))
+                .Append((fan.SpeedPercent, $"{id} speed percent"))
                 .Concat(Span(fan.RpmHigh, 2, $"{id} RPM"))
-                .Concat(Span(fan.UpThresholds.Start, fan.UpThresholds.Count, $"{id} yukarı eşik"))
-                .Concat(Span(fan.Speeds.Start, fan.Speeds.Count, $"{id} hız"));
+                .Concat(Span(fan.UpThresholds.Start, fan.UpThresholds.Count, $"{id} up threshold"))
+                .Concat(Span(fan.Speeds.Start, fan.Speeds.Count, $"{id} speed"));
         }
 
         return used.Concat(FeatureRegisters(config.Features));
@@ -68,7 +68,7 @@ public static partial class DeviceConfigValidator
         {
             if (config.Interface == WmiInterface.Wmi1)
             {
-                errors.Add("wmi1 arayüzlü kayıtta wmi1 alan haritası olmalı.");
+                errors.Add("A record with the wmi1 interface needs a wmi1 field map.");
             }
 
             return;
@@ -77,17 +77,17 @@ public static partial class DeviceConfigValidator
         var fields = config.Wmi1.Fields;
         foreach (var register in Duplicates(fields.Select(f => f.Register)))
         {
-            errors.Add($"0x{register:X2} için iki WMI alanı var.");
+            errors.Add($"0x{register:X2} has two WMI fields.");
         }
 
         foreach (var (className, index) in Duplicates(fields.Select(f => (f.Class, f.Index))))
         {
-            errors.Add($"{ConfigText.Show(className)}[{index}] birden çok register'a bağlı.");
+            errors.Add($"{ConfigText.Show(className)}[{index}] is mapped to more than one register.");
         }
 
         foreach (var field in fields.Where(f => f.Index < 0 || !WmiClassPattern().IsMatch(f.Class)))
         {
-            errors.Add($"0x{field.Register:X2}: WMI alanı \"{ConfigText.Show(field.Class)}[{field.Index}]\" geçersiz.");
+            errors.Add($"0x{field.Register:X2}: WMI field \"{ConfigText.Show(field.Class)}[{field.Index}]\" is not valid.");
         }
 
         if (config.Interface == WmiInterface.Wmi1)
@@ -102,7 +102,7 @@ public static partial class DeviceConfigValidator
         var reachable = fields.Select(f => (int)f.Register).Concat(config.PortRegisters.Select(r => (int)r)).ToHashSet();
         foreach (var register in UsedRegisters(config).Select(u => u.Register).Distinct().Where(r => !reachable.Contains(r)).Order())
         {
-            errors.Add($"0x{register:X2} için okuma yolu yok (WMI alanı da port da değil).");
+            errors.Add($"0x{register:X2} has no read path (neither a WMI field nor the port).");
         }
     }
 
@@ -111,7 +111,7 @@ public static partial class DeviceConfigValidator
     {
         foreach (var register in Duplicates(config.PortRegisters))
         {
-            errors.Add($"portRegisters içinde 0x{register:X2} iki kez var.");
+            errors.Add($"portRegisters lists 0x{register:X2} twice.");
         }
 
         var tables = config.Fans
@@ -130,37 +130,37 @@ public static partial class DeviceConfigValidator
     {
         if (tables.Contains(register))
         {
-            errors.Add($"0x{register:X2} fan tablosu register'ı, porta yönlendirilemez.");
+            errors.Add($"0x{register:X2} is a fan table register and cannot go through the port.");
             return;
         }
 
         if (!PortCeiling.Contains(register))
         {
-            errors.Add($"0x{register:X2} port tavanında değil ({string.Join(", ", PortCeiling.Order().Select(r => $"0x{r:X2}"))}).");
+            errors.Add($"0x{register:X2} is not in the port ceiling ({string.Join(", ", PortCeiling.Order().Select(r => $"0x{r:X2}"))}).");
         }
 
         if (wmiFields.Contains(register))
         {
-            errors.Add($"0x{register:X2} hem portta hem WMI haritasında.");
+            errors.Add($"0x{register:X2} is both in the port list and in the WMI map.");
         }
 
         if (features.CoolerBoost?.Register == register)
         {
             if (register != CoolerBoostPortRegister)
             {
-                errors.Add($"coolerBoost porttan yalnızca 0x{CoolerBoostPortRegister:X2} olabilir (0x{register:X2}).");
+                errors.Add($"coolerBoost can use the port only at 0x{CoolerBoostPortRegister:X2} (0x{register:X2}).");
             }
         }
         else if (features.ChargeLimit?.Register == register)
         {
             if (!ChargeLimitPortRegisters.Contains(register))
             {
-                errors.Add($"chargeLimit porttan yalnızca {string.Join(" ya da ", ChargeLimitPortRegisters.Order().Select(r => $"0x{r:X2}"))} olabilir (0x{register:X2}).");
+                errors.Add($"chargeLimit can use the port only at {string.Join(" or ", ChargeLimitPortRegisters.Order().Select(r => $"0x{r:X2}"))} (0x{register:X2}).");
             }
         }
         else
         {
-            errors.Add($"0x{register:X2} hiçbir özelliğe ait değil (porttan yalnızca coolerBoost ve chargeLimit gider).");
+            errors.Add($"0x{register:X2} belongs to no feature (only coolerBoost and chargeLimit go through the port).");
         }
     }
 }

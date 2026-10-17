@@ -28,13 +28,13 @@ public class FirmwareFamiliesTests
     [Fact]
     public void A_family_listed_twice_is_rejected()
     {
-        DeviceConfigValidator.Validate(Legacy("16P5EMS1.1", "16P5EMS1.1")).Should().ContainMatch("*16P5EMS1.1*iki kez*");
+        DeviceConfigValidator.Validate(Legacy("16P5EMS1.1", "16P5EMS1.1")).Should().ContainMatch("*16P5EMS1.1*listed twice*");
     }
 
     [Fact]
     public void Every_family_must_have_ten_characters()
     {
-        DeviceConfigValidator.Validate(Legacy("16P5EMS1.1", "1782EMS1")).Should().ContainMatch("*1782EMS1*10 karakter*");
+        DeviceConfigValidator.Validate(Legacy("16P5EMS1.1", "1782EMS1")).Should().ContainMatch("*1782EMS1*10 characters*");
     }
 
     [Fact]
@@ -42,7 +42,7 @@ public class FirmwareFamiliesTests
     {
         var config = P65() with { Firmware = new FirmwareSpec(["16Q4EMS2.107"], ["16P5EMS1.1", "1782EMS1.1"]) };
 
-        DeviceConfigValidator.Validate(config).Should().ContainMatch("*16Q4EMS2.107*ailelerinde değil*");
+        DeviceConfigValidator.Validate(config).Should().ContainMatch("*16Q4EMS2.107*not in the record's families*");
     }
 
     [Fact]

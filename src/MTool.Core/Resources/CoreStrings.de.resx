@@ -264,7 +264,4 @@
   <data name="PortGuard_Changed" xml:space="preserve">
     <value>Der Port-Zugriff hat andere Register geändert: {0}.</value>
   </data>
-  <data name="Config_OutsideLimits" xml:space="preserve">
-    <value>{0}: außerhalb der Grenzen des Datensatzes ({1}–{2} °C, höchstens {3} %).</value>
-  </data>
 </root>

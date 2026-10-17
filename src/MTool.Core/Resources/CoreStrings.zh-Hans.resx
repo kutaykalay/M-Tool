@@ -264,7 +264,4 @@
   <data name="PortGuard_Changed" xml:space="preserve">
     <value>端口访问更改了其他寄存器：{0}。</value>
   </data>
-  <data name="Config_OutsideLimits" xml:space="preserve">
-    <value>{0}：超出记录的限制范围（{1}–{2} °C，最高 {3}%）。</value>
-  </data>
 </root>

@@ -10,11 +10,11 @@ internal sealed class FanCurveConverter : JsonConverter<FanCurve>
     public override FanCurve Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var pairs = JsonSerializer.Deserialize<int[][]>(ref reader, options)
-            ?? throw new JsonException("Eğri boş (null) olamaz.");
+            ?? throw new JsonException("The curve cannot be empty (null).");
 
         if (pairs.Any(p => p is not { Length: 2 }))
         {
-            throw new JsonException("Eğrinin her noktası [eşik, hız] çifti olmalı.");
+            throw new JsonException("Every point of the curve must be a [threshold, speed] pair.");
         }
 
         return FanCurve.Of([.. pairs.Select(p => (p[0], p[1]))]);

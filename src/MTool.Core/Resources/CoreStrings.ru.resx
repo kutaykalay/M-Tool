@@ -264,7 +264,4 @@
   <data name="PortGuard_Changed" xml:space="preserve">
     <value>Обращение к порту изменило другие регистры: {0}.</value>
   </data>
-  <data name="Config_OutsideLimits" xml:space="preserve">
-    <value>{0}: за пределами ограничений записи ({1}–{2} °C, не более {3} %).</value>
-  </data>
 </root>

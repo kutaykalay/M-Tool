@@ -264,7 +264,4 @@
   <data name="PortGuard_Changed" xml:space="preserve">
     <value>Port erişimi başka register'ları değiştirdi: {0}.</value>
   </data>
-  <data name="Config_OutsideLimits" xml:space="preserve">
-    <value>{0}: kaydın limitleri dışında ({1}-{2} °C, en fazla %{3}).</value>
-  </data>
 </root>

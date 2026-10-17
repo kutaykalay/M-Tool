@@ -1,8 +1,7 @@
 using System.Collections.Frozen;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using MTool.Core.Ec;
-using MTool.Core.Resources;
-using static MTool.Core.Localization.UserAndLogText;
 using MTool.Core.Profiles;
 
 namespace MTool.Core.Device.Config;
@@ -51,7 +50,7 @@ public static partial class DeviceConfigValidator
     {
         if (HasNullParts(config))
         {
-            return ["Kayıtta boş (null) öğe var."];
+            return ["The record list has an empty (null) item."];
         }
 
         var errors = new List<string>();
@@ -72,7 +71,7 @@ public static partial class DeviceConfigValidator
     {
         var sameId = configs.GroupBy(c => c.Id, StringComparer.Ordinal)
             .Where(g => g.Count() > 1)
-            .Select(g => new ConfigConflict(g.Key, $"id \"{ConfigText.Show(g.Key)}\" birden çok kayıtta var."));
+            .Select(g => new ConfigConflict(g.Key, $"id \"{ConfigText.Show(g.Key)}\" is in more than one record."));
 
         var sameFirmware = Shared(configs.SelectMany(c => c.Firmware.Exact.Select(firmware => (Key: firmware, c.Id))), "firmware");
         var sameFamily = Shared(configs.SelectMany(c => c.Firmware.Families.Distinct(StringComparer.Ordinal).Select(family => (Key: family, c.Id))), "aile");
@@ -83,7 +82,7 @@ public static partial class DeviceConfigValidator
     private static IEnumerable<ConfigConflict> Shared(IEnumerable<(string Key, string Id)> claims, string what) =>
         claims.GroupBy(x => x.Key, StringComparer.Ordinal)
             .Where(g => g.Select(x => x.Id).Distinct().Count() > 1)
-            .SelectMany(g => g.Select(x => new ConfigConflict(x.Id, $"{what} \"{ConfigText.Show(g.Key)}\" birden çok kayıtta var.")));
+            .SelectMany(g => g.Select(x => new ConfigConflict(x.Id, $"{what} \"{ConfigText.Show(g.Key)}\" is in more than one record.")));
 
     /// <summary>Collection elements can still be null after JSON reading; nothing else may run on them.</summary>
     private static bool HasNullParts(DeviceConfig c) =>
@@ -116,18 +115,18 @@ public static partial class DeviceConfigValidator
 
         if (!IdPattern().IsMatch(config.Id))
         {
-            errors.Add($"id \"{ConfigText.Show(config.Id)}\" küçük harf, rakam ve tireden oluşmalı.");
+            errors.Add($"id \"{ConfigText.Show(config.Id)}\" must be lower-case letters, digits and hyphens.");
         }
 
         CheckText("displayName", config.DisplayName, errors);
         if (string.IsNullOrWhiteSpace(config.DisplayName))
         {
-            errors.Add("displayName boş olamaz.");
+            errors.Add("displayName cannot be empty.");
         }
 
         if (config.Sources.Count == 0)
         {
-            errors.Add("sources en az bir kaynak içermeli.");
+            errors.Add("sources must name at least one source.");
         }
 
         foreach (var source in config.Sources)
@@ -137,7 +136,7 @@ public static partial class DeviceConfigValidator
 
         if (config.Status == DeviceStatus.WriteVerified && config.Interface != WmiInterface.Wmi1)
         {
-            errors.Add("writeVerified yalnızca wmi1 arayüzünde olabilir (yazma yolu WMI1).");
+            errors.Add("writeVerified is only possible with the wmi1 interface (the write path is WMI1).");
         }
     }
 
@@ -146,7 +145,7 @@ public static partial class DeviceConfigValidator
     {
         if (ConfigText.HasControl(text))
         {
-            errors.Add($"{field} kontrol karakteri içeremez.");
+            errors.Add($"{field} cannot contain control characters.");
         }
     }
 
@@ -158,7 +157,7 @@ public static partial class DeviceConfigValidator
         if (location.VersionLength < 1 || location.DateLength < 1
             || location.Version + location.VersionLength > RegisterSpace || location.Date + location.DateLength > RegisterSpace)
         {
-            errors.Add("firmwareLocation geçersiz: uzunluklar en az 1 olmalı ve 0xFF'i aşmamalı.");
+            errors.Add("firmwareLocation is not valid: lengths must be at least 1 and stay within 0xFF.");
         }
 
         foreach (var family in families)
@@ -166,13 +165,13 @@ public static partial class DeviceConfigValidator
             CheckText("firmware.families", family, errors);
             if (family.Length != FamilyLength)
             {
-                errors.Add($"firmware.families \"{ConfigText.Show(family)}\" {FamilyLength} karakter olmalı.");
+                errors.Add($"firmware.families \"{ConfigText.Show(family)}\" must be {FamilyLength} characters.");
             }
         }
 
         foreach (var duplicate in Duplicates(families))
         {
-            errors.Add($"aile \"{ConfigText.Show(duplicate)}\" iki kez yazılmış.");
+            errors.Add($"family \"{ConfigText.Show(duplicate)}\" is listed twice.");
         }
 
         foreach (var firmware in exact)
@@ -182,12 +181,12 @@ public static partial class DeviceConfigValidator
 
         foreach (var duplicate in Duplicates(exact))
         {
-            errors.Add($"firmware \"{ConfigText.Show(duplicate)}\" iki kez yazılmış.");
+            errors.Add($"firmware \"{ConfigText.Show(duplicate)}\" is listed twice.");
         }
 
         if (config.Status == DeviceStatus.WriteVerified && exact.Count == 0)
         {
-            errors.Add("writeVerified kayıtta tam firmware listesi boş olamaz.");
+            errors.Add("A writeVerified record needs a non-empty list of exact firmware versions.");
         }
     }
 
@@ -198,16 +197,16 @@ public static partial class DeviceConfigValidator
 
         if (firmware.Length != config.FirmwareLocation.VersionLength)
         {
-            errors.Add($"firmware \"{shown}\" {config.FirmwareLocation.VersionLength} karakter olmalı.");
+            errors.Add($"firmware \"{shown}\" must be {config.FirmwareLocation.VersionLength} characters.");
         }
         else if (families.Count > 0 && !families.Any(family => firmware.StartsWith(family, StringComparison.Ordinal)))
         {
-            errors.Add($"firmware \"{shown}\" kaydın ailelerinde değil ({string.Join(", ", families.Select(ConfigText.Show))}).");
+            errors.Add($"firmware \"{shown}\" is not in the record's families ({string.Join(", ", families.Select(ConfigText.Show))}).");
         }
 
         if (config.Status == DeviceStatus.WriteVerified && !WriteVerifiedFirmware.Contains(firmware))
         {
-            errors.Add($"firmware \"{shown}\" kodda yazma için doğrulanmış değil; writeVerified olamaz.");
+            errors.Add($"firmware \"{shown}\" is not verified for writing in the code; it cannot be writeVerified.");
         }
     }
 
@@ -217,8 +216,8 @@ public static partial class DeviceConfigValidator
             || limits.MinUpThresholdC > limits.MaxUpThresholdC
             || limits.MaxSpeedPercent is < 0 or > EcWriteRules.MaxSpeedPercent)
         {
-            errors.Add($"limits kod tavanını aşıyor: eşik {EcWriteRules.MinUpThresholdC}-{EcWriteRules.MaxUpThresholdC} °C, "
-                + $"hız en fazla %{EcWriteRules.MaxSpeedPercent} olmalı.");
+            errors.Add($"limits go beyond the code's ceiling: threshold {EcWriteRules.MinUpThresholdC}-{EcWriteRules.MaxUpThresholdC} °C, "
+                + $"speed at most {EcWriteRules.MaxSpeedPercent}%.");
         }
     }
 
@@ -226,12 +225,12 @@ public static partial class DeviceConfigValidator
     {
         if (config.Fans.Count == 0)
         {
-            errors.Add("En az bir fan olmalı.");
+            errors.Add("There must be at least one fan.");
         }
 
         foreach (var id in Duplicates(config.Fans.Select(f => f.Id)))
         {
-            errors.Add($"fan id \"{ConfigText.Show(id)}\" iki kez kullanılmış.");
+            errors.Add($"fan id \"{ConfigText.Show(id)}\" is used twice.");
         }
 
         foreach (var fan in config.Fans)
@@ -245,38 +244,38 @@ public static partial class DeviceConfigValidator
         var id = ConfigText.Show(fan.Id);
         if (!IdPattern().IsMatch(fan.Id))
         {
-            errors.Add($"fan id \"{id}\" küçük harf, rakam ve tireden oluşmalı.");
+            errors.Add($"fan id \"{id}\" must be lower-case letters, digits and hyphens.");
         }
 
-        CheckBlock(id, "yukarı eşik", fan.UpThresholds, ThresholdCount, errors);
-        CheckBlock(id, "hız", fan.Speeds, SpeedCount, errors);
+        CheckBlock(id, "up threshold", fan.UpThresholds, ThresholdCount, errors);
+        CheckBlock(id, "speed", fan.Speeds, SpeedCount, errors);
 
         if (fan.RpmHigh == byte.MaxValue)
         {
-            errors.Add($"{id}: RPM düşük baytı 0xFF'i aşıyor.");
+            errors.Add($"{id}: the RPM low byte goes beyond 0xFF.");
         }
 
         var offsets = fan.FactoryDownOffsets;
         if (offsets is not null && !AreValidOffsets(offsets))
         {
-            errors.Add($"{id}: iniş ofsetleri {ThresholdCount} adet, {MinDownOffsetC}-{MaxDownOffsetC} °C olmalı ({string.Join(", ", offsets)}).");
+            errors.Add($"{id}: the down offsets must be {ThresholdCount} values of {MinDownOffsetC}-{MaxDownOffsetC} °C ({string.Join(", ", offsets)}).");
         }
 
         if (fan.FactoryCurve is { } curve)
         {
             if (offsets is null)
             {
-                errors.Add($"{id}: fabrika eğrisi iniş ofsetleri olmadan doğrulanamaz.");
+                errors.Add($"{id}: the factory curve cannot be checked without down offsets.");
             }
             else if (AreValidOffsets(offsets))
             {
-                CheckCurve($"{id} fabrika eğrisi", curve, offsets, config.Limits, errors);
+                CheckCurve($"{id} factory curve", curve, offsets, config.Limits, errors);
             }
         }
 
         if (config.Status == DeviceStatus.WriteVerified && (offsets is null || fan.FactoryCurve is null))
         {
-            errors.Add($"{id}: writeVerified kayıtta fabrika eğrisi ve iniş ofsetleri zorunlu.");
+            errors.Add($"{id}: a writeVerified record needs the factory curve and down offsets.");
         }
     }
 
@@ -284,12 +283,12 @@ public static partial class DeviceConfigValidator
     {
         if (block.Count != expected)
         {
-            errors.Add($"{fanId}: {name} bloğu {expected} register olmalı ({block.Count} var).");
+            errors.Add($"{fanId}: the {name} block must be {expected} registers (it has {block.Count}).");
         }
 
         if (block.Start + block.Count > RegisterSpace)
         {
-            errors.Add($"{fanId}: 0x{block.Start:X2} ile başlayan {name} bloğu 0xFF'i aşıyor.");
+            errors.Add($"{fanId}: the {name} block starting at 0x{block.Start:X2} goes beyond 0xFF.");
         }
     }
 
@@ -299,13 +298,13 @@ public static partial class DeviceConfigValidator
     /// <summary>The same whole-curve rules as the gateway, with this record's offsets, plus the record's own limits.</summary>
     private static void CheckCurve(string label, FanCurve curve, IReadOnlyList<int> offsets, CurveLimits limits, List<string> errors)
     {
-        errors.AddRange(CurveValidator.Validate(curve, offsets).Select(e => $"{label}: {e}"));
+        errors.AddRange(CurveValidator.Validate(curve, offsets, CultureInfo.InvariantCulture).Select(e => $"{label}: {e}"));
 
         var outside = curve.Points.Skip(1).Any(p => p.UpThresholdC < limits.MinUpThresholdC || p.UpThresholdC > limits.MaxUpThresholdC)
             || curve.Points.Any(p => p.SpeedPercent > limits.MaxSpeedPercent);
         if (outside)
         {
-            errors.Add(Say(nameof(CoreStrings.Config_OutsideLimits), label, limits.MinUpThresholdC, limits.MaxUpThresholdC, limits.MaxSpeedPercent).Text);
+            errors.Add($"{label}: outside the limits of the record ({limits.MinUpThresholdC}-{limits.MaxUpThresholdC} °C, at most {limits.MaxSpeedPercent}%).");
         }
     }
 
@@ -313,7 +312,7 @@ public static partial class DeviceConfigValidator
     {
         if (features.CoolerBoost is { Bit: < 0 or > MaxBit })
         {
-            errors.Add($"coolerBoost.bit 0-{MaxBit} olmalı.");
+            errors.Add($"coolerBoost.bit must be 0-{MaxBit}.");
         }
 
         if (features.ChargeLimit is { } charge
@@ -321,8 +320,8 @@ public static partial class DeviceConfigValidator
                 || charge.Min < EcWriteRules.MinChargeLimitPercent || charge.Max > EcWriteRules.MaxChargeLimitPercent
                 || charge.Min > charge.Max))
         {
-            errors.Add($"chargeLimit kod tavanını aşıyor: enableBit {ChargeLimitEnableBit} ve "
-                + $"{EcWriteRules.MinChargeLimitPercent} ≤ min ≤ max ≤ {EcWriteRules.MaxChargeLimitPercent} olmalı.");
+            errors.Add($"chargeLimit goes beyond the code's ceiling: it needs enableBit {ChargeLimitEnableBit} and "
+                + $"{EcWriteRules.MinChargeLimitPercent} ≤ min ≤ max ≤ {EcWriteRules.MaxChargeLimitPercent}.");
         }
 
         if (features.PerformanceMode is { } performance)
@@ -332,7 +331,7 @@ public static partial class DeviceConfigValidator
 
         if (features.FanMode is { } fanMode && fanMode.Auto == fanMode.Advanced)
         {
-            errors.Add("fanMode.auto ve fanMode.advanced farklı olmalı.");
+            errors.Add("fanMode.auto and fanMode.advanced must differ.");
         }
     }
 
@@ -340,22 +339,22 @@ public static partial class DeviceConfigValidator
     {
         if (modes.Count == 0)
         {
-            errors.Add("performanceMode en az bir mod içermeli.");
+            errors.Add("performanceMode must list at least one mode.");
         }
 
         foreach (var mode in modes.Where(m => !IdPattern().IsMatch(m.Id)))
         {
-            errors.Add($"performanceMode id \"{ConfigText.Show(mode.Id)}\" küçük harf, rakam ve tireden oluşmalı.");
+            errors.Add($"performanceMode id \"{ConfigText.Show(mode.Id)}\" must be lower-case letters, digits and hyphens.");
         }
 
         foreach (var id in Duplicates(modes.Select(m => m.Id)))
         {
-            errors.Add($"performanceMode id \"{ConfigText.Show(id)}\" iki kez kullanılmış.");
+            errors.Add($"performanceMode id \"{ConfigText.Show(id)}\" is used twice.");
         }
 
         foreach (var value in Duplicates(modes.Select(m => m.Value)))
         {
-            errors.Add($"performanceMode değeri 0x{value:X2} iki kez kullanılmış.");
+            errors.Add($"performanceMode value 0x{value:X2} is used twice.");
         }
     }
 
@@ -363,7 +362,7 @@ public static partial class DeviceConfigValidator
     {
         foreach (var name in Duplicates(config.Presets.Select(p => p.Name)))
         {
-            errors.Add($"preset \"{ConfigText.Show(name)}\" iki kez var.");
+            errors.Add($"preset \"{ConfigText.Show(name)}\" is used twice.");
         }
 
         var fans = config.Fans.DistinctBy(f => f.Id).ToDictionary(f => f.Id);
@@ -375,16 +374,16 @@ public static partial class DeviceConfigValidator
 
     private static void CheckPreset(PresetConfig preset, Dictionary<string, FanConfig> fans, CurveLimits limits, List<string> errors)
     {
-        CheckText("preset adı", preset.Name, errors);
+        CheckText("preset name", preset.Name, errors);
         if (string.IsNullOrWhiteSpace(preset.Name))
         {
-            errors.Add("preset adı boş olamaz.");
+            errors.Add("preset name cannot be empty.");
         }
 
         var name = ConfigText.Show(preset.Name);
         foreach (var unknown in preset.Curves.Keys.Where(k => !fans.ContainsKey(k)))
         {
-            errors.Add($"{name}: \"{ConfigText.Show(unknown)}\" diye bir fan yok.");
+            errors.Add($"{name}: there is no fan \"{ConfigText.Show(unknown)}\".");
         }
 
         foreach (var fan in fans.Values)
@@ -392,11 +391,11 @@ public static partial class DeviceConfigValidator
             var fanId = ConfigText.Show(fan.Id);
             if (!preset.Curves.TryGetValue(fan.Id, out var curve))
             {
-                errors.Add($"{name}: {fanId} fanının eğrisi yok.");
+                errors.Add($"{name}: {fanId} fan has no curve.");
             }
             else if (fan.FactoryDownOffsets is null)
             {
-                errors.Add($"{name}: {fanId} fanının iniş ofsetleri yok, preset doğrulanamaz.");
+                errors.Add($"{name}: {fanId} fan has no down offsets, the preset cannot be checked.");
             }
             else if (AreValidOffsets(fan.FactoryDownOffsets))
             {

@@ -348,8 +348,4 @@
     <value>The port access changed other registers: {0}.</value>
     <comment>SAFETY. Part of the failure text when a port access changed registers it should not touch. {0}: the registers and values, such as 0xF2=0xC4; keep them.</comment>
   </data>
-  <data name="Config_OutsideLimits" xml:space="preserve">
-    <value>{0}: outside the limits of the record ({1}-{2} °C, at most {3}%).</value>
-    <comment>Problem found in a device record: a fan curve goes beyond the record's own limits. {0}: which curve (starts with a fan name, in Turkish for now). {1}, {2}: lowest and highest temperature. {3}: highest fan speed in percent.</comment>
-  </data>
 </root>

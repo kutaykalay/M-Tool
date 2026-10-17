@@ -21,7 +21,7 @@ internal sealed partial class HexByteConverter : JsonConverter<byte>
         if (text is null || !HexPattern().IsMatch(text)
             || !byte.TryParse(text.AsSpan(2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out var value))
         {
-            throw new JsonException($"Bayt \"0x00\"-\"0xFF\" biçiminde bir dizge olmalı ({reader.TokenType}: {ConfigText.Show(text)}).");
+            throw new JsonException($"A byte must be a string from \"0x00\" to \"0xFF\" ({reader.TokenType}: {ConfigText.Show(text)}).");
         }
 
         return value;

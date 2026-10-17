@@ -103,18 +103,17 @@ public sealed class WriteRuleTextCultureTests
     }
 
     [Fact]
-    public void A_curve_outside_the_records_limits_is_reported_in_the_language_of_the_user()
+    public void A_device_record_problem_is_reported_in_english_whatever_the_language()
     {
-        var config = DeviceConfigFixtures.P65() with { Limits = new CurveLimits(30, 85, 100) };
+        // The record check is for whoever adds a record and for the log, not for the user.
+        var outside = DeviceConfigFixtures.P65() with { Limits = new CurveLimits(30, 85, 100) };
+        var cpu = DeviceConfigFixtures.CpuFan() with { FactoryDownOffsets = [8, 3, 3, 3, 3, 10] };
+        var failing = DeviceConfigFixtures.P65() with { Fans = [cpu, DeviceConfigFixtures.GpuFan()] };
 
         using (TestCulture.Use("tr"))
         {
-            DeviceConfigValidator.Validate(config).Should().Contain("cpu fabrika eğrisi: kaydın limitleri dışında (30-85 °C, en fazla %100).");
-        }
-
-        using (TestCulture.Use("en"))
-        {
-            DeviceConfigValidator.Validate(config).Should().Contain(e => e.EndsWith(": outside the limits of the record (30-85 °C, at most 100%)."));
+            DeviceConfigValidator.Validate(outside).Should().Contain("cpu factory curve: outside the limits of the record (30-85 °C, at most 100%).");
+            DeviceConfigValidator.Validate(failing).Should().ContainMatch("cpu factory curve: Point 7: the fan drops back from this point at 78 °C*");
         }
     }
 

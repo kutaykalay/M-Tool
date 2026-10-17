@@ -44,13 +44,13 @@ public class DeviceConfigValidatorTests
     [Fact]
     public void Rejects_a_config_without_fans()
     {
-        Rejects(P65() with { Fans = [] }, "*En az bir fan*");
+        Rejects(P65() with { Fans = [] }, "*at least one fan*");
     }
 
     [Fact]
     public void Rejects_duplicate_fan_ids()
     {
-        Rejects(P65() with { Fans = [CpuFan(), GpuFan() with { Id = "cpu" }] }, "*fan id \"cpu\" iki kez*");
+        Rejects(P65() with { Fans = [CpuFan(), GpuFan() with { Id = "cpu" }] }, "*fan id \"cpu\" is used twice*");
     }
 
     [Theory]
@@ -60,7 +60,7 @@ public class DeviceConfigValidatorTests
     {
         var cpu = CpuFan() with { UpThresholds = new RegisterBlock(0x6A, count) };
 
-        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*yukarı eşik bloğu 6 register*");
+        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*the up threshold block must be 6 registers*");
     }
 
     [Theory]
@@ -70,7 +70,7 @@ public class DeviceConfigValidatorTests
     {
         var cpu = CpuFan() with { Speeds = new RegisterBlock(0x72, count) };
 
-        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*hız bloğu 7 register*");
+        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*the speed block must be 7 registers*");
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class DeviceConfigValidatorTests
     {
         var gpu = GpuFan() with { Speeds = new RegisterBlock(0xFC, 7) };
 
-        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*0xFC ile başlayan hız bloğu*");
+        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*the speed block starting at 0xFC*");
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public class DeviceConfigValidatorTests
     {
         var gpu = GpuFan() with { UpThresholds = new RegisterBlock(0x6F, 6) };
 
-        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*0x6F birden çok yerde*");
+        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*0x6F is used in more than one place*");
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public class DeviceConfigValidatorTests
     {
         var gpu = GpuFan() with { Temperature = 0x68 };
 
-        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*0x68 birden çok yerde*");
+        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*0x68 is used in more than one place*");
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class DeviceConfigValidatorTests
     {
         var features = P65().Features with { FanMode = new FanModeFeature(0x72, 0x0D, 0x8D) };
 
-        Rejects(P65() with { Features = features }, "*0x72 birden çok yerde*");
+        Rejects(P65() with { Features = features }, "*0x72 is used in more than one place*");
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public class DeviceConfigValidatorTests
     {
         var gpu = GpuFan() with { RpmHigh = 0xCB };
 
-        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*0xCC birden çok yerde*");
+        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*0xCC is used in more than one place*");
     }
 
     [Theory]
@@ -128,7 +128,7 @@ public class DeviceConfigValidatorTests
     {
         var cpu = CpuFan() with { FactoryCurve = Curve((0, 45), (55, 50), (64, 60), (70, 70), (76, 75), (88, 80)) };
 
-        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu fabrika eğrisi: Eğri 7 noktadan*");
+        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu factory curve: The curve must have 7 points*");
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public class DeviceConfigValidatorTests
             FactoryCurve = Curve((0, 45), (55, 50), (64, 60), (70, 70), (76, 75), (82, 80), (88, 80), (90, 100)),
         };
 
-        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu fabrika eğrisi: Eğri 7 noktadan*");
+        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu factory curve: The curve must have 7 points*");
     }
 
     [Fact]
@@ -147,7 +147,7 @@ public class DeviceConfigValidatorTests
     {
         var cpu = CpuFan() with { FactoryCurve = Curve((0, 45), (55, 50), (64, 60), (70, 70), (76, 75), (82, 80), (88, 101)) };
 
-        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu fabrika eğrisi: Nokta 7: fan hızı*");
+        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu factory curve: Point 7: the fan speed*");
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class DeviceConfigValidatorTests
         // 88 - 10 = 78 does not clear the 82 °C step below it.
         var cpu = CpuFan() with { FactoryDownOffsets = [8, 3, 3, 3, 3, 10] };
 
-        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu fabrika eğrisi: Nokta 7: fan bu noktadan 78*");
+        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu factory curve: Point 7: the fan drops back from this point at 78*");
     }
 
     [Fact]
@@ -164,14 +164,14 @@ public class DeviceConfigValidatorTests
     {
         var cpu = CpuFan() with { FactoryDownOffsets = [8, 3, 3, 3, 3] };
 
-        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu: iniş ofsetleri*");
+        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu: the down offsets*");
     }
 
     [Fact]
     public void Rejects_a_curve_outside_the_records_own_limits()
     {
         // Factory CPU curve reaches 88 °C; the record allows only up to 85.
-        Rejects(P65() with { Limits = new CurveLimits(30, 85, 100) }, "*cpu fabrika eğrisi: kaydın limitleri dışında*");
+        Rejects(P65() with { Limits = new CurveLimits(30, 85, 100) }, "*cpu factory curve: outside the limits of the record*");
     }
 
     [Fact]
@@ -180,7 +180,7 @@ public class DeviceConfigValidatorTests
         // Silent GPU is 83 -> 89 °C; a 7 °C last offset drops it back at 82.
         var gpu = GpuFan() with { FactoryDownOffsets = [8, 3, 3, 3, 3, 7] };
 
-        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*Silent (gpu): Nokta 7: fan bu noktadan 82*");
+        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*Silent (gpu): Point 7: the fan drops back from this point at 82*");
     }
 
     [Fact]
@@ -193,7 +193,7 @@ public class DeviceConfigValidatorTests
             ["vrm"] = Curve(P65Golden.CoolCpuCurve),
         });
 
-        Rejects(P65() with { Presets = [preset] }, "*\"vrm\" diye bir fan yok*");
+        Rejects(P65() with { Presets = [preset] }, "*there is no fan \"vrm\"*");
     }
 
     [Fact]
@@ -204,7 +204,7 @@ public class DeviceConfigValidatorTests
             ["cpu"] = Curve(P65Golden.CoolCpuCurve),
         });
 
-        Rejects(P65() with { Presets = [preset] }, "*Half: gpu fanının eğrisi yok*");
+        Rejects(P65() with { Presets = [preset] }, "*Half: gpu fan has no curve*");
     }
 
     [Fact]
@@ -212,7 +212,7 @@ public class DeviceConfigValidatorTests
     {
         var cool = P65().Presets[0];
 
-        Rejects(P65() with { Presets = [cool, cool] }, "*preset \"Cool\" iki kez*");
+        Rejects(P65() with { Presets = [cool, cool] }, "*preset \"Cool\" is used twice*");
     }
 
     [Fact]
@@ -220,7 +220,7 @@ public class DeviceConfigValidatorTests
     {
         var cpu = CpuFan() with { FactoryDownOffsets = null, FactoryCurve = null };
 
-        Rejects(P65() with { Status = DeviceStatus.Draft, Fans = [cpu, GpuFan()] }, "*Cool: cpu fanının iniş ofsetleri yok*");
+        Rejects(P65() with { Status = DeviceStatus.Draft, Fans = [cpu, GpuFan()] }, "*Cool: cpu fan has no down offsets*");
     }
 
     [Fact]
@@ -264,19 +264,19 @@ public class DeviceConfigValidatorTests
     [Fact]
     public void Rejects_a_port_register_from_a_fan_table()
     {
-        Rejects(P65() with { PortRegisters = [0x98, 0x6A] }, "*0x6A fan tablosu*");
+        Rejects(P65() with { PortRegisters = [0x98, 0x6A] }, "*0x6A is a fan table register*");
     }
 
     [Fact]
     public void Rejects_a_port_register_outside_the_code_ceiling()
     {
-        Rejects(P65() with { PortRegisters = [0x98, 0x99] }, "*0x99 port tavanında değil*");
+        Rejects(P65() with { PortRegisters = [0x98, 0x99] }, "*0x99 is not in the port ceiling*");
     }
 
     [Fact]
     public void Rejects_a_port_register_listed_twice()
     {
-        Rejects(P65() with { PortRegisters = [0x98, 0x98] }, "*0x98 iki kez*");
+        Rejects(P65() with { PortRegisters = [0x98, 0x98] }, "*lists 0x98 twice*");
     }
 
     [Fact]
@@ -284,7 +284,7 @@ public class DeviceConfigValidatorTests
     {
         var wmi = new Wmi1Layout([.. P65().Wmi1!.Fields, new WmiFieldSpec(0x98, "MSI_System", 3)]);
 
-        Rejects(P65() with { Wmi1 = wmi }, "*0x98 hem portta*");
+        Rejects(P65() with { Wmi1 = wmi }, "*0x98 is both in the port list*");
     }
 
     [Fact]
@@ -298,7 +298,7 @@ public class DeviceConfigValidatorTests
     {
         var features = P65().Features with { ChargeLimit = new ChargeLimitFeature(0xD7, 7, 50, 100) };
 
-        Rejects(P65() with { Features = features, PortRegisters = [0x98, 0xD7] }, "*0xD7 port tavanında değil*");
+        Rejects(P65() with { Features = features, PortRegisters = [0x98, 0xD7] }, "*0xD7 is not in the port ceiling*");
     }
 
     [Fact]
@@ -312,7 +312,7 @@ public class DeviceConfigValidatorTests
     {
         var wmi = new Wmi1Layout([.. P65().Wmi1!.Fields, new WmiFieldSpec(0x68, "MSI_CPU", 3)]);
 
-        Rejects(P65() with { Wmi1 = wmi }, "*0x68 için iki WMI*");
+        Rejects(P65() with { Wmi1 = wmi }, "*0x68 has two WMI*");
     }
 
     [Theory]
@@ -323,7 +323,7 @@ public class DeviceConfigValidatorTests
     {
         var wmi = new Wmi1Layout([.. P65().Wmi1!.Fields, new WmiFieldSpec(0x99, className, index)]);
 
-        Rejects(P65() with { Wmi1 = wmi }, "*0x99: WMI alanı*");
+        Rejects(P65() with { Wmi1 = wmi }, "*0x99: WMI field*");
     }
 
     [Fact]
@@ -331,7 +331,7 @@ public class DeviceConfigValidatorTests
     {
         var modes = new PerformanceModeFeature(0xF2, [new ModeValue("high", 0xC0), new ModeValue("turbo", 0xC0)]);
 
-        Rejects(P65() with { Features = P65().Features with { PerformanceMode = modes } }, "*değeri 0xC0 iki kez*");
+        Rejects(P65() with { Features = P65().Features with { PerformanceMode = modes } }, "*value 0xC0 is used twice*");
     }
 
     [Fact]
@@ -339,7 +339,7 @@ public class DeviceConfigValidatorTests
     {
         var modes = new PerformanceModeFeature(0xF2, [new ModeValue("high", 0xC0), new ModeValue("high", 0xC4)]);
 
-        Rejects(P65() with { Features = P65().Features with { PerformanceMode = modes } }, "*id \"high\" iki kez*");
+        Rejects(P65() with { Features = P65().Features with { PerformanceMode = modes } }, "*id \"high\" is used twice*");
     }
 
     [Fact]
@@ -396,7 +396,7 @@ public class DeviceConfigValidatorTests
     {
         var gpu = GpuFan() with { Temperature = 0xA4 };
 
-        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*0xA4 birden çok yerde*");
+        Rejects(P65() with { Fans = [CpuFan(), gpu] }, "*0xA4 is used in more than one place*");
     }
 
     [Fact]
@@ -416,7 +416,7 @@ public class DeviceConfigValidatorTests
     {
         var cpu = CpuFan() with { FactoryDownOffsets = [8, 3, 3, -1, 3, 3] };
 
-        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu: iniş ofsetleri*");
+        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu: the down offsets*");
     }
 
     [Fact]
@@ -424,7 +424,7 @@ public class DeviceConfigValidatorTests
     {
         var cpu = CpuFan() with { FactoryDownOffsets = null };
 
-        Rejects(P65() with { Status = DeviceStatus.Draft, Presets = [], Fans = [cpu, GpuFan()] }, "*cpu: fabrika eğrisi iniş ofsetleri olmadan*");
+        Rejects(P65() with { Status = DeviceStatus.Draft, Presets = [], Fans = [cpu, GpuFan()] }, "*cpu: the factory curve cannot be checked without down offsets*");
     }
 
     [Fact]
@@ -440,7 +440,7 @@ public class DeviceConfigValidatorTests
     {
         var preset = P65().Presets[0] with { Name = "" };
 
-        Rejects(P65() with { Presets = [preset] }, "*preset adı boş*");
+        Rejects(P65() with { Presets = [preset] }, "*preset name cannot be empty*");
     }
 
     [Fact]
@@ -478,7 +478,7 @@ public class DeviceConfigValidatorTests
     {
         var wmi = new Wmi1Layout([.. P65().Wmi1!.Fields, new WmiFieldSpec(0x99, "MSI_CPU\n", 30)]);
 
-        Rejects(P65() with { Wmi1 = wmi }, "*0x99: WMI alanı*");
+        Rejects(P65() with { Wmi1 = wmi }, "*0x99: WMI field*");
     }
 
     [Fact]
@@ -486,7 +486,7 @@ public class DeviceConfigValidatorTests
     {
         var wmi = new Wmi1Layout([.. P65().Wmi1!.Fields, new WmiFieldSpec(0x99, "MSI_CPU", 1)]);
 
-        Rejects(P65() with { Wmi1 = wmi }, "*MSI_CPU[1] birden çok register*");
+        Rejects(P65() with { Wmi1 = wmi }, "*MSI_CPU[1] is mapped to more than one register*");
     }
 
     [Theory]
@@ -499,13 +499,13 @@ public class DeviceConfigValidatorTests
     {
         var wmi = new Wmi1Layout([.. P65().Wmi1!.Fields.Where(f => f.Register != register)]);
 
-        Rejects(P65() with { Wmi1 = wmi }, $"*0x{register:X2} için okuma yolu yok*");
+        Rejects(P65() with { Wmi1 = wmi }, $"*0x{register:X2} has no read path*");
     }
 
     [Fact]
     public void Rejects_write_verified_on_a_firmware_outside_the_code_allow_list()
     {
-        Rejects(P65() with { Firmware = new FirmwareSpec(["16Q4EMS2.108"], ["16Q4EMS2.1"]) }, "*16Q4EMS2.108*kodda*");
+        Rejects(P65() with { Firmware = new FirmwareSpec(["16Q4EMS2.108"], ["16Q4EMS2.1"]) }, "*16Q4EMS2.108*not verified for writing in the code*");
     }
 
     [Fact]
@@ -525,10 +525,10 @@ public class DeviceConfigValidatorTests
     [InlineData("P65\nfake log line")]
     public void Rejects_control_characters_in_free_text(string text)
     {
-        Rejects(P65() with { DisplayName = text }, "*displayName*kontrol karakteri*");
-        Rejects(P65() with { Sources = [text] }, "*sources*kontrol karakteri*");
-        Rejects(P65() with { Presets = [P65().Presets[0] with { Name = text }] }, "*preset adı*kontrol karakteri*");
-        Rejects(P65() with { Firmware = new FirmwareSpec([text], ["16Q4EMS2.1"]) }, "*firmware*kontrol karakteri*");
+        Rejects(P65() with { DisplayName = text }, "*displayName*control characters*");
+        Rejects(P65() with { Sources = [text] }, "*sources*control characters*");
+        Rejects(P65() with { Presets = [P65().Presets[0] with { Name = text }] }, "*preset name*control characters*");
+        Rejects(P65() with { Firmware = new FirmwareSpec([text], ["16Q4EMS2.1"]) }, "*firmware*control characters*");
     }
 
     [Theory]
@@ -538,7 +538,7 @@ public class DeviceConfigValidatorTests
     {
         var cpu = CpuFan() with { FactoryDownOffsets = [offset, 3, 3, 3, 3, 3] };
 
-        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu: iniş ofsetleri*");
+        Rejects(P65() with { Fans = [cpu, GpuFan()] }, "*cpu: the down offsets*");
     }
 
     [Fact]
@@ -560,7 +560,7 @@ public class DeviceConfigValidatorTests
     {
         var features = P65().Features with { ChargeLimit = null };
 
-        Rejects(P65() with { Features = features }, "*0xEF hiçbir özelliğe ait değil*");
+        Rejects(P65() with { Features = features }, "*0xEF belongs to no feature*");
     }
 
     [Fact]

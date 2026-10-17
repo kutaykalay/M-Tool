@@ -264,7 +264,4 @@
   <data name="PortGuard_Changed" xml:space="preserve">
     <value>El acceso al puerto cambió otros registros: {0}.</value>
   </data>
-  <data name="Config_OutsideLimits" xml:space="preserve">
-    <value>{0}: fuera de los límites de la ficha ({1}–{2} °C, como máximo {3} %).</value>
-  </data>
 </root>
