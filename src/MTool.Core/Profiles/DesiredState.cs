@@ -1,5 +1,6 @@
 using MTool.Core.Device;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 using MTool.Core.Resources;
 using static MTool.Core.Localization.UserAndLogText;
 
@@ -69,8 +70,16 @@ public sealed record DesiredState(
         ChargeLimit: ChargeLimitPercent is not null && ChargeLimitPercent != actual.Port?.ChargeLimitPercent,
         FanMode: FanMode is not null && FanMode != actual.FanMode);
 
-    private FanProfile ProfileOf(ProfileCatalog catalog) =>
-        catalog.Find(FanProfile) ?? throw new ArgumentException(Say(nameof(CoreStrings.Profile_Unknown), ProfileNameRules.Printable(FanProfile)).Text, nameof(catalog));
+    private FanProfile ProfileOf(ProfileCatalog catalog)
+    {
+        if (catalog.Find(FanProfile) is { } profile)
+        {
+            return profile;
+        }
+
+        var unknown = Say(nameof(CoreStrings.Profile_Unknown), ProfileNameRules.Printable(FanProfile));
+        throw new ArgumentException(unknown.Text, nameof(catalog)).WithLog(unknown.Log);
+    }
 }
 
 /// <summary>Which parts of the EC differ from <see cref="DesiredState"/>.</summary>

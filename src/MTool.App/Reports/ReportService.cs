@@ -3,6 +3,7 @@ using MTool.App.Cli;
 using MTool.Core;
 using MTool.Core.Device.Config;
 using MTool.Core.Diagnostics;
+using MTool.Core.Localization;
 
 namespace MTool.App.Reports;
 
@@ -39,7 +40,7 @@ internal sealed class ReportService(
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            log.Warn($"Report: could not tell whether this laptop has WMI2: {ex.Message}");
+            log.Warn($"Report: could not tell whether this laptop has WMI2: {ex.ForLog()}");
             return false;
         }
     }

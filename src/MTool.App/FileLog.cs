@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using MTool.Core;
 using MTool.Core.Diagnostics;
+using MTool.Core.Localization;
 
 namespace MTool.App;
 
@@ -31,7 +32,7 @@ internal sealed class FileLog : IAppLog
     public void Warn(string message) => Append("WARN ", message);
 
     public void Error(string message, Exception? exception = null) =>
-        Append("ERROR", exception is null ? message : $"{message}{Environment.NewLine}{exception}");
+        Append("ERROR", exception is null ? message : $"{message}{Environment.NewLine}{exception.ToLogString()}");
 
     private void Append(string level, string message)
     {

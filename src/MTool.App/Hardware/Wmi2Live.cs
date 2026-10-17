@@ -1,6 +1,7 @@
 using MTool.Core;
 using MTool.Core.Device.Config;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 
 namespace MTool.App.Hardware;
 
@@ -24,7 +25,7 @@ internal static class Wmi2Live
         }
         catch (EcAccessException ex)
         {
-            log.Warn($"WMI2 live read: interface not detected, nothing opened: {ex.Message}");
+            log.Warn($"WMI2 live read: interface not detected, nothing opened: {ex.ForLog()}");
             return null;
         }
 

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MTool.App.Resources;
 using MTool.App.Services;
 using MTool.Core;
+using MTool.Core.Localization;
 
 namespace MTool.App.ViewModels;
 
@@ -85,7 +86,7 @@ public sealed partial class SignInStartViewModel(
         }
         catch (Exception ex)
         {
-            log.Warn($"Sign-in task unreadable: {ex.Message}");
+            log.Warn($"Sign-in task unreadable: {ex.ForLog()}");
             IsKnown = false;
             return null;
         }

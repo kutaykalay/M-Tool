@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Globalization;
 using MTool.Core.Localization;
 using MTool.Core.Resources;
 
@@ -145,7 +144,8 @@ public sealed class EcWorker : IDisposable
 
         if (_accessGate is { } gate && !gate())
         {
-            completion.TrySetException(new EcAccessException(CoreText.Get(nameof(CoreStrings.Worker_Paused), CultureInfo.CurrentUICulture)) { IsAccessPaused = true });
+            var paused = UserAndLogText.Say(nameof(CoreStrings.Worker_Paused));
+            completion.TrySetException(new EcAccessException(paused.Text) { IsAccessPaused = true }.WithLog(paused.Log));
             return;
         }
 
@@ -155,8 +155,8 @@ public sealed class EcWorker : IDisposable
             acquired = _ecLock.TryAcquire(_lockTimeout);
             if (!acquired)
             {
-                completion.TrySetException(new EcAccessException(
-                    CoreText.Get(nameof(CoreStrings.Worker_LockTimeout), CultureInfo.CurrentUICulture, _lockTimeout.TotalMilliseconds)));
+                var timeout = UserAndLogText.Say(nameof(CoreStrings.Worker_LockTimeout), _lockTimeout.TotalMilliseconds);
+                completion.TrySetException(new EcAccessException(timeout.Text).WithLog(timeout.Log));
                 return;
             }
 

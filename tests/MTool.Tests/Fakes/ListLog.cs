@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using MTool.Core;
+using MTool.Core.Localization;
 
 namespace MTool.Tests.Fakes;
 
@@ -12,5 +13,5 @@ internal sealed class ListLog : IAppLog
     public void Warn(string message) => Lines.Enqueue($"WARN {message}");
 
     public void Error(string message, Exception? exception = null) =>
-        Lines.Enqueue($"ERROR {message} {exception?.Message}");
+        Lines.Enqueue($"ERROR {message} {exception?.ForLog()}");
 }

@@ -6,6 +6,7 @@ using MTool.Core;
 using MTool.Core.Device;
 using MTool.Core.Device.Config;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 using MTool.Core.Sensors;
 
 namespace MTool.App.ViewModels;
@@ -304,7 +305,7 @@ internal sealed partial class Wmi2LiveViewModel(
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            log.Warn($"WMI2 live read: the interface could not be opened, nothing was read: {ex.Message}");
+            log.Warn($"WMI2 live read: the interface could not be opened, nothing was read: {ex.ForLog()}");
             return null;
         }
     }
@@ -387,7 +388,7 @@ internal sealed partial class Wmi2LiveViewModel(
             return;
         }
 
-        log.Warn($"WMI2 live read failed: {error.Message}");
+        log.Warn($"WMI2 live read failed: {error.ForLog()}");
         Message = Strings.Wmi2_ReadFailed;
     }
 

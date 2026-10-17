@@ -1,5 +1,7 @@
 using MTool.App;
 using MTool.Core.Diagnostics;
+using MTool.Core.Ec;
+using MTool.Core.Localization;
 
 namespace MTool.Tests.Diagnostics;
 
@@ -42,6 +44,18 @@ public sealed class FileLogTests : IDisposable
         text.Should().Contain(@"ERROR Could not read settings");
         text.Should().Contain(@"%UserProfile%\AppData\Roaming\M-Tool\settings.json is locked");
         text.Should().NotContain("Kutay");
+    }
+
+    [Fact]
+    public void An_exception_with_an_english_twin_is_logged_in_english()
+    {
+        var log = new FileLog(_folder, new PrivatePaths(@"C:\Users\Kutay"));
+
+        log.Error("EC access failed", new EcAccessException("EC kilidi alınamadı").WithLog("The EC lock was not obtained"));
+
+        var text = ReadLog();
+        text.Should().Contain("MTool.Core.Ec.EcAccessException: The EC lock was not obtained");
+        text.Should().NotContain("kilidi");
     }
 
     private string ReadLog() => File.ReadAllText(Directory.GetFiles(_folder, "m-tool-*.log").Single());

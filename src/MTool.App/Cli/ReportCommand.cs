@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using MTool.Core.Device.Config;
 using MTool.Core.Diagnostics;
+using MTool.Core.Localization;
 
 namespace MTool.App.Cli;
 
@@ -159,7 +160,7 @@ internal static class ReportCommand
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            warn($"Report: {part} unreadable: {ex.Message}");
+            warn($"Report: {part} unreadable: {ex.ForLog()}");
             return Section.Failed<T>($"{ex.GetType().Name}: {ex.Message}");
         }
     }

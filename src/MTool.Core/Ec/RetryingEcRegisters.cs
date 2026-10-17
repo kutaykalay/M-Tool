@@ -1,3 +1,5 @@
+using MTool.Core.Localization;
+
 namespace MTool.Core.Ec;
 
 /// <summary>
@@ -41,7 +43,7 @@ internal class RetryingEcReader(IEcRegisters inner, EcAccessRetry retry, Action<
             {
                 var delay = retry.Delays[retryNumber];
                 _slept += delay;
-                warn($"EC did not answer ({access}: {ex.Message}); retrying in {delay.TotalMilliseconds:F0} ms " +
+                warn($"EC did not answer ({access}: {ex.ForLog()}); retrying in {delay.TotalMilliseconds:F0} ms " +
                      $"({retryNumber + 1}/{retry.Delays.Count}).");
                 retry.Sleep(delay);
             }

@@ -4,6 +4,7 @@ using MTool.Core;
 using MTool.Core.Device;
 using MTool.Core.Device.Config;
 using MTool.Core.Diagnostics;
+using MTool.Core.Localization;
 
 namespace MTool.App.Hardware;
 
@@ -63,7 +64,7 @@ internal sealed class LiveReportSources(IAppLog log) : IReportSources
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            log.Warn($"Report: firmware unreadable: {ex.Message}");
+            log.Warn($"Report: firmware unreadable: {ex.ForLog()}");
             return null;
         }
     }
@@ -113,7 +114,7 @@ internal sealed class LiveReportSources(IAppLog log) : IReportSources
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            log.Warn($"Report: \"{query}\" unreadable: {ex.Message}");
+            log.Warn($"Report: \"{query}\" unreadable: {ex.ForLog()}");
             return new string?[properties.Length];
         }
     }

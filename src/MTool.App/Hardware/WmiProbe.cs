@@ -4,6 +4,7 @@ using MTool.Core;
 using MTool.Core.Diagnostics;
 using MTool.Core.Device.Config;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 
 namespace MTool.App.Hardware;
 
@@ -110,7 +111,7 @@ internal sealed class WmiInterfaceCheck(Func<WmiInterface?> detect)
         }
         catch (EcAccessException ex)
         {
-            log.Warn($"MSI WMI interface not detected, trying to open the session anyway: {ex.Message}");
+            log.Warn($"MSI WMI interface not detected, trying to open the session anyway: {ex.ForLog()}");
             return;
         }
 

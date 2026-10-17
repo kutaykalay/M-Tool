@@ -63,23 +63,17 @@ internal sealed class WriteRig : IDisposable
         new(Worker, new WriteAccessSetup(Firmware, Gateway(policy)), TestLayouts.P65, Log, _retry);
 
     /// <summary>Runs <paramref name="act"/> with the UI language set to <paramref name="culture"/>.</summary>
-    /// <param name="exceptionInMessage">
-    /// The first message ends with the text of an exception from the EC worker, which also reaches the log
-    /// through the exception; that text is masked in the log (it follows the language, see the plan).
-    /// </param>
-    public static async Task<WriteRun> RunAsync(string culture, Func<WriteRig, Task<WriteOutcome[]>> act, bool exceptionInMessage = false)
+    public static async Task<WriteRun> RunAsync(string culture, Func<WriteRig, Task<WriteOutcome[]>> act)
     {
         using var rig = new WriteRig(); // its worker thread starts in the test's own culture, not the one under test
         using var _ = TestCulture.Use(culture);
         var outcomes = await act(rig);
-        return rig.Finish(outcomes, exceptionInMessage);
+        return rig.Finish(outcomes);
     }
 
-    public WriteRun Finish(WriteOutcome[] outcomes, bool exceptionInMessage)
+    public WriteRun Finish(WriteOutcome[] outcomes)
     {
-        var message = outcomes[0].Message;
-        var exception = exceptionInMessage ? message[(message.IndexOf(" (", StringComparison.Ordinal) + 2)..^1] : null;
-        var log = Log.Lines.Select(l => exception is null ? l : l.Replace(exception, "<exception>", StringComparison.Ordinal)).ToArray();
+        var log = Log.Lines.ToArray();
         string[] reads;
         lock (_reads)
         {

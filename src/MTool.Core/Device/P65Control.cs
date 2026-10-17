@@ -231,7 +231,7 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
         }
         catch (EcAccessException ex) when (ex.IsAccessPaused)
         {
-            log.Warn($"{what}: port not read, {ex.Message}");
+            log.Warn($"{what}: port not read, {ex.ForLog()}");
             return (null, ex.Message);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

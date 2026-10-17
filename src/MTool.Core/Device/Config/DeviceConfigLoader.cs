@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MTool.Core.Localization;
 
 namespace MTool.Core.Device.Config;
 
@@ -77,7 +78,7 @@ public static class DeviceConfigLoader
         }
         catch (JsonException ex)
         {
-            log.Warn($"Device record {name} unreadable: {ex.Message}");
+            log.Warn($"Device record {name} unreadable: {ex.ForLog()}");
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {

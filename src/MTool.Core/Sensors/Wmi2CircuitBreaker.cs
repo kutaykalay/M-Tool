@@ -1,5 +1,6 @@
 using MTool.Core.Diagnostics;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 
 namespace MTool.Core.Sensors;
 
@@ -80,7 +81,7 @@ public sealed class Wmi2CircuitBreaker
                 if (generation == _generation)
                 {
                     _failuresInARow++;
-                    _lastError = ex.Message;
+                    _lastError = ex.ForLog();
                 }
             }
 

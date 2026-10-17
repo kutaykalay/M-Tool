@@ -83,7 +83,7 @@ public sealed partial class EcGatewayCultureTests
         {
             r.EcLock.Available = false;
             return One(r.Gateway(), WritePlans.Performance(PerformanceMode.Balanced));
-        }, ExceptionInMessage: true),
+        }),
         new("port read fails before writing", r =>
         {
             r.ReadHook = register => register == 0x6A ? throw new EcAccessException("EC silent") : null;
@@ -172,7 +172,7 @@ public sealed partial class EcGatewayCultureTests
         [await gateway.ApplyAsync(plan)];
 
     private static Task<WriteRun> RunIn(string culture, Scenario scenario) =>
-        WriteRig.RunAsync(culture, scenario.Act, scenario.ExceptionInMessage);
+        WriteRig.RunAsync(culture, scenario.Act);
 
     [Theory]
     [MemberData(nameof(Names))]
@@ -267,6 +267,5 @@ public sealed partial class EcGatewayCultureTests
 
     private sealed record Scenario(
         string Name,
-        Func<WriteRig, Task<WriteOutcome[]>> Act,
-        bool ExceptionInMessage = false);
+        Func<WriteRig, Task<WriteOutcome[]>> Act);
 }

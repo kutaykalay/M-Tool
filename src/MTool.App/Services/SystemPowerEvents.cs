@@ -1,6 +1,7 @@
 using System.Windows.Forms;
 using Microsoft.Win32;
 using MTool.Core;
+using MTool.Core.Localization;
 using MTool.Core.Power;
 
 namespace MTool.App.Services;
@@ -47,7 +48,7 @@ internal sealed class SystemPowerEvents : IPowerEvents, IPowerSource, IDisposabl
             }
             catch (Exception ex)
             {
-                _log.Warn($"Power: source unreadable ({ex.Message})");
+                _log.Warn($"Power: source unreadable ({ex.ForLog()})");
                 return null;
             }
         }

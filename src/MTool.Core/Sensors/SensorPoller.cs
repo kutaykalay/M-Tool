@@ -1,4 +1,5 @@
 using MTool.Core.Device;
+using MTool.Core.Localization;
 
 namespace MTool.Core.Sensors;
 
@@ -161,11 +162,11 @@ public sealed class SensorPoller(
             : previous.Status;
         if (misses == 1)
         {
-            log.Warn($"Sensor read failed, sample skipped: {error.Message}");
+            log.Warn($"Sensor read failed, sample skipped: {error.ForLog()}");
         }
         else if (misses == StaleAfterMisses)
         {
-            log.Warn($"Sensor data stale: {misses} reads failed in a row ({error.Message}).");
+            log.Warn($"Sensor data stale: {misses} reads failed in a row ({error.ForLog()}).");
         }
 
         Publish(previous with { Status = status, ConsecutiveMisses = misses });

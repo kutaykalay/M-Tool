@@ -76,7 +76,7 @@ public sealed class EcGateway
             // ApplyLocked handles every failure after its first write, so this is a failure before
             // any write (lock busy, sleep, unreadable state): nothing changed.
             SafeLog(log => log.Error($"{snapshot.Description}: EC access failed before writing", ex));
-            return Reject(snapshot, Say(nameof(CoreStrings.Write_Unreachable), ex.Message));
+            return Reject(snapshot, Say(nameof(CoreStrings.Write_Unreachable), ex.ForUserAndLog()));
         }
     }
 
@@ -161,7 +161,7 @@ public sealed class EcGateway
         }
         catch (Exception ex)
         {
-            return Fail(ec, plan, Plain(ex.Message), ex, watched);
+            return Fail(ec, plan, ex.ForUserAndLog(), ex, watched);
         }
 
         SafeLog(log => log.Info($"{plan.Description}: applied and verified."));
@@ -186,7 +186,7 @@ public sealed class EcGateway
                 throw;
             }
 
-            return Fail(ec, plan, Say(nameof(CoreStrings.Write_ReadBackFailed), ex.Message), ex, watched);
+            return Fail(ec, plan, Say(nameof(CoreStrings.Write_ReadBackFailed), ex.ForUserAndLog()), ex, watched);
         }
     }
 

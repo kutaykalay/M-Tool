@@ -3,6 +3,7 @@ using MTool.Core;
 using MTool.Core.Device;
 using MTool.Core.Device.Config;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 
 namespace MTool.App.Hardware;
 
@@ -152,12 +153,12 @@ internal sealed class EcSession : IDisposable
             }
             catch (Exception ex) when (ex is not OutOfMemoryException && attempt < FirmwareAttempts)
             {
-                log.Warn($"Firmware unreadable (attempt {attempt}), retrying: {ex.Message}");
+                log.Warn($"Firmware unreadable (attempt {attempt}), retrying: {ex.ForLog()}");
                 Thread.Sleep(FirmwareRetryDelay);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
-                log.Warn($"Firmware unreadable; no device record chosen, opening with the port closed: {ex.Message}");
+                log.Warn($"Firmware unreadable; no device record chosen, opening with the port closed: {ex.ForLog()}");
                 return null;
             }
         }
