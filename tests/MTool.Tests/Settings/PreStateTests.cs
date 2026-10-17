@@ -91,6 +91,25 @@ public sealed class PreStateTests : IDisposable
         store.HasValidSnapshot("16Q4EMS2.107").Should().BeTrue();
     }
 
+    // 0.14 and older snapshots predate the keyboard backlight; it is never restored, so it is not required.
+    [Fact]
+    public void A_snapshot_from_before_the_keyboard_backlight_still_counts()
+    {
+        var current = PreStateCapture.Read(P65Memory.FactorySnapshot(), new FirmwareInfo("16Q4EMS2.107", "d"), Now);
+        var store = new PreStateStore(_folder);
+        store.SaveIfMissing(current with { Registers = current.Registers.Where(r => r.Register != 0xF3).ToArray() });
+
+        store.HasValidSnapshot("16Q4EMS2.107").Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_new_snapshot_also_keeps_the_keyboard_backlight()
+    {
+        var state = PreStateCapture.Read(P65Memory.FactorySnapshot(), new FirmwareInfo("16Q4EMS2.107", "d"), Now);
+
+        state.Registers.Should().Contain(new RegisterValue(0xF3, 0x81));
+    }
+
     [Fact]
     public void A_snapshot_missing_a_writable_register_does_not_count()
     {

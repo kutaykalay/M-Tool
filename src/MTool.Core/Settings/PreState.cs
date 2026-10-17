@@ -93,7 +93,14 @@ public sealed class PreStateStore(string directory)
     }
 
     /// <summary>
-    /// Every writable register must be present. Extra registers are allowed: snapshots taken by older
+    /// Every writable register but the keyboard backlight. Snapshots from 0.14 and older predate it,
+    /// and it is never restored: the Fn key sets it too. New snapshots still hold it.
+    /// </summary>
+    private static readonly byte[] RequiredRegisters =
+        [.. EcWriteRules.WritableRegisters.Where(r => r != EcMap.KeyboardBacklight)];
+
+    /// <summary>
+    /// Every required register must be present. Extra registers are allowed: snapshots taken by older
     /// versions also hold the down offsets, which are no longer writable.
     /// </summary>
     private static bool IsComplete(PreMToolState? state) =>
@@ -101,5 +108,5 @@ public sealed class PreStateStore(string directory)
         && state.Registers.All(r => r is not null)
         && state.Registers.Select(r => r.Register).ToHashSet() is var saved
         && saved.Count == state.Registers.Count
-        && saved.IsSupersetOf(EcWriteRules.WritableRegisters);
+        && saved.IsSupersetOf(RequiredRegisters);
 }
