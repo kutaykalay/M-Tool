@@ -46,6 +46,10 @@ body:
       description: |
         Optional. Do the temperatures and fan speeds in M-Tool match MSI Center or HWiNFO? Which
         performance modes does MSI Center offer? Is there a GPU fan?
+        On a WMI2 laptop: compare the "Live values (experimental)" in M-Tool's window with HWiNFO or
+        MSI Center. Which tool did you use, and does each value match (temperatures within about 3 °C,
+        fan speeds within about 10 %)? Did a mode's raw value change after you switched the mode and
+        chose Refresh? Did reading ever stop?
   - type: checkboxes
     id: consent
     attributes:
