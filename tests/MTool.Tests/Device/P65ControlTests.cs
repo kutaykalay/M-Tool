@@ -313,20 +313,45 @@ public sealed class P65ControlTests : IDisposable
     }
 
     [Fact]
-    public async Task After_sleep_the_port_state_is_unknown_without_reading_the_port()
+    public async Task After_sleep_cooler_boost_is_unknown_and_the_charge_limit_kept_without_reading_the_port()
     {
         var control = Control();
         await control.SetCoolerBoostAsync(true);
-        _ec[0x98] = 0x02; // measured: the EC turns Cooler Boost off in sleep
+        _ec[0x98] = 0x02; // measured: the EC turns Cooler Boost off in sleep and keeps the charge limit
         (await control.ReadControlStateAsync(PortUse.None)).Port!.CoolerBoostOn.Should().BeTrue(); // the stale cache
         var portReads = RecordPortReads();
 
         await control.ForgetPortStateAsync();
         var state = await control.ReadControlStateAsync(PortUse.None);
 
-        state.Port.Should().BeNull();
+        state.Port!.CoolerBoostOn.Should().BeNull();
+        state.Port.ChargeLimitPercent.Should().Be(80);
         portReads.Should().BeEmpty();
         _log.Lines.Should().Contain(l => l.StartsWith("INFO") && l.Contains("after wake"));
+    }
+
+    [Fact]
+    public async Task After_sleep_an_unread_port_stays_unknown()
+    {
+        var control = Control();
+
+        await control.ForgetPortStateAsync();
+
+        (await control.ReadControlStateAsync(PortUse.None)).Port.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task A_cooler_boost_write_after_sleep_makes_it_known_again()
+    {
+        var control = Control();
+        await control.ReadControlStateAsync(PortUse.Allowed);
+        await control.ForgetPortStateAsync();
+
+        await control.SetCoolerBoostAsync(true);
+        var state = await control.ReadControlStateAsync(PortUse.None);
+
+        state.Port!.CoolerBoostOn.Should().BeTrue();
+        state.Port.ChargeLimitPercent.Should().Be(80);
     }
 
     [Fact]

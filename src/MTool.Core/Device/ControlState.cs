@@ -21,9 +21,11 @@ public sealed record ControlState(
 public sealed record KeyboardBacklightState(int? Level, byte Raw);
 
 /// <summary>The two registers only the raw port reaches (0x98, 0xEF), as raw bytes.</summary>
-public sealed record PortState(byte CoolerBoostRaw, byte ChargeLimitRaw)
+/// <param name="CoolerBoostKnown">False after a wake: the EC turns Cooler Boost off in sleep, and the port is not read then.</param>
+public sealed record PortState(byte CoolerBoostRaw, byte ChargeLimitRaw, bool CoolerBoostKnown = true)
 {
-    public bool CoolerBoostOn => ModeCodes.IsCoolerBoostOn(CoolerBoostRaw);
+    /// <summary>Null while <see cref="CoolerBoostKnown"/> is false.</summary>
+    public bool? CoolerBoostOn => CoolerBoostKnown ? ModeCodes.IsCoolerBoostOn(CoolerBoostRaw) : null;
 
     /// <summary>Null when the limit is off or holds a value M-Tool does not write.</summary>
     public int? ChargeLimitPercent => ModeCodes.ToChargeLimit(ChargeLimitRaw);

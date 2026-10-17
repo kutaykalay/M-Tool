@@ -375,6 +375,19 @@ public sealed class ControlsViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task After_wake_an_unknown_cooler_boost_with_a_known_charge_limit_is_no_drift()
+    {
+        await _service.SetChargeLimitAsync(80);
+        _control.State = _control.State with { Port = new PortState(0x82, 0xD0, CoolerBoostKnown: false) };
+
+        await _controls.RefreshAsync(PortUse.None);
+
+        _controls.CoolerBoostOn.Should().BeNull();
+        _controls.ChargeLimitActual.Should().Be(80);
+        _status.ShowReapply.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task A_state_read_failure_is_reported_not_thrown()
     {
         var failing = new ThrowingStateControl(_control);
