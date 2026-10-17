@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using MTool.App.Reports;
+using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Reports;
 
@@ -98,5 +99,95 @@ public sealed class ShellLauncherTests
         var open = () => new ShellLauncher().OpenFolder(missing);
 
         open.Should().Throw<DirectoryNotFoundException>();
+    }
+
+    [Fact]
+    public void The_issue_form_is_opened_through_the_desktop_shell_and_nothing_else()
+    {
+        var shell = new Recorder(desktopOpens: true);
+        var url = IssueUrl.Build("P65 Creator 9SE", "16Q4EMS2.107");
+
+        shell.Launcher().OpenUrl(url);
+
+        shell.Desktop.Should().Equal(url.AbsoluteUri);
+        shell.Direct.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Without_the_desktop_shell_the_form_is_opened_directly_and_that_is_logged()
+    {
+        var shell = new Recorder(desktopOpens: false);
+        var url = IssueUrl.Build("P65 Creator 9SE", "16Q4EMS2.107");
+
+        shell.Launcher().OpenUrl(url);
+
+        shell.Direct.Should().Equal(url.AbsoluteUri);
+        shell.Log.Lines.Should().ContainSingle(l => l.StartsWith("WARN") && l.Contains("desktop shell"));
+    }
+
+    [Fact]
+    public void A_desktop_shell_that_fails_to_open_it_is_not_followed_by_an_elevated_open()
+    {
+        var direct = new List<string>();
+        var launcher = new ShellLauncher(_ => throw new System.Runtime.InteropServices.COMException("no browser"), direct.Add);
+
+        var open = () => launcher.OpenUrl(IssueUrl.Build("P65 Creator 9SE", "16Q4EMS2.107"));
+
+        open.Should().Throw<System.Runtime.InteropServices.COMException>();
+        direct.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_refused_address_reaches_neither_way()
+    {
+        var shell = new Recorder(desktopOpens: true);
+
+        var open = () => shell.Launcher().OpenUrl(new Uri("https://evil.example/x"));
+
+        open.Should().Throw<ArgumentException>();
+        (shell.Desktop.Count, shell.Direct.Count).Should().Be((0, 0));
+    }
+
+    [Fact]
+    public void A_folder_is_opened_through_the_desktop_shell_by_its_full_path()
+    {
+        var shell = new Recorder(desktopOpens: true);
+        var folder = Path.GetTempPath();
+
+        shell.Launcher().OpenFolder(folder);
+
+        shell.Desktop.Should().Equal(Path.GetFullPath(folder));
+        shell.Direct.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_missing_folder_reaches_neither_way()
+    {
+        var shell = new Recorder(desktopOpens: true);
+        var missing = Path.Combine(Path.GetTempPath(), "mtool-no-such-folder-" + Guid.NewGuid().ToString("N"));
+
+        var open = () => shell.Launcher().OpenFolder(missing);
+
+        open.Should().Throw<DirectoryNotFoundException>();
+        (shell.Desktop.Count, shell.Direct.Count).Should().Be((0, 0));
+    }
+
+    /// <summary>Stands in for both ways of opening; nothing is started.</summary>
+    private sealed class Recorder(bool desktopOpens)
+    {
+        public List<string> Desktop { get; } = [];
+
+        public List<string> Direct { get; } = [];
+
+        public ListLog Log { get; } = new();
+
+        public ShellLauncher Launcher() => new(
+            target =>
+            {
+                Desktop.Add(target);
+                return desktopOpens;
+            },
+            Direct.Add,
+            Log);
     }
 }

@@ -175,7 +175,7 @@ internal sealed class GuiBootstrapper : IDisposable
         teardown.Push(("EC data submission", () => StopSubmissions(stopSubmission, submissions)));
         var report = new ReportViewModel(
             new ReportService(new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords()),
-            new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(),
+            new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(log),
             viewModel.Status, tray, log, stop: stopSubmission.Token);
         tray.Attach(viewModel, signInStart, report); // Only now does the icon appear.
         _ = signInStart.LoadAsync(); // Off the UI thread; the menu item stays disabled until it answers.
@@ -346,7 +346,7 @@ internal sealed class GuiBootstrapper : IDisposable
         ReportOnlyWindow? window = null;
         var report = new ReportViewModel(
             new ReportService(new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords()),
-            new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(),
+            new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(log),
             status, new BandNotifier(status), log, stop: stop.Token);
         using var live = Wmi2LiveViewModel.For(
             detected, () => openLive(AccessAllowed), new DialogConfirm(() => window, theme), AccessAllowed, log);

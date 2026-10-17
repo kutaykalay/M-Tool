@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using MTool.Core;
 
 namespace MTool.App.Reports;
 
@@ -15,10 +16,20 @@ internal interface IShellLauncher
 
 /// <summary>
 /// The real launcher. The shell is given one path or one address and nothing else: no command line is
-/// put together, and only the https address of M-Tool's own issue form is ever opened.
+/// put together, and only the https address of M-Tool's own issue form is ever opened. Both go through
+/// the desktop's Explorer first (<see cref="DesktopShell"/>), so a browser started here does not get
+/// M-Tool's administrator rights; only when that shell cannot be reached is the target opened from
+/// M-Tool itself, and the log says so.
 /// </summary>
-internal sealed class ShellLauncher : IShellLauncher
+/// <param name="openUnelevated">Opens the target through the desktop shell; false when it cannot.</param>
+/// <param name="openDirect">Opens the target from this (elevated) process.</param>
+internal sealed class ShellLauncher(Func<string, bool> openUnelevated, Action<string> openDirect, IAppLog? log = null) : IShellLauncher
 {
+    public ShellLauncher(IAppLog? log = null)
+        : this(DesktopShell.TryOpen, Start, log)
+    {
+    }
+
     public void OpenFolder(string folder)
     {
         if (!Directory.Exists(folder))
@@ -26,16 +37,16 @@ internal sealed class ShellLauncher : IShellLauncher
             throw new DirectoryNotFoundException("The folder does not exist.");
         }
 
-        Start(Path.GetFullPath(folder));
+        Open(Path.GetFullPath(folder));
     }
 
-    public void OpenUrl(Uri url) => Process.Start(BrowserStartInfo(url))?.Dispose();
+    public void OpenUrl(Uri url) => Open(BrowserStartInfo(url).FileName);
 
     /// <summary>
     /// The address is opened by the shell, so Windows picks the user's default browser. Only the
-    /// validated https address of the issue form is ever passed. Handing the address to explorer.exe
-    /// instead (to keep the browser unelevated) opened the Documents folder from this elevated
-    /// process, so that was dropped; a browser that is already running takes the address over itself.
+    /// validated https address of the issue form is ever passed. This is the way from M-Tool itself,
+    /// used only without the desktop shell. Handing the address to explorer.exe as an argument opened
+    /// the Documents folder from this elevated process, so that was dropped.
     /// </summary>
     /// <exception cref="ArgumentException">The address is not the issue form of M-Tool.</exception>
     internal static ProcessStartInfo BrowserStartInfo(Uri url)
@@ -65,6 +76,17 @@ internal sealed class ShellLauncher : IShellLauncher
     private static bool HasOnlyKnownFields(string query) =>
         query.Length == 0
         || query[1..].Split('&').All(pair => IssueUrl.FieldNames.Contains(pair.Split('=', 2)[0], StringComparer.Ordinal));
+
+    private void Open(string target)
+    {
+        if (openUnelevated(target))
+        {
+            return;
+        }
+
+        log?.Warn("Shell: the desktop shell could not be reached; opened from M-Tool, with its administrator rights.");
+        openDirect(target);
+    }
 
     private static void Start(string target) =>
         Process.Start(new ProcessStartInfo(target) { UseShellExecute = true })?.Dispose();
