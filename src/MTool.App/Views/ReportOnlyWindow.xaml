@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:res="clr-namespace:MTool.App.Resources"
         xmlns:vm="clr-namespace:MTool.App.ViewModels"
-        Title="{x:Static res:Strings.ReportOnly_Title}" Width="440" SizeToContent="Height" ResizeMode="NoResize"
+        Title="{x:Static res:Strings.ReportOnly_Title}" Width="440" SizeToContent="Height" ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
         FontFamily="Segoe UI" FontSize="13" UseLayoutRounding="True">
@@ -89,6 +89,8 @@
                         </Button.Style>
                     </Button>
                     <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Wmi2_Refresh}" Command="{Binding Live.RefreshCommand}"
+                            Visibility="{Binding Live.IsStarted, Converter={StaticResource BoolToVisible}}" />
+                    <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Wmi2_Stop}" Command="{Binding Live.StopCommand}"
                             Visibility="{Binding Live.IsStarted, Converter={StaticResource BoolToVisible}}" />
                     <Button Style="{StaticResource Choice}" Content="{x:Static res:Strings.Wmi2_TryAgain}" Command="{Binding Live.TryAgainCommand}"
                             Visibility="{Binding Live.IsStopped, Converter={StaticResource BoolToVisible}}" />

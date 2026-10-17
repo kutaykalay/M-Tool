@@ -12,10 +12,11 @@ namespace MTool.App.ViewModels;
 
 /// <summary>
 /// The experimental live values of a WMI2 laptop, in the reports-only window. Nothing is opened or
-/// read before the user answers yes (asked once per session, no is the default). Only reads: firmware
-/// once, then status and sensors on each round the user asks for (Show, Refresh, Try again), never more
-/// often than <see cref="Wmi2ReadPolicy.MinInterval"/>. A periodic reader must read the sensors only.
-/// A round runs through the breaker; once it is open nothing is read until the user tries again.
+/// read before the user answers yes (asked each time reading is turned on, no is the default). Only
+/// reads: firmware once, status on Show and Refresh, and while the window is shown the sensors alone
+/// every <see cref="PollInterval"/>. Every round, timed or asked for, goes through one 2 s rule
+/// (<see cref="Wmi2ReadPolicy.MinInterval"/>), the access gate and the breaker; rounds never overlap.
+/// Once the breaker is open nothing is read and the timer stops until the user tries again.
 /// Whether reading has stopped is read from the breaker itself, which other readers may share.
 /// Every value is shown with its raw byte and marked not verified; messages never hold error text.
 /// </summary>
@@ -29,12 +30,35 @@ internal sealed partial class Wmi2LiveViewModel(
     TimeProvider time,
     IAppLog log) : ObservableObject, IDisposable
 {
+    /// <summary>
+    /// A little over the 2 s rule, so a tick that comes a few milliseconds early on a busy UI thread
+    /// is not skipped by it.
+    /// </summary>
+    internal static readonly TimeSpan PollInterval = Wmi2ReadPolicy.MinInterval + TimeSpan.FromMilliseconds(250);
+
     private const string Missing = "—";
     private const string Separator = " · ";
 
     private readonly CancellationTokenSource _closing = new();
     private IWmi2LiveSource? _source;
-    private DateTimeOffset? _lastRound;
+    private long? _lastRound; // a monotonic timestamp: a clock change must not shorten the 2 s rule
+    private bool _hasFirmware;
+    // All state below is touched on the UI thread only: the commands, the window events and the timer loop
+    // (started there, its awaits resume there). Keep it so: none of it is locked.
+    private PeriodicTimer? _timer;
+    private bool _windowShown;
+
+    private enum RoundKind
+    {
+        /// <summary>The first round: firmware, status and sensors.</summary>
+        Full,
+
+        /// <summary>Refresh and Try again: status and sensors.</summary>
+        StatusAndSensors,
+
+        /// <summary>A timer tick: the sensors only.</summary>
+        Sensors,
+    }
 
     [ObservableProperty]
     public partial string Firmware { get; private set; } = Missing;
@@ -71,6 +95,7 @@ internal sealed partial class Wmi2LiveViewModel(
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ShowCommand))]
     [NotifyCanExecuteChangedFor(nameof(RefreshCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StopCommand))]
     public partial bool IsStarted { get; private set; }
 
     /// <summary>The breaker is open: nothing is read until <see cref="TryAgainCommand"/>.</summary>
@@ -83,12 +108,17 @@ internal sealed partial class Wmi2LiveViewModel(
     [NotifyCanExecuteChangedFor(nameof(ShowCommand))]
     [NotifyCanExecuteChangedFor(nameof(RefreshCommand))]
     [NotifyCanExecuteChangedFor(nameof(TryAgainCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StopCommand))]
     public partial bool IsBusy { get; private set; }
 
     /// <summary>The interface could not be opened; it is not tried again in this session.</summary>
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ShowCommand))]
     public partial bool IsUnavailable { get; private set; }
+
+    /// <summary>The timer runs: started, not stopped, and the window is shown.</summary>
+    [ObservableProperty]
+    public partial bool IsPolling { get; private set; }
 
     /// <summary>
     /// The section for a laptop whose probe found <paramref name="detected"/>: only a WMI2 laptop gets
@@ -100,7 +130,21 @@ internal sealed partial class Wmi2LiveViewModel(
             ? new Wmi2LiveViewModel(open, new Wmi2CircuitBreaker(), confirm, accessGate, TimeProvider.System, log)
             : null;
 
-    /// <summary>Stops a running round (it does not count as a failure) and closes the interface.</summary>
+    /// <summary>The window tells whether it is on screen (shown and not minimised); only then does the timer run.</summary>
+    public void SetWindowShown(bool shown)
+    {
+        _windowShown = shown;
+        if (shown)
+        {
+            StartPolling();
+        }
+        else
+        {
+            StopPolling();
+        }
+    }
+
+    /// <summary>Stops the timer and a running round (it does not count as a failure), then closes the interface.</summary>
     public void Dispose()
     {
         if (_closing.IsCancellationRequested)
@@ -109,6 +153,7 @@ internal sealed partial class Wmi2LiveViewModel(
         }
 
         _closing.Cancel(); // not disposed: a round still running reads its token
+        StopPolling();
         _source?.Dispose();
         _source = null;
     }
@@ -156,11 +201,12 @@ internal sealed partial class Wmi2LiveViewModel(
 
         IsStarted = true;
         log.Info("WMI2 live read: started.");
-        await ReadAsync(withFirmware: true);
+        await ReadAsync(RoundKind.Full);
+        StartPolling();
     }
 
     [RelayCommand(CanExecute = nameof(CanRefresh))]
-    private async Task RefreshAsync() => await ReadAsync(withFirmware: false);
+    private async Task RefreshAsync() => await ReadAsync(AskedRound);
 
     [RelayCommand(CanExecute = nameof(CanTryAgain))]
     private async Task TryAgainAsync()
@@ -173,14 +219,75 @@ internal sealed partial class Wmi2LiveViewModel(
         breaker.Reset();
         IsStopped = false;
         log.Info("WMI2 live read: started again by the user.");
-        await ReadAsync(withFirmware: false);
+        await ReadAsync(AskedRound);
+        StartPolling();
     }
+
+    /// <summary>Turns reading off: the timer stops and the interface closes; Show asks again.</summary>
+    [RelayCommand(CanExecute = nameof(CanStop))]
+    private void Stop()
+    {
+        StopPolling();
+        _source?.Dispose();
+        _source = null;
+        IsStarted = false;
+        IsStopped = false;
+        _hasFirmware = false;
+        Message = null;
+        Firmware = CpuTemperature = GpuTemperature = CpuFan = GpuFan = Missing;
+        PerformanceMode = FanMode = ChargeLimit = CoolerBoost = Missing;
+        log.Info("WMI2 live read: stopped by the user.");
+    }
+
+    /// <summary>Refresh and Try again; with the firmware too while the first round has not read it (skipped by the gate or the 2 s rule).</summary>
+    private RoundKind AskedRound => _hasFirmware ? RoundKind.StatusAndSensors : RoundKind.Full;
 
     private bool CanShow() => !IsStarted && !IsBusy && !IsUnavailable;
 
     private bool CanRefresh() => IsStarted && !IsBusy && !IsStopped;
 
     private bool CanTryAgain() => IsStarted && !IsBusy && IsStopped;
+
+    private bool CanStop() => IsStarted && !IsBusy;
+
+    private void StartPolling()
+    {
+        if (_timer is not null || !_windowShown || !IsStarted || IsStopped || _closing.IsCancellationRequested)
+        {
+            return;
+        }
+
+        _timer = new PeriodicTimer(PollInterval, time);
+        IsPolling = true;
+        _ = PollAsync(_timer);
+    }
+
+    private void StopPolling()
+    {
+        _timer?.Dispose(); // the loop's next wait returns false
+        _timer = null;
+        IsPolling = false;
+    }
+
+    private async Task PollAsync(PeriodicTimer timer)
+    {
+        try
+        {
+            // A tick already taken when the timer was stopped (window hidden, Stop, breaker) or replaced reads nothing.
+            while (await timer.WaitForNextTickAsync() && ReferenceEquals(_timer, timer))
+            {
+                await ReadAsync(RoundKind.Sensors);
+            }
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            log.Error("WMI2 live read: the timer stopped", ex);
+            if (ReferenceEquals(_timer, timer))
+            {
+                StopPolling(); // so showing the window again can start a new one
+            }
+        }
+    }
 
     private IWmi2LiveSource? Open()
     {
@@ -201,9 +308,10 @@ internal sealed partial class Wmi2LiveViewModel(
         }
     }
 
-    private async Task ReadAsync(bool withFirmware)
+    /// <summary>One round; skipped while another runs or within the 2 s rule.</summary>
+    private async Task ReadAsync(RoundKind kind)
     {
-        if (_source is not { } source || TooSoon())
+        if (_source is not { } source || IsBusy || TooSoon())
         {
             return;
         }
@@ -214,11 +322,11 @@ internal sealed partial class Wmi2LiveViewModel(
             return;
         }
 
-        _lastRound = time.GetUtcNow();
+        _lastRound = time.GetTimestamp();
         IsBusy = true;
         try
         {
-            var round = await breaker.RunAsync(ct => ReadRoundAsync(source, withFirmware, ct), _closing.Token);
+            var round = await breaker.RunAsync(ct => ReadRoundAsync(source, kind, ct), _closing.Token);
             Show(round);
             Message = null;
         }
@@ -242,11 +350,15 @@ internal sealed partial class Wmi2LiveViewModel(
         {
             IsBusy = false;
             IsStopped = breaker.IsOpen;
+            if (IsStopped)
+            {
+                StopPolling();
+            }
         }
     }
 
-    /// <summary>Within <see cref="Wmi2ReadPolicy.MinInterval"/> of the last round: every round, refresh or retry, waits for it.</summary>
-    private bool TooSoon() => _lastRound is { } last && time.GetUtcNow() - last < Wmi2ReadPolicy.MinInterval;
+    /// <summary>Within <see cref="Wmi2ReadPolicy.MinInterval"/> of the last round: every round, timed, refresh or retry, waits for it.</summary>
+    private bool TooSoon() => _lastRound is { } last && time.GetElapsedTime(last) < Wmi2ReadPolicy.MinInterval;
 
     private void Failed(Exception error)
     {
@@ -261,14 +373,14 @@ internal sealed partial class Wmi2LiveViewModel(
         Message = Strings.Wmi2_ReadFailed;
     }
 
-    private static async Task<Round> ReadRoundAsync(IWmi2LiveSource source, bool withFirmware, CancellationToken cancellationToken)
+    private static async Task<Round> ReadRoundAsync(IWmi2LiveSource source, RoundKind kind, CancellationToken cancellationToken)
     {
-        var firmware = withFirmware ? await source.ReadFirmwareAsync(cancellationToken).ConfigureAwait(false) : null;
+        var firmware = kind == RoundKind.Full ? await source.ReadFirmwareAsync(cancellationToken).ConfigureAwait(false) : null;
         cancellationToken.ThrowIfCancellationRequested();
-        var status = await source.ReadStatusAsync(cancellationToken).ConfigureAwait(false);
+        var status = kind == RoundKind.Sensors ? null : await source.ReadStatusAsync(cancellationToken).ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
         var sensors = await source.ReadSensorsAsync(cancellationToken).ConfigureAwait(false);
-        return new Round(withFirmware, firmware, status, sensors);
+        return new Round(kind == RoundKind.Full, firmware, status, sensors);
     }
 
     private void Show(Round round)
@@ -276,13 +388,19 @@ internal sealed partial class Wmi2LiveViewModel(
         if (round.HasFirmware)
         {
             Firmware = round.Firmware ?? Missing;
+            _hasFirmware = true;
         }
 
-        var (status, s) = (round.Status, round.Sensors);
+        var s = round.Sensors;
         CpuTemperature = Temperature(s.CpuTempC);
         GpuTemperature = Temperature(s.GpuTempC);
         CpuFan = Fan(s.CpuFanPercent, s.Tach?.CpuHigh, s.Tach?.CpuLow, s.CpuRpm);
         GpuFan = Fan(s.GpuFanPercent, s.Tach?.GpuHigh, s.Tach?.GpuLow, s.GpuRpm);
+        if (round.Status is not { } status)
+        {
+            return;
+        }
+
         PerformanceMode = Named(PerformanceName(status.Performance), status.PerformanceRaw);
         FanMode = Named(FanModeName(status.FanMode), status.FanModeRaw);
         ChargeLimit = Named(status.ChargeLimitPercent is { } percent ? Percent(percent) : null, status.ChargeRaw);
@@ -327,5 +445,5 @@ internal sealed partial class Wmi2LiveViewModel(
         _ => null,
     };
 
-    private sealed record Round(bool HasFirmware, string? Firmware, Wmi2Status Status, SensorSnapshot Sensors);
+    private sealed record Round(bool HasFirmware, string? Firmware, Wmi2Status? Status, SensorSnapshot Sensors);
 }

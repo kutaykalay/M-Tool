@@ -46,10 +46,18 @@ internal sealed class FakeWmi2LiveSource : IWmi2LiveSource
         return await Answer(Status);
     }
 
-    public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken)
+    /// <summary>When set, the sensor read waits for it, like a call that takes long.</summary>
+    public TaskCompletionSource? HoldSensors { get; set; }
+
+    public async Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken)
     {
         SensorReads++;
-        return Answer(Sensors);
+        if (HoldSensors is { } hold)
+        {
+            await hold.Task;
+        }
+
+        return await Answer(Sensors);
     }
 
     public void Dispose() => Disposed = true;

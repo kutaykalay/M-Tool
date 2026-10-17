@@ -27,10 +27,16 @@ internal partial class ReportOnlyWindow : Window
             MaxHeight = ScreenFit.MaxHeight(ScreenFit.InUnits(WorkAreaPixels(), VisualTreeHelper.GetDpi(this)), ScreenMargin);
         };
         SizeChanged += (_, _) => KeepInside(); // a message band or the live values make it taller
+
+        // The live values are read on a timer only while the window is on screen.
+        IsVisibleChanged += (_, _) => live?.SetWindowShown(IsOnScreen);
+        StateChanged += (_, _) => live?.SetWindowShown(IsOnScreen);
     }
 
     /// <summary>What the bindings read: the report commands, the message band and, on a WMI2 laptop, the live values.</summary>
     internal sealed record Context(ReportViewModel Report, StatusViewModel Status, Wmi2LiveViewModel? Live);
+
+    private bool IsOnScreen => IsVisible && WindowState != WindowState.Minimized;
 
     /// <summary>After a display scale change the window may not fit any more: centre it again once laid out.</summary>
     protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
