@@ -286,18 +286,51 @@ public class Wmi2LivePollingTests
         live.IsPolling.Should().BeFalse();
     }
     [Fact]
-    public async Task A_first_round_skipped_by_the_two_second_rule_leaves_the_firmware_to_the_next_refresh()
+    public async Task Show_within_two_seconds_of_the_last_round_reads_everything_once_they_have_passed()
     {
         using var live = await ShownAndStartedAsync();
         live.StopCommand.Execute(null);
-        await live.ShowCommand.ExecuteAsync(null); // within 2 s of the last round: its first round reads nothing
-        _source.FirmwareReads.Should().Be(1);
+        var shown = live.ShowCommand.ExecuteAsync(null); // within 2 s of the last round: waits
+        Pause();
+        (_source.FirmwareReads, _source.StatusReads).Should().Be((1, 1));
         live.Firmware.Should().Be("—");
 
         _time.Advance(Wmi2ReadPolicy.MinInterval);
-        await live.RefreshCommand.ExecuteAsync(null);
+        await shown.WaitAsync(Settle);
 
-        _source.FirmwareReads.Should().Be(2);
+        (_source.FirmwareReads, _source.StatusReads).Should().Be((2, 2));
         live.Firmware.Should().Be("16Q4EMS2.107");
+        live.IsPolling.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Closing_while_show_waits_for_the_two_seconds_reads_nothing()
+    {
+        var live = await ShownAndStartedAsync();
+        live.StopCommand.Execute(null);
+        var shown = live.ShowCommand.ExecuteAsync(null);
+
+        live.Dispose();
+        await shown.WaitAsync(Settle);
+        _time.Advance(Wmi2ReadPolicy.MinInterval);
+        Pause();
+
+        _source.Reads.Should().Be(3); // the first Show's round only
+        live.IsPolling.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task A_round_cut_short_by_closing_is_not_logged_as_a_failure()
+    {
+        var live = await ShownAndStartedAsync();
+        _source.HoldStatus = new TaskCompletionSource();
+        _time.Advance(Wmi2ReadPolicy.MinInterval);
+        var refresh = live.RefreshCommand.ExecuteAsync(null);
+
+        live.Dispose();
+        _source.HoldStatus.SetException(new ObjectDisposedException("EcWorker"));
+        await refresh.WaitAsync(Settle);
+
+        _log.Lines.Should().NotContain(line => line.StartsWith("WARN") && line.Contains("failed"));
     }
 }

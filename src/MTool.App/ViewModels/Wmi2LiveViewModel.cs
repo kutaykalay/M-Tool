@@ -201,6 +201,7 @@ internal sealed partial class Wmi2LiveViewModel(
 
         IsStarted = true;
         log.Info("WMI2 live read: started.");
+        await WaitForMinIntervalAsync(); // Stop then Show within 2 s: read once the 2 s have passed
         await ReadAsync(RoundKind.Full);
         StartPolling();
     }
@@ -330,13 +331,13 @@ internal sealed partial class Wmi2LiveViewModel(
             Show(round);
             Message = null;
         }
+        catch (Exception) when (_closing.IsCancellationRequested)
+        {
+            // The window closed (a disposed worker throws too): nothing more to show, not a failure.
+        }
         catch (Wmi2StoppedException)
         {
             Message = Strings.Wmi2_Stopped;
-        }
-        catch (OperationCanceledException) when (_closing.IsCancellationRequested)
-        {
-            // The window closed: nothing more to show.
         }
         catch (EcAccessException ex) when (ex.IsAccessPaused)
         {
@@ -359,6 +360,23 @@ internal sealed partial class Wmi2LiveViewModel(
 
     /// <summary>Within <see cref="Wmi2ReadPolicy.MinInterval"/> of the last round: every round, timed, refresh or retry, waits for it.</summary>
     private bool TooSoon() => _lastRound is { } last && time.GetElapsedTime(last) < Wmi2ReadPolicy.MinInterval;
+
+    private async Task WaitForMinIntervalAsync()
+    {
+        if (_lastRound is not { } last || Wmi2ReadPolicy.MinInterval - time.GetElapsedTime(last) is not { Ticks: > 0 } left)
+        {
+            return;
+        }
+
+        try
+        {
+            await Task.Delay(left, time, _closing.Token);
+        }
+        catch (OperationCanceledException) when (_closing.IsCancellationRequested)
+        {
+            // The window closed while waiting; ReadAsync then reads nothing.
+        }
+    }
 
     private void Failed(Exception error)
     {
