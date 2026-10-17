@@ -19,6 +19,9 @@ mode and battery charge limit. One exe, no background service.
 - **Cooler Boost** on and off.
 - **Performance mode:** high, balanced or eco.
 - **Charge limit** between 50 and 100 %.
+- **Keyboard backlight:** off and three steps on a bar in the main window, P65 only. The Fn key keeps
+  working, and the bar follows it while the window is open. M-Tool does not set the backlight again
+  at start-up or after sleep.
 - **Separate AC and battery settings** (off by default): the fan profile and performance mode you
   pick on AC and on battery are remembered apart, and applied a few seconds after the cable is
   plugged in or pulled out. The charge limit and Cooler Boost stay as they are.
