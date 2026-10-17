@@ -33,9 +33,7 @@ or descriptions were copied.
   cross-check of the Cooler Boost, charge limit and mode registers.
 - **GhostDeck** by wygodad, <https://github.com/wygodad/ghostdeck>, commit
   `7f3a67040da2626a60231f2b31a8f531ecf1112a` (v1.38.0). Licence: GNU General Public License v3.0.
-  Used for: only the entries its project marks as tested on a laptop. The `Get_Data` packet layout,
-  the EC addresses of the live WMI2 values, the two tach formats and the plausible speed limit
-  (issues #1, #6, #14, #47, #52, #90, #92, #180, #228).
+  Used for: the `Get_Data` packet layout and the two tach formats, from its tested entries only.
 
 The P65 Creator 9SE record was measured on that laptop; the references only confirmed it. Each
 record lists its own sources in its `sources` field.
