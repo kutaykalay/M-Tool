@@ -66,6 +66,15 @@
   <data name="Charge_Unknown" xml:space="preserve">
     <value>desconocido</value>
   </data>
+  <data name="Main_SectionKeyboardBacklight" xml:space="preserve">
+    <value>RETROILUMINACIÓN DEL TECLADO</value>
+  </data>
+  <data name="KeyboardBacklight_Off" xml:space="preserve">
+    <value>Apagado</value>
+  </data>
+  <data name="KeyboardBacklight_Unknown" xml:space="preserve">
+    <value>desconocido (0x{0:X2})</value>
+  </data>
   <data name="Charge_Off" xml:space="preserve">
     <value>desactivado</value>
   </data>

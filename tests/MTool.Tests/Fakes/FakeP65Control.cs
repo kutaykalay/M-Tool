@@ -35,6 +35,17 @@ internal sealed class FakeP65Control : IP65Control
 
     public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default) => Task.FromResult(Sensors);
 
+    /// <summary>When true, <see cref="ReadKeyboardBacklightAsync"/> throws like a silent EC.</summary>
+    public bool BacklightReadFails { get; set; }
+
+    public Task<KeyboardBacklightState?> ReadKeyboardBacklightAsync(CancellationToken cancellationToken = default)
+    {
+        Calls.Enqueue("read backlight");
+        return BacklightReadFails
+            ? Task.FromException<KeyboardBacklightState?>(new EcAccessException("EC silent"))
+            : Task.FromResult(State.KeyboardBacklight);
+    }
+
     /// <summary>The <see cref="PortUse"/> of every state read, in order.</summary>
     public ConcurrentQueue<PortUse> StateReadPortUses { get; } = new();
 

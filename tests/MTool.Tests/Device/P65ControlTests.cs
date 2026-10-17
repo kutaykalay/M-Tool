@@ -1,6 +1,7 @@
 using MTool.Core.Device;
 using MTool.Core.Ec;
 using MTool.Core.Profiles;
+using MTool.Tests.Device.Config;
 using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Device;
@@ -430,6 +431,32 @@ public sealed class P65ControlTests : IDisposable
 
         _ec[0xF3].Should().Be(expected);
         (await control.ReadControlStateAsync(PortUse.None)).KeyboardBacklight.Should().Be(new KeyboardBacklightState(level, expected));
+    }
+
+    [Fact]
+    public async Task The_keyboard_backlight_alone_is_read_once_without_retry()
+    {
+        var reads = new List<byte>();
+        _ec.ReadHook = register =>
+        {
+            reads.Add(register);
+            return null;
+        };
+
+        (await Control().ReadKeyboardBacklightAsync()).Should().Be(new KeyboardBacklightState(1, 0x81));
+        reads.Should().Equal(0xF3);
+    }
+
+    [Fact]
+    public async Task A_model_without_a_keyboard_backlight_reads_none()
+    {
+        var layout = DeviceLayout.From(DeviceConfigFixtures.P65() with
+        {
+            Features = DeviceConfigFixtures.P65().Features with { KeyboardBacklight = null },
+        });
+
+        (await Control(layout: layout).ReadKeyboardBacklightAsync()).Should().BeNull();
+        _ec.Writes.Should().BeEmpty();
     }
 
     [Fact]

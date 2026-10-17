@@ -70,6 +70,33 @@ public sealed class MainViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task While_the_window_is_open_each_sensor_round_follows_the_keyboard_backlight()
+    {
+        await _main.OnWindowShownAsync();
+        _control.Calls.Clear();
+        _control.State = _control.State with { KeyboardBacklight = new(3, 0x83) };
+        _time.Advance(MainViewModel.VisibleInterval); // a new round is a new reading
+
+        await _poller.PollNowAsync();
+
+        _control.Calls.Should().Contain("read backlight");
+        _main.Controls.KeyboardBacklightLevel.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task A_hidden_window_does_not_read_the_keyboard_backlight()
+    {
+        await _main.OnWindowShownAsync();
+        _main.OnWindowHidden();
+        _control.Calls.Clear();
+        _time.Advance(MainViewModel.HiddenInterval);
+
+        await _poller.PollNowAsync();
+
+        _control.Calls.Should().NotContain("read backlight");
+    }
+
+    [Fact]
     public async Task Sensor_readings_reach_the_window_and_the_tooltip()
     {
         await _main.InitializeAsync([]);

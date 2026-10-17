@@ -38,6 +38,12 @@ public interface IP65Control
     /// <summary>One attempt, no retry: a poll that hits a silent EC period throws and is skipped.</summary>
     Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// One register, one attempt, no retry: for following the Fn key while the window is open. Null
+    /// when the model has no keyboard backlight.
+    /// </summary>
+    Task<KeyboardBacklightState?> ReadKeyboardBacklightAsync(CancellationToken cancellationToken = default);
+
     /// <summary>Rides out silent EC periods like the gateway does.</summary>
     /// <param name="portUse">
     /// <see cref="PortUse.None"/>: Cooler Boost and the charge limit come only from the cache, unknown

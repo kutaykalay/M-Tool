@@ -435,6 +435,9 @@ public sealed class ControlsViewModelTests : IDisposable
 
         public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default) => inner.ReadSensorsAsync(cancellationToken);
 
+        public Task<KeyboardBacklightState?> ReadKeyboardBacklightAsync(CancellationToken cancellationToken = default) =>
+            inner.ReadKeyboardBacklightAsync(cancellationToken);
+
         public Task<WriteOutcome> ApplyFanProfileAsync(FanProfile profile, CancellationToken cancellationToken = default) =>
             inner.ApplyFanProfileAsync(profile, cancellationToken);
 

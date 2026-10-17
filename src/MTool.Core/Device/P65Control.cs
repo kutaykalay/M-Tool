@@ -37,6 +37,11 @@ public sealed class P65Control(EcWorker worker, WriteAccessSetup setup, DeviceLa
     public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken = default) =>
         worker.RunAsync(ec => new P65Device(ec, layout).ReadSensors(), cancellationToken);
 
+    public Task<KeyboardBacklightState?> ReadKeyboardBacklightAsync(CancellationToken cancellationToken = default) =>
+        layout.KeyboardBacklight is null
+            ? Task.FromResult<KeyboardBacklightState?>(null)
+            : worker.RunAsync(ec => new P65Device(ec, layout).ReadKeyboardBacklight(), cancellationToken);
+
     public async Task<ControlState> ReadControlStateAsync(PortUse portUse, CancellationToken cancellationToken = default)
     {
         var state = await worker.RunRetryingAsync(ec => new P65Device(ec, layout).ReadControlState(), _retry, log.Warn, cancellationToken)

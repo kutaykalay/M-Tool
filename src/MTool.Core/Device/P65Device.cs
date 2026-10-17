@@ -39,7 +39,8 @@ public sealed class P65Device
             KeyboardBacklight: ReadKeyboardBacklight());
     }
 
-    private KeyboardBacklightState? ReadKeyboardBacklight()
+    /// <summary>Null when the model has no keyboard backlight.</summary>
+    public KeyboardBacklightState? ReadKeyboardBacklight()
     {
         if (_layout.KeyboardBacklight is not { } register)
         {

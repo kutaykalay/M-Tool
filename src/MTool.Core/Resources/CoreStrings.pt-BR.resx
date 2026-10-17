@@ -90,6 +90,9 @@
   <data name="Profile_ChargeLimitRange" xml:space="preserve">
     <value>O limite de carga deve ser de {0} a {1}% (recebido {2}%).</value>
   </data>
+  <data name="Profile_KeyboardBacklightRange" xml:space="preserve">
+    <value>O nível de iluminação do teclado deve ser 0-{0} (recebido: {1}).</value>
+  </data>
   <data name="Profile_ChangeFailed" xml:space="preserve">
     <value>Não foi possível alterar o perfil.</value>
   </data>

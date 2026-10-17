@@ -90,6 +90,9 @@
   <data name="Profile_ChargeLimitRange" xml:space="preserve">
     <value>Лимит заряда должен быть {0}–{1} % (получено {2} %).</value>
   </data>
+  <data name="Profile_KeyboardBacklightRange" xml:space="preserve">
+    <value>Уровень подсветки клавиатуры должен быть 0-{0} (получено: {1}).</value>
+  </data>
   <data name="Profile_ChangeFailed" xml:space="preserve">
     <value>Не удалось изменить профиль.</value>
   </data>

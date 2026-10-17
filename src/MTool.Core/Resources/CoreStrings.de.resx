@@ -90,6 +90,9 @@
   <data name="Profile_ChargeLimitRange" xml:space="preserve">
     <value>Das Ladelimit muss {0}–{1} % betragen (angegeben: {2} %).</value>
   </data>
+  <data name="Profile_KeyboardBacklightRange" xml:space="preserve">
+    <value>Die Stufe der Tastaturbeleuchtung muss 0-{0} sein (erhalten: {1}).</value>
+  </data>
   <data name="Profile_ChangeFailed" xml:space="preserve">
     <value>Das Profil konnte nicht geändert werden.</value>
   </data>

@@ -22,6 +22,7 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly ProfileService _service;
     private readonly IUiDispatcher _ui;
     private string? _autoReapplyMessage;
+    private bool _windowVisible;
 
     public MainViewModel(
         SensorPoller poller, ProfileService service, IP65Control control, IPowerSource powerSource, INotifier notifier, IUiDispatcher ui, TimeProvider time,
@@ -38,6 +39,11 @@ public sealed partial class MainViewModel : ObservableObject
         {
             Sensors.Apply(reading);
             UpdateTooltip();
+            // One more WMI read per round, only while the window is open: the Fn key changes the backlight.
+            if (_windowVisible)
+            {
+                _ = Controls.FollowKeyboardBacklightAsync();
+            }
         });
 
         // The tooltip names the profile the EC holds, not the one asked for (they differ in dry-run
@@ -79,6 +85,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public async Task OnWindowShownAsync()
     {
+        _windowVisible = true;
         _poller.SetInterval(VisibleInterval);
         _ = _poller.PollNowAsync();
         await Controls.RefreshAsync(PortUse.Allowed);
@@ -109,7 +116,11 @@ public sealed partial class MainViewModel : ObservableObject
         await Controls.RefreshAsync(PortUse.None);
     }
 
-    public void OnWindowHidden() => _poller.SetInterval(HiddenInterval);
+    public void OnWindowHidden()
+    {
+        _windowVisible = false;
+        _poller.SetInterval(HiddenInterval);
+    }
 
     /// <summary>A new editor for one editor window; the window disposes it when it closes.</summary>
     public FanCurveEditorViewModel CreateEditor(IConfirm confirm) => new(_service, Controls, Status, confirm, _ui);

@@ -66,6 +66,15 @@
   <data name="Charge_Unknown" xml:space="preserve">
     <value>bilinmiyor</value>
   </data>
+  <data name="Main_SectionKeyboardBacklight" xml:space="preserve">
+    <value>KLAVYE IŞIĞI</value>
+  </data>
+  <data name="KeyboardBacklight_Off" xml:space="preserve">
+    <value>Kapalı</value>
+  </data>
+  <data name="KeyboardBacklight_Unknown" xml:space="preserve">
+    <value>bilinmiyor (0x{0:X2})</value>
+  </data>
   <data name="Charge_Off" xml:space="preserve">
     <value>kapalı</value>
   </data>

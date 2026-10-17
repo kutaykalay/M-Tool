@@ -74,7 +74,7 @@
   </data>
   <data name="Main_ChargeLimitNow" xml:space="preserve">
     <value>Now:</value>
-    <comment>Label before the charge limit that is set at the moment, for example Now: 60%.</comment>
+    <comment>Label before the value set at the moment: the charge limit (Now: 60%) and the keyboard backlight (Now: Off).</comment>
   </data>
   <data name="Main_Reapply" xml:space="preserve">
     <value>Reapply</value>
@@ -83,6 +83,18 @@
   <data name="Charge_Unknown" xml:space="preserve">
     <value>unknown</value>
     <comment>Charge limit value when it could not be read. Lower case, shown after Now:.</comment>
+  </data>
+  <data name="Main_SectionKeyboardBacklight" xml:space="preserve">
+    <value>KEYBOARD BACKLIGHT</value>
+    <comment>Main window, section heading. Written in upper case in every language.</comment>
+  </data>
+  <data name="KeyboardBacklight_Off" xml:space="preserve">
+    <value>Off</value>
+    <comment>Keyboard backlight step 0: the light is off. Shown under the first dot of the bar and after Now:. Capitalised.</comment>
+  </data>
+  <data name="KeyboardBacklight_Unknown" xml:space="preserve">
+    <value>unknown (0x{0:X2})</value>
+    <comment>Keyboard backlight value when the laptop holds a byte that is none of the four steps. {0} is the raw value as two hex digits: keep {0:X2} and the 0x. Lower case, shown after Now:.</comment>
   </data>
   <data name="Charge_Off" xml:space="preserve">
     <value>off</value>

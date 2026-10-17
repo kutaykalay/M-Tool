@@ -120,6 +120,18 @@ public sealed class ProfileService
     /// <summary>Temporary switch: never part of the desired state.</summary>
     public Task<CommandResult> SetCoolerBoostAsync(bool on) => RunAsync(() => _control.SetCoolerBoostAsync(on), update: null);
 
+    /// <summary>Never part of the desired state: the Fn key sets the backlight too.</summary>
+    public Task<CommandResult> SetKeyboardBacklightAsync(int level)
+    {
+        if (level is < 0 or > ModeCodes.MaxKeyboardBacklightLevel)
+        {
+            return Task.FromResult(new CommandResult(RejectedOutcome(
+                Text(nameof(CoreStrings.Profile_KeyboardBacklightRange), ModeCodes.MaxKeyboardBacklightLevel, level))));
+        }
+
+        return RunAsync(() => _control.SetKeyboardBacklightAsync(level), update: null);
+    }
+
     /// <param name="portUse">
     /// <see cref="PortUse.None"/> for automatic reapplying (start-up, resume): the charge limit is
     /// left out, so the raw port is never touched. The desired state itself stays as it is.

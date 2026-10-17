@@ -90,6 +90,9 @@
   <data name="Profile_ChargeLimitRange" xml:space="preserve">
     <value>充电上限必须为 {0}–{1}%（收到 {2}%）。</value>
   </data>
+  <data name="Profile_KeyboardBacklightRange" xml:space="preserve">
+    <value>键盘背光级别必须为 0-{0}（收到 {1}）。</value>
+  </data>
   <data name="Profile_ChangeFailed" xml:space="preserve">
     <value>无法更改配置。</value>
   </data>

@@ -97,6 +97,31 @@ public sealed class ProfileServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task The_keyboard_backlight_is_not_saved()
+    {
+        var service = Service();
+
+        var result = await service.SetKeyboardBacklightAsync(2);
+
+        result.Outcome.Status.Should().Be(WriteStatus.Applied);
+        _control.Calls.Should().Equal("keyboard backlight 2");
+        service.Desired.Should().Be(DesiredState.Default);
+        SettingsFileExists.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(4)]
+    public async Task An_out_of_range_keyboard_backlight_is_rejected_without_touching_the_ec(int level)
+    {
+        var result = await Service().SetKeyboardBacklightAsync(level);
+
+        result.Outcome.Status.Should().Be(WriteStatus.Rejected);
+        result.Outcome.Message.Should().Contain("0-3");
+        _control.Calls.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Cooler_boost_is_not_saved()
     {
         var service = Service();

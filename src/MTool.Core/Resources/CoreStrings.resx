@@ -116,6 +116,10 @@
     <value>The charge limit must be {0}-{1}% (got {2}%).</value>
     <comment>SAFETY. Error when the charge limit is out of range. {0} and {1}: lowest and highest allowed percent. {2}: the value that was given.</comment>
   </data>
+  <data name="Profile_KeyboardBacklightRange" xml:space="preserve">
+    <value>The keyboard backlight step must be 0-{0} (got {1}).</value>
+    <comment>SAFETY. Error when the keyboard backlight step is out of range. {0}: the highest step (3). {1}: the step that was given.</comment>
+  </data>
   <data name="Profile_ChangeFailed" xml:space="preserve">
     <value>The profile could not be changed.</value>
     <comment>Error when a profile change fails and no reason is known.</comment>

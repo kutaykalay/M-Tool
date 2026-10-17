@@ -1,3 +1,4 @@
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MTool.App.Resources;
@@ -13,6 +14,8 @@ namespace MTool.App.ViewModels;
 /// Cooler Boost and the charge limit come from the port cache (<see cref="ControlState.Port"/>):
 /// null there is shown as unknown, and without a port their commands are disabled.
 /// The profile list follows <see cref="ProfileService.Catalog"/>: a change there relabels the last EC state.
+/// The keyboard backlight bar writes once per key press, click or finished drag, never the step the EC
+/// already holds, and follows the Fn key through <see cref="FollowKeyboardBacklightAsync"/>.
 /// </summary>
 public sealed partial class ControlsViewModel : ObservableObject
 {
@@ -24,6 +27,9 @@ public sealed partial class ControlsViewModel : ObservableObject
     private byte _performanceRaw;
     private bool _portStateKnown;
     private int _refreshes;
+    private KeyboardBacklightState? _backlight; // what the EC holds; null before the first read
+    private bool _showingBacklight; // the EC, not the user, is moving the bar
+    private bool _draggingBacklight;
 
     public ControlsViewModel(ProfileService service, IP65Control control, StatusViewModel status, IUiDispatcher ui)
     {
@@ -31,8 +37,8 @@ public sealed partial class ControlsViewModel : ObservableObject
         ProfileNames = NamesOf(service.Catalog);
         ChargeLimitDraft = ChargeLimitMax;
         var capabilities = control.Access.Capabilities;
-        (ShowGpu, ShowFanProfiles, ShowCoolerBoost, ShowChargeLimit) =
-            (capabilities.GpuFan, capabilities.FanCurve, capabilities.CoolerBoost, capabilities.ChargeLimit);
+        (ShowGpu, ShowFanProfiles, ShowCoolerBoost, ShowChargeLimit, ShowKeyboardBacklight) =
+            (capabilities.GpuFan, capabilities.FanCurve, capabilities.CoolerBoost, capabilities.ChargeLimit, capabilities.KeyboardBacklight);
         PerformanceOptions = Array.AsReadOnly([.. capabilities.PerformanceModes.Select(m => new PerformanceOption(m, Texts.Mode(m)))]);
         service.CatalogChanged += () => ui.Post(OnCatalogChanged);
     }
@@ -50,6 +56,8 @@ public sealed partial class ControlsViewModel : ObservableObject
     public bool ShowCoolerBoost { get; }
 
     public bool ShowChargeLimit { get; }
+
+    public bool ShowKeyboardBacklight { get; }
 
     public bool ShowPerformance => PerformanceOptions.Count > 0;
 
@@ -91,6 +99,24 @@ public sealed partial class ControlsViewModel : ObservableObject
     public partial int ChargeLimitDraft { get; set; }
 
     public string ChargeLimitDraftLabel => string.Format(Strings.Format_Percent, ChargeLimitDraft);
+
+    public int KeyboardBacklightMax => ModeCodes.MaxKeyboardBacklightLevel;
+
+    /// <summary>The bar: the EC's step, or the user's choice until the write's read-back replaces it.</summary>
+    [ObservableProperty]
+    public partial int KeyboardBacklightLevel { get; set; }
+
+    /// <summary>False before the first read and for a byte that is none of the steps: no dot is selected.</summary>
+    [ObservableProperty]
+    public partial bool KeyboardBacklightKnown { get; private set; }
+
+    public string KeyboardBacklightLabel => _backlight switch
+    {
+        null => "",
+        { Level: 0 } => Strings.KeyboardBacklight_Off,
+        { Level: { } level } => level.ToString(CultureInfo.CurrentCulture),
+        { Raw: var raw } => string.Format(Strings.KeyboardBacklight_Unknown, raw),
+    };
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanWrite), nameof(CanWritePort))]
@@ -214,6 +240,88 @@ public sealed partial class ControlsViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanWritePort))]
     private Task ApplyChargeLimitAsync() => RunAsync(PortUse.Allowed, () => _service.SetChargeLimitAsync(ChargeLimitDraft));
 
+    /// <summary>A press on the bar: until <see cref="EndKeyboardBacklightDrag"/>, moving it writes nothing.</summary>
+    public void BeginKeyboardBacklightDrag() => _draggingBacklight = true;
+
+    /// <summary>The release that ends a click or a drag: writes the step the bar ends on.</summary>
+    public void EndKeyboardBacklightDrag()
+    {
+        _draggingBacklight = false;
+        _ = WriteKeyboardBacklightAsync(KeyboardBacklightLevel);
+    }
+
+    /// <summary>
+    /// Reads only the backlight, to follow the Fn key while the window is open. Skipped while a
+    /// command runs or the bar is held: the command's refresh, or the release, shows the EC then.
+    /// </summary>
+    public async Task FollowKeyboardBacklightAsync()
+    {
+        if (!ShowKeyboardBacklight || IsBusy || _draggingBacklight)
+        {
+            return;
+        }
+
+        KeyboardBacklightState? state;
+        try
+        {
+            state = await _control.ReadKeyboardBacklightAsync();
+        }
+        catch (EcAccessException)
+        {
+            // A silent EC period, as in a sensor poll: the next round reads again.
+            return;
+        }
+
+        if (!IsBusy && !_draggingBacklight)
+        {
+            ShowBacklight(state);
+        }
+    }
+
+    partial void OnKeyboardBacklightLevelChanged(int value)
+    {
+        if (!_showingBacklight && !_draggingBacklight)
+        {
+            _ = WriteKeyboardBacklightAsync(value);
+        }
+    }
+
+    /// <summary>
+    /// Not a command: the bar is a slider, and a step it may not write (locked, busy, already in the
+    /// EC) snaps back to the EC's step instead.
+    /// </summary>
+    private async Task WriteKeyboardBacklightAsync(int level)
+    {
+        if (!CanWrite || _backlight?.Level == level)
+        {
+            ShowBacklight(_backlight);
+            return;
+        }
+
+        await RunAsync(PortUse.None, () => _service.SetKeyboardBacklightAsync(level));
+    }
+
+    private void ShowBacklight(KeyboardBacklightState? state)
+    {
+        _backlight = state;
+        KeyboardBacklightKnown = state?.Level is not null;
+        OnPropertyChanged(nameof(KeyboardBacklightLabel));
+        if (_draggingBacklight || state?.Level is not { } level)
+        {
+            return;
+        }
+
+        _showingBacklight = true;
+        try
+        {
+            KeyboardBacklightLevel = level;
+        }
+        finally
+        {
+            _showingBacklight = false;
+        }
+    }
+
     [RelayCommand(CanExecute = nameof(CanWrite))]
     private Task ReapplyAsync() => RunAsync(PortUse.Allowed, async () =>
     {
@@ -261,6 +369,8 @@ public sealed partial class ControlsViewModel : ObservableObject
         {
             ChargeLimitDraft = percent;
         }
+
+        ShowBacklight(state.KeyboardBacklight);
     }
 }
 
