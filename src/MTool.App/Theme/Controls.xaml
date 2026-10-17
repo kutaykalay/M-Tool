@@ -83,8 +83,23 @@
                             <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
                             <Setter Property="Foreground" Value="{DynamicResource Brush.AccentText}" />
                         </Trigger>
+                        <!--
+                            Every command disables the buttons for its few hundred milliseconds. Dimming
+                            them at once made the whole window blink, so the dim waits 0.4 s: only a
+                            lasting disable (locked, a slow write) shows. Undimming is immediate.
+                        -->
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Box" Property="Opacity" Value="0.45" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard x:Name="Dim">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Box" Storyboard.TargetProperty="Opacity"
+                                                         To="0.45" BeginTime="0:0:0.4" Duration="0:0:0.15" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <RemoveStoryboard BeginStoryboardName="Dim" />
+                            </Trigger.ExitActions>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

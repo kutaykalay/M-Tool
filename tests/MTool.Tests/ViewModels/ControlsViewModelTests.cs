@@ -297,6 +297,33 @@ public sealed class ControlsViewModelTests : IDisposable
         _controls.ActivePerformance.Should().Be(PerformanceMode.Eco);
     }
 
+    // Moving the charge slider writes nothing (Apply does), so a running command does not grey it out.
+    [Fact]
+    public async Task The_charge_slider_stays_enabled_while_a_write_runs()
+    {
+        await _controls.RefreshAsync(PortUse.Allowed);
+        _control.WriteGate = new TaskCompletionSource();
+
+        var running = _controls.SetPerformanceCommand.ExecuteAsync(PerformanceMode.Eco);
+
+        _controls.CanMoveChargeSlider.Should().BeTrue();
+        _controls.ApplyChargeLimitCommand.CanExecute(null).Should().BeFalse();
+        _control.WriteGate.SetResult();
+        await running;
+    }
+
+    [Theory]
+    [InlineData(WriteMode.Locked, true)]
+    [InlineData(WriteMode.Enabled, false)]
+    public async Task The_charge_slider_is_disabled_when_locked_or_without_a_port(WriteMode mode, bool port)
+    {
+        _control.Access = _control.Access with { WriteMode = mode, PortFeaturesAvailable = port };
+
+        await _controls.RefreshAsync(PortUse.Allowed);
+
+        _controls.CanMoveChargeSlider.Should().BeFalse();
+    }
+
     [Fact]
     public async Task Cooler_boost_toggles()
     {

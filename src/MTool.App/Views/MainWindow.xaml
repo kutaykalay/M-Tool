@@ -187,7 +187,7 @@
                     <TextBlock DockPanel.Dock="Right" Width="44" VerticalAlignment="Center" TextAlignment="Right"
                                Text="{Binding Controls.ChargeLimitDraftLabel}" />
                     <Slider Minimum="{Binding Controls.ChargeLimitMin, Mode=OneTime}" Maximum="{Binding Controls.ChargeLimitMax, Mode=OneTime}" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"
-                            Value="{Binding Controls.ChargeLimitDraft, Mode=TwoWay}" IsEnabled="{Binding Controls.CanWritePort}" />
+                            Value="{Binding Controls.ChargeLimitDraft, Mode=TwoWay}" IsEnabled="{Binding Controls.CanMoveChargeSlider}" />
                 </DockPanel>
             </StackPanel>
 

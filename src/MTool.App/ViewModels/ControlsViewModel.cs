@@ -127,15 +127,21 @@ public sealed partial class ControlsViewModel : ObservableObject
     public partial bool IsBusy { get; private set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanWrite), nameof(CanWritePort), nameof(CanChangeKeyboardBacklight))]
+    [NotifyPropertyChangedFor(nameof(CanWrite), nameof(CanWritePort), nameof(CanChangeKeyboardBacklight), nameof(CanMoveChargeSlider))]
     [NotifyCanExecuteChangedFor(nameof(SelectProfileCommand), nameof(SetPerformanceCommand), nameof(SetCoolerBoostCommand))]
     [NotifyCanExecuteChangedFor(nameof(ApplyChargeLimitCommand), nameof(ReapplyCommand))]
     public partial WriteMode WriteMode { get; private set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanWritePort))]
+    [NotifyPropertyChangedFor(nameof(CanWritePort), nameof(CanMoveChargeSlider))]
     [NotifyCanExecuteChangedFor(nameof(SetCoolerBoostCommand), nameof(ApplyChargeLimitCommand))]
     public partial bool PortFeaturesAvailable { get; private set; } = true;
+
+    /// <summary>
+    /// The charge slider only moves the draft (Apply writes it), so a running command does not
+    /// disable it: greying it out for every short write made the window flicker.
+    /// </summary>
+    public bool CanMoveChargeSlider => WriteMode != WriteMode.Locked && PortFeaturesAvailable;
 
     public bool CanWrite => WriteMode != WriteMode.Locked && !IsBusy;
 
