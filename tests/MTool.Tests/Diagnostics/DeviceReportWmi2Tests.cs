@@ -133,8 +133,37 @@ public class DeviceReportWmi2Tests
     }
 
     [Fact]
+    public void A_reading_that_throws_keeps_the_raw_packets_and_names_the_failure()
+    {
+        var readout = new Wmi2Readout(new ReadableOnce([new Wmi2Call("Get_Temperature", 0, [1, 0], null)]));
+
+        var text = DeviceReport.Format(Input(WmiInterface.Wmi2, Section.Ok(readout)), privateWords: []);
+
+        text.Should().Contain("  Get_Temperature(0) : 01 00")
+            .And.Contain("Reading      : unreadable (InvalidOperationException)")
+            .And.NotContain("Temperatures :");
+    }
+
+    [Fact]
     public void A_readout_without_get_data_has_no_get_data_reading()
     {
         Report(Readout()).Should().NotContain("Get_Data");
+    }
+
+    /// <summary>
+    /// Lists its calls once (so the raw lines are written), then throws: the reading of today's packets
+    /// cannot fail, so this stands in for whatever might go wrong with a later guess.
+    /// </summary>
+    private sealed class ReadableOnce(IReadOnlyList<Wmi2Call> calls) : IReadOnlyList<Wmi2Call>
+    {
+        private int _reads;
+
+        public int Count => calls.Count;
+
+        public Wmi2Call this[int index] => calls[index];
+
+        public IEnumerator<Wmi2Call> GetEnumerator() => _reads++ == 0 ? calls.GetEnumerator() : throw new InvalidOperationException("read twice");
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
