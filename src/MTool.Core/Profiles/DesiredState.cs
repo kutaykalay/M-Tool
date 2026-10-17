@@ -61,13 +61,14 @@ public sealed record DesiredState(
     public DesiredState WithoutPortParts() => this with { ChargeLimitPercent = null };
 
     /// <summary>
-    /// A wanted charge limit that is not known (<see cref="ControlState.Port"/> null) counts as
-    /// drift: the band must not claim the EC holds it. Reapplying reads it fresh.
+    /// A wanted charge limit that is not known yet (<see cref="ControlState.Port"/> null: unread at
+    /// start-up, or a failed read with its own warning) is no drift; the charge row shows "unknown".
+    /// Only a read value can differ.
     /// </summary>
     public StateDrift DriftFrom(ControlState actual, ProfileCatalog catalog) => new(
         FanTable: catalog.Find(FanProfile)?.Curves != actual.FanCurves,
         Performance: Performance is not null && Performance != actual.Performance,
-        ChargeLimit: ChargeLimitPercent is not null && ChargeLimitPercent != actual.Port?.ChargeLimitPercent,
+        ChargeLimit: ChargeLimitPercent is not null && actual.Port is { } port && ChargeLimitPercent != port.ChargeLimitPercent,
         FanMode: FanMode is not null && FanMode != actual.FanMode);
 
     private FanProfile ProfileOf(ProfileCatalog catalog)

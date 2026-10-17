@@ -107,11 +107,20 @@ public class DesiredStateTests
     }
 
     [Fact]
-    public void A_wanted_charge_limit_that_is_not_known_counts_as_drift()
+    public void A_wanted_charge_limit_that_is_not_known_yet_is_no_drift()
+    {
+        // The port is unread at start-up and after a failed read (which has its own warning); only a read value can differ.
+        var desired = new DesiredState("Default", ChargeLimitPercent: 80);
+
+        desired.DriftFrom(FactoryState with { Port = null }, Catalog).ChargeLimit.Should().BeFalse();
+    }
+
+    [Fact]
+    public void A_wanted_charge_limit_with_the_limit_read_as_off_counts_as_drift()
     {
         var desired = new DesiredState("Default", ChargeLimitPercent: 80);
 
-        desired.DriftFrom(FactoryState with { Port = null }, Catalog).ChargeLimit.Should().BeTrue();
+        desired.DriftFrom(FactoryState with { Port = new PortState(0x02, 0x64) }, Catalog).ChargeLimit.Should().BeTrue();
     }
 
     [Fact]
