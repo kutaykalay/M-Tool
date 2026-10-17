@@ -17,7 +17,7 @@ public sealed record DeviceMatch(MatchKind Kind, string? RecordId, string? Displ
 {
     public static DeviceMatch None { get; } = new(MatchKind.None, null, null);
 
-    public override string ToString() => Kind == MatchKind.None ? "eşleşme yok" : $"{Kind} ({RecordId})";
+    public override string ToString() => Kind == MatchKind.None ? "no match" : $"{Kind} ({RecordId})";
 }
 
 /// <summary>

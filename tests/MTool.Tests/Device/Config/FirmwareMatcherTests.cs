@@ -83,6 +83,6 @@ public class FirmwareMatcherTests
     {
         new DeviceMatch(MatchKind.Family, "msi-p65-creator-9se", "MSI P65 Creator 9SE").ToString()
             .Should().Be("Family (msi-p65-creator-9se)");
-        DeviceMatch.None.ToString().Should().Be("eşleşme yok");
+        DeviceMatch.None.ToString().Should().Be("no match");
     }
 }
