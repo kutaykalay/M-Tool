@@ -46,12 +46,16 @@ internal sealed class MsiWmi2Session : IWmi2Methods, IDisposable
         return new MsiWmi2Session(instance, request => Invoke(instance, request), CallTimeout);
     }
 
-    /// <summary>Opens the instance once, then runs every <see cref="Wmi2Calls.Report"/> call through it.</summary>
+    /// <summary>
+    /// Opens the instance once, then runs every <see cref="Wmi2Calls.Report"/> call through it, each
+    /// under the EC lock so it never runs alongside a live round in the reports window.
+    /// </summary>
     /// <exception cref="EcAccessException">The instance cannot be opened.</exception>
     public static Wmi2Readout Probe()
     {
+        using var ecLock = new AccessEcMutex();
         using var session = Open();
-        return Probe(session);
+        return Probe(new LockedWmi2Methods(session, ecLock, EcSession.LockTimeout));
     }
 
     /// <summary>The report's calls, each looked up in <see cref="Wmi2Calls"/>: a name not on the list cannot be called.</summary>
