@@ -36,7 +36,17 @@ public static class Wmi2Calls
 
     public static IReadOnlyList<byte> DataRegisters { get; } = ReadOnly([.. SensorRegisters, .. StatusRegisters]);
 
-    /// <summary>The report's raw packets (<c>--report --wmi2</c> and the GUI paths), in order.</summary>
+    /// <summary>The only list read periodically.</summary>
+    public static IReadOnlyList<Wmi2Request> Live { get; } = DataCalls(SensorRegisters);
+
+    public static IReadOnlyList<Wmi2Request> Status { get; } = DataCalls(StatusRegisters);
+
+    /// <summary>
+    /// The report's calls (<c>--report --wmi2</c> and the GUI paths), in order: the raw packets, then
+    /// every data register once, through the same requests as <see cref="Live"/> and <see cref="Status"/>.
+    /// The M-Tool-reports Worker accepts exactly these; another call makes a submission fail with 400.
+    /// Declared after <see cref="Live"/> and <see cref="Status"/>: static fields start in this order.
+    /// </summary>
     public static IReadOnlyList<Wmi2Request> Report { get; } = ReadOnly<Wmi2Request>(
     [
         new("Get_WMI", 0),
@@ -51,14 +61,12 @@ public static class Wmi2Calls
         new("Get_Thermal", 2),
         new("Get_AP", 0),
         new("Get_AP", 1),
+        .. Live,
+        .. Status,
     ]);
 
-    /// <summary>The only list read periodically.</summary>
-    public static IReadOnlyList<Wmi2Request> Live { get; } = DataCalls(SensorRegisters);
-
-    public static IReadOnlyList<Wmi2Request> Status { get; } = DataCalls(StatusRegisters);
-
-    public static IReadOnlyList<Wmi2Request> Allowed { get; } = ReadOnly([.. Report, .. Live, .. Status]);
+    /// <summary>Every call M-Tool may make: the report holds every list.</summary>
+    public static IReadOnlyList<Wmi2Request> Allowed { get; } = ReadOnly([.. Report.Concat(Live).Concat(Status).Distinct()]);
 
     /// <summary>The <c>Get_Data</c> call for a register in <see cref="DataRegisters"/>.</summary>
     /// <exception cref="InvalidOperationException">The register is not in the list.</exception>

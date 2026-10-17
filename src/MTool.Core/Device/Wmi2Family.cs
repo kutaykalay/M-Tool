@@ -57,13 +57,13 @@ public static class Wmi2Family
     public const string Sources =
         "GhostDeck 7f3a670 (issues #1, #6, #14, #47, #52, #90, #180, #228), msi-ec, YAMDCC";
 
-    private const byte CpuTemperature = 0x68;
-    private const byte GpuTemperature = 0x80;
-    private const byte CpuFanPercent = 0x71;
-    private const byte GpuFanPercent = 0x89;
-    private const byte CpuTach = 0xC8;
-    private const byte GpuTach = 0xCA;
-    private const int TachLength = 2;
+    public const byte CpuTemperature = 0x68;
+    public const byte GpuTemperature = 0x80;
+    public const byte CpuFanPercent = 0x71;
+    public const byte GpuFanPercent = 0x89;
+    public const byte CpuTach = 0xC8;
+    public const byte GpuTach = 0xCA;
+    public const int TachLength = 2;
 
     private const byte CoolerBoostRegister = 0x98;
     private const byte PerformanceModeRegister = 0xD2;

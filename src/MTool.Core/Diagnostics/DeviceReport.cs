@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using MTool.Core.Device.Config;
+using MTool.Core.Ec;
 
 namespace MTool.Core.Diagnostics;
 
@@ -115,7 +116,7 @@ public static class DeviceReport
         foreach (var call in readout.Calls)
         {
             var answer = call.Packet is { } packet ? string.Join(' ', packet.Select(b => $"{b:X2}")) : $"failed ({call.Error})";
-            text.AppendLine($"  {call.Method}({call.Sub}) : {answer}");
+            text.AppendLine($"  {call.Method}({Sub(call)}) : {answer}");
         }
 
         if (!TryInterpret(readout, out var reading, out var failure))
@@ -131,6 +132,11 @@ public static class DeviceReport
         if (reading.Problem is not null)
         {
             text.AppendLine(Line("Unreadable", reading.Problem));
+        }
+
+        foreach (var line in Wmi2DataLines.For(readout, Line))
+        {
+            text.AppendLine(line);
         }
     }
 
@@ -150,6 +156,10 @@ public static class DeviceReport
             return false;
         }
     }
+
+    /// <summary>A Get_Data address in hex, as the EC maps write it; any other sub as a number.</summary>
+    private static string Sub(Wmi2Call call) =>
+        call.Method == Wmi2Calls.GetData ? $"0x{call.Sub:X2}" : call.Sub.ToString(CultureInfo.InvariantCulture);
 
     private static string Show(int? value) => value?.ToString(CultureInfo.InvariantCulture) ?? "?";
 

@@ -75,17 +75,26 @@ public class Wmi2CallsTests
     }
 
     [Fact]
-    public void The_report_list_is_unchanged_until_the_server_accepts_get_data()
+    public void The_report_list_is_the_packets_then_every_data_register_once()
     {
-        // Adım 9 adds Get_Data to the report only after the Worker accepts it; until then a WMI2
-        // submission with Get_Data would be refused with 400.
-        Wmi2Calls.Report.Should().NotContain(r => r.Method == Wmi2Calls.GetData);
+        // The Worker accepts Get_Data at these addresses (M-Tool-reports, "accept the pinned Get_Data
+        // reads"); a report with any other call would be refused with 400.
         Wmi2Calls.Report.Select(r => (r.Method, r.Sub)).Should().Equal(
-            ("Get_WMI", 0), ("Get_EC", 0),
-            ("Get_Temperature", 0), ("Get_Temperature", 1), ("Get_Temperature", 2),
-            ("Get_Fan", 0), ("Get_Fan", 1), ("Get_Fan", 2),
-            ("Get_Thermal", 1), ("Get_Thermal", 2),
-            ("Get_AP", 0), ("Get_AP", 1));
+            new (string, byte)[]
+            {
+                ("Get_WMI", 0), ("Get_EC", 0),
+                ("Get_Temperature", 0), ("Get_Temperature", 1), ("Get_Temperature", 2),
+                ("Get_Fan", 0), ("Get_Fan", 1), ("Get_Fan", 2),
+                ("Get_Thermal", 1), ("Get_Thermal", 2),
+                ("Get_AP", 0), ("Get_AP", 1),
+            }.Concat(SensorRegisters.Concat(StatusRegisters).Select(register => (Wmi2Calls.GetData, register))));
+    }
+
+    [Fact]
+    public void The_report_reads_get_data_through_the_live_and_status_requests()
+    {
+        Wmi2Calls.Report.Where(r => r.Method == Wmi2Calls.GetData)
+            .Should().Equal(Wmi2Calls.Live.Concat(Wmi2Calls.Status), ReferenceEquals);
     }
 
     [Fact]

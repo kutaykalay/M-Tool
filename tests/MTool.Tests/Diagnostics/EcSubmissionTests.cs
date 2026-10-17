@@ -51,6 +51,39 @@ public sealed class EcSubmissionTests
         Json(Input()).Should().Be(sample.ReplaceLineEndings("\n").TrimEnd('\n'));
     }
 
+    /// <summary>
+    /// A WMI2 laptop's payload with every report call (the M-Tool-reports Worker tests this same file):
+    /// a call it does not know would be refused with 400. One call failed, so a null packet is in it too.
+    /// </summary>
+    [Fact]
+    public void The_wmi2_payload_is_byte_for_byte_the_wmi2_contract_sample()
+    {
+        var sample = File.ReadAllText(Path.Combine(RepoFiles.Root, "tests", "MTool.Tests", "Contracts", "ec-submission-v1-wmi2.sample.json"));
+
+        Json(Wmi2Input()).Should().Be(sample.ReplaceLineEndings("\n").TrimEnd('\n'));
+    }
+
+    private static DeviceReportInput Wmi2Input()
+    {
+        var calls = Wmi2Probe.Calls.Select((call, i) =>
+        {
+            if (call is ("Get_Thermal", 2))
+            {
+                return new Wmi2Call(call.Method, call.Sub, null, "TimeoutException: no answer");
+            }
+
+            var packet = new byte[Wmi2Probe.PacketLength];
+            (packet[0], packet[1], packet[2]) = (Wmi2Probe.Success, call.Sub, (byte)i);
+            return new Wmi2Call(call.Method, call.Sub, packet, null);
+        });
+        return Input(
+            system: Section.Ok(P65System with { Model = "Katana GF66 11UE", BaseBoard = "MS-1581" }),
+            wmi: Section.Ok<WmiInterface?>(WmiInterface.Wmi2),
+            classes: Section.Ok<IReadOnlyList<WmiClassInfo>>([new WmiClassInfo("MSI_ACPI", [])]),
+            ec: Section.Failed<EcReadout>("not read: M-Tool reads the EC only through WMI1 so far"),
+            wmi2: Section.Ok(new Wmi2Readout(calls.ToList())));
+    }
+
     [Fact]
     public void Lines_end_with_a_line_feed_only() =>
         Json(Input()).Should().Contain("\n").And.NotContain("\r");

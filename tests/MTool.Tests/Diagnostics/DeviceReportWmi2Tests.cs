@@ -62,4 +62,79 @@ public class DeviceReportWmi2Tests
     {
         DeviceReport.Format(Input(WmiInterface.Wmi1, wmi2: null), privateWords: []).Should().NotContain("WMI2, Get_*");
     }
+
+    /// <summary>The value each Get_Data register answers: temperatures 60/46, fans 45/30 %, CPU tach one byte, GPU tach unclear.</summary>
+    private static readonly Dictionary<byte, byte> DataAnswers = new()
+    {
+        [0x68] = 0x3C,
+        [0x80] = 0x2E,
+        [0x71] = 0x2D,
+        [0x89] = 0x1E,
+        [0xC8] = 0x00,
+        [0xC9] = 0xA0,
+        [0xCA] = 0x01,
+        [0xCB] = 0xA0,
+        [0x98] = 0x00,
+        [0xD2] = 0xC1,
+        [0xD4] = 0x0D,
+        [0xD7] = 0xD0,
+    };
+
+    private static byte[] DataPacket(byte value, byte flag = Wmi2Probe.Success)
+    {
+        var packet = new byte[Wmi2Probe.PacketLength];
+        (packet[0], packet[1]) = (flag, value);
+        return packet;
+    }
+
+    private static Wmi2Readout WithData(Func<byte, Wmi2Call?>? replace = null) => new(
+        [.. Readout().Calls, .. DataAnswers.Select(a => replace?.Invoke(a.Key) ?? new Wmi2Call("Get_Data", a.Key, DataPacket(a.Value), null))]);
+
+    private static string Report(Wmi2Readout readout) =>
+        DeviceReport.Format(Input(WmiInterface.Wmi2, Section.Ok(readout)), privateWords: []);
+
+    [Fact]
+    public void Get_data_names_its_register_in_hex()
+    {
+        Report(WithData()).Should().Contain("  Get_Data(0x68) : 01 3C 00 00");
+    }
+
+    [Fact]
+    public void The_get_data_reading_sits_next_to_the_packet_reading_with_its_raw_bytes()
+    {
+        var text = Report(WithData());
+
+        text.Should().Contain("Get_Data     : the pinned EC registers, unverified")
+            .And.Contain("Temperatures : CPU 60 C (0x68 = 3C), GPU 46 C (0x80 = 2E)")
+            .And.Contain("Fans         : CPU 45 % (0x71 = 2D), 2987 RPM (0xC8:0xC9 = 00 A0); GPU 30 % (0x89 = 1E), RPM unclear (0xCA:0xCB = 01 A0)")
+            .And.Contain("Status       : 0x98 = 00, 0xD2 = C1, 0xD4 = 0D, 0xD7 = D0");
+        text.IndexOf("Get_Data     :", StringComparison.Ordinal).Should().BeGreaterThan(text.IndexOf("Reading      :", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void An_implausible_temperature_is_a_question_mark_with_its_raw_byte()
+    {
+        var text = Report(WithData(r => r == 0x80 ? new Wmi2Call("Get_Data", r, DataPacket(0x00), null) : null));
+
+        text.Should().Contain("GPU ? C (0x80 = 00)");
+    }
+
+    [Theory]
+    [InlineData("failed")]
+    [InlineData("flag")]
+    public void A_register_that_did_not_answer_leaves_the_reading_out_and_says_how_many_did(string how)
+    {
+        var text = Report(WithData(r => r != 0xD4 ? null
+            : how == "failed" ? new Wmi2Call("Get_Data", r, null, "TimeoutException: no answer")
+            : new Wmi2Call("Get_Data", r, DataPacket(0x0D, flag: 0), null)));
+
+        text.Should().Contain("Get_Data     : incomplete, 11 of 12 registers answered")
+            .And.NotContain("Status       :");
+    }
+
+    [Fact]
+    public void A_readout_without_get_data_has_no_get_data_reading()
+    {
+        Report(Readout()).Should().NotContain("Get_Data");
+    }
 }

@@ -42,6 +42,12 @@ public sealed record Wmi2Readout(IReadOnlyList<Wmi2Call> Calls)
             problems.Count == 0 ? null : string.Join("; ", problems));
     }
 
+    /// <summary>The value each <c>Get_Data</c> register answered (byte 1 of a whole packet whose first byte is 1), by address.</summary>
+    public IReadOnlyDictionary<byte, byte> DataValues() => Calls
+        .Where(c => c.Method == Wmi2Calls.GetData && c.Packet is { Count: Wmi2Probe.PacketLength } p && p[0] == Wmi2Probe.Success)
+        .GroupBy(c => c.Sub)
+        .ToDictionary(g => g.Key, g => g.First().Packet![1]);
+
     /// <summary>
     /// A whole packet whose method reported success (first byte 1). A packet shorter than
     /// <see cref="Wmi2Probe.PacketLength"/> is not read at all and is named in <paramref name="problems"/>.
