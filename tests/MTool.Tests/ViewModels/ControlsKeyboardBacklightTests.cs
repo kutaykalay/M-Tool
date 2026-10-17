@@ -112,6 +112,25 @@ public sealed class ControlsKeyboardBacklightTests : IDisposable
         BacklightWrites.Should().Equal("keyboard backlight 0");
     }
 
+    // The window ends a press on both the button release and the lost mouse capture.
+    [Fact]
+    public async Task A_second_release_or_one_without_a_press_writes_nothing()
+    {
+        await _controls.RefreshAsync(PortUse.None);
+        var gate = new TaskCompletionSource();
+        _control.WriteGate = gate;
+
+        _controls.EndKeyboardBacklightDrag();
+        _controls.BeginKeyboardBacklightDrag();
+        _controls.KeyboardBacklightLevel = 3;
+        _controls.EndKeyboardBacklightDrag();
+        _controls.EndKeyboardBacklightDrag();
+
+        _controls.KeyboardBacklightLevel.Should().Be(3, "the second release must not snap the bar back while the write runs");
+        gate.SetResult();
+        BacklightWrites.Should().Equal("keyboard backlight 3");
+    }
+
     [Fact]
     public async Task A_refresh_during_a_drag_does_not_move_the_bar()
     {

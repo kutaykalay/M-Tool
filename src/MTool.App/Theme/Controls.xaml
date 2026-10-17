@@ -126,4 +126,61 @@
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
+
+    <!--
+        A bar with four dots (0-3): click a dot or drag the knob. The dots sit half a knob in from each
+        end, where the Track puts the knob's centre at the minimum and the maximum. Tag False hides the
+        knob: the value is none of the steps.
+    -->
+    <Style x:Key="StepSlider" TargetType="Slider">
+        <Setter Property="Minimum" Value="0" />
+        <Setter Property="Maximum" Value="3" />
+        <Setter Property="TickFrequency" Value="1" />
+        <Setter Property="IsSnapToTickEnabled" Value="True" />
+        <Setter Property="IsMoveToPointEnabled" Value="True" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <!-- Transparent, not null: the whole bar takes clicks. -->
+                    <Grid x:Name="Root" Height="22" Background="Transparent">
+                        <Rectangle Height="2" Margin="9,0" VerticalAlignment="Center" Fill="{DynamicResource Brush.Border}" />
+                        <Grid Margin="9,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Ellipse Grid.Column="0" Width="8" Height="8" Margin="-4,0,0,0" HorizontalAlignment="Left" Fill="{DynamicResource Brush.TextMuted}" />
+                            <Ellipse Grid.Column="1" Width="8" Height="8" Margin="-4,0,0,0" HorizontalAlignment="Left" Fill="{DynamicResource Brush.TextMuted}" />
+                            <Ellipse Grid.Column="2" Width="8" Height="8" Margin="-4,0,0,0" HorizontalAlignment="Left" Fill="{DynamicResource Brush.TextMuted}" />
+                            <Ellipse Grid.Column="2" Width="8" Height="8" Margin="0,0,-4,0" HorizontalAlignment="Right" Fill="{DynamicResource Brush.TextMuted}" />
+                        </Grid>
+                        <Track x:Name="PART_Track">
+                            <Track.Thumb>
+                                <Thumb x:Name="Knob" Width="18" Height="18">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Ellipse Fill="{DynamicResource Brush.Accent}" />
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Tag">
+                            <Trigger.Value>
+                                <sys:Boolean>False</sys:Boolean>
+                            </Trigger.Value>
+                            <Setter TargetName="Knob" Property="Visibility" Value="Hidden" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using MTool.App.ViewModels;
@@ -83,6 +84,14 @@ internal partial class MainWindow : Window
         _editor.Show();
         _editor.Activate();
     }
+
+    // A click or drag on the keyboard backlight bar writes once, on release; the lost capture covers a
+    // release outside the window and the bar being disabled mid-press. A second end is ignored.
+    private void OnBacklightPressed(object sender, MouseButtonEventArgs e) => _viewModel.Controls.BeginKeyboardBacklightDrag();
+
+    private void OnBacklightReleased(object sender, MouseButtonEventArgs e) => _viewModel.Controls.EndKeyboardBacklightDrag();
+
+    private void OnBacklightCaptureLost(object sender, MouseEventArgs e) => _viewModel.Controls.EndKeyboardBacklightDrag();
 
     public void ApplyTitleBarTheme(bool dark) => TitleBar.ApplyTheme(this, dark);
 

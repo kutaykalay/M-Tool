@@ -16,8 +16,8 @@ public sealed partial class XamlLiteralTests
 
     private static readonly string[] MarkupExtensions = ["{Binding", "{x:Static", "{StaticResource", "{DynamicResource", "{TemplateBinding", "{x:Null"];
 
-    /// <summary>Names and symbols that read the same in every language.</summary>
-    private static readonly HashSet<string> Shared = ["CPU", "GPU", "M-Tool", "Cooler Boost", "COOLER BOOST", "–", "°C", "True", "False"];
+    /// <summary>Names and symbols that read the same in every language; 1-3 are the keyboard backlight steps.</summary>
+    private static readonly HashSet<string> Shared = ["CPU", "GPU", "M-Tool", "Cooler Boost", "COOLER BOOST", "–", "°C", "True", "False", "1", "2", "3"];
 
     [Fact]
     public void Xaml_text_is_bound_or_shared_by_every_language()
