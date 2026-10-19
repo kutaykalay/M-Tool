@@ -344,6 +344,10 @@
     <value>The settings could not be read; the values shown may be out of date ({0}).</value>
     <comment>Warning band. {0} is the technical reason.</comment>
   </data>
+  <data name="Controls_PortUnread" xml:space="preserve">
+    <value>Cooler Boost and the charge limit could not be read; details are in the log.</value>
+    <comment>Warning band when the window or a command tried to read Cooler Boost and the charge limit and could not; both then show as unknown.</comment>
+  </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>There is nothing to reapply.</value>
     <comment>Message after pressing Reapply when no setting is chosen.</comment>

@@ -261,6 +261,9 @@
   <data name="Controls_ReadFailed" xml:space="preserve">
     <value>Ayarlar okunamadı, değerler eski olabilir ({0}).</value>
   </data>
+  <data name="Controls_PortUnread" xml:space="preserve">
+    <value>Cooler Boost ve şarj limiti okunamadı; ayrıntı log'da.</value>
+  </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>Yeniden uygulanacak bir şey yok.</value>
   </data>

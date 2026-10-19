@@ -62,7 +62,7 @@ public sealed record DesiredState(
 
     /// <summary>
     /// A wanted charge limit that is not known yet (<see cref="ControlState.Port"/> null: unread at
-    /// start-up, or a failed read with its own warning) is no drift; the charge row shows "unknown".
+    /// start-up, or a failed read, which the window warns about) is no drift; the charge row shows "unknown".
     /// Only a read value can differ.
     /// </summary>
     public StateDrift DriftFrom(ControlState actual, ProfileCatalog catalog) => new(

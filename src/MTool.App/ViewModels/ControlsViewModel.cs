@@ -199,6 +199,21 @@ public sealed partial class ControlsViewModel : ObservableObject
         {
             ShowDrift(state);
         }
+
+        WarnIfPortUnread(state, portUse, access);
+    }
+
+    /// <summary>
+    /// A port read that failed is only logged and gives an unknown port state, which is no drift; without this the
+    /// charge row would turn "unknown" in silence. Start-up and resume do not read the port, so they say nothing.
+    /// </summary>
+    private void WarnIfPortUnread(ControlState state, PortUse portUse, DeviceAccess access)
+    {
+        // A write failure message ("locked, restart") matters more than this one.
+        if (portUse == PortUse.Allowed && access.PortFeaturesAvailable && state.Port is null && _status.MessageKind != MessageKind.Error)
+        {
+            _status.ShowWarning(Strings.Controls_PortUnread);
+        }
     }
 
     /// <summary>No EC read: the profiles changed, the EC did not. A running command shows the drift when it is done.</summary>

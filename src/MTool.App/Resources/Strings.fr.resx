@@ -261,6 +261,9 @@
   <data name="Controls_ReadFailed" xml:space="preserve">
     <value>Les réglages n'ont pas pu être lus ; les valeurs affichées peuvent être périmées ({0}).</value>
   </data>
+  <data name="Controls_PortUnread" xml:space="preserve">
+    <value>Impossible de lire Cooler Boost et la limite de charge ; détails dans le journal.</value>
+  </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>Il n'y a rien à réappliquer.</value>
   </data>

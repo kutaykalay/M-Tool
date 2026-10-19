@@ -261,6 +261,9 @@
   <data name="Controls_ReadFailed" xml:space="preserve">
     <value>Не удалось прочитать настройки; показанные значения могут быть устаревшими ({0}).</value>
   </data>
+  <data name="Controls_PortUnread" xml:space="preserve">
+    <value>Не удалось прочитать Cooler Boost и предел заряда; подробности в журнале.</value>
+  </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>Нечего применять снова.</value>
   </data>

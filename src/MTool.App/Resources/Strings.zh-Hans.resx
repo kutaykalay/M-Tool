@@ -261,6 +261,9 @@
   <data name="Controls_ReadFailed" xml:space="preserve">
     <value>无法读取设置，显示的数值可能已过时（{0}）。</value>
   </data>
+  <data name="Controls_PortUnread" xml:space="preserve">
+    <value>无法读取 Cooler Boost 和充电上限；详情见日志。</value>
+  </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>没有需要重新应用的设置。</value>
   </data>

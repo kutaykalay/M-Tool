@@ -388,6 +388,41 @@ public sealed class ControlsViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task A_port_that_could_not_be_read_on_a_user_refresh_is_said_not_left_silent()
+    {
+        // P65Control logs a failed port read and gives an unknown port state; the charge row alone would say nothing.
+        _control.State = _control.State with { Port = null };
+
+        await _controls.RefreshAsync(PortUse.Allowed);
+
+        _status.Message.Should().Be("Cooler Boost ve şarj limiti okunamadı; ayrıntı log'da.");
+        _status.MessageKind.Should().Be(MessageKind.Warning);
+    }
+
+    [Fact]
+    public async Task An_unread_port_at_start_up_or_without_a_port_is_no_warning()
+    {
+        _control.State = _control.State with { Port = null };
+        await _controls.RefreshAsync(PortUse.None);
+        _status.Message.Should().BeNull("start-up and resume do not read the port");
+
+        _control.Access = _control.Access with { PortFeaturesAvailable = false };
+        await _controls.RefreshAsync(PortUse.Allowed);
+        _status.Message.Should().BeNull("without the port there is nothing to read");
+    }
+
+    [Fact]
+    public async Task A_failed_write_message_is_not_replaced_by_the_unread_port_warning()
+    {
+        _control.State = _control.State with { Port = null };
+        _status.Report(new CommandResult(new WriteOutcome(WriteStatus.FailedRecovered, [], "yazılamadı")));
+
+        await _controls.RefreshAsync(PortUse.Allowed);
+
+        _status.MessageKind.Should().Be(MessageKind.Error);
+    }
+
+    [Fact]
     public async Task A_state_read_failure_is_reported_not_thrown()
     {
         var failing = new ThrowingStateControl(_control);

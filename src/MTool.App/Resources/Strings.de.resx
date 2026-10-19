@@ -261,6 +261,9 @@
   <data name="Controls_ReadFailed" xml:space="preserve">
     <value>Die Einstellungen konnten nicht gelesen werden; die angezeigten Werte sind möglicherweise veraltet ({0}).</value>
   </data>
+  <data name="Controls_PortUnread" xml:space="preserve">
+    <value>Cooler Boost und das Ladelimit konnten nicht gelesen werden; Details im Protokoll.</value>
+  </data>
   <data name="Controls_NothingToReapply" xml:space="preserve">
     <value>Es gibt nichts erneut anzuwenden.</value>
   </data>
