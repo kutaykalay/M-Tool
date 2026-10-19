@@ -124,12 +124,15 @@ internal sealed class GuiBootstrapper : IDisposable
         teardown.Push(("power events", powerEvents.Dispose));
 
         // The resume reapply's refresh must not show Cooler Boost from before sleep. The clear is immediate
-        // unless a port access holds the gate, and the reapply waits its resume delay first.
+        // unless a port access holds the gate, and the reapply waits its resume delay first. An open window
+        // shows it unknown at once (set once the view model exists).
+        Action? showWakeState = null;
         async void ForgetPortState()
         {
             try
             {
                 await control.ForgetPortStateAsync();
+                showWakeState?.Invoke();
             }
             catch (Exception ex)
             {
@@ -143,6 +146,7 @@ internal sealed class GuiBootstrapper : IDisposable
 
         var ui = new DispatcherUi(app);
         var viewModel = new MainViewModel(poller, service, control, powerEvents, tray, ui, TimeProvider.System, settings.WindowsUi);
+        showWakeState = () => ui.Post(viewModel.Controls.ShowPortCacheAfterWake);
         teardown.Push(("status message timer", viewModel.Status.Dispose));
         window = new MainWindow(viewModel, () =>
         {

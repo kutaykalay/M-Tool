@@ -194,6 +194,8 @@ public sealed partial class ControlsViewModel : ObservableObject
             return;
         }
 
+        // The cache now, never older than this read's: a read from before sleep cannot bring back the old Cooler Boost.
+        state = state with { Port = _control.CachedPortState };
         Show(state);
         if (updateDrift)
         {
@@ -213,6 +215,20 @@ public sealed partial class ControlsViewModel : ObservableObject
         if (portUse == PortUse.Allowed && access.PortFeaturesAvailable && state.Port is null && _status.MessageKind != MessageKind.Error)
         {
             _status.ShowWarning(Strings.Controls_PortUnread);
+        }
+    }
+
+    /// <summary>
+    /// Call after the wake reset of the port cache. No EC read (the EC is not reached while it wakes): the EC
+    /// turns Cooler Boost off in sleep, so the shown one becomes unknown at once instead of at the resume
+    /// reapply's refresh. The charge limit stays (the EC keeps it). A refresh still running shows the cache as
+    /// it is when it ends, so one from before sleep cannot bring the old value back and one after wake is kept.
+    /// </summary>
+    public void ShowPortCacheAfterWake()
+    {
+        if (_shown is { } state)
+        {
+            Show(state with { Port = _control.CachedPortState });
         }
     }
 

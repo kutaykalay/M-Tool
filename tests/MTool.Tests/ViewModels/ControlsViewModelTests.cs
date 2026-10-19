@@ -387,6 +387,69 @@ public sealed class ControlsViewModelTests : IDisposable
         _status.ShowReapply.Should().BeFalse();
     }
 
+    // The fake's port cache is State.Port; the wake reset in P65Control makes its Cooler Boost unknown.
+    private void ResetPortCacheForWake() =>
+        _control.State = _control.State with { Port = _control.State.Port! with { CoolerBoostKnown = false } };
+
+    [Fact]
+    public async Task On_wake_the_shown_cooler_boost_becomes_unknown_at_once_without_reading_the_ec()
+    {
+        _control.State = _control.State with { Port = new PortState(0x82, 0xD0) };
+        await _controls.RefreshAsync(PortUse.Allowed);
+        _controls.CoolerBoostOn.Should().BeTrue();
+        var reads = _control.Calls.Count;
+        ResetPortCacheForWake();
+
+        _controls.ShowPortCacheAfterWake();
+
+        _controls.CoolerBoostOn.Should().BeNull();
+        _controls.ChargeLimitActual.Should().Be(80, "the EC keeps the charge limit in sleep");
+        _control.Calls.Should().HaveCount(reads, "the EC is not reached while it wakes");
+    }
+
+    [Fact]
+    public async Task A_refresh_from_before_sleep_does_not_bring_back_the_old_cooler_boost()
+    {
+        _control.State = _control.State with { Port = new PortState(0x82, 0xD0) };
+        var beforeSleep = new TaskCompletionSource();
+        _control.NextReadGate = beforeSleep;
+        var refresh = _controls.RefreshAsync(PortUse.Allowed);
+
+        ResetPortCacheForWake();
+        _controls.ShowPortCacheAfterWake();
+        beforeSleep.SetResult();
+        await refresh;
+
+        _controls.CoolerBoostOn.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task A_port_read_after_wake_still_running_when_the_wake_is_shown_is_not_hidden()
+    {
+        _control.State = _control.State with { Port = new PortState(0x82, 0xD0) };
+        await _controls.RefreshAsync(PortUse.Allowed);
+        ResetPortCacheForWake();
+        var afterWake = new TaskCompletionSource();
+        _control.NextReadGate = afterWake;
+        var refresh = _controls.RefreshAsync(PortUse.Allowed);
+        _control.State = _control.State with { Port = new PortState(0x02, 0xD0) }; // the read stores what the EC holds now
+
+        _controls.ShowPortCacheAfterWake();
+        afterWake.SetResult();
+        await refresh;
+
+        _controls.CoolerBoostOn.Should().BeFalse();
+    }
+
+    [Fact]
+    public void On_wake_before_any_read_nothing_is_shown()
+    {
+        _controls.ShowPortCacheAfterWake();
+
+        _controls.CoolerBoostOn.Should().BeNull();
+        _controls.ChargeLimitActual.Should().BeNull();
+    }
+
     [Fact]
     public async Task A_port_that_could_not_be_read_on_a_user_refresh_is_said_not_left_silent()
     {
@@ -504,6 +567,8 @@ public sealed class ControlsViewModelTests : IDisposable
     private sealed class ThrowingStateControl(FakeP65Control inner) : IP65Control
     {
         public DeviceAccess Access => inner.Access;
+
+        public PortState? CachedPortState => inner.CachedPortState;
 
         public Task<ControlState> ReadControlStateAsync(PortUse portUse, CancellationToken cancellationToken = default) =>
             Task.FromException<ControlState>(new EcAccessException("EC hung"));

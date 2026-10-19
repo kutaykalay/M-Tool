@@ -61,6 +61,9 @@ internal sealed class FakeP65Control : IP65Control
     /// <summary>When set, the next state read returns the state of its start only once this completes.</summary>
     public TaskCompletionSource? NextReadGate { get; set; }
 
+    /// <summary>The port part of <see cref="State"/>: what a real cache would hold now.</summary>
+    public PortState? CachedPortState => State.Port;
+
     public async Task<ControlState> ReadControlStateAsync(PortUse portUse, CancellationToken cancellationToken = default)
     {
         Calls.Enqueue("read state");

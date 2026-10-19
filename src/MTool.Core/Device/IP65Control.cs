@@ -44,6 +44,12 @@ public interface IP65Control
     /// </summary>
     Task<KeyboardBacklightState?> ReadKeyboardBacklightAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Cooler Boost and the charge limit as the port cache holds them now: no EC access, no wait. Never older
+    /// than the <see cref="ControlState.Port"/> of a read that already finished; after a wake its Cooler Boost is unknown.
+    /// </summary>
+    PortState? CachedPortState { get; }
+
     /// <summary>Rides out silent EC periods like the gateway does.</summary>
     /// <param name="portUse">
     /// <see cref="PortUse.None"/>: Cooler Boost and the charge limit come only from the cache, unknown

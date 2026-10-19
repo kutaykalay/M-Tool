@@ -331,6 +331,19 @@ public sealed class P65ControlTests : IDisposable
     }
 
     [Fact]
+    public async Task The_port_cache_is_given_as_it_is_without_reaching_the_ec()
+    {
+        var control = Control();
+        control.CachedPortState.Should().BeNull("nothing was read yet");
+        await control.SetCoolerBoostAsync(true);
+        await control.ForgetPortStateAsync();
+        var portReads = RecordPortReads();
+
+        control.CachedPortState.Should().Be(new PortState(0x82, 0xD0, CoolerBoostKnown: false));
+        portReads.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task After_sleep_an_unread_port_stays_unknown()
     {
         var control = Control();
@@ -367,6 +380,34 @@ public sealed class P65ControlTests : IDisposable
 
         state.Port.Should().Be(new PortState(0x02, 0xD0));
         portReads.Should().BeEquivalentTo([0x98, 0xEF]);
+    }
+
+    [Fact]
+    public async Task A_port_write_from_before_sleep_that_ends_after_wake_cannot_leave_cooler_boost_known()
+    {
+        // Every cache change holds the port gate, the wake reset too: it always lands after an older port access.
+        var control = Control();
+        using var sleeping = new ManualResetEventSlim();
+        using var readStarted = new ManualResetEventSlim();
+        _ec.ReadHook = register =>
+        {
+            if (register == 0x98 && !readStarted.IsSet)
+            {
+                readStarted.Set();
+                sleeping.Wait(TimeSpan.FromSeconds(5));
+            }
+
+            return null;
+        };
+        var writeBeforeSleep = control.SetCoolerBoostAsync(true);
+        readStarted.Wait(TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+        var forget = control.ForgetPortStateAsync();
+        sleeping.Set();
+        (await writeBeforeSleep).Status.Should().Be(WriteStatus.Applied);
+        await forget;
+
+        (await control.ReadControlStateAsync(PortUse.None)).Port!.CoolerBoostOn.Should().BeNull();
     }
 
     [Fact]
