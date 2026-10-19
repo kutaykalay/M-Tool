@@ -25,30 +25,30 @@ internal static class FirmwareTables
         var size = GetSystemFirmwareTable(AcpiProvider, DsdtSignature, null, 0);
         if (size == 0)
         {
-            throw new Win32Exception(Marshal.GetLastWin32Error(), "DSDT okunamadı");
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "DSDT unreadable");
         }
 
         if (size is < TableHeaderBytes or > MaxTableBytes)
         {
-            throw new InvalidDataException($"DSDT boyutu beklenmedik: {size} bayt");
+            throw new InvalidDataException($"Unexpected DSDT size: {size} bytes");
         }
 
         var table = new byte[size];
         var copied = GetSystemFirmwareTable(AcpiProvider, DsdtSignature, table, size);
         if (copied != size)
         {
-            throw new Win32Exception(Marshal.GetLastWin32Error(), $"DSDT kopyalanamadı ({copied}/{size} bayt)");
+            throw new Win32Exception(Marshal.GetLastWin32Error(), $"DSDT not copied ({copied}/{size} bytes)");
         }
 
         if (table[0] != 'D' || table[1] != 'S' || table[2] != 'D' || table[3] != 'T')
         {
-            throw new InvalidDataException("Okunan tablo DSDT değil.");
+            throw new InvalidDataException("The table read is not a DSDT.");
         }
 
         // The ACPI header's own length (offset 4) must agree with what Windows copied.
         if (BitConverter.ToUInt32(table, 4) != size)
         {
-            throw new InvalidDataException($"DSDT başlığındaki uzunluk ({BitConverter.ToUInt32(table, 4)}) okunan boyutla ({size}) uyuşmuyor.");
+            throw new InvalidDataException($"The DSDT header length ({BitConverter.ToUInt32(table, 4)}) does not match the size read ({size}).");
         }
 
         return table;

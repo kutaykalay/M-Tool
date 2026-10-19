@@ -1,8 +1,10 @@
 using System.Collections.Frozen;
 using System.Management;
 using System.Text.RegularExpressions;
+using MTool.App.Resources;
 using MTool.Core.Device;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 
 namespace MTool.App.Hardware;
 
@@ -45,7 +47,7 @@ internal sealed class MsiWmiFields : IWmiFields
     /// <summary>Connects and finds the instance prefix from the firmware class.</summary>
     /// <param name="map">The only fields this session may read.</param>
     /// <exception cref="EcAccessException">WMI1 is missing or does not answer.</exception>
-    public static MsiWmiFields Open(WmiFieldMap map) => Bounded("bağlantı", CallTimeout, () =>
+    public static MsiWmiFields Open(WmiFieldMap map) => Bounded("connect", CallTimeout, () =>
     {
         var scope = Connect();
         using var searcher = new ManagementObjectSearcher(
@@ -62,7 +64,7 @@ internal sealed class MsiWmiFields : IWmiFields
             EnsureMapped(_map, className, index);
         }
 
-        return Call($"{className} okuma", scope => indices.Select(i => ReadOne(scope, className, i)).ToArray());
+        return Call($"{className} read", scope => indices.Select(i => ReadOne(scope, className, i)).ToArray());
     }
 
     /// <summary>
@@ -74,10 +76,10 @@ internal sealed class MsiWmiFields : IWmiFields
         EnsureMapped(_map, className, index);
         if (!Writable.Contains(new WmiField(className, index)))
         {
-            throw new InvalidOperationException($"{className}[{index}] yazılabilir bir register'a ait değil.");
+            throw new InvalidOperationException($"{className}[{index}] does not belong to a writable register.");
         }
 
-        Call($"{className}[{index}] yazma", scope =>
+        Call($"{className}[{index}] write", scope =>
         {
             using var field = Get(scope, className, index);
             field[ValueProperty(className)] = value;
@@ -91,7 +93,7 @@ internal sealed class MsiWmiFields : IWmiFields
     {
         if (!map.FieldSet.Contains(new WmiField(className, index)))
         {
-            throw new InvalidOperationException($"{className}[{index}] WMI haritasında yok.");
+            throw new InvalidOperationException($"{className}[{index}] is not in the WMI map.");
         }
     }
 
@@ -110,12 +112,20 @@ internal sealed class MsiWmiFields : IWmiFields
             .ToArray();
         return prefixes is [{ } prefix] && SafePrefix.IsMatch(prefix)
             ? prefix
-            : throw new EcAccessException($"{WmiMap.SoftwareClass} örnek adları beklenmeyen biçimde: {string.Join(", ", instanceNames)}");
+            : throw UnexpectedAnswer($"{WmiMap.SoftwareClass} instance names: {string.Join(", ", instanceNames)}");
+    }
+
+    /// <summary>A WMI answer M-Tool cannot use; the detail is technical and stays in English.</summary>
+    internal static EcAccessException UnexpectedAnswer(string detail)
+    {
+        var (text, log) = AppText.Say(nameof(Strings.Wmi_UnexpectedAnswer), detail);
+        return new EcAccessException(text).WithLog(log);
     }
 
     /// <summary>
     /// Runs <paramref name="access"/> on a thread-pool (MTA) thread and gives up after
     /// <paramref name="timeout"/>. Anything it throws, and the timeout, becomes an <see cref="EcAccessException"/>.
+    /// <paramref name="what"/> names the call in the message; it is a technical English label.
     /// A hung call is abandoned on its thread; its late failure is observed and dropped.
     /// </summary>
     internal static T Bounded<T>(string what, TimeSpan timeout, Func<T> access)
@@ -132,13 +142,15 @@ internal sealed class MsiWmiFields : IWmiFields
         }
         catch (AggregateException ex) when (ex.InnerException is { } inner)
         {
-            throw new EcAccessException($"WMI {what}: {inner.Message}", inner);
+            var (text, log) = AppText.Say(nameof(Strings.Wmi_CallFailed), what, inner.Message);
+            throw new EcAccessException(text, inner).WithLog(log);
         }
 
         if (!finished)
         {
             _ = call.ContinueWith(t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
-            throw new EcAccessException($"WMI {what}: no answer within {timeout.TotalSeconds:0.#} s (timeout).");
+            var (text, log) = AppText.Say(nameof(Strings.Wmi_NoAnswer), what, timeout.TotalSeconds);
+            throw new EcAccessException(text).WithLog(log);
         }
 
         return call.Result;
@@ -178,7 +190,7 @@ internal sealed class MsiWmiFields : IWmiFields
     {
         using var field = Get(scope, className, index);
         return Convert.ToInt32(field[ValueProperty(className)]
-            ?? throw new EcAccessException($"{className}[{index}] değer döndürmedi."));
+            ?? throw UnexpectedAnswer($"{className}[{index}] returned no value"));
     }
 
     private ManagementObject Get(ManagementScope scope, string className, int index)
@@ -201,7 +213,7 @@ internal sealed class MsiWmiFields : IWmiFields
         using (instance)
         {
             return instance["InstanceName"] as string
-                ?? throw new EcAccessException($"{WmiMap.SoftwareClass} örneğinin InstanceName'i yok.");
+                ?? throw UnexpectedAnswer($"{WmiMap.SoftwareClass} instance without an InstanceName");
         }
     }
 }

@@ -168,6 +168,27 @@
   <data name="Startup_EcUnreachable" xml:space="preserve">
     <value>Der EC war nicht erreichbar: {0}&#10;&#10;Details: {1}</value>
   </data>
+  <data name="PawnIo_OpenFailed" xml:space="preserve">
+    <value>Der PawnIO-Treiber ließ sich nicht öffnen. Ist PawnIO installiert und läuft M-Tool als Administrator?</value>
+  </data>
+  <data name="PawnIo_ModuleFailed" xml:space="preserve">
+    <value>PawnIO hat das Modul LpcACPIEC nicht geladen.</value>
+  </data>
+  <data name="PawnIo_CallFailed" xml:space="preserve">
+    <value>PawnIO-Aufruf fehlgeschlagen: {0}.</value>
+  </data>
+  <data name="PawnIo_BadReply" xml:space="preserve">
+    <value>PawnIO-Aufruf {0} lieferte eine unerwartete Antwort ({1}).</value>
+  </data>
+  <data name="Wmi_CallFailed" xml:space="preserve">
+    <value>WMI-Aufruf ({0}) fehlgeschlagen: {1}</value>
+  </data>
+  <data name="Wmi_NoAnswer" xml:space="preserve">
+    <value>WMI-Aufruf ({0}) hat innerhalb von {1:0.#} s nicht geantwortet (Zeitüberschreitung).</value>
+  </data>
+  <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
+    <value>WMI lieferte eine unerwartete Antwort: {0}</value>
+  </data>
   <data name="Startup_PawnIoMissing" xml:space="preserve">
     <value>PawnIO ist nicht installiert. M-Tool greift über den PawnIO-Treiber auf den EC zu.&#10;&#10;Zum Installieren (in einer Eingabeaufforderung als Administrator):&#10;{0}&#10;&#10;Details: {1}</value>
   </data>
@@ -282,6 +303,9 @@
   <data name="SignIn_MissingExe" xml:space="preserve">
     <value>eine exe, die es nicht mehr gibt: {0}</value>
   </data>
+  <data name="SignIn_TaskDescription" xml:space="preserve">
+    <value>Startet M-Tool bei der Anmeldung im Infobereich.</value>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>„Bei Anmeldung starten“ ist nicht die erwartete Aufgabe ({0}). Um sie auf diese exe umzustellen, schalten Sie die Option im Taskleistenmenü aus und wieder ein.</value>
   </data>
@@ -323,6 +347,9 @@
   </data>
   <data name="Cli_Saved" xml:space="preserve">
     <value>Gespeichert: {0}</value>
+  </data>
+  <data name="Cli_DumpAfterWriteFailed" xml:space="preserve">
+    <value>Abbild nach dem Schreiben nicht möglich: {0}</value>
   </data>
   <data name="Cli_ReportGuidance" xml:space="preserve">
     <value>Hängen Sie diese Datei an ein "Device report"-Issue auf GitHub an. Die Seriennummer wurde nicht abgefragt, Benutzer- und Computername sind in report.txt ausgeblendet. dsdt.aml ist die Firmware-Tabelle von MSI und wird nicht gefiltert. Sehen Sie report.txt durch, bevor Sie es senden.</value>
@@ -536,5 +563,8 @@
   </data>
   <data name="Wmi2_Off" xml:space="preserve">
     <value>Aus</value>
+  </data>
+  <data name="Wmi2_StillRunning" xml:space="preserve">
+    <value>MSI_ACPI: Ein früherer Aufruf läuft noch (er hat nie geantwortet); kein Aufruf erfolgt.</value>
   </data>
 </root>

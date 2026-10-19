@@ -168,6 +168,27 @@
   <data name="Startup_EcUnreachable" xml:space="preserve">
     <value>Impossible d'accéder à l'EC : {0}&#10;&#10;Détails : {1}</value>
   </data>
+  <data name="PawnIo_OpenFailed" xml:space="preserve">
+    <value>Impossible d'ouvrir le pilote PawnIO. PawnIO est-il installé et M-Tool s'exécute-t-il en administrateur ?</value>
+  </data>
+  <data name="PawnIo_ModuleFailed" xml:space="preserve">
+    <value>PawnIO n'a pas chargé le module LpcACPIEC.</value>
+  </data>
+  <data name="PawnIo_CallFailed" xml:space="preserve">
+    <value>Échec de l'appel PawnIO : {0}.</value>
+  </data>
+  <data name="PawnIo_BadReply" xml:space="preserve">
+    <value>L'appel PawnIO {0} a donné une réponse inattendue ({1}).</value>
+  </data>
+  <data name="Wmi_CallFailed" xml:space="preserve">
+    <value>Échec de l'appel WMI ({0}) : {1}</value>
+  </data>
+  <data name="Wmi_NoAnswer" xml:space="preserve">
+    <value>L'appel WMI ({0}) n'a pas répondu en {1:0.#} s (délai dépassé).</value>
+  </data>
+  <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
+    <value>WMI a donné une réponse inattendue : {0}</value>
+  </data>
   <data name="Startup_PawnIoMissing" xml:space="preserve">
     <value>PawnIO n'est pas installé. M-Tool accède à l'EC par le pilote PawnIO.&#10;&#10;Pour l'installer (dans une invite de commandes administrateur) :&#10;{0}&#10;&#10;Détails : {1}</value>
   </data>
@@ -282,6 +303,9 @@
   <data name="SignIn_MissingExe" xml:space="preserve">
     <value>un exe qui n'existe plus : {0}</value>
   </data>
+  <data name="SignIn_TaskDescription" xml:space="preserve">
+    <value>Démarre M-Tool dans la zone de notification à l'ouverture de session.</value>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>« Démarrer à l'ouverture de session » n'est pas la tâche attendue ({0}). Pour la faire pointer vers cet exe, désactivez puis réactivez l'option dans le menu de la zone de notification.</value>
   </data>
@@ -323,6 +347,9 @@
   </data>
   <data name="Cli_Saved" xml:space="preserve">
     <value>Enregistré : {0}</value>
+  </data>
+  <data name="Cli_DumpAfterWriteFailed" xml:space="preserve">
+    <value>Impossible de faire le vidage après l'écriture : {0}</value>
   </data>
   <data name="Cli_ReportGuidance" xml:space="preserve">
     <value>Joignez ce fichier à un ticket « Device report » sur GitHub. Le numéro de série n'a pas été demandé, et les noms d'utilisateur et d'ordinateur sont masqués dans report.txt. dsdt.aml est la table de firmware de MSI et n'est pas filtrée. Relisez report.txt avant de l'envoyer.</value>
@@ -536,5 +563,8 @@
   </data>
   <data name="Wmi2_Off" xml:space="preserve">
     <value>Désactivé</value>
+  </data>
+  <data name="Wmi2_StillRunning" xml:space="preserve">
+    <value>MSI_ACPI : un appel précédent est toujours en cours (il n'a jamais répondu) ; aucun appel effectué.</value>
   </data>
 </root>

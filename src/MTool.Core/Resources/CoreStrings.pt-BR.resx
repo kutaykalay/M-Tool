@@ -249,6 +249,12 @@
   <data name="Ec_WriteFailed" xml:space="preserve">
     <value>Não foi possível gravar o registrador EC {0} em {1} tentativas ({2}).</value>
   </data>
+  <data name="Wmi_ValueOutOfRange" xml:space="preserve">
+    <value>O campo WMI {0} retornou {1}, que não cabe em um byte.</value>
+  </data>
+  <data name="Wmi_FieldCountMismatch" xml:space="preserve">
+    <value>WMI {0} retornou {2} campos; foram pedidos {1}.</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} não está na lista de registradores graváveis.</value>
   </data>

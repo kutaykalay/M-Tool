@@ -1,5 +1,6 @@
 using MTool.App.Hardware;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Hardware;
@@ -93,10 +94,17 @@ public class MsiWmi2SessionTests
         });
 
         var hung = () => session.Call(Wmi2Calls.Live[0]);
-        hung.Should().Throw<EcAccessException>().WithMessage("*timeout*");
+        hung.Should().Throw<EcAccessException>().Which.ForLog().Should().Contain("timeout");
         var next = () => session.Call(Wmi2Calls.Live[1]);
 
-        next.Should().Throw<EcAccessException>().WithMessage("*never answered*");
+        using (TestCulture.Use("tr"))
+        {
+            // Shown in the report and live-read windows: in the user's language, English in the log.
+            var refused = next.Should().Throw<EcAccessException>().Which;
+            refused.Message.Should().Be("MSI_ACPI: önceki bir çağrı hâlâ sürüyor (hiç cevap vermedi); çağrı yapılmadı.");
+            refused.ForLog().Should().Be("MSI_ACPI: an earlier call is still running (it never answered); no call made.");
+        }
+
         calls.Should().ContainSingle();
         release.Set();
     }

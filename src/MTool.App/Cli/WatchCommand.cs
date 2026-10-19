@@ -4,6 +4,7 @@ using MTool.App.Hardware;
 using MTool.App.Services;
 using MTool.Core.Device;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 using MTool.Core.Power;
 
 namespace MTool.App.Cli;
@@ -81,8 +82,8 @@ internal static class WatchCommand
             Console.WriteLine(stamped);
         }
 
-        Line($"İzleme başladı: {seconds} sn, {PollInterval.TotalMilliseconds} ms aralık, salt okuma, yalnızca WMI, " +
-             $"{registers.Count} register.");
+        Line($"Watch started: {seconds} s, every {PollInterval.TotalMilliseconds} ms, read-only, WMI only, " +
+             $"{registers.Count} registers.");
         byte[]? previous = null;
         var samples = 0;
         var failures = 0;
@@ -95,17 +96,17 @@ internal static class WatchCommand
                 samples++;
                 if (paused)
                 {
-                    Line("Sürdü: EC'ye yeniden erişiliyor.");
+                    Line("Resumed: reaching the EC again.");
                     paused = false;
                 }
 
                 if (previous is null)
                 {
-                    Line($"İlk durum: {Describe(registers, current, _ => true)}");
+                    Line($"Initial: {Describe(registers, current, _ => true)}");
                 }
                 else if (!current.AsSpan().SequenceEqual(previous))
                 {
-                    Line($"Değişti: {Describe(registers, current, i => current[i] != previous[i], previous)}");
+                    Line($"Changed: {Describe(registers, current, i => current[i] != previous[i], previous)}");
                 }
 
                 previous = current;
@@ -114,20 +115,20 @@ internal static class WatchCommand
             {
                 if (!paused)
                 {
-                    Line($"Duraklatıldı: {ex.Message}");
+                    Line($"Paused: {ex.ForLog()}");
                     paused = true;
                 }
             }
             catch (EcAccessException ex)
             {
                 failures++;
-                Line($"Okunamadı: {ex.Message}");
+                Line($"Unreadable: {ex.ForLog()}");
             }
 
             stop.WaitHandle.WaitOne(PollInterval);
         }
 
-        Line($"Bitti: {samples} örnek, {failures} okunamayan{(stop.IsCancellationRequested ? " (Ctrl+C)" : "")}.");
+        Line($"Done: {samples} samples, {failures} unreadable{(stop.IsCancellationRequested ? " (Ctrl+C)" : "")}.");
     }
 
     private static string Describe(IReadOnlyList<byte> registers, byte[] current, Func<int, bool> include, byte[]? previous = null) =>

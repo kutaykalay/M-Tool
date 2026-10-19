@@ -168,6 +168,27 @@
   <data name="Startup_EcUnreachable" xml:space="preserve">
     <value>无法访问 EC：{0}&#10;&#10;详细信息：{1}</value>
   </data>
+  <data name="PawnIo_OpenFailed" xml:space="preserve">
+    <value>无法打开 PawnIO 驱动程序。是否已安装 PawnIO，且 M-Tool 是否以管理员身份运行？</value>
+  </data>
+  <data name="PawnIo_ModuleFailed" xml:space="preserve">
+    <value>PawnIO 未加载 LpcACPIEC 模块。</value>
+  </data>
+  <data name="PawnIo_CallFailed" xml:space="preserve">
+    <value>PawnIO 调用失败：{0}。</value>
+  </data>
+  <data name="PawnIo_BadReply" xml:space="preserve">
+    <value>PawnIO 调用 {0} 返回了意外的结果（{1}）。</value>
+  </data>
+  <data name="Wmi_CallFailed" xml:space="preserve">
+    <value>WMI 调用（{0}）失败：{1}</value>
+  </data>
+  <data name="Wmi_NoAnswer" xml:space="preserve">
+    <value>WMI 调用（{0}）在 {1:0.#} 秒内无响应（超时）。</value>
+  </data>
+  <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
+    <value>WMI 返回了意外的结果：{0}</value>
+  </data>
   <data name="Startup_PawnIoMissing" xml:space="preserve">
     <value>未安装 PawnIO。M-Tool 通过 PawnIO 驱动访问 EC。&#10;&#10;安装方法（在管理员命令提示符中运行）：&#10;{0}&#10;&#10;详细信息：{1}</value>
   </data>
@@ -282,6 +303,9 @@
   <data name="SignIn_MissingExe" xml:space="preserve">
     <value>已不存在的 exe：{0}</value>
   </data>
+  <data name="SignIn_TaskDescription" xml:space="preserve">
+    <value>登录时在托盘中启动 M-Tool。</value>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>“登录时启动”不是预期的任务（{0}）。要将其切换到此 exe，请在托盘菜单中将其关闭后再重新开启。</value>
   </data>
@@ -323,6 +347,9 @@
   </data>
   <data name="Cli_Saved" xml:space="preserve">
     <value>已保存：{0}</value>
+  </data>
+  <data name="Cli_DumpAfterWriteFailed" xml:space="preserve">
+    <value>写入后无法生成转储：{0}</value>
   </data>
   <data name="Cli_ReportGuidance" xml:space="preserve">
     <value>请将此文件附加到 GitHub 上的“Device report”issue。未查询序列号，report.txt 中已隐藏用户名和计算机名。dsdt.aml 是 MSI 的固件表，未经过滤。发送前请检查 report.txt。</value>
@@ -536,5 +563,8 @@
   </data>
   <data name="Wmi2_Off" xml:space="preserve">
     <value>关</value>
+  </data>
+  <data name="Wmi2_StillRunning" xml:space="preserve">
+    <value>MSI_ACPI：之前的调用仍在进行（一直未响应）；未发起调用。</value>
   </data>
 </root>

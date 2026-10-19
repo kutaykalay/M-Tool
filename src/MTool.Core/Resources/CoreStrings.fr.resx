@@ -249,6 +249,12 @@
   <data name="Ec_WriteFailed" xml:space="preserve">
     <value>Le registre EC {0} n'a pas pu être écrit en {1} tentatives ({2}).</value>
   </data>
+  <data name="Wmi_ValueOutOfRange" xml:space="preserve">
+    <value>Le champ WMI {0} a renvoyé {1}, qui ne tient pas dans un octet.</value>
+  </data>
+  <data name="Wmi_FieldCountMismatch" xml:space="preserve">
+    <value>WMI {0} a renvoyé {2} champs ; {1} étaient demandés.</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} ne figure pas dans la liste des registres modifiables.</value>
   </data>

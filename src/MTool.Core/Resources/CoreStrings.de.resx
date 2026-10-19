@@ -249,6 +249,12 @@
   <data name="Ec_WriteFailed" xml:space="preserve">
     <value>EC-Register {0} konnte in {1} Versuchen nicht geschrieben werden ({2}).</value>
   </data>
+  <data name="Wmi_ValueOutOfRange" xml:space="preserve">
+    <value>Das WMI-Feld {0} lieferte {1}; das passt nicht in ein Byte.</value>
+  </data>
+  <data name="Wmi_FieldCountMismatch" xml:space="preserve">
+    <value>WMI {0} lieferte {2} Felder; angefordert waren {1}.</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} steht nicht in der Liste der beschreibbaren Register.</value>
   </data>

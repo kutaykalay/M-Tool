@@ -383,7 +383,7 @@ public sealed class EcGateway
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"M-Tool log hatası: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"M-Tool log failure: {ex.Message}");
         }
     }
 

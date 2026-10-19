@@ -249,6 +249,12 @@
   <data name="Ec_WriteFailed" xml:space="preserve">
     <value>EC register {0} {1} denemede yazılamadı ({2}).</value>
   </data>
+  <data name="Wmi_ValueOutOfRange" xml:space="preserve">
+    <value>WMI alanı {0} bir bayta sığmayan {1} değerini döndürdü.</value>
+  </data>
+  <data name="Wmi_FieldCountMismatch" xml:space="preserve">
+    <value>WMI {0}: {1} alan istendi, {2} geldi.</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} yazılabilir register listesinde değil.</value>
   </data>

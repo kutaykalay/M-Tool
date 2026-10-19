@@ -49,7 +49,7 @@ internal sealed class FileLog : IAppLog
         catch (Exception ex)
         {
             // Logging must never take the app down; surface it to a debugger instead.
-            Debug.WriteLine($"Log yazılamadı: {ex.Message}{Environment.NewLine}{line}");
+            Debug.WriteLine($"Could not write the log: {ex.Message}{Environment.NewLine}{line}");
         }
     }
 }

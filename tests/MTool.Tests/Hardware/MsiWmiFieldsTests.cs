@@ -1,6 +1,7 @@
 using MTool.App.Hardware;
 using MTool.Core.Device;
 using MTool.Core.Device.Config;
+using MTool.Core.Localization;
 using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Hardware;
@@ -94,7 +95,7 @@ public class MsiWmiFieldsTests
 
         var act = () => MsiWmiFields.Bounded("test", TimeSpan.FromMilliseconds(100), () => never.Wait(TimeSpan.FromSeconds(5)));
 
-        act.Should().Throw<MTool.Core.Ec.EcAccessException>().WithMessage("*timeout*");
+        act.Should().Throw<MTool.Core.Ec.EcAccessException>().Which.ForLog().Should().Contain("timeout");
         clock.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(2));
         never.Set();
     }

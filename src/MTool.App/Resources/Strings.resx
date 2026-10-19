@@ -220,6 +220,34 @@
     <value>Could not reach the EC: {0}&#10;&#10;Details: {1}</value>
     <comment>Error box. EC = the laptop's embedded controller. {0} is the reason, {1} the folder of the log files.</comment>
   </data>
+  <data name="PawnIo_OpenFailed" xml:space="preserve">
+    <value>Could not open the PawnIO driver. Is PawnIO installed, and is M-Tool running as administrator?</value>
+    <comment>The port driver could not be opened. Appears inside Startup_EcUnreachable.</comment>
+  </data>
+  <data name="PawnIo_ModuleFailed" xml:space="preserve">
+    <value>PawnIO did not load the LpcACPIEC module.</value>
+    <comment>LpcACPIEC is a module name, keep as is.</comment>
+  </data>
+  <data name="PawnIo_CallFailed" xml:space="preserve">
+    <value>PawnIO call failed: {0}.</value>
+    <comment>{0}: technical function name such as ioctl_pio_read, keep as is.</comment>
+  </data>
+  <data name="PawnIo_BadReply" xml:space="preserve">
+    <value>PawnIO call {0} gave an unexpected answer ({1}).</value>
+    <comment>{0}: technical function name, keep as is. {1}: technical detail in English, keep as is.</comment>
+  </data>
+  <data name="Wmi_CallFailed" xml:space="preserve">
+    <value>WMI call ({0}) failed: {1}</value>
+    <comment>{0}: technical name of the call in English such as "MSI_CPU read", keep as is. {1}: the message from Windows.</comment>
+  </data>
+  <data name="Wmi_NoAnswer" xml:space="preserve">
+    <value>WMI call ({0}) gave no answer within {1:0.#} s (timeout).</value>
+    <comment>{0}: technical name of the call in English, keep as is. {1}: seconds; keep the format {1:0.#}.</comment>
+  </data>
+  <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
+    <value>WMI gave an unexpected answer: {0}</value>
+    <comment>{0}: technical detail in English, keep as is.</comment>
+  </data>
   <data name="Startup_PawnIoMissing" xml:space="preserve">
     <value>PawnIO is not installed. M-Tool reaches the EC through the PawnIO driver.&#10;&#10;To install (in an administrator command prompt):&#10;{0}&#10;&#10;Details: {1}</value>
     <comment>SAFETY. Error box. {0} is the install command: copy it unchanged. {1} is the folder of the log files. PawnIO is a product name. EC = the laptop's embedded controller.</comment>
@@ -372,6 +400,10 @@
     <value>an exe that no longer exists: {0}</value>
     <comment>Part of SignIn_RepairWarning ({0}): the task starts a program that was moved or deleted. {0} is its file path. Lower case, no full stop.</comment>
   </data>
+  <data name="SignIn_TaskDescription" xml:space="preserve">
+    <value>Starts M-Tool in the tray at sign-in.</value>
+    <comment>Description of the sign-in task, shown in Windows Task Scheduler. Written when the task is created.</comment>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>Start at sign-in is not the expected task ({0}). To switch it to this exe, turn it off and on again from the tray menu.</value>
     <comment>Warning band. {0} is SignIn_ForeignTask or SignIn_OtherExe. The tray menu item is Tray_StartAtSignIn: use the same wording.</comment>
@@ -427,6 +459,10 @@
   <data name="Cli_Saved" xml:space="preserve">
     <value>Saved: {0}</value>
     <comment>Command line output. {0} is the path of the file that was written.</comment>
+  </data>
+  <data name="Cli_DumpAfterWriteFailed" xml:space="preserve">
+    <value>Could not take the dump after writing: {0}</value>
+    <comment>Command line output, in the saved file after --apply. {0} is the error message.</comment>
   </data>
   <data name="Cli_ReportGuidance" xml:space="preserve">
     <value>Attach this file to a "Device report" issue on GitHub. The serial number was not queried, and the user and computer name are hidden in report.txt. dsdt.aml is MSI's firmware table and is not filtered. Look through report.txt before you send it.</value>
@@ -713,5 +749,9 @@
   <data name="Wmi2_Off" xml:space="preserve">
     <value>Off</value>
     <comment>Cooler Boost state.</comment>
+  </data>
+  <data name="Wmi2_StillRunning" xml:space="preserve">
+    <value>MSI_ACPI: an earlier call is still running (it never answered); no call made.</value>
+    <comment>A WMI2 read is refused because the previous one never returned. MSI_ACPI is a technical class name, keep as is. Shown in the report and live-read windows.</comment>
   </data>
 </root>

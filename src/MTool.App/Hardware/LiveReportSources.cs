@@ -41,7 +41,7 @@ internal sealed class LiveReportSources(IAppLog log) : IReportSources
     /// <summary>Checks the interface again itself: the WMI2 methods must never run on a WMI1 laptop.</summary>
     public Wmi2Readout ReadWmi2() => WmiProbe.Detect() == WmiInterface.Wmi2
         ? MsiWmi2Session.Probe()
-        : throw new InvalidOperationException("WMI2 arayüzü yok; WMI2 yöntemleri çağrılmadı.");
+        : throw new InvalidOperationException("No WMI2 interface; no WMI2 method was called.");
 
     public EcReadout ReadEc()
     {
@@ -90,7 +90,7 @@ internal sealed class LiveReportSources(IAppLog log) : IReportSources
     {
         try
         {
-            return MsiWmiFields.Bounded("sistem bilgisi", QueryTimeout, () =>
+            return MsiWmiFields.Bounded("system information", QueryTimeout, () =>
             {
                 var scope = new ManagementScope(Cimv2, new ConnectionOptions { Timeout = QueryTimeout });
                 scope.Connect();

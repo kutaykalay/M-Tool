@@ -168,6 +168,27 @@
   <data name="Startup_EcUnreachable" xml:space="preserve">
     <value>EC'ye erişilemedi: {0}&#10;&#10;Ayrıntı: {1}</value>
   </data>
+  <data name="PawnIo_OpenFailed" xml:space="preserve">
+    <value>PawnIO sürücüsü açılamadı. PawnIO kurulu mu ve M-Tool yönetici olarak mı çalışıyor?</value>
+  </data>
+  <data name="PawnIo_ModuleFailed" xml:space="preserve">
+    <value>PawnIO, LpcACPIEC modülünü yüklemedi.</value>
+  </data>
+  <data name="PawnIo_CallFailed" xml:space="preserve">
+    <value>PawnIO çağrısı başarısız: {0}.</value>
+  </data>
+  <data name="PawnIo_BadReply" xml:space="preserve">
+    <value>PawnIO çağrısı {0} beklenmeyen bir cevap verdi ({1}).</value>
+  </data>
+  <data name="Wmi_CallFailed" xml:space="preserve">
+    <value>WMI çağrısı ({0}) başarısız: {1}</value>
+  </data>
+  <data name="Wmi_NoAnswer" xml:space="preserve">
+    <value>WMI çağrısı ({0}) {1:0.#} sn içinde cevap vermedi (zaman aşımı).</value>
+  </data>
+  <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
+    <value>WMI beklenmeyen bir cevap verdi: {0}</value>
+  </data>
   <data name="Startup_PawnIoMissing" xml:space="preserve">
     <value>PawnIO kurulu değil. M-Tool EC'ye PawnIO sürücüsüyle erişir.&#10;&#10;Kurmak için (yönetici komut isteminde):&#10;{0}&#10;&#10;Ayrıntı: {1}</value>
   </data>
@@ -282,6 +303,9 @@
   <data name="SignIn_MissingExe" xml:space="preserve">
     <value>artık var olmayan bir exe: {0}</value>
   </data>
+  <data name="SignIn_TaskDescription" xml:space="preserve">
+    <value>M-Tool'u oturum açılışında tepside başlatır.</value>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>Oturum açılışında başlatma beklenen görev değil ({0}). Bu exe'ye almak için tepsi menüsünden kapatıp yeniden açın.</value>
   </data>
@@ -323,6 +347,9 @@
   </data>
   <data name="Cli_Saved" xml:space="preserve">
     <value>Kaydedildi: {0}</value>
+  </data>
+  <data name="Cli_DumpAfterWriteFailed" xml:space="preserve">
+    <value>Yazma sonrası döküm alınamadı: {0}</value>
   </data>
   <data name="Cli_ReportGuidance" xml:space="preserve">
     <value>Bu dosyayı GitHub'da "Device report" issue'suna ekleyin. Seri numarası sorgulanmadı, kullanıcı ve bilgisayar adı report.txt'de gizlendi. dsdt.aml MSI'ın firmware tablosudur ve filtrelenmez. Göndermeden önce report.txt'ye göz atın.</value>
@@ -536,5 +563,8 @@
   </data>
   <data name="Wmi2_Off" xml:space="preserve">
     <value>Kapalı</value>
+  </data>
+  <data name="Wmi2_StillRunning" xml:space="preserve">
+    <value>MSI_ACPI: önceki bir çağrı hâlâ sürüyor (hiç cevap vermedi); çağrı yapılmadı.</value>
   </data>
 </root>

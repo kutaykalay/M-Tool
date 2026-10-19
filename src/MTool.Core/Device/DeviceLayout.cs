@@ -119,12 +119,12 @@ public sealed class DeviceLayout
     {
         if (DeviceConfigValidator.Validate(config) is [_, ..] errors)
         {
-            throw new ArgumentException($"Cihaz kaydı geçersiz: {string.Join(" ", errors)}");
+            throw new ArgumentException($"Invalid device record: {string.Join(" ", errors)}");
         }
 
         if (config.Wmi1 is not { } wmi)
         {
-            throw new ArgumentException($"{config.Id}: wmi1 alan haritası yok; bu kayıt henüz okunamaz.");
+            throw new ArgumentException($"{config.Id}: no wmi1 field map; this record cannot be read yet.");
         }
 
         var cpu = Fan(config, CpuFanId);
@@ -137,7 +137,7 @@ public sealed class DeviceLayout
         ];
         if (missing.OfType<string>().ToArray() is [_, ..] absent)
         {
-            throw new ArgumentException($"{config.Id}: {string.Join(", ", absent)} yok; bu kayıt henüz okunamaz.");
+            throw new ArgumentException($"{config.Id}: no {string.Join(", ", absent)}; this record cannot be read yet.");
         }
 
         return new DeviceLayout(config, cpu, gpu, f, wmi);
@@ -146,7 +146,7 @@ public sealed class DeviceLayout
     private static FanRegisters Fan(DeviceConfig config, string id) =>
         config.Fans.FirstOrDefault(f => f.Id == id) is { } fan
             ? new FanRegisters(fan.Temperature, fan.SpeedPercent, fan.RpmHigh, fan.UpThresholds.Start, fan.Speeds.Start)
-            : throw new ArgumentException($"{config.Id}: \"{CpuFanId}\" ve \"{GpuFanId}\" fanları gerekli; bu kayıt henüz okunamaz.");
+            : throw new ArgumentException($"{config.Id}: the \"{CpuFanId}\" and \"{GpuFanId}\" fans are required; this record cannot be read yet.");
 
     private static IEnumerable<byte> TableRegisters(FanRegisters fan) =>
         Enumerable.Range(fan.UpThresholdsStart, EcMap.ThresholdCount)

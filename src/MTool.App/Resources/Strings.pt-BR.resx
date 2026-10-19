@@ -168,6 +168,27 @@
   <data name="Startup_EcUnreachable" xml:space="preserve">
     <value>Não foi possível acessar o EC: {0}&#10;&#10;Detalhes: {1}</value>
   </data>
+  <data name="PawnIo_OpenFailed" xml:space="preserve">
+    <value>Não foi possível abrir o driver do PawnIO. O PawnIO está instalado e o M-Tool está sendo executado como administrador?</value>
+  </data>
+  <data name="PawnIo_ModuleFailed" xml:space="preserve">
+    <value>O PawnIO não carregou o módulo LpcACPIEC.</value>
+  </data>
+  <data name="PawnIo_CallFailed" xml:space="preserve">
+    <value>A chamada ao PawnIO falhou: {0}.</value>
+  </data>
+  <data name="PawnIo_BadReply" xml:space="preserve">
+    <value>A chamada ao PawnIO {0} deu uma resposta inesperada ({1}).</value>
+  </data>
+  <data name="Wmi_CallFailed" xml:space="preserve">
+    <value>A chamada WMI ({0}) falhou: {1}</value>
+  </data>
+  <data name="Wmi_NoAnswer" xml:space="preserve">
+    <value>A chamada WMI ({0}) não respondeu em {1:0.#} s (tempo esgotado).</value>
+  </data>
+  <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
+    <value>O WMI deu uma resposta inesperada: {0}</value>
+  </data>
   <data name="Startup_PawnIoMissing" xml:space="preserve">
     <value>O PawnIO não está instalado. O M-Tool acessa o EC pelo driver PawnIO.&#10;&#10;Para instalar (em um prompt de comando de administrador):&#10;{0}&#10;&#10;Detalhes: {1}</value>
   </data>
@@ -282,6 +303,9 @@
   <data name="SignIn_MissingExe" xml:space="preserve">
     <value>um exe que não existe mais: {0}</value>
   </data>
+  <data name="SignIn_TaskDescription" xml:space="preserve">
+    <value>Inicia o M-Tool na bandeja ao entrar.</value>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>"Iniciar ao entrar" não é a tarefa esperada ({0}). Para trocá-la para este exe, desative e ative de novo no menu da bandeja.</value>
   </data>
@@ -323,6 +347,9 @@
   </data>
   <data name="Cli_Saved" xml:space="preserve">
     <value>Salvo: {0}</value>
+  </data>
+  <data name="Cli_DumpAfterWriteFailed" xml:space="preserve">
+    <value>Não foi possível fazer o dump após a gravação: {0}</value>
   </data>
   <data name="Cli_ReportGuidance" xml:space="preserve">
     <value>Anexe este arquivo a uma issue "Device report" no GitHub. O número de série não foi consultado, e os nomes de usuário e do computador estão ocultos em report.txt. dsdt.aml é a tabela de firmware da MSI e não é filtrado. Revise report.txt antes de enviar.</value>
@@ -536,5 +563,8 @@
   </data>
   <data name="Wmi2_Off" xml:space="preserve">
     <value>Desligado</value>
+  </data>
+  <data name="Wmi2_StillRunning" xml:space="preserve">
+    <value>MSI_ACPI: uma chamada anterior ainda está em andamento (nunca respondeu); nenhuma chamada feita.</value>
   </data>
 </root>

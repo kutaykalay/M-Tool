@@ -33,4 +33,6 @@ internal static class CliText
     public static string Error(string message) => string.Format(Strings.Cli_Error, message);
 
     public static string Details(string logFolder) => string.Format(Strings.Cli_ErrorDetails, logFolder);
+
+    public static string DumpAfterWriteFailed(string message) => string.Format(Strings.Cli_DumpAfterWriteFailed, message);
 }

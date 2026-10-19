@@ -31,7 +31,7 @@ internal sealed class TrayIconHost : INotifier, IDisposable
     {
         (_theme, _toggleWindow, _showWindow, _exit) = (theme, toggleWindow, showWindow, exit);
         using var iconStream = typeof(TrayIconHost).Assembly.GetManifestResourceStream("MTool.m-tool.ico")
-            ?? throw new InvalidOperationException("Gömülü tepsi ikonu bulunamadı.");
+            ?? throw new InvalidOperationException("The embedded tray icon is missing.");
         _icon = new NotifyIcon
         {
             Icon = new System.Drawing.Icon(iconStream, SystemInformation.SmallIconSize),

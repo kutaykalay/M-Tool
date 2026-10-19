@@ -4,7 +4,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
+using MTool.App.Resources;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 
 namespace MTool.App.Hardware;
 
@@ -33,9 +35,7 @@ internal sealed class PawnIoPortIo : IPortIo, IDisposable
         var handle = CreateFile(DevicePath, GenericReadWrite, ShareReadWrite, IntPtr.Zero, OpenExisting, 0, IntPtr.Zero);
         if (handle.IsInvalid)
         {
-            throw new EcAccessException(
-                "PawnIO sürücüsü açılamadı. PawnIO kurulu mu ve M-Tool yönetici olarak mı çalışıyor?",
-                new Win32Exception(Marshal.GetLastWin32Error()));
+            throw Failure(nameof(Strings.PawnIo_OpenFailed), new Win32Exception(Marshal.GetLastWin32Error()));
         }
 
         try
@@ -43,8 +43,7 @@ internal sealed class PawnIoPortIo : IPortIo, IDisposable
             var module = LoadModuleBytes();
             if (!DeviceIoControl(handle, IoctlLoadBinary, module, module.Length, null, 0, out _, IntPtr.Zero))
             {
-                throw new EcAccessException(
-                    "PawnIO, LpcACPIEC modülünü yüklemedi.", new Win32Exception(Marshal.GetLastWin32Error()));
+                throw Failure(nameof(Strings.PawnIo_ModuleFailed), new Win32Exception(Marshal.GetLastWin32Error()));
             }
 
             return new PawnIoPortIo(handle);
@@ -61,12 +60,20 @@ internal sealed class PawnIoPortIo : IPortIo, IDisposable
         var value = Execute("ioctl_pio_read", [port], 1)[0];
         return value is >= byte.MinValue and <= byte.MaxValue
             ? (byte)value
-            : throw new EcAccessException($"PawnIO geçersiz bir port değeri döndürdü: {value}.");
+            : throw Failure(nameof(Strings.PawnIo_BadReply), inner: null, "ioctl_pio_read", $"port value {value}");
     }
 
     public void Out(byte port, byte value) => Execute("ioctl_pio_write", [port, value], 0);
 
     public void Dispose() => _handle.Dispose();
+
+    /// <summary>In the user's language, with the English twin for the log.</summary>
+    private static EcAccessException Failure(string key, Exception? inner, params object?[] args)
+    {
+        var (text, log) = AppText.Say(key, args);
+        var failure = inner is null ? new EcAccessException(text) : new EcAccessException(text, inner);
+        return failure.WithLog(log);
+    }
 
     private long[] Execute(string function, long[] input, int outputCount)
     {
@@ -77,15 +84,13 @@ internal sealed class PawnIoPortIo : IPortIo, IDisposable
 
         if (!DeviceIoControl(_handle, IoctlExecute, request, request.Length, response, response.Length, out var written, IntPtr.Zero))
         {
-            throw new EcAccessException(
-                $"PawnIO çağrısı başarısız: {function}.", new Win32Exception(Marshal.GetLastWin32Error()));
+            throw Failure(nameof(Strings.PawnIo_CallFailed), new Win32Exception(Marshal.GetLastWin32Error()), function);
         }
 
         // A short reply must not turn into a valid-looking zero ("IBF clear", register value 0).
         if (written != response.Length)
         {
-            throw new EcAccessException(
-                $"PawnIO çağrısı {function} {written} bayt döndürdü, {response.Length} bekleniyordu.");
+            throw Failure(nameof(Strings.PawnIo_BadReply), inner: null, function, $"{written} of {response.Length} bytes");
         }
 
         var result = new long[outputCount];

@@ -135,7 +135,7 @@ internal static class CliRunner
         catch (Exception ex)
         {
             log.Error("Could not take the dump after writing", ex);
-            return $"Yazma sonrası döküm alınamadı: {ex.Message}";
+            return CliText.DumpAfterWriteFailed(ex.Message);
         }
     }
 

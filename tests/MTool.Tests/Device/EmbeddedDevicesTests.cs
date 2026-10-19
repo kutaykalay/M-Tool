@@ -23,7 +23,7 @@ public class EmbeddedDevicesTests
     {
         var act = () => EmbeddedDevices.Find([DeviceConfigFixtures.Draft()], EmbeddedDevices.P65Id);
 
-        act.Should().Throw<InvalidOperationException>().WithMessage($"*{EmbeddedDevices.P65Id}*yüklenemedi*");
+        act.Should().Throw<InvalidOperationException>().WithMessage($"*{EmbeddedDevices.P65Id}*could not be loaded*");
     }
 
     [Fact]

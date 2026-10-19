@@ -328,6 +328,14 @@
     <value>EC register {0} could not be written in {1} attempts ({2}).</value>
     <comment>A port write failed every attempt. {0}: register address such as 0xF2. {1}: number of attempts. {2}: technical failure kinds, keep as is. It appears inside Write_Failed.</comment>
   </data>
+  <data name="Wmi_ValueOutOfRange" xml:space="preserve">
+    <value>WMI field {0} returned {1}, which does not fit in a byte.</value>
+    <comment>A WMI read gave a value that cannot be an EC register. {0}: technical field name such as MSI_CPU[1], keep as is. {1}: the number. Appears inside a read or write failure text.</comment>
+  </data>
+  <data name="Wmi_FieldCountMismatch" xml:space="preserve">
+    <value>WMI {0} returned {2} fields; {1} were asked for.</value>
+    <comment>A WMI read answered with the wrong number of values. {0}: technical class name such as MSI_CPU, keep as is. {1}: fields asked for. {2}: fields returned.</comment>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} is not in the list of writable registers.</value>
     <comment>SAFETY. Rejection when a write targets a register outside the whitelist, so nothing was written. {0}: the register number as two hex digits; keep the 0x prefix.</comment>

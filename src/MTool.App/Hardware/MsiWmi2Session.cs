@@ -1,6 +1,8 @@
 using System.Management;
+using MTool.App.Resources;
 using MTool.Core.Diagnostics;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 
 namespace MTool.App.Hardware;
 
@@ -70,7 +72,8 @@ internal sealed class MsiWmi2Session : IWmi2Methods, IDisposable
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) == 1, this);
         if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
         {
-            throw new EcAccessException("MSI_ACPI: an earlier call is still running (it never answered); no call made.");
+            var (text, log) = AppText.Say(nameof(Strings.Wmi2_StillRunning));
+            throw new EcAccessException(text).WithLog(log);
         }
 
         return MsiWmiFields.Bounded($"MSI_ACPI {request.Method}(0x{request.Sub:X2})", _timeout, () =>

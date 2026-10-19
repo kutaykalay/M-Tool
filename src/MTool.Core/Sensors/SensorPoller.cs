@@ -71,7 +71,7 @@ public sealed class SensorPoller(
         {
             if (_pendingRead is { IsCompleted: false })
             {
-                RecordMiss(Latest, new TimeoutException("önceki sensör okuması hâlâ bitmedi"));
+                RecordMiss(Latest, new TimeoutException("the previous sensor read has not finished yet"));
                 return;
             }
 

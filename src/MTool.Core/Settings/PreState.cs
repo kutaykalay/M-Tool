@@ -32,7 +32,7 @@ public static class PreStateCapture
         if (mismatch != default)
         {
             throw new EcAccessException(
-                $"Yedek alınamadı: 0x{mismatch.First:X2} iki okumada farklı (0x{mismatch.Second:X2} / 0x{mismatch.Third:X2}).");
+                $"Backup not taken: 0x{mismatch.First:X2} differed between two reads (0x{mismatch.Second:X2} / 0x{mismatch.Third:X2}).");
         }
 
         var values = registers.Zip(first, (register, value) => new RegisterValue(register, value)).ToArray();

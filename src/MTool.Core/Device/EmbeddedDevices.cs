@@ -18,7 +18,7 @@ public static class EmbeddedDevices
     {
         if (configs.FirstOrDefault(c => c.Id == id) is not { } config)
         {
-            throw new InvalidOperationException($"Gömülü cihaz kaydı {id} yüklenemedi; ayrıntı log'da.");
+            throw new InvalidOperationException($"The embedded device record {id} could not be loaded; see the log.");
         }
 
         return LayoutOf(config);

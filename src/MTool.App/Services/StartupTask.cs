@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Principal;
 using Microsoft.Win32.TaskScheduler;
+using MTool.App.Resources;
 using MTool.App.ViewModels;
 
 namespace MTool.App.Services;
@@ -32,7 +33,7 @@ internal sealed class StartupTask : IStartupTask
         var user = CurrentUserSid;
         using var service = new TaskService();
         using var definition = service.NewTask();
-        definition.RegistrationInfo.Description = "M-Tool'u oturum açılışında tepside başlatır.";
+        definition.RegistrationInfo.Description = Strings.SignIn_TaskDescription;
         definition.Principal.UserId = user;
         definition.Principal.LogonType = TaskLogonType.InteractiveToken;
         definition.Principal.RunLevel = TaskRunLevel.Highest;
@@ -51,7 +52,7 @@ internal sealed class StartupTask : IStartupTask
     }
 
     private static string CurrentUserSid =>
-        WindowsIdentity.GetCurrent().User?.Value ?? throw new InvalidOperationException("Kullanıcı SID'i okunamadı.");
+        WindowsIdentity.GetCurrent().User?.Value ?? throw new InvalidOperationException("The user's SID could not be read.");
 
     private static bool IsOurs(Microsoft.Win32.TaskScheduler.Task task)
     {

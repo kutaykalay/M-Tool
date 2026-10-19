@@ -249,6 +249,12 @@
   <data name="Ec_WriteFailed" xml:space="preserve">
     <value>No se pudo escribir el registro EC {0} en {1} intentos ({2}).</value>
   </data>
+  <data name="Wmi_ValueOutOfRange" xml:space="preserve">
+    <value>El campo WMI {0} devolvió {1}, que no cabe en un byte.</value>
+  </data>
+  <data name="Wmi_FieldCountMismatch" xml:space="preserve">
+    <value>WMI {0} devolvió {2} campos; se pidieron {1}.</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} no está en la lista de registros modificables.</value>
   </data>

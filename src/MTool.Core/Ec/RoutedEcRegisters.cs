@@ -1,4 +1,6 @@
 using MTool.Core.Device;
+using MTool.Core.Localization;
+using MTool.Core.Resources;
 
 namespace MTool.Core.Ec;
 
@@ -67,12 +69,12 @@ public sealed class RoutedEcRegisters : IEcRegisters, IEcWritableRegisters
         EnsureRoutable(register);
         if (!EcWriteRules.WritableRegisters.Contains(register))
         {
-            throw new InvalidOperationException($"0x{register:X2} yazılabilir register listesinde değil.");
+            throw new InvalidOperationException($"0x{register:X2} is not in the list of writable registers.");
         }
 
         if (!RoutesLikeVerifiedMap(register))
         {
-            throw new InvalidOperationException($"0x{register:X2}: oturum haritası bu register'ı doğrulanmış P65 haritasından farklı yönlendiriyor; yazılmaz.");
+            throw new InvalidOperationException($"0x{register:X2}: the session map routes this register unlike the verified P65 map; not written.");
         }
 
         if (WmiMap.Fields.TryGetValue(register, out var field))
@@ -90,15 +92,20 @@ public sealed class RoutedEcRegisters : IEcRegisters, IEcWritableRegisters
         var read = _wmi.Read(className, fields.Select(f => f.Index).ToArray());
         if (read.Count != fields.Length)
         {
-            throw new EcAccessException($"WMI {className}: {fields.Length} alan istendi, {read.Count} geldi.");
+            var mismatch = UserAndLogText.Say(nameof(CoreStrings.Wmi_FieldCountMismatch), className, fields.Length, read.Count);
+            throw new EcAccessException(mismatch.Text).WithLog(mismatch.Log);
         }
 
         for (var i = 0; i < fields.Length; i++)
         {
-            values[registers[i]] = read[i] is >= byte.MinValue and <= byte.MaxValue
-                ? (byte)read[i]
-                : throw new EcAccessException($"WMI {fields[i]} bayt sınırı dışında: {read[i]}.");
+            values[registers[i]] = read[i] is >= byte.MinValue and <= byte.MaxValue ? (byte)read[i] : throw OutOfRange(fields[i], read[i]);
         }
+    }
+
+    private static EcAccessException OutOfRange(WmiField field, int value)
+    {
+        var text = UserAndLogText.Say(nameof(CoreStrings.Wmi_ValueOutOfRange), field, value);
+        return new EcAccessException(text.Text).WithLog(text.Log);
     }
 
     /// <summary>The same WMI field, or the port on both maps: then the write goes where it was verified.</summary>
@@ -118,12 +125,12 @@ public sealed class RoutedEcRegisters : IEcRegisters, IEcWritableRegisters
         // Both maps must allow the port: a session map can never add a port register beyond 0x98 and 0xEF.
         if (!_map.PortRegisters.Contains(register) || !WmiMap.PortRegisters.Contains(register))
         {
-            throw new InvalidOperationException($"0x{register:X2} WMI haritasında yok ve port için izinli değil.");
+            throw new InvalidOperationException($"0x{register:X2} is not in the WMI map and not allowed on the port.");
         }
 
         if (_port is null)
         {
-            throw new InvalidOperationException($"0x{register:X2} yalnızca port üzerinden erişilebilir; port kapalı.");
+            throw new InvalidOperationException($"0x{register:X2} can only be reached through the port, and the port is closed.");
         }
     }
 }

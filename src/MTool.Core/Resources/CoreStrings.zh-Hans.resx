@@ -249,6 +249,12 @@
   <data name="Ec_WriteFailed" xml:space="preserve">
     <value>EC 寄存器 {0} 在 {1} 次尝试中均无法写入（{2}）。</value>
   </data>
+  <data name="Wmi_ValueOutOfRange" xml:space="preserve">
+    <value>WMI 字段 {0} 返回了 {1}，超出了一个字节的范围。</value>
+  </data>
+  <data name="Wmi_FieldCountMismatch" xml:space="preserve">
+    <value>WMI {0} 返回了 {2} 个字段，但请求的是 {1} 个。</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} 不在可写寄存器列表中。</value>
   </data>

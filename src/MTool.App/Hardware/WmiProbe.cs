@@ -31,7 +31,7 @@ internal static class WmiProbe
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(2);
 
     /// <exception cref="EcAccessException">WMI does not answer.</exception>
-    public static WmiInterface? Detect() => MsiWmiFields.Bounded("arayüz algılama", Timeout, () =>
+    public static WmiInterface? Detect() => MsiWmiFields.Bounded("interface detection", Timeout, () =>
     {
         var scope = MsiWmiFields.Connect();
         return Classify(HasClass(scope, Wmi1Class), HasClass(scope, Wmi2Class));
@@ -42,7 +42,7 @@ internal static class WmiProbe
     /// listing instances would run the firmware's ACPI methods, which a report must not do.
     /// </summary>
     /// <exception cref="EcAccessException">WMI does not answer.</exception>
-    public static IReadOnlyList<WmiClassInfo> MsiClasses() => MsiWmiFields.Bounded("sınıf listesi", Timeout, () =>
+    public static IReadOnlyList<WmiClassInfo> MsiClasses() => MsiWmiFields.Bounded("class list", Timeout, () =>
     {
         using var searcher = new ManagementObjectSearcher(
             MsiWmiFields.Connect(), new ObjectQuery("SELECT * FROM meta_class WHERE __CLASS LIKE 'MSI[_]%'"),

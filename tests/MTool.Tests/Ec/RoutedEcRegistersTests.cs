@@ -173,7 +173,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
         };
         var routed = new RoutedEcRegisters(_wmi, _ec, SessionMap(config));
 
-        ((Action)(() => routed.Read(0x89))).Should().Throw<InvalidOperationException>().WithMessage("*0x89 WMI haritasında yok*");
+        ((Action)(() => routed.Read(0x89))).Should().Throw<InvalidOperationException>().WithMessage("*0x89 is not in the WMI map*");
         _wmi.Calls.Should().BeEmpty();
         _portReads.Should().BeEmpty();
     }
@@ -184,7 +184,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
         var map = SessionMap(WithFields(f => Moved(f, 0x72, new WmiFieldSpec(0x72, "MSI_CPU", 30))));
         IEcWritableRegisters routed = new RoutedEcRegisters(new FakeWmiFields(_ec, map.Fields), _ec, map);
 
-        ((Action)(() => routed.Write(0x72, 50))).Should().Throw<InvalidOperationException>().WithMessage("*0x72*doğrulanmış*");
+        ((Action)(() => routed.Write(0x72, 50))).Should().Throw<InvalidOperationException>().WithMessage("*0x72*verified P65 map*");
         _ec[0x72].Should().Be(45);
     }
 
@@ -197,7 +197,7 @@ public sealed class RoutedEcRegistersTests : IDisposable
         IEcWritableRegisters routed = new RoutedEcRegisters(wmi, _ec, map);
 
         ((IEcRegisters)routed).Read(0xEF).Should().Be(0xD0);
-        ((Action)(() => routed.Write(0xEF, 0xD1))).Should().Throw<InvalidOperationException>().WithMessage("*0xEF*doğrulanmış*");
+        ((Action)(() => routed.Write(0xEF, 0xD1))).Should().Throw<InvalidOperationException>().WithMessage("*0xEF*verified P65 map*");
 
         wmi.Calls.Should().Equal("read MSI_System[3]");
         _portReads.Should().BeEmpty();

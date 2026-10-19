@@ -65,6 +65,7 @@ public sealed class CliTextTests
         CliText.LockRemoved("neden").Should().Be("Kilit kaldırıldı. Önceki neden: neden");
         CliText.Error("kötü").Should().Be("HATA: kötü");
         CliText.Details(@"C:\logs").Should().Be(@"Ayrıntı: C:\logs");
+        CliText.DumpAfterWriteFailed("x").Should().Be("Yazma sonrası döküm alınamadı: x");
     }
 
     [Fact]
@@ -77,6 +78,7 @@ public sealed class CliTextTests
         CliText.LockRemoved("why").Should().Contain("why");
         CliText.Error("bad").Should().Contain("bad").And.NotContain("HATA");
         CliText.Details("d").Should().Contain("d").And.NotContain("Ayrıntı");
+        CliText.DumpAfterWriteFailed("x").Should().Be("Could not take the dump after writing: x");
     }
 
     [Fact]

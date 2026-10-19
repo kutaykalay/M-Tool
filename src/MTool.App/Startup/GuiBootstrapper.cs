@@ -293,10 +293,10 @@ internal sealed class GuiBootstrapper : IDisposable
     internal sealed record LoadedSettings(SettingsStore Store, AppSettings Settings, IReadOnlyList<string> Warnings, CultureInfo WindowsUi);
 
     private static string CurrentExe =>
-        Environment.ProcessPath ?? throw new InvalidOperationException("Çalışan exe'nin yolu bulunamadı.");
+        Environment.ProcessPath ?? throw new InvalidOperationException("The path of the running exe is unknown.");
 
     internal static string AppVersion =>
-        typeof(GuiBootstrapper).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "sürüm yok";
+        typeof(GuiBootstrapper).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "no version";
 
     private static EcSession? OpenSession(Application app, SingleInstance instance, FileLog log, Func<bool> accessGate)
     {

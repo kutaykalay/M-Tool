@@ -55,7 +55,7 @@ public class DeviceLayoutPortTests
 
         var act = () => device.ReadPortState();
 
-        act.Should().Throw<InvalidOperationException>().WithMessage("*şarj limiti*");
+        act.Should().Throw<InvalidOperationException>().WithMessage("*charge limit*");
     }
 
     [Fact]

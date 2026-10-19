@@ -17,9 +17,9 @@ public sealed record DeviceSelection(DeviceConfig Record, DeviceMatch Match, boo
         var match = FirmwareMatcher.Match(firmware, catalog);
         var record = match.Kind == MatchKind.None
             ? catalog.FirstOrDefault(c => c.Id == fallbackId)
-                ?? throw new InvalidOperationException($"Geri düşülecek cihaz kaydı {fallbackId} yüklenemedi; ayrıntı log'da.")
+                ?? throw new InvalidOperationException($"The fallback device record {fallbackId} could not be loaded; see the log.")
             : catalog.FirstOrDefault(c => c.Id == match.RecordId)
-                ?? throw new InvalidOperationException($"Eşleşen cihaz kaydı {match.RecordId} katalogda yok.");
+                ?? throw new InvalidOperationException($"The matching device record {match.RecordId} is not in the catalog.");
         var portAllowed = match.Kind == MatchKind.Exact
             && firmware is { } read
             && record.Status == DeviceStatus.WriteVerified

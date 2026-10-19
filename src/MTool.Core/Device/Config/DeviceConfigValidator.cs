@@ -113,7 +113,7 @@ public static partial class DeviceConfigValidator
     {
         if (config.SchemaVersion != SupportedSchemaVersion)
         {
-            errors.Add($"schemaVersion {config.SchemaVersion} desteklenmiyor (beklenen {SupportedSchemaVersion}).");
+            errors.Add($"schemaVersion {config.SchemaVersion} is not supported (expected {SupportedSchemaVersion}).");
         }
 
         if (!IdPattern().IsMatch(config.Id))

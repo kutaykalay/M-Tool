@@ -249,6 +249,12 @@
   <data name="Ec_WriteFailed" xml:space="preserve">
     <value>Не удалось записать регистр EC {0} за {1} попыток ({2}).</value>
   </data>
+  <data name="Wmi_ValueOutOfRange" xml:space="preserve">
+    <value>Поле WMI {0} вернуло {1}, это значение не помещается в байт.</value>
+  </data>
+  <data name="Wmi_FieldCountMismatch" xml:space="preserve">
+    <value>WMI {0} вернул полей: {2}; запрошено: {1}.</value>
+  </data>
   <data name="Rule_NotWritable" xml:space="preserve">
     <value>0x{0:X2} нет в списке регистров, доступных для записи.</value>
   </data>

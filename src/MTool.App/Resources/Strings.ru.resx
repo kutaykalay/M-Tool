@@ -168,6 +168,27 @@
   <data name="Startup_EcUnreachable" xml:space="preserve">
     <value>Не удалось обратиться к EC: {0}&#10;&#10;Подробности: {1}</value>
   </data>
+  <data name="PawnIo_OpenFailed" xml:space="preserve">
+    <value>Не удалось открыть драйвер PawnIO. Установлен ли PawnIO и запущен ли M-Tool от имени администратора?</value>
+  </data>
+  <data name="PawnIo_ModuleFailed" xml:space="preserve">
+    <value>PawnIO не загрузил модуль LpcACPIEC.</value>
+  </data>
+  <data name="PawnIo_CallFailed" xml:space="preserve">
+    <value>Сбой вызова PawnIO: {0}.</value>
+  </data>
+  <data name="PawnIo_BadReply" xml:space="preserve">
+    <value>Вызов PawnIO {0} вернул неожиданный ответ ({1}).</value>
+  </data>
+  <data name="Wmi_CallFailed" xml:space="preserve">
+    <value>Сбой вызова WMI ({0}): {1}</value>
+  </data>
+  <data name="Wmi_NoAnswer" xml:space="preserve">
+    <value>Вызов WMI ({0}) не ответил за {1:0.#} с (тайм-аут).</value>
+  </data>
+  <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
+    <value>WMI вернул неожиданный ответ: {0}</value>
+  </data>
   <data name="Startup_PawnIoMissing" xml:space="preserve">
     <value>PawnIO не установлен. M-Tool обращается к EC через драйвер PawnIO.&#10;&#10;Для установки (в командной строке от имени администратора):&#10;{0}&#10;&#10;Подробности: {1}</value>
   </data>
@@ -282,6 +303,9 @@
   <data name="SignIn_MissingExe" xml:space="preserve">
     <value>exe, которого больше нет: {0}</value>
   </data>
+  <data name="SignIn_TaskDescription" xml:space="preserve">
+    <value>Запускает M-Tool в области уведомлений при входе в систему.</value>
+  </data>
   <data name="SignIn_RepairWarning" xml:space="preserve">
     <value>«Запускать при входе» указывает не на ту задачу ({0}). Чтобы переключить её на этот exe, выключите и снова включите этот пункт в меню в области уведомлений.</value>
   </data>
@@ -323,6 +347,9 @@
   </data>
   <data name="Cli_Saved" xml:space="preserve">
     <value>Сохранено: {0}</value>
+  </data>
+  <data name="Cli_DumpAfterWriteFailed" xml:space="preserve">
+    <value>Не удалось снять дамп после записи: {0}</value>
   </data>
   <data name="Cli_ReportGuidance" xml:space="preserve">
     <value>Прикрепите этот файл к issue «Device report» на GitHub. Серийный номер не запрашивался, а имена пользователя и компьютера скрыты в report.txt. dsdt.aml — это таблица прошивки MSI, она не фильтруется. Просмотрите report.txt перед отправкой.</value>
@@ -536,5 +563,8 @@
   </data>
   <data name="Wmi2_Off" xml:space="preserve">
     <value>Выкл.</value>
+  </data>
+  <data name="Wmi2_StillRunning" xml:space="preserve">
+    <value>MSI_ACPI: предыдущий вызов всё ещё выполняется (ответа так и не было); вызов не сделан.</value>
   </data>
 </root>

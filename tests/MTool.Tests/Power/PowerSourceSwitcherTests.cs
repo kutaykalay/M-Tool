@@ -179,7 +179,7 @@ public sealed class PowerSourceSwitcherTests : IDisposable
         _source.Set(PowerSource.Battery);
         _time.Advance(Debounce);
 
-        _log.Lines.Should().Contain(l => l.StartsWith("ERROR") && l.Contains("bildirilemedi") && l.Contains("abone"));
+        _log.Lines.Should().Contain(l => l.StartsWith("ERROR") && l.Contains("Could not report") && l.Contains("abone"));
         _log.Lines.Should().NotContain(l => l.Contains("hata verdi"));
     }
 

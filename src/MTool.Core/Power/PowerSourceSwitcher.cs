@@ -160,7 +160,7 @@ public sealed class PowerSourceSwitcher(
         }
         catch (Exception ex)
         {
-            Log("Güç kaynağı geçişi hata verdi", ex);
+            Log("Power source switch failed", ex);
         }
         finally
         {
@@ -188,7 +188,7 @@ public sealed class PowerSourceSwitcher(
         }
         catch (Exception ex)
         {
-            Log("Güç kaynağı geçişinin sonucu bildirilemedi", ex);
+            Log("Could not report the power source switch result", ex);
         }
     }
 
