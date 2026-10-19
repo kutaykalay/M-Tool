@@ -75,8 +75,15 @@ public sealed partial class EcGatewayCultureTests
         {
             r.Ec.StuckRegisters.Add(0xF2);
             var gateway = r.Gateway();
+
+            // The worker waits until both plans are queued: otherwise the first could fail before the second
+            // is sent, which then is rejected on this thread and its log line lands between the failure's.
+            using var queued = new ManualResetEventSlim();
+            var busy = r.Worker.RunAsync(_ => queued.Wait(TimeSpan.FromSeconds(10)));
             var first = gateway.ApplyAsync(WritePlans.Performance(PerformanceMode.Balanced));
             var second = gateway.ApplyAsync(WritePlans.ChargeLimit(79));
+            queued.Set();
+            (await busy).Should().BeTrue();
             return new[] { await first, await second };
         }),
         new("EC lock busy", r =>
