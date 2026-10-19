@@ -21,8 +21,8 @@ internal static class DumpFormatter
             .AppendLine($"M-Tool EC dump  {DateTime.Now:yyyy-MM-dd HH:mm:ss}")
             .AppendLine($"Firmware   : {firmware.Version} ({firmware.Date}) {FirmwareStatus(firmware, match(firmware))}")
             .AppendLine($"Kayit      : {layout.DisplayName}{RecordNote(layout)}")
-            .AppendLine($"CPU        : {Temp(sensors.CpuTempC)}, fan %{sensors.CpuFanPercent}, {sensors.CpuRpm} RPM")
-            .AppendLine($"GPU        : {Temp(sensors.GpuTempC)}, fan %{sensors.GpuFanPercent}, {sensors.GpuRpm} RPM")
+            .AppendLine($"CPU        : {Temp(sensors.CpuTempC)}, fan hedef %{sensors.CpuFanPercent}, {sensors.CpuRpm} RPM")
+            .AppendLine($"GPU        : {Temp(sensors.GpuTempC)}, fan hedef %{sensors.GpuFanPercent}, {sensors.GpuRpm} RPM")
             .AppendLine($"Registers  : {string.Join(' ', PortPairs(ec, layout, portOpen).Append(Pair(ec, layout.PerformanceMode)).Append(Pair(ec, layout.FanMode)))}");
         AppendCurve(text, "CPU egrisi", curves.Cpu, FactoryDefaults.CpuDownOffsets);
         AppendCurve(text, "GPU egrisi", curves.Gpu, FactoryDefaults.GpuDownOffsets);

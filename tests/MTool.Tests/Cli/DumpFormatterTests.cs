@@ -41,6 +41,16 @@ public class DumpFormatterTests
     }
 
     [Fact]
+    public void The_fan_percent_is_named_as_the_curve_target()
+    {
+        // 0x71/0x89 are what the curve asks for; the EC may spin the GPU fan at a 0 % target (plan.md §13).
+        var text = Dump(TestLayouts.P65);
+
+        text.Should().MatchRegex(@"CPU        : .*, fan hedef %\d+, \d+ RPM")
+            .And.MatchRegex(@"GPU        : .*, fan hedef %\d+, \d+ RPM");
+    }
+
+    [Fact]
     public void Without_the_port_its_registers_are_named_but_not_read()
     {
         Dump(TestLayouts.P65.WithoutPortFeatures()).Should().Contain("0x98=port kapali 0xEF=port kapali 0xF2=");
