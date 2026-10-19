@@ -2,6 +2,8 @@
   <img src="assets/banner.svg" alt="M-Tool" width="100%">
 </p>
 
+[![Build](https://github.com/kutaykalay/M-Tool/actions/workflows/build.yml/badge.svg)](https://github.com/kutaykalay/M-Tool/actions/workflows/build.yml)
+
 A small Windows tray app for the **MSI P65 Creator 9SE**: fan curves, Cooler Boost, performance
 mode and battery charge limit. One exe, no background service.
 
@@ -175,6 +177,13 @@ one in the release notes:
 
 ```
 Get-FileHash .\M-Tool.exe -Algorithm SHA256
+```
+
+From 0.15.1-beta.1 on, the release exe is built by GitHub Actions from the tagged source. With the
+[GitHub CLI](https://cli.github.com) you can check that it came from that build:
+
+```
+gh attestation verify .\M-Tool.exe --repo kutaykalay/M-Tool
 ```
 
 The exe is not signed, so SmartScreen may warn on the first start. Choose **More info → Run

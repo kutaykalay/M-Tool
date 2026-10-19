@@ -1,0 +1,117 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore -c Release -p:ContinuousIntegrationBuild=true
+
+      - name: Test
+        run: dotnet test --no-build -c Release
+
+      - name: Check formatting
+        run: dotnet format --verify-no-changes --no-restore
+
+      - name: Publish
+        run: >
+          dotnet publish src/MTool.App -c Release -r win-x64 --self-contained false
+          -p:PublishSingleFile=true -p:DebugType=embedded -p:ContinuousIntegrationBuild=true
+          -o publish
+
+      - name: Hash
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash publish/M-Tool.exe -Algorithm SHA256).Hash
+          "$hash  M-Tool.exe" | Set-Content publish/M-Tool.exe.sha256 -Encoding ascii
+          "SHA-256: ``$hash``" >> $env:GITHUB_STEP_SUMMARY
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: M-Tool
+          path: |
+            publish/M-Tool.exe
+            publish/M-Tool.exe.sha256
+          if-no-files-found: error
+
+  # A tag makes a draft release from the exe above; publishing it stays a manual step.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: windows-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check the tag against the version
+        shell: pwsh
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          $version = ([xml](Get-Content src/MTool.App/MTool.App.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          if ($env:TAG -cne "v$version") { throw "Tag $env:TAG does not match the project version $version." }
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: M-Tool
+          path: release
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: release/M-Tool.exe
+
+      - name: Create a draft release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          $hash = (Get-FileHash release/M-Tool.exe -Algorithm SHA256).Hash
+          $notes = @"
+          Draft built by GitHub Actions; write the notes before publishing.
+
+          ## Verify the download
+
+          ``````
+          Get-FileHash .\M-Tool.exe -Algorithm SHA256
+          gh attestation verify .\M-Tool.exe --repo $env:GITHUB_REPOSITORY
+          ``````
+
+          SHA-256: ``$hash``
+          "@
+          $options = @('--draft', '--verify-tag', '--title', "M-Tool $($env:TAG.Substring(1))", '--notes', $notes)
+          if ($env:TAG.Contains('-')) { $options += '--prerelease' }
+          gh release create $env:TAG release/M-Tool.exe @options
+          if ($LASTEXITCODE -ne 0) { throw "gh release create failed ($LASTEXITCODE)." }
