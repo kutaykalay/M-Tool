@@ -570,4 +570,109 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI: Ein früherer Aufruf läuft noch (er hat nie geantwortet); kein Aufruf erfolgt.</value>
   </data>
+  <data name="Tray_Settings" xml:space="preserve">
+    <value>Einstellungen…</value>
+  </data>
+  <data name="Main_Settings" xml:space="preserve">
+    <value>Einstellungen und Info</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>M-Tool-Einstellungen</value>
+  </data>
+  <data name="Settings_TabGeneral" xml:space="preserve">
+    <value>Allgemein</value>
+  </data>
+  <data name="Settings_TabAbout" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="Settings_LanguageNote" xml:space="preserve">
+    <value>Wird beim nächsten Start von M-Tool übernommen.</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>© 2026 Kutay Kalay. Freie Software unter der GNU GPL, Version 3 oder neuer. Es wird keine Gewährleistung übernommen.</value>
+  </data>
+  <data name="About_OpenGitHub" xml:space="preserve">
+    <value>GitHub-Seite</value>
+  </data>
+  <data name="About_OpenReleases" xml:space="preserve">
+    <value>Alle Releases</value>
+  </data>
+  <data name="About_OpenLogFolder" xml:space="preserve">
+    <value>Protokollordner öffnen</value>
+  </data>
+  <data name="About_DeviceHeader" xml:space="preserve">
+    <value>Dieser Laptop</value>
+  </data>
+  <data name="About_Copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="About_Copied" xml:space="preserve">
+    <value>Geräteinfos kopiert.</value>
+  </data>
+  <data name="About_CopyFailed" xml:space="preserve">
+    <value>Kopieren in die Zwischenablage nicht möglich. Versuchen Sie es erneut.</value>
+  </data>
+  <data name="About_Licenses" xml:space="preserve">
+    <value>Lizenzen</value>
+  </data>
+  <data name="About_LicensesUnavailable" xml:space="preserve">
+    <value>Die Lizenztexte konnten nicht gelesen werden. Sie stehen in LICENSE und THIRD-PARTY-NOTICES.md auf der GitHub-Seite.</value>
+  </data>
+  <data name="About_Unknown" xml:space="preserve">
+    <value>unbekannt</value>
+  </data>
+  <data name="About_Device_Model" xml:space="preserve">
+    <value>Modell</value>
+  </data>
+  <data name="About_Device_Bios" xml:space="preserve">
+    <value>BIOS</value>
+  </data>
+  <data name="About_Device_Cpu" xml:space="preserve">
+    <value>Prozessor</value>
+  </data>
+  <data name="About_Device_Windows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="About_Device_Firmware" xml:space="preserve">
+    <value>EC-Firmware</value>
+  </data>
+  <data name="About_Device_Record" xml:space="preserve">
+    <value>Datensatz</value>
+  </data>
+  <data name="About_Device_EcAccess" xml:space="preserve">
+    <value>EC-Zugriff</value>
+  </data>
+  <data name="About_Device_Writes" xml:space="preserve">
+    <value>Änderungen</value>
+  </data>
+  <data name="About_Access_WmiAndPort" xml:space="preserve">
+    <value>WMI und Port (PawnIO {0})</value>
+  </data>
+  <data name="About_Access_WmiOnly" xml:space="preserve">
+    <value>Nur WMI (kein Cooler Boost, kein Ladelimit)</value>
+  </data>
+  <data name="About_Match_Exact" xml:space="preserve">
+    <value>geprüft</value>
+  </data>
+  <data name="About_Match_Family" xml:space="preserve">
+    <value>gleiche Familie, nicht geprüft</value>
+  </data>
+  <data name="About_Match_None" xml:space="preserve">
+    <value>Unbekanntes Modell</value>
+  </data>
+  <data name="About_Writes_Enabled" xml:space="preserve">
+    <value>Erlaubt</value>
+  </data>
+  <data name="About_Writes_DryRun" xml:space="preserve">
+    <value>Testmodus: nichts wird geschrieben</value>
+  </data>
+  <data name="About_Writes_Locked" xml:space="preserve">
+    <value>Gesperrt: nur Lesen</value>
+  </data>
 </root>

@@ -570,4 +570,109 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI: önceki bir çağrı hâlâ sürüyor (hiç cevap vermedi); çağrı yapılmadı.</value>
   </data>
+  <data name="Tray_Settings" xml:space="preserve">
+    <value>Ayarlar…</value>
+  </data>
+  <data name="Main_Settings" xml:space="preserve">
+    <value>Ayarlar ve hakkında</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>M-Tool ayarları</value>
+  </data>
+  <data name="Settings_TabGeneral" xml:space="preserve">
+    <value>Genel</value>
+  </data>
+  <data name="Settings_TabAbout" xml:space="preserve">
+    <value>Hakkında</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Dil</value>
+  </data>
+  <data name="Settings_LanguageNote" xml:space="preserve">
+    <value>M-Tool bir sonraki açılışında geçerli olur.</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Sürüm {0}</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>© 2026 Kutay Kalay. GNU GPL sürüm 3 ya da sonrası altında özgür yazılım. Hiçbir garanti verilmez.</value>
+  </data>
+  <data name="About_OpenGitHub" xml:space="preserve">
+    <value>GitHub sayfası</value>
+  </data>
+  <data name="About_OpenReleases" xml:space="preserve">
+    <value>Tüm sürümler</value>
+  </data>
+  <data name="About_OpenLogFolder" xml:space="preserve">
+    <value>Günlük klasörünü aç</value>
+  </data>
+  <data name="About_DeviceHeader" xml:space="preserve">
+    <value>Bu laptop</value>
+  </data>
+  <data name="About_Copy" xml:space="preserve">
+    <value>Kopyala</value>
+  </data>
+  <data name="About_Copied" xml:space="preserve">
+    <value>Cihaz bilgisi kopyalandı.</value>
+  </data>
+  <data name="About_CopyFailed" xml:space="preserve">
+    <value>Panoya kopyalanamadı. Tekrar deneyin.</value>
+  </data>
+  <data name="About_Licenses" xml:space="preserve">
+    <value>Lisanslar</value>
+  </data>
+  <data name="About_LicensesUnavailable" xml:space="preserve">
+    <value>Lisans metinleri okunamadı. GitHub sayfasındaki LICENSE ve THIRD-PARTY-NOTICES.md dosyalarında bulunur.</value>
+  </data>
+  <data name="About_Unknown" xml:space="preserve">
+    <value>bilinmiyor</value>
+  </data>
+  <data name="About_Device_Model" xml:space="preserve">
+    <value>Model</value>
+  </data>
+  <data name="About_Device_Bios" xml:space="preserve">
+    <value>BIOS</value>
+  </data>
+  <data name="About_Device_Cpu" xml:space="preserve">
+    <value>İşlemci</value>
+  </data>
+  <data name="About_Device_Windows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="About_Device_Firmware" xml:space="preserve">
+    <value>EC yazılımı</value>
+  </data>
+  <data name="About_Device_Record" xml:space="preserve">
+    <value>Cihaz kaydı</value>
+  </data>
+  <data name="About_Device_EcAccess" xml:space="preserve">
+    <value>EC erişimi</value>
+  </data>
+  <data name="About_Device_Writes" xml:space="preserve">
+    <value>Değişiklikler</value>
+  </data>
+  <data name="About_Access_WmiAndPort" xml:space="preserve">
+    <value>WMI ve port (PawnIO {0})</value>
+  </data>
+  <data name="About_Access_WmiOnly" xml:space="preserve">
+    <value>Yalnızca WMI (Cooler Boost ve şarj limiti yok)</value>
+  </data>
+  <data name="About_Match_Exact" xml:space="preserve">
+    <value>doğrulanmış</value>
+  </data>
+  <data name="About_Match_Family" xml:space="preserve">
+    <value>aynı aile, doğrulanmamış</value>
+  </data>
+  <data name="About_Match_None" xml:space="preserve">
+    <value>Bilinmeyen model</value>
+  </data>
+  <data name="About_Writes_Enabled" xml:space="preserve">
+    <value>İzinli</value>
+  </data>
+  <data name="About_Writes_DryRun" xml:space="preserve">
+    <value>Deneme modu: hiçbir şey yazılmıyor</value>
+  </data>
+  <data name="About_Writes_Locked" xml:space="preserve">
+    <value>Kilitli: salt okunur</value>
+  </data>
 </root>

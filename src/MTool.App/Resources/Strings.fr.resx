@@ -570,4 +570,109 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI : un appel précédent est toujours en cours (il n'a jamais répondu) ; aucun appel effectué.</value>
   </data>
+  <data name="Tray_Settings" xml:space="preserve">
+    <value>Paramètres…</value>
+  </data>
+  <data name="Main_Settings" xml:space="preserve">
+    <value>Paramètres et à propos</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Paramètres de M-Tool</value>
+  </data>
+  <data name="Settings_TabGeneral" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="Settings_TabAbout" xml:space="preserve">
+    <value>À propos</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="Settings_LanguageNote" xml:space="preserve">
+    <value>S'applique au prochain démarrage de M-Tool.</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>© 2026 Kutay Kalay. Logiciel libre sous GNU GPL, version 3 ou ultérieure. Il est fourni sans aucune garantie.</value>
+  </data>
+  <data name="About_OpenGitHub" xml:space="preserve">
+    <value>Page GitHub</value>
+  </data>
+  <data name="About_OpenReleases" xml:space="preserve">
+    <value>Toutes les versions</value>
+  </data>
+  <data name="About_OpenLogFolder" xml:space="preserve">
+    <value>Ouvrir le dossier des journaux</value>
+  </data>
+  <data name="About_DeviceHeader" xml:space="preserve">
+    <value>Cet ordinateur</value>
+  </data>
+  <data name="About_Copy" xml:space="preserve">
+    <value>Copier</value>
+  </data>
+  <data name="About_Copied" xml:space="preserve">
+    <value>Informations de l'appareil copiées.</value>
+  </data>
+  <data name="About_CopyFailed" xml:space="preserve">
+    <value>Impossible de copier dans le presse-papiers. Réessayez.</value>
+  </data>
+  <data name="About_Licenses" xml:space="preserve">
+    <value>Licences</value>
+  </data>
+  <data name="About_LicensesUnavailable" xml:space="preserve">
+    <value>Les textes des licences n'ont pas pu être lus. Ils se trouvent dans LICENSE et THIRD-PARTY-NOTICES.md sur la page GitHub.</value>
+  </data>
+  <data name="About_Unknown" xml:space="preserve">
+    <value>inconnu</value>
+  </data>
+  <data name="About_Device_Model" xml:space="preserve">
+    <value>Modèle</value>
+  </data>
+  <data name="About_Device_Bios" xml:space="preserve">
+    <value>BIOS</value>
+  </data>
+  <data name="About_Device_Cpu" xml:space="preserve">
+    <value>Processeur</value>
+  </data>
+  <data name="About_Device_Windows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="About_Device_Firmware" xml:space="preserve">
+    <value>Firmware EC</value>
+  </data>
+  <data name="About_Device_Record" xml:space="preserve">
+    <value>Fiche d'appareil</value>
+  </data>
+  <data name="About_Device_EcAccess" xml:space="preserve">
+    <value>Accès à l'EC</value>
+  </data>
+  <data name="About_Device_Writes" xml:space="preserve">
+    <value>Modifications</value>
+  </data>
+  <data name="About_Access_WmiAndPort" xml:space="preserve">
+    <value>WMI et port (PawnIO {0})</value>
+  </data>
+  <data name="About_Access_WmiOnly" xml:space="preserve">
+    <value>WMI seul (sans Cooler Boost ni limite de charge)</value>
+  </data>
+  <data name="About_Match_Exact" xml:space="preserve">
+    <value>vérifiée</value>
+  </data>
+  <data name="About_Match_Family" xml:space="preserve">
+    <value>même famille, non vérifiée</value>
+  </data>
+  <data name="About_Match_None" xml:space="preserve">
+    <value>Modèle inconnu</value>
+  </data>
+  <data name="About_Writes_Enabled" xml:space="preserve">
+    <value>Autorisées</value>
+  </data>
+  <data name="About_Writes_DryRun" xml:space="preserve">
+    <value>Essai : rien n'est écrit</value>
+  </data>
+  <data name="About_Writes_Locked" xml:space="preserve">
+    <value>Verrouillées : lecture seule</value>
+  </data>
 </root>

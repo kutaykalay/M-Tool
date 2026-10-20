@@ -758,4 +758,144 @@
     <value>MSI_ACPI: an earlier call is still running (it never answered); no call made.</value>
     <comment>A WMI2 read is refused because the previous one never returned. MSI_ACPI is a technical class name, keep as is. Shown in the report and live-read windows.</comment>
   </data>
+  <data name="Tray_Settings" xml:space="preserve">
+    <value>Settings…</value>
+    <comment>Tray menu item that opens the settings window (General and About tabs).</comment>
+  </data>
+  <data name="Main_Settings" xml:space="preserve">
+    <value>Settings and about</value>
+    <comment>Tooltip of the small gear button in the main window that opens the settings window.</comment>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>M-Tool settings</value>
+    <comment>Title of the settings window.</comment>
+  </data>
+  <data name="Settings_TabGeneral" xml:space="preserve">
+    <value>General</value>
+    <comment>Tab header in the settings window.</comment>
+  </data>
+  <data name="Settings_TabAbout" xml:space="preserve">
+    <value>About</value>
+    <comment>Tab header in the settings window.</comment>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Language</value>
+    <comment>Label above the language list in the settings window.</comment>
+  </data>
+  <data name="Settings_LanguageNote" xml:space="preserve">
+    <value>Applies the next time M-Tool starts.</value>
+    <comment>Small note under the language list.</comment>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version {0}</value>
+    <comment>About tab. {0} is the version, e.g. 0.16.0-beta.1.</comment>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>© 2026 Kutay Kalay. Free software under the GNU GPL, version 3 or later. It comes with no warranty.</value>
+    <comment>About tab, legal notice. Keep the name and the © line as is.</comment>
+  </data>
+  <data name="About_OpenGitHub" xml:space="preserve">
+    <value>GitHub page</value>
+    <comment>About tab button: opens the M-Tool repository in the browser.</comment>
+  </data>
+  <data name="About_OpenReleases" xml:space="preserve">
+    <value>All releases</value>
+    <comment>About tab button: opens the releases page on GitHub in the browser.</comment>
+  </data>
+  <data name="About_OpenLogFolder" xml:space="preserve">
+    <value>Open log folder</value>
+    <comment>About tab button: opens the folder with M-Tool's log files in Explorer.</comment>
+  </data>
+  <data name="About_DeviceHeader" xml:space="preserve">
+    <value>This laptop</value>
+    <comment>About tab section header above the device rows.</comment>
+  </data>
+  <data name="About_Copy" xml:space="preserve">
+    <value>Copy</value>
+    <comment>About tab button: copies the device rows to the clipboard (for a GitHub issue).</comment>
+  </data>
+  <data name="About_Copied" xml:space="preserve">
+    <value>Device info copied.</value>
+    <comment>Status band after Copy worked.</comment>
+  </data>
+  <data name="About_CopyFailed" xml:space="preserve">
+    <value>Could not copy to the clipboard. Try again.</value>
+    <comment>Warning band when the clipboard is busy.</comment>
+  </data>
+  <data name="About_Licenses" xml:space="preserve">
+    <value>Licenses</value>
+    <comment>About tab: header of a section that unfolds to show the license texts.</comment>
+  </data>
+  <data name="About_LicensesUnavailable" xml:space="preserve">
+    <value>The license texts could not be read. They are in LICENSE and THIRD-PARTY-NOTICES.md on the GitHub page.</value>
+    <comment>Shown instead of the license texts. Keep the file names as is.</comment>
+  </data>
+  <data name="About_Unknown" xml:space="preserve">
+    <value>unknown</value>
+    <comment>About tab device row value when it could not be read.</comment>
+  </data>
+  <data name="About_Device_Model" xml:space="preserve">
+    <value>Model</value>
+    <comment>About tab device row label.</comment>
+  </data>
+  <data name="About_Device_Bios" xml:space="preserve">
+    <value>BIOS</value>
+    <comment>About tab device row label.</comment>
+  </data>
+  <data name="About_Device_Cpu" xml:space="preserve">
+    <value>Processor</value>
+    <comment>About tab device row label.</comment>
+  </data>
+  <data name="About_Device_Windows" xml:space="preserve">
+    <value>Windows</value>
+    <comment>About tab device row label: the Windows edition and version.</comment>
+  </data>
+  <data name="About_Device_Firmware" xml:space="preserve">
+    <value>EC firmware</value>
+    <comment>About tab device row label: the embedded controller firmware version.</comment>
+  </data>
+  <data name="About_Device_Record" xml:space="preserve">
+    <value>Device record</value>
+    <comment>About tab device row label: which of M-Tool's built-in laptop records this laptop matched.</comment>
+  </data>
+  <data name="About_Device_EcAccess" xml:space="preserve">
+    <value>EC access</value>
+    <comment>About tab device row label: how M-Tool reaches the embedded controller.</comment>
+  </data>
+  <data name="About_Device_Writes" xml:space="preserve">
+    <value>Changes</value>
+    <comment>About tab device row label: whether M-Tool may change settings on the laptop.</comment>
+  </data>
+  <data name="About_Access_WmiAndPort" xml:space="preserve">
+    <value>WMI and port (PawnIO {0})</value>
+    <comment>EC access value. {0} is the PawnIO version or the About_Unknown text.</comment>
+  </data>
+  <data name="About_Access_WmiOnly" xml:space="preserve">
+    <value>WMI only (no Cooler Boost or charge limit)</value>
+    <comment>EC access value when the port is closed.</comment>
+  </data>
+  <data name="About_Match_Exact" xml:space="preserve">
+    <value>verified</value>
+    <comment>Device record value suffix: this exact firmware was checked.</comment>
+  </data>
+  <data name="About_Match_Family" xml:space="preserve">
+    <value>same family, not verified</value>
+    <comment>Device record value suffix: the firmware is related but this exact version was not checked.</comment>
+  </data>
+  <data name="About_Match_None" xml:space="preserve">
+    <value>Unknown model</value>
+    <comment>Device record value when no record matched.</comment>
+  </data>
+  <data name="About_Writes_Enabled" xml:space="preserve">
+    <value>Allowed</value>
+    <comment>Changes row value.</comment>
+  </data>
+  <data name="About_Writes_DryRun" xml:space="preserve">
+    <value>Dry run: nothing is written</value>
+    <comment>Changes row value.</comment>
+  </data>
+  <data name="About_Writes_Locked" xml:space="preserve">
+    <value>Locked: read only</value>
+    <comment>Changes row value.</comment>
+  </data>
 </root>

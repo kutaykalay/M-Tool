@@ -570,4 +570,109 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI: предыдущий вызов всё ещё выполняется (ответа так и не было); вызов не сделан.</value>
   </data>
+  <data name="Tray_Settings" xml:space="preserve">
+    <value>Настройки…</value>
+  </data>
+  <data name="Main_Settings" xml:space="preserve">
+    <value>Настройки и сведения</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Настройки M-Tool</value>
+  </data>
+  <data name="Settings_TabGeneral" xml:space="preserve">
+    <value>Общие</value>
+  </data>
+  <data name="Settings_TabAbout" xml:space="preserve">
+    <value>О программе</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Язык</value>
+  </data>
+  <data name="Settings_LanguageNote" xml:space="preserve">
+    <value>Применяется при следующем запуске M-Tool.</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Версия {0}</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>© 2026 Kutay Kalay. Свободное ПО под лицензией GNU GPL версии 3 или новее. Гарантий не предоставляется.</value>
+  </data>
+  <data name="About_OpenGitHub" xml:space="preserve">
+    <value>Страница GitHub</value>
+  </data>
+  <data name="About_OpenReleases" xml:space="preserve">
+    <value>Все релизы</value>
+  </data>
+  <data name="About_OpenLogFolder" xml:space="preserve">
+    <value>Открыть папку журналов</value>
+  </data>
+  <data name="About_DeviceHeader" xml:space="preserve">
+    <value>Этот ноутбук</value>
+  </data>
+  <data name="About_Copy" xml:space="preserve">
+    <value>Копировать</value>
+  </data>
+  <data name="About_Copied" xml:space="preserve">
+    <value>Сведения об устройстве скопированы.</value>
+  </data>
+  <data name="About_CopyFailed" xml:space="preserve">
+    <value>Не удалось скопировать в буфер обмена. Повторите попытку.</value>
+  </data>
+  <data name="About_Licenses" xml:space="preserve">
+    <value>Лицензии</value>
+  </data>
+  <data name="About_LicensesUnavailable" xml:space="preserve">
+    <value>Не удалось прочитать тексты лицензий. Они находятся в LICENSE и THIRD-PARTY-NOTICES.md на странице GitHub.</value>
+  </data>
+  <data name="About_Unknown" xml:space="preserve">
+    <value>неизвестно</value>
+  </data>
+  <data name="About_Device_Model" xml:space="preserve">
+    <value>Модель</value>
+  </data>
+  <data name="About_Device_Bios" xml:space="preserve">
+    <value>BIOS</value>
+  </data>
+  <data name="About_Device_Cpu" xml:space="preserve">
+    <value>Процессор</value>
+  </data>
+  <data name="About_Device_Windows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="About_Device_Firmware" xml:space="preserve">
+    <value>Прошивка EC</value>
+  </data>
+  <data name="About_Device_Record" xml:space="preserve">
+    <value>Запись устройства</value>
+  </data>
+  <data name="About_Device_EcAccess" xml:space="preserve">
+    <value>Доступ к EC</value>
+  </data>
+  <data name="About_Device_Writes" xml:space="preserve">
+    <value>Изменения</value>
+  </data>
+  <data name="About_Access_WmiAndPort" xml:space="preserve">
+    <value>WMI и порт (PawnIO {0})</value>
+  </data>
+  <data name="About_Access_WmiOnly" xml:space="preserve">
+    <value>Только WMI (без Cooler Boost и лимита заряда)</value>
+  </data>
+  <data name="About_Match_Exact" xml:space="preserve">
+    <value>проверена</value>
+  </data>
+  <data name="About_Match_Family" xml:space="preserve">
+    <value>то же семейство, не проверена</value>
+  </data>
+  <data name="About_Match_None" xml:space="preserve">
+    <value>Неизвестная модель</value>
+  </data>
+  <data name="About_Writes_Enabled" xml:space="preserve">
+    <value>Разрешены</value>
+  </data>
+  <data name="About_Writes_DryRun" xml:space="preserve">
+    <value>Пробный режим: ничего не записывается</value>
+  </data>
+  <data name="About_Writes_Locked" xml:space="preserve">
+    <value>Заблокированы: только чтение</value>
+  </data>
 </root>

@@ -570,4 +570,109 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI：之前的调用仍在进行（一直未响应）；未发起调用。</value>
   </data>
+  <data name="Tray_Settings" xml:space="preserve">
+    <value>设置…</value>
+  </data>
+  <data name="Main_Settings" xml:space="preserve">
+    <value>设置和关于</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>M-Tool 设置</value>
+  </data>
+  <data name="Settings_TabGeneral" xml:space="preserve">
+    <value>常规</value>
+  </data>
+  <data name="Settings_TabAbout" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Settings_LanguageNote" xml:space="preserve">
+    <value>下次启动 M-Tool 时生效。</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>版本 {0}</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>© 2026 Kutay Kalay. 自由软件，依据 GNU GPL 第 3 版或更高版本发布，不提供任何担保。</value>
+  </data>
+  <data name="About_OpenGitHub" xml:space="preserve">
+    <value>GitHub 页面</value>
+  </data>
+  <data name="About_OpenReleases" xml:space="preserve">
+    <value>所有版本</value>
+  </data>
+  <data name="About_OpenLogFolder" xml:space="preserve">
+    <value>打开日志文件夹</value>
+  </data>
+  <data name="About_DeviceHeader" xml:space="preserve">
+    <value>这台笔记本电脑</value>
+  </data>
+  <data name="About_Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="About_Copied" xml:space="preserve">
+    <value>设备信息已复制。</value>
+  </data>
+  <data name="About_CopyFailed" xml:space="preserve">
+    <value>无法复制到剪贴板。请重试。</value>
+  </data>
+  <data name="About_Licenses" xml:space="preserve">
+    <value>许可证</value>
+  </data>
+  <data name="About_LicensesUnavailable" xml:space="preserve">
+    <value>无法读取许可证文本。它们位于 GitHub 页面上的 LICENSE 和 THIRD-PARTY-NOTICES.md 中。</value>
+  </data>
+  <data name="About_Unknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="About_Device_Model" xml:space="preserve">
+    <value>型号</value>
+  </data>
+  <data name="About_Device_Bios" xml:space="preserve">
+    <value>BIOS</value>
+  </data>
+  <data name="About_Device_Cpu" xml:space="preserve">
+    <value>处理器</value>
+  </data>
+  <data name="About_Device_Windows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="About_Device_Firmware" xml:space="preserve">
+    <value>EC 固件</value>
+  </data>
+  <data name="About_Device_Record" xml:space="preserve">
+    <value>设备记录</value>
+  </data>
+  <data name="About_Device_EcAccess" xml:space="preserve">
+    <value>EC 访问</value>
+  </data>
+  <data name="About_Device_Writes" xml:space="preserve">
+    <value>更改</value>
+  </data>
+  <data name="About_Access_WmiAndPort" xml:space="preserve">
+    <value>WMI 和端口（PawnIO {0}）</value>
+  </data>
+  <data name="About_Access_WmiOnly" xml:space="preserve">
+    <value>仅 WMI（无 Cooler Boost 和充电上限）</value>
+  </data>
+  <data name="About_Match_Exact" xml:space="preserve">
+    <value>已验证</value>
+  </data>
+  <data name="About_Match_Family" xml:space="preserve">
+    <value>同一系列，未验证</value>
+  </data>
+  <data name="About_Match_None" xml:space="preserve">
+    <value>未知型号</value>
+  </data>
+  <data name="About_Writes_Enabled" xml:space="preserve">
+    <value>允许</value>
+  </data>
+  <data name="About_Writes_DryRun" xml:space="preserve">
+    <value>试运行：不写入任何内容</value>
+  </data>
+  <data name="About_Writes_Locked" xml:space="preserve">
+    <value>已锁定：只读</value>
+  </data>
 </root>

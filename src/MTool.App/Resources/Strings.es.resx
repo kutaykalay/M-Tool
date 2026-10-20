@@ -570,4 +570,109 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI: una llamada anterior sigue en curso (nunca respondió); no se hizo ninguna llamada.</value>
   </data>
+  <data name="Tray_Settings" xml:space="preserve">
+    <value>Ajustes…</value>
+  </data>
+  <data name="Main_Settings" xml:space="preserve">
+    <value>Ajustes y acerca de</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Ajustes de M-Tool</value>
+  </data>
+  <data name="Settings_TabGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Settings_TabAbout" xml:space="preserve">
+    <value>Acerca de</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="Settings_LanguageNote" xml:space="preserve">
+    <value>Se aplica la próxima vez que se inicie M-Tool.</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Versión {0}</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>© 2026 Kutay Kalay. Software libre bajo la GNU GPL, versión 3 o posterior. No incluye ninguna garantía.</value>
+  </data>
+  <data name="About_OpenGitHub" xml:space="preserve">
+    <value>Página de GitHub</value>
+  </data>
+  <data name="About_OpenReleases" xml:space="preserve">
+    <value>Todas las versiones</value>
+  </data>
+  <data name="About_OpenLogFolder" xml:space="preserve">
+    <value>Abrir carpeta de registros</value>
+  </data>
+  <data name="About_DeviceHeader" xml:space="preserve">
+    <value>Este portátil</value>
+  </data>
+  <data name="About_Copy" xml:space="preserve">
+    <value>Copiar</value>
+  </data>
+  <data name="About_Copied" xml:space="preserve">
+    <value>Información del dispositivo copiada.</value>
+  </data>
+  <data name="About_CopyFailed" xml:space="preserve">
+    <value>No se pudo copiar al portapapeles. Inténtelo de nuevo.</value>
+  </data>
+  <data name="About_Licenses" xml:space="preserve">
+    <value>Licencias</value>
+  </data>
+  <data name="About_LicensesUnavailable" xml:space="preserve">
+    <value>No se pudieron leer los textos de las licencias. Están en LICENSE y THIRD-PARTY-NOTICES.md en la página de GitHub.</value>
+  </data>
+  <data name="About_Unknown" xml:space="preserve">
+    <value>desconocido</value>
+  </data>
+  <data name="About_Device_Model" xml:space="preserve">
+    <value>Modelo</value>
+  </data>
+  <data name="About_Device_Bios" xml:space="preserve">
+    <value>BIOS</value>
+  </data>
+  <data name="About_Device_Cpu" xml:space="preserve">
+    <value>Procesador</value>
+  </data>
+  <data name="About_Device_Windows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="About_Device_Firmware" xml:space="preserve">
+    <value>Firmware del EC</value>
+  </data>
+  <data name="About_Device_Record" xml:space="preserve">
+    <value>Ficha de dispositivo</value>
+  </data>
+  <data name="About_Device_EcAccess" xml:space="preserve">
+    <value>Acceso al EC</value>
+  </data>
+  <data name="About_Device_Writes" xml:space="preserve">
+    <value>Cambios</value>
+  </data>
+  <data name="About_Access_WmiAndPort" xml:space="preserve">
+    <value>WMI y puerto (PawnIO {0})</value>
+  </data>
+  <data name="About_Access_WmiOnly" xml:space="preserve">
+    <value>Solo WMI (sin Cooler Boost ni límite de carga)</value>
+  </data>
+  <data name="About_Match_Exact" xml:space="preserve">
+    <value>verificada</value>
+  </data>
+  <data name="About_Match_Family" xml:space="preserve">
+    <value>misma familia, no verificada</value>
+  </data>
+  <data name="About_Match_None" xml:space="preserve">
+    <value>Modelo desconocido</value>
+  </data>
+  <data name="About_Writes_Enabled" xml:space="preserve">
+    <value>Permitidos</value>
+  </data>
+  <data name="About_Writes_DryRun" xml:space="preserve">
+    <value>Prueba: no se escribe nada</value>
+  </data>
+  <data name="About_Writes_Locked" xml:space="preserve">
+    <value>Bloqueados: solo lectura</value>
+  </data>
 </root>
