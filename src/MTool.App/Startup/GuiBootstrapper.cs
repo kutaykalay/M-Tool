@@ -9,6 +9,7 @@ using MTool.App.Resources;
 using MTool.App.Services;
 using MTool.App.Theme;
 using MTool.App.Tray;
+using MTool.App.Updates;
 using MTool.App.ViewModels;
 using MTool.App.Views;
 using MTool.Core;
@@ -20,6 +21,7 @@ using MTool.Core.Power;
 using MTool.Core.Profiles;
 using MTool.Core.Sensors;
 using MTool.Core.Settings;
+using MTool.Core.Updates;
 
 namespace MTool.App.Startup;
 
@@ -201,12 +203,13 @@ internal sealed class GuiBootstrapper : IDisposable
             new ReportService(new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords()),
             new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(log),
             viewModel.Status, tray, log, stop: stopSubmission.Token);
-        settingsWindow = CreateSettingsWindow(viewModel, signInStart, control, theme, log, teardown);
+        settingsWindow = CreateSettingsWindow(viewModel, signInStart, service, control, tray, ui, theme, log, teardown, out var updates);
         tray.Attach(viewModel, signInStart, report); // Only now does the icon appear.
         _ = signInStart.LoadAsync(); // Off the UI thread; the menu item stays disabled until it answers.
         _ = report.LoadAsync(); // Off the UI thread; the WMI2 item stays hidden until it answers.
 
         // After Attach, so a failure balloon has a visible icon and the start-up refresh is done.
+        _ = updates.RunStartupCheckAsync(); // Returns at once unless the user turned it on; never throws.
         reapplier.Start();
         switcher.Start();
         poller.Start();
@@ -299,15 +302,35 @@ internal sealed class GuiBootstrapper : IDisposable
     /// </param>
     internal sealed record LoadedSettings(SettingsStore Store, AppSettings Settings, IReadOnlyList<string> Warnings, CultureInfo WindowsUi);
 
-    /// <summary>The settings window shares the tray's view models; it reads SMBIOS for the About tab, never the EC.</summary>
+    /// <summary>
+    /// The settings window shares the tray's view models; it reads SMBIOS for the About tab, never the EC.
+    /// GitHub is asked only by the update button, or once after start-up when the user turned that on.
+    /// </summary>
     private static SettingsWindowHost CreateSettingsWindow(
-        MainViewModel viewModel, SignInStartViewModel signInStart, IP65Control control, ThemeManager theme, IAppLog log,
-        Stack<(string Name, Action Dispose)> teardown)
+        MainViewModel viewModel, SignInStartViewModel signInStart, ProfileService service, IP65Control control, INotifier notifier,
+        IUiDispatcher ui, ThemeManager theme, IAppLog log, Stack<(string Name, Action Dispose)> teardown, out UpdatesViewModel updates)
     {
+        var shell = new ShellLauncher(log);
+        var stopUpdates = new CancellationTokenSource();
+        var client = SemVersion.TryParse(AppVersion, out var current)
+            ? new UpdateClient(SafeHttp.CreateHandler(), UpdateEndpoint.Uri, AppVersion, current, UpdateClient.DefaultTimeout, TimeProvider.System)
+            : null;
+        updates = new UpdatesViewModel(client, service, viewModel.Status, notifier, shell, ui, log, TimeProvider.System, stopUpdates.Token);
+        var updatesToStop = updates;
+        void StopUpdates()
+        {
+            stopUpdates.Cancel();
+            updatesToStop.Dispose();
+            client?.Dispose();
+            stopUpdates.Dispose();
+        }
+
+        teardown.Push(("update check", StopUpdates));
+
         var about = new AboutViewModel(
             AppVersion, () => control.Access, new LiveReportSources(log).ReadSystem, PawnIoInstallation.InstalledVersion,
-            EmbeddedLicenses.Read, new ShellLauncher(log), new WpfClipboard(), viewModel.Status, log, AppPaths.Logs);
-        var settings = new SettingsViewModel(signInStart, viewModel.Language, viewModel.PowerSwitch, viewModel.Status, about);
+            EmbeddedLicenses.Read, shell, new WpfClipboard(), viewModel.Status, log, AppPaths.Logs);
+        var settings = new SettingsViewModel(signInStart, viewModel.Language, viewModel.PowerSwitch, viewModel.Status, about, updates);
         var host = new SettingsWindowHost(() => new SettingsWindow(settings, theme));
         teardown.Push(("settings window", host.CloseForExit));
         return host;

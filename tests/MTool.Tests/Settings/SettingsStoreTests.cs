@@ -579,6 +579,35 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void The_automatic_update_check_round_trips_in_the_file()
+    {
+        var store = new SettingsStore(_folder);
+
+        store.Save(AppSettings.Default with { AutoUpdateCheck = true });
+
+        store.Load().Settings.AutoUpdateCheck.Should().BeTrue();
+        File.ReadAllText(SettingsPath).Should().Contain("\"autoUpdateCheck\": true");
+    }
+
+    [Fact]
+    public void A_file_without_the_update_check_loads_with_it_off()
+    {
+        File.WriteAllText(SettingsPath, """{ "schemaVersion": 1, "dryRun": false, "language": "tr" }""");
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Warning.Should().BeNull();
+        result.Settings.AutoUpdateCheck.Should().BeFalse();
+        AppSettings.Default.AutoUpdateCheck.Should().BeFalse("the check goes to the network only when the user turns it on");
+    }
+
+    [Fact]
+    public void Settings_that_differ_only_in_the_update_check_are_not_equal()
+    {
+        (AppSettings.Default with { AutoUpdateCheck = true }).Should().NotBe(AppSettings.Default);
+    }
+
+    [Fact]
     public void Settings_that_differ_only_in_language_are_not_equal()
     {
         (AppSettings.Default with { Language = "tr" }).Should().NotBe(AppSettings.Default);

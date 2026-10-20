@@ -675,4 +675,49 @@
   <data name="About_Writes_Locked" xml:space="preserve">
     <value>Gesperrt: nur Lesen</value>
   </data>
+  <data name="About_UpdateHeader" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="About_CheckForUpdates" xml:space="preserve">
+    <value>Nach Updates suchen</value>
+  </data>
+  <data name="About_AutoCheck" xml:space="preserve">
+    <value>Einmal beim Start von M-Tool prüfen</value>
+  </data>
+  <data name="About_AutoCheckNote" xml:space="preserve">
+    <value>Es wird nur die Release-Liste von GitHub abgefragt; nichts über Sie oder diesen Laptop wird gesendet. M-Tool aktualisiert sich nie selbst: Die neue Version wird von der Release-Seite heruntergeladen.</value>
+  </data>
+  <data name="About_OpenReleasePage" xml:space="preserve">
+    <value>Release-Seite</value>
+  </data>
+  <data name="Update_Checking" xml:space="preserve">
+    <value>Wird geprüft…</value>
+  </data>
+  <data name="Update_UpToDate" xml:space="preserve">
+    <value>M-Tool ist auf dem neuesten Stand.</value>
+  </data>
+  <data name="Update_Available" xml:space="preserve">
+    <value>M-Tool {0} ist erschienen.</value>
+  </data>
+  <data name="Update_AvailableBalloon" xml:space="preserve">
+    <value>M-Tool {0} ist erschienen. Die Release-Seite finden Sie unter Einstellungen › Info.</value>
+  </data>
+  <data name="Update_CurrentIsNewer" xml:space="preserve">
+    <value>Diese Version ist neuer als das neueste Release.</value>
+  </data>
+  <data name="Update_RateLimited" xml:space="preserve">
+    <value>Zu oft geprüft. Versuchen Sie es in {0} Min. erneut.</value>
+  </data>
+  <data name="Update_Unreachable" xml:space="preserve">
+    <value>GitHub war nicht erreichbar. Prüfen Sie die Verbindung.</value>
+  </data>
+  <data name="Update_Timeout" xml:space="preserve">
+    <value>GitHub hat nicht geantwortet. Versuchen Sie es später erneut.</value>
+  </data>
+  <data name="Update_Unreadable" xml:space="preserve">
+    <value>Die Update-Informationen konnten nicht gelesen werden.</value>
+  </data>
+  <data name="Update_UnknownVersion" xml:space="preserve">
+    <value>Die Version dieses Builds ist unbekannt und kann nicht verglichen werden.</value>
+  </data>
 </root>

@@ -30,7 +30,7 @@ mode and battery charge limit. One exe, no background service.
 - Live temperatures and fan speeds, and a tray menu for quick switching.
 - **Settings window** (tray "Settings…" or the small button in the main window): a General tab
   (start at sign-in, language, AC/battery switching) and an About tab (version, device info with
-  copy, licenses, GitHub, log folder).
+  copy, licenses, GitHub, log folder, update check).
 - A drift band when the laptop no longer holds what you chose, with one-click reapply.
 - A command line for dumps and scripted changes.
 
@@ -232,6 +232,11 @@ laptop keeps it across sleep and restarts.
 - If a write fails, M-Tool restores the factory fan table and stops writing until you clear the
   lock with `M-Tool.exe --unlock --confirm`.
 - The EC runs the fan curve itself, so the fans keep the last good profile even if M-Tool closes.
+- **Network:** M-Tool goes online in only two places, and only when you ask:
+  - **Send EC data** (tray menu), after you have seen exactly what is sent.
+  - **Check for updates** (Settings › About): one request for GitHub's list of releases. Nothing about
+    you or the laptop is sent. "Check once when M-Tool starts" is off unless you turn it on. M-Tool
+    never downloads or replaces itself; a newer version is only named, with a link to its release page.
 
 ## Build
 

@@ -898,4 +898,64 @@
     <value>Locked: read only</value>
     <comment>Changes row value.</comment>
   </data>
+  <data name="About_UpdateHeader" xml:space="preserve">
+    <value>Updates</value>
+    <comment>About tab section header.</comment>
+  </data>
+  <data name="About_CheckForUpdates" xml:space="preserve">
+    <value>Check for updates</value>
+    <comment>About tab button: asks GitHub once for the newest release.</comment>
+  </data>
+  <data name="About_AutoCheck" xml:space="preserve">
+    <value>Check once when M-Tool starts</value>
+    <comment>About tab check box: an automatic check a minute after M-Tool starts. Off by default.</comment>
+  </data>
+  <data name="About_AutoCheckNote" xml:space="preserve">
+    <value>Only GitHub's list of releases is asked for; nothing about you or this laptop is sent. M-Tool never updates itself: the new version is downloaded from its release page.</value>
+    <comment>Small note under the update check box.</comment>
+  </data>
+  <data name="About_OpenReleasePage" xml:space="preserve">
+    <value>Release page</value>
+    <comment>About tab button, shown when a newer release is out: opens its page on GitHub.</comment>
+  </data>
+  <data name="Update_Checking" xml:space="preserve">
+    <value>Checking…</value>
+    <comment>Update status while the check runs.</comment>
+  </data>
+  <data name="Update_UpToDate" xml:space="preserve">
+    <value>M-Tool is up to date.</value>
+    <comment>Update status.</comment>
+  </data>
+  <data name="Update_Available" xml:space="preserve">
+    <value>M-Tool {0} is out.</value>
+    <comment>Update status. {0} is the new version, e.g. 0.17.0-beta.1.</comment>
+  </data>
+  <data name="Update_AvailableBalloon" xml:space="preserve">
+    <value>M-Tool {0} is out. Its release page is in Settings › About.</value>
+    <comment>Tray balloon after the automatic check. {0} is the new version. Use the same words as Tray_Settings and Settings_TabAbout.</comment>
+  </data>
+  <data name="Update_CurrentIsNewer" xml:space="preserve">
+    <value>This version is newer than the latest release.</value>
+    <comment>Update status for a development build.</comment>
+  </data>
+  <data name="Update_RateLimited" xml:space="preserve">
+    <value>Checked too often. Try again in {0} min.</value>
+    <comment>Update status. {0} is a whole number of minutes.</comment>
+  </data>
+  <data name="Update_Unreachable" xml:space="preserve">
+    <value>GitHub could not be reached. Check the connection.</value>
+    <comment>Update status: no network, DNS or proxy problem.</comment>
+  </data>
+  <data name="Update_Timeout" xml:space="preserve">
+    <value>GitHub did not answer. Try again later.</value>
+    <comment>Update status.</comment>
+  </data>
+  <data name="Update_Unreadable" xml:space="preserve">
+    <value>The update information could not be read.</value>
+    <comment>Update status: GitHub answered with an error or something that is not a release list.</comment>
+  </data>
+  <data name="Update_UnknownVersion" xml:space="preserve">
+    <value>The version of this build is unknown, so it cannot be compared.</value>
+    <comment>Update status when the exe has no version (a local build).</comment>
+  </data>
 </root>

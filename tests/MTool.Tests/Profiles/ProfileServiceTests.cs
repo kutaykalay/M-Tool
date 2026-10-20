@@ -567,6 +567,23 @@ public sealed class ProfileServiceTests : IDisposable
         service.IsBusy.Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task The_automatic_update_check_is_saved_and_never_touches_the_EC(bool on)
+    {
+        var service = Service(AppSettings.Default with { AutoUpdateCheck = !on });
+
+        var result = await service.SetAutoUpdateCheckAsync(on);
+
+        result.Error.Should().BeNull();
+        result.SaveWarning.Should().BeNull();
+        Saved().AutoUpdateCheck.Should().Be(on);
+        service.AutoUpdateCheck.Should().Be(on);
+        _control.Calls.Should().BeEmpty();
+        _changes.Should().BeEmpty();
+    }
+
     [Fact]
     public async Task Choosing_the_Windows_language_again_saves_none()
     {

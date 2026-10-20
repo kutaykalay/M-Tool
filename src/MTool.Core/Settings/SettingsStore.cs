@@ -23,13 +23,18 @@ namespace MTool.Core.Settings;
 /// null means follow Windows. Outside input: <see cref="SettingsSanitizer"/> checks it. Added without a
 /// new schema version, like <paramref name="PowerSwitch"/>.
 /// </param>
+/// <param name="AutoUpdateCheck">
+/// Ask GitHub for the newest release once at start-up. Off unless the user turns it on: M-Tool goes to
+/// the network only by a user's choice. Added without a new schema version; missing means off.
+/// </param>
 public sealed record AppSettings(
     int SchemaVersion = AppSettings.CurrentSchemaVersion,
     bool DryRun = true,
     DesiredState? Desired = null,
     IReadOnlyList<FanProfile>? CustomProfiles = null,
     PowerSwitchSettings? PowerSwitch = null,
-    string? Language = null)
+    string? Language = null,
+    bool AutoUpdateCheck = false)
 {
     public const int CurrentSchemaVersion = 1;
 
@@ -67,9 +72,11 @@ public sealed record AppSettings(
         && Desired == other.Desired
         && CustomProfiles.SequenceEqual(other.CustomProfiles)
         && PowerSwitch == other.PowerSwitch
-        && Language == other.Language;
+        && Language == other.Language
+        && AutoUpdateCheck == other.AutoUpdateCheck;
 
-    public override int GetHashCode() => HashCode.Combine(SchemaVersion, DryRun, Desired, CustomProfiles.Count, PowerSwitch, Language);
+    public override int GetHashCode() =>
+        HashCode.Combine(SchemaVersion, DryRun, Desired, CustomProfiles.Count, PowerSwitch, Language, AutoUpdateCheck);
 }
 
 /// <param name="Warning">Set when the file was unusable and defaults were loaded instead. For the user, in the UI language of that moment.</param>

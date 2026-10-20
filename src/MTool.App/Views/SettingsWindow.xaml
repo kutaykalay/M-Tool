@@ -98,6 +98,21 @@
                         </ItemsControl>
                     </Border>
 
+                    <!-- Updates: only a notice and a link; M-Tool never replaces itself. -->
+                    <TextBlock Style="{StaticResource Section}" Margin="2,14,0,6" Text="{x:Static res:Strings.About_UpdateHeader}" />
+                    <WrapPanel>
+                        <Button Style="{StaticResource Choice}" Margin="0,0,6,6" Content="{x:Static res:Strings.About_CheckForUpdates}" Command="{Binding Updates.CheckCommand}" />
+                        <Button Style="{StaticResource Choice}" Margin="0,0,6,6" Content="{x:Static res:Strings.About_OpenReleasePage}" Command="{Binding Updates.OpenReleasePageCommand}"
+                                Visibility="{Binding Updates.NewVersion, Converter={StaticResource NotNullToVisible}}" />
+                    </WrapPanel>
+                    <TextBlock Margin="2,0,0,0" TextWrapping="Wrap" Text="{Binding Updates.StatusText}"
+                               Visibility="{Binding Updates.StatusText, Converter={StaticResource NotNullToVisible}}" />
+                    <CheckBox Margin="0,8,0,0" Foreground="{DynamicResource Brush.Text}"
+                              IsChecked="{Binding Updates.AutoCheck, Mode=OneWay}" Command="{Binding Updates.ToggleAutoCheckCommand}">
+                        <TextBlock Text="{x:Static res:Strings.About_AutoCheck}" TextWrapping="Wrap" />
+                    </CheckBox>
+                    <TextBlock Style="{StaticResource Muted}" Margin="20,2,0,0" TextWrapping="Wrap" Text="{x:Static res:Strings.About_AutoCheckNote}" />
+
                     <Expander Margin="0,10,0,0" Header="{x:Static res:Strings.About_Licenses}">
                         <TextBox Height="220" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
                                  FontFamily="Consolas" FontSize="11" Padding="4,3"

@@ -675,4 +675,49 @@
   <data name="About_Writes_Locked" xml:space="preserve">
     <value>已锁定：只读</value>
   </data>
+  <data name="About_UpdateHeader" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="About_CheckForUpdates" xml:space="preserve">
+    <value>检查更新</value>
+  </data>
+  <data name="About_AutoCheck" xml:space="preserve">
+    <value>M-Tool 启动时检查一次</value>
+  </data>
+  <data name="About_AutoCheckNote" xml:space="preserve">
+    <value>仅请求 GitHub 的发布列表；不会发送任何关于您或这台笔记本电脑的信息。M-Tool 从不自行更新：新版本需从发布页面下载。</value>
+  </data>
+  <data name="About_OpenReleasePage" xml:space="preserve">
+    <value>发布页面</value>
+  </data>
+  <data name="Update_Checking" xml:space="preserve">
+    <value>正在检查…</value>
+  </data>
+  <data name="Update_UpToDate" xml:space="preserve">
+    <value>M-Tool 已是最新版本。</value>
+  </data>
+  <data name="Update_Available" xml:space="preserve">
+    <value>M-Tool {0} 已发布。</value>
+  </data>
+  <data name="Update_AvailableBalloon" xml:space="preserve">
+    <value>M-Tool {0} 已发布。其发布页面位于 设置 › 关于。</value>
+  </data>
+  <data name="Update_CurrentIsNewer" xml:space="preserve">
+    <value>此版本比最新发布版本更新。</value>
+  </data>
+  <data name="Update_RateLimited" xml:space="preserve">
+    <value>检查过于频繁。请在 {0} 分钟后重试。</value>
+  </data>
+  <data name="Update_Unreachable" xml:space="preserve">
+    <value>无法连接到 GitHub。请检查网络连接。</value>
+  </data>
+  <data name="Update_Timeout" xml:space="preserve">
+    <value>GitHub 没有响应。请稍后重试。</value>
+  </data>
+  <data name="Update_Unreadable" xml:space="preserve">
+    <value>无法读取更新信息。</value>
+  </data>
+  <data name="Update_UnknownVersion" xml:space="preserve">
+    <value>此构建的版本未知，因此无法比较。</value>
+  </data>
 </root>

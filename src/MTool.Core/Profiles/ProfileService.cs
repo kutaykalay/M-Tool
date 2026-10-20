@@ -180,6 +180,22 @@ public sealed class ProfileService
         }
     }
 
+    public bool AutoUpdateCheck => Current.Settings.AutoUpdateCheck;
+
+    /// <summary>Only changes the settings file (never the EC), so it works while writing is locked too.</summary>
+    public async Task<ProfileCommandResult> SetAutoUpdateCheckAsync(bool on)
+    {
+        await _oneAtATime.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            return new ProfileCommandResult(null, Remember(Current.Settings with { AutoUpdateCheck = on }));
+        }
+        finally
+        {
+            _oneAtATime.Release();
+        }
+    }
+
     public PowerSwitchSettings PowerSwitch => Current.Settings.PowerSwitch;
 
     /// <summary>

@@ -675,4 +675,49 @@
   <data name="About_Writes_Locked" xml:space="preserve">
     <value>Kilitli: salt okunur</value>
   </data>
+  <data name="About_UpdateHeader" xml:space="preserve">
+    <value>Güncellemeler</value>
+  </data>
+  <data name="About_CheckForUpdates" xml:space="preserve">
+    <value>Güncellemeleri denetle</value>
+  </data>
+  <data name="About_AutoCheck" xml:space="preserve">
+    <value>M-Tool açılırken bir kez denetle</value>
+  </data>
+  <data name="About_AutoCheckNote" xml:space="preserve">
+    <value>Yalnızca GitHub'dan sürüm listesi istenir; sizinle ya da bu laptopla ilgili hiçbir şey gönderilmez. M-Tool kendini güncellemez: yeni sürüm, sürüm sayfasından indirilir.</value>
+  </data>
+  <data name="About_OpenReleasePage" xml:space="preserve">
+    <value>Sürüm sayfası</value>
+  </data>
+  <data name="Update_Checking" xml:space="preserve">
+    <value>Denetleniyor…</value>
+  </data>
+  <data name="Update_UpToDate" xml:space="preserve">
+    <value>M-Tool güncel.</value>
+  </data>
+  <data name="Update_Available" xml:space="preserve">
+    <value>M-Tool {0} çıktı.</value>
+  </data>
+  <data name="Update_AvailableBalloon" xml:space="preserve">
+    <value>M-Tool {0} çıktı. Sürüm sayfası Ayarlar › Hakkında'da.</value>
+  </data>
+  <data name="Update_CurrentIsNewer" xml:space="preserve">
+    <value>Bu sürüm, yayımlanmış son sürümden yeni.</value>
+  </data>
+  <data name="Update_RateLimited" xml:space="preserve">
+    <value>Çok sık denendi. {0} dk sonra tekrar deneyin.</value>
+  </data>
+  <data name="Update_Unreachable" xml:space="preserve">
+    <value>GitHub'a ulaşılamadı. Bağlantıyı denetleyin.</value>
+  </data>
+  <data name="Update_Timeout" xml:space="preserve">
+    <value>GitHub yanıt vermedi. Daha sonra tekrar deneyin.</value>
+  </data>
+  <data name="Update_Unreadable" xml:space="preserve">
+    <value>Güncelleme bilgisi okunamadı.</value>
+  </data>
+  <data name="Update_UnknownVersion" xml:space="preserve">
+    <value>Bu derlemenin sürümü bilinmiyor, karşılaştırılamaz.</value>
+  </data>
 </root>
