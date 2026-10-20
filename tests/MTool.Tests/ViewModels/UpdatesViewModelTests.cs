@@ -29,9 +29,9 @@ public sealed class UpdatesViewModelTests : IDisposable
 
     public void Dispose() => Directory.Delete(_folder, recursive: true);
 
-    private UpdatesViewModel ViewModel(bool autoCheck = false, bool knownVersion = true, CancellationToken stop = default)
+    private UpdatesViewModel ViewModel(bool autoCheck = false, bool knownVersion = true, CancellationToken stop = default, string? folder = null)
     {
-        _service = new ProfileService(new FakeP65Control(), ProfileCatalog.BuiltIn, new SettingsStore(_folder),
+        _service = new ProfileService(new FakeP65Control(), ProfileCatalog.BuiltIn, new SettingsStore(folder ?? _folder),
             AppSettings.Default with { AutoUpdateCheck = autoCheck }, new ListLog());
         return new UpdatesViewModel(knownVersion ? _client : null, _service, _status, _notifier, _shell, _ui, _log, _time, stop);
     }
@@ -270,6 +270,33 @@ public sealed class UpdatesViewModelTests : IDisposable
         new SettingsStore(_folder).Load().Settings.AutoUpdateCheck.Should().BeTrue();
         changed.Should().Contain(nameof(UpdatesViewModel.AutoCheck));
         _client.Calls.Should().Be(0, "turning it on is not a check");
+    }
+
+    [Fact]
+    public async Task Turning_the_automatic_check_off_during_the_startup_wait_asks_nothing()
+    {
+        var vm = ViewModel(autoCheck: true);
+
+        var run = vm.RunStartupCheckAsync();
+        await vm.ToggleAutoCheckCommand.ExecuteAsync(null);
+        _time.Advance(UpdatesViewModel.StartupDelay);
+        await run;
+
+        _client.Calls.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task A_setting_that_cannot_be_saved_is_a_warning_and_stays_for_this_session()
+    {
+        var blocked = Path.Combine(_folder, "not-a-folder");
+        File.WriteAllText(blocked, "");
+        var vm = ViewModel(folder: blocked);
+
+        await vm.ToggleAutoCheckCommand.ExecuteAsync(null);
+
+        _status.MessageKind.Should().Be(MessageKind.Warning);
+        _status.Message.Should().Contain("settings.json");
+        vm.AutoCheck.Should().BeTrue();
     }
 
     private sealed class FakeUpdateClient : IUpdateClient
