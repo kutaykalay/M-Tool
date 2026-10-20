@@ -11,8 +11,8 @@ namespace MTool.App.Reports;
 /// </summary>
 internal static class IssueUrl
 {
-    public const string Host = "github.com";
-    public const string FormPath = "/kutaykalay/M-Tool/issues/new";
+    public const string Host = ProjectLinks.Host;
+    public const string FormPath = ProjectLinks.RepositoryPath + "/issues/new";
     public const string Template = "device-report.yml";
     public const string TitlePrefix = "[Device report] ";
 
