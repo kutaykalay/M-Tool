@@ -56,7 +56,7 @@ internal sealed class GuiBootstrapper : IDisposable
 
     /// <param name="settings">From <see cref="LoadSettings(FileLog)"/>, which has already set the UI language.</param>
     /// <returns>
-    /// Null when the app cannot run: PawnIO missing or the EC unreachable (the user was told why), or a
+    /// Null when the app cannot run: the EC unreachable (the user was told why), or a
     /// model M-Tool cannot control yet (the reports-only window was shown and has been closed).
     /// </returns>
     /// <param name="instance">Held by this process; a second start asks it to show its window.</param>
