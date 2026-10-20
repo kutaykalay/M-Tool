@@ -1,7 +1,5 @@
 using System.Net;
-using System.Net.Http;
 using Microsoft.Extensions.Time.Testing;
-using MTool.App.Net;
 using MTool.App.Updates;
 using MTool.Core.Updates;
 using MTool.Tests.Fakes;

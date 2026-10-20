@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Time.Testing;
 using MTool.App.Resources;
 using MTool.App.ViewModels;
-using MTool.Core.Device;
 using MTool.Core.Sensors;
 using MTool.Tests.Fakes;
 

@@ -1,4 +1,3 @@
-using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MTool.App.Resources;
 using MTool.Core.Device;

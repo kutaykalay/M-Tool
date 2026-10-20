@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using MTool.App.Hardware;
 using MTool.App.Reports;
 using MTool.App.Startup;
-using MTool.Core.Diagnostics;
 using MTool.Core.Ec;
 using MTool.Core.Settings;
 

@@ -1,5 +1,4 @@
 using MTool.App.Hardware;
-using MTool.Core.Ec;
 
 namespace MTool.Tests.Hardware;
 

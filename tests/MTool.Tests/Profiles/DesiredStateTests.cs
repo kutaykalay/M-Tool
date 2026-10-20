@@ -1,5 +1,4 @@
 using MTool.Core.Device;
-using MTool.Core.Ec;
 using MTool.Core.Profiles;
 
 namespace MTool.Tests.Profiles;

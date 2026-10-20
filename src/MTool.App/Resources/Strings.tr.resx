@@ -162,9 +162,6 @@
   <data name="Startup_UnexpectedError" xml:space="preserve">
     <value>Beklenmeyen hata: {0}&#10;&#10;Ayrıntı: {1}</value>
   </data>
-  <data name="Startup_Problem" xml:space="preserve">
-    <value>{0}&#10;&#10;Ayrıntı: {1}</value>
-  </data>
   <data name="Startup_EcUnreachable" xml:space="preserve">
     <value>EC'ye erişilemedi: {0}&#10;&#10;Ayrıntı: {1}</value>
   </data>

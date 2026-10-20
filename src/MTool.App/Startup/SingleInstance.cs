@@ -1,5 +1,3 @@
-using System.Threading;
-
 namespace MTool.App.Startup;
 
 /// <summary>

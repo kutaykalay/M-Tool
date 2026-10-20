@@ -1,6 +1,5 @@
 using System.Globalization;
 using MTool.App.Resources;
-using MTool.Core.Device;
 using MTool.Core.Sensors;
 
 namespace MTool.App.Tray;

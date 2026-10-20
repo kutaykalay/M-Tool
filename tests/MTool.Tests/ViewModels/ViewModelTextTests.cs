@@ -2,7 +2,6 @@ using System.Globalization;
 using MTool.App.Resources;
 using MTool.App.ViewModels;
 using MTool.Core.Device;
-using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 using MTool.Core.Power;
 using MTool.Core.Profiles;

@@ -212,10 +212,6 @@
     <value>Unexpected error: {0}&#10;&#10;Details: {1}</value>
     <comment>Error box. {0} is the reason, {1} the folder of the log files.</comment>
   </data>
-  <data name="Startup_Problem" xml:space="preserve">
-    <value>{0}&#10;&#10;Details: {1}</value>
-    <comment>Error box. {0} is a sentence that says why M-Tool did not open, {1} the folder of the log files.</comment>
-  </data>
   <data name="Startup_EcUnreachable" xml:space="preserve">
     <value>Could not reach the EC: {0}&#10;&#10;Details: {1}</value>
     <comment>Error box. EC = the laptop's embedded controller. {0} is the reason, {1} the folder of the log files.</comment>

@@ -1,6 +1,5 @@
 using System.Globalization;
 using MTool.Core.Device;
-using MTool.Core.Ec;
 using MTool.Core.Localization;
 using MTool.Core.Power;
 using MTool.Core.Profiles;

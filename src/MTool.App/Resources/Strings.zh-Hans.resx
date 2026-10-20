@@ -162,9 +162,6 @@
   <data name="Startup_UnexpectedError" xml:space="preserve">
     <value>意外错误：{0}&#10;&#10;详细信息：{1}</value>
   </data>
-  <data name="Startup_Problem" xml:space="preserve">
-    <value>{0}&#10;&#10;详细信息：{1}</value>
-  </data>
   <data name="Startup_EcUnreachable" xml:space="preserve">
     <value>无法访问 EC：{0}&#10;&#10;详细信息：{1}</value>
   </data>
