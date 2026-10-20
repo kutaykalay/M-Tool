@@ -14,9 +14,20 @@ internal sealed class FakeNotifier : INotifier
 
     public List<(string Title, string Message)> Infos { get; } = [];
 
+    /// <summary>The balloon throws, as a tray icon that is already gone would.</summary>
+    public bool Fails { get; set; }
+
     public void ShowError(string title, string message) => Errors.Add((title, message));
 
-    public void ShowInfo(string title, string message) => Infos.Add((title, message));
+    public void ShowInfo(string title, string message)
+    {
+        if (Fails)
+        {
+            throw new ObjectDisposedException("NotifyIcon");
+        }
+
+        Infos.Add((title, message));
+    }
 }
 
 /// <summary>Keeps posted work until <see cref="RunAll"/>, like a UI thread that is busy elsewhere.</summary>

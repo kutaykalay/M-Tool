@@ -19,7 +19,7 @@ internal interface IUpdateClient
 /// </summary>
 internal sealed class UpdateClient : IUpdateClient, IDisposable
 {
-    /// <summary>Ten releases with their notes and assets fit with room to spare.</summary>
+    /// <summary>Five releases with their notes and assets fit with room to spare; a cut answer is "unreadable".</summary>
     public const int MaxAnswerBytes = 256 * 1024;
 
     public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(15);

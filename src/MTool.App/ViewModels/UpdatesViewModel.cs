@@ -50,7 +50,10 @@ internal sealed partial class UpdatesViewModel(
 
     public bool AutoCheck => service.AutoUpdateCheck;
 
-    /// <summary>Called once at start-up; returns at once unless the user turned the automatic check on.</summary>
+    /// <summary>
+    /// Called once at start-up and not awaited; returns at once unless the user turned the automatic
+    /// check on. Never throws: whatever goes wrong is only logged, the user did not ask at that moment.
+    /// </summary>
     public async Task RunStartupCheckAsync()
     {
         if (client is null || !service.AutoUpdateCheck)
@@ -61,21 +64,25 @@ internal sealed partial class UpdatesViewModel(
         try
         {
             await Task.Delay(StartupDelay, time, stop);
+
+            // Turned off during the wait, or the user is already checking by hand.
+            if (!service.AutoUpdateCheck || IsChecking)
+            {
+                return;
+            }
+
+            if (await RunAsync() is { Status: UpdateStatus.UpdateAvailable, Latest: { } latest })
+            {
+                notifier.ShowInfo(AppName, string.Format(Strings.Update_AvailableBalloon, latest));
+            }
         }
         catch (OperationCanceledException)
         {
-            return;
+            // M-Tool is closing.
         }
-
-        // Turned off during the wait, or the user is already checking by hand.
-        if (!service.AutoUpdateCheck || IsChecking)
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            return;
-        }
-
-        if (await RunAsync() is { Status: UpdateStatus.UpdateAvailable, Latest: { } latest })
-        {
-            notifier.ShowInfo(AppName, string.Format(Strings.Update_AvailableBalloon, latest));
+            log.Error("The start-up update check failed", ex);
         }
     }
 
@@ -130,8 +137,21 @@ internal sealed partial class UpdatesViewModel(
 
         IsChecking = true;
         StatusText = Strings.Update_Checking;
-        var outcome = await client.CheckAsync(stop);
-        IsChecking = false;
+        UpdateCheckOutcome outcome;
+        try
+        {
+            outcome = await client.CheckAsync(stop);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            // The real client never throws; a bug there must not leave the button off for good.
+            log.Error("Update check: the client failed", ex);
+            outcome = new UpdateCheckOutcome(UpdateStatus.Unavailable);
+        }
+        finally
+        {
+            IsChecking = false;
+        }
 
         // Only the outcome's own fields: nothing of GitHub's answer reaches the log.
         log.Info($"Update check: {outcome.Status}, HTTP {outcome.HttpStatus?.ToString() ?? "-"}, latest {outcome.Latest?.ToString() ?? "-"}");

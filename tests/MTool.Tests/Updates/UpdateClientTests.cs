@@ -22,7 +22,7 @@ public sealed class UpdateClientTests
     [Fact]
     public void The_endpoint_is_the_fixed_https_release_list_of_M_Tool()
     {
-        UpdateEndpoint.Uri.AbsoluteUri.Should().Be("https://api.github.com/repos/kutaykalay/M-Tool/releases?per_page=10");
+        UpdateEndpoint.Uri.AbsoluteUri.Should().Be("https://api.github.com/repos/kutaykalay/M-Tool/releases?per_page=5");
     }
 
     [Fact]

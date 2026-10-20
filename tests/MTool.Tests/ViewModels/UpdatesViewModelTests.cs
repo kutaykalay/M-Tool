@@ -125,6 +125,37 @@ public sealed class UpdatesViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task A_client_that_throws_does_not_leave_the_button_stuck()
+    {
+        _client.Throws = new InvalidOperationException("bug");
+        var vm = ViewModel();
+
+        await vm.CheckCommand.ExecuteAsync(null);
+
+        vm.IsChecking.Should().BeFalse();
+        vm.StatusText.Should().Be(Strings.Update_Unreadable);
+        _log.Lines.Should().ContainSingle(l => l.StartsWith("ERROR") && l.Contains("Update check"));
+        _time.Advance(UpdatesViewModel.Rest);
+        _ui.RunAll();
+        vm.CheckCommand.CanExecute(null).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task A_startup_check_whose_balloon_fails_is_only_logged()
+    {
+        _client.Next = new UpdateCheckOutcome(UpdateStatus.UpdateAvailable, 200, Newer);
+        _notifier.Fails = true;
+        var vm = ViewModel(autoCheck: true);
+
+        var run = vm.RunStartupCheckAsync();
+        _time.Advance(UpdatesViewModel.StartupDelay);
+        var finish = async () => await run;
+
+        await finish.Should().NotThrowAsync();
+        _log.Lines.Should().Contain(l => l.StartsWith("ERROR") && l.Contains("start-up update check"));
+    }
+
+    [Fact]
     public async Task A_cancelled_check_says_nothing()
     {
         _client.Next = UpdateCheckOutcome.WithoutAnswer(UpdateStatus.Cancelled);
@@ -234,12 +265,14 @@ public sealed class UpdatesViewModelTests : IDisposable
 
         public Task<UpdateCheckOutcome>? Pending { get; set; }
 
+        public Exception? Throws { get; set; }
+
         public int Calls { get; private set; }
 
         public Task<UpdateCheckOutcome> CheckAsync(CancellationToken stop)
         {
             Calls++;
-            return Pending ?? Task.FromResult(Next);
+            return Throws is { } error ? Task.FromException<UpdateCheckOutcome>(error) : Pending ?? Task.FromResult(Next);
         }
     }
 }
