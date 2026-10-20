@@ -189,9 +189,6 @@
   <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
     <value>WMI beklenmeyen bir cevap verdi: {0}</value>
   </data>
-  <data name="Startup_PawnIoMissing" xml:space="preserve">
-    <value>PawnIO kurulu değil. M-Tool EC'ye PawnIO sürücüsüyle erişir.&#10;&#10;Kurmak için (yönetici komut isteminde):&#10;{0}&#10;&#10;Ayrıntı: {1}</value>
-  </data>
   <data name="PawnIo_Missing" xml:space="preserve">
     <value>PawnIO kurulu değil. Kurmak için: {0}</value>
   </data>
@@ -313,7 +310,7 @@
     <value>Oturum açılışında başlatma beklenen görev değil ({0}). Bu exe'ye almak için tepsi menüsünden kapatıp yeniden açın.</value>
   </data>
   <data name="SignIn_ChangeFailed" xml:space="preserve">
-    <value>Oturum açılışında başlatma değiştirilemedi: {0}</value>
+    <value>Oturum açılışında başlatma değiştirilemedi. Ayrıntılar günlük dosyasında.</value>
   </data>
   <data name="Editor_DiscardQuestion" xml:space="preserve">
     <value>Kaydedilmemiş değişiklikler atılsın mı?</value>
@@ -719,5 +716,14 @@
   </data>
   <data name="Update_UnknownVersion" xml:space="preserve">
     <value>Bu derlemenin sürümü bilinmiyor, karşılaştırılamaz.</value>
+  </data>
+  <data name="Shell_UrlCopied" xml:space="preserve">
+    <value>Tarayıcı yönetici yetkisiyle açılacağı için M-Tool onu açmadı. Adres panoya kopyalandı, tarayıcınıza yapıştırın.</value>
+  </data>
+  <data name="Shell_UrlNotOpened" xml:space="preserve">
+    <value>Tarayıcı yönetici yetkisiyle açılacağı için M-Tool onu açmadı. Adres günlük dosyasında.</value>
+  </data>
+  <data name="Session_PawnIoMissing" xml:space="preserve">
+    <value>PawnIO kurulu değil, bu yüzden Cooler Boost ve şarj limiti gizli. Kullanmak için kurun (yönetici komut isteminde: {0}) ve M-Tool'u yeniden başlatın.</value>
   </data>
 </root>

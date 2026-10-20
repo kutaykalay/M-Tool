@@ -37,6 +37,19 @@ public sealed class UpdatesViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task A_release_page_kept_from_an_elevated_browser_says_the_address_was_copied()
+    {
+        _client.Next = new UpdateCheckOutcome(UpdateStatus.UpdateAvailable, 200, Newer);
+        _shell.UrlFailure = new BrowserNotOpenedException(addressCopied: false);
+        var vm = ViewModel();
+        await vm.CheckCommand.ExecuteAsync(null);
+
+        vm.OpenReleasePageCommand.Execute(null);
+
+        _status.Message.Should().Be(Strings.Shell_UrlNotOpened);
+    }
+
+    [Fact]
     public async Task A_check_with_a_newer_release_says_so_and_offers_its_page()
     {
         _client.Next = new UpdateCheckOutcome(UpdateStatus.UpdateAvailable, 200, Newer);

@@ -141,6 +141,18 @@ public sealed class AboutViewModelTests
     }
 
     [Fact]
+    public void A_page_kept_from_an_elevated_browser_says_the_address_was_copied()
+    {
+        _shell.UrlFailure = new BrowserNotOpenedException(addressCopied: true);
+        var vm = ViewModel();
+
+        vm.OpenGitHubCommand.Execute(null);
+
+        _status.MessageKind.Should().Be(MessageKind.Warning);
+        _status.Message.Should().Be(Strings.Shell_UrlCopied);
+    }
+
+    [Fact]
     public void A_shell_failure_is_a_warning_without_the_path()
     {
         _shell.Fails = true;
@@ -202,20 +214,4 @@ public sealed class AboutViewModelTests
         vm.DeviceLines.Should().NotBeEmpty();
     }
 
-    private sealed class FakeClipboard : IClipboard
-    {
-        public List<string> Texts { get; } = [];
-
-        public bool Fails { get; set; }
-
-        public void SetText(string text)
-        {
-            if (Fails)
-            {
-                throw new System.Runtime.InteropServices.COMException("OpenClipboard failed", unchecked((int)0x800401D0));
-            }
-
-            Texts.Add(text);
-        }
-    }
 }

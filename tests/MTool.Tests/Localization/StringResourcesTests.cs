@@ -66,7 +66,7 @@ public sealed class StringResourcesTests
         string[] keys =
         [
             nameof(Strings.Startup_Failed), nameof(Strings.Startup_UnexpectedError), nameof(Strings.Startup_Problem),
-            nameof(Strings.Startup_EcUnreachable), nameof(Strings.Startup_PawnIoMissing),
+            nameof(Strings.Startup_EcUnreachable),
         ];
 
         foreach (var key in keys)

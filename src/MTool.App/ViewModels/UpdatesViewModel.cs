@@ -106,7 +106,7 @@ internal sealed partial class UpdatesViewModel(
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             log.Error("Could not open the release page", ex);
-            status.ShowWarning(Strings.Report_OpenFailed);
+            status.ShowWarning(ShellLauncher.WarningFor(ex));
         }
     }
 

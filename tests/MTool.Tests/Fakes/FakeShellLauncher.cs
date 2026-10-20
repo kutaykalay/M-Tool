@@ -11,6 +11,9 @@ internal sealed class FakeShellLauncher : IShellLauncher
 
     public bool Fails { get; set; }
 
+    /// <summary>Thrown by <see cref="OpenUrl"/> instead of the usual failure.</summary>
+    public Exception? UrlFailure { get; set; }
+
     public void OpenFolder(string folder)
     {
         Folders.Add(folder);
@@ -23,6 +26,11 @@ internal sealed class FakeShellLauncher : IShellLauncher
     public void OpenUrl(Uri url)
     {
         Urls.Add(url);
+        if (UrlFailure is { } failure)
+        {
+            throw failure;
+        }
+
         if (Fails)
         {
             throw new InvalidOperationException("No browser");

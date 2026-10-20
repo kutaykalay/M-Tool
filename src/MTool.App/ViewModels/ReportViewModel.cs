@@ -284,7 +284,7 @@ internal sealed partial class ReportViewModel(
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             log.Error($"Could not open {what}", ex);
-            status.ShowWarning(Strings.Report_OpenFailed);
+            status.ShowWarning(ShellLauncher.WarningFor(ex));
         }
     }
 }

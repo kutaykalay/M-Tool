@@ -1,5 +1,6 @@
 using MTool.App.Reports;
 using MTool.Core.Updates;
+using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Reports;
 
@@ -16,7 +17,7 @@ public sealed class ProjectLinksTests
         {
             desktop.Add(target);
             return true;
-        }, _ => { });
+        }, _ => { }, new FakeClipboard());
 
         foreach (var link in ProjectLinks.All)
         {
@@ -68,7 +69,7 @@ public sealed class ProjectLinksTests
         var url = new Uri(address);
 
         ProjectLinks.IsAllowed(url).Should().BeFalse(address);
-        var open = () => new ShellLauncher(_ => true, _ => { }).OpenUrl(url);
+        var open = () => new ShellLauncher(_ => true, _ => { }, new FakeClipboard()).OpenUrl(url);
         open.Should().Throw<ArgumentException>();
     }
 

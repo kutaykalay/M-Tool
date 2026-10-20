@@ -189,9 +189,6 @@
   <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
     <value>WMI a donné une réponse inattendue : {0}</value>
   </data>
-  <data name="Startup_PawnIoMissing" xml:space="preserve">
-    <value>PawnIO n'est pas installé. M-Tool accède à l'EC par le pilote PawnIO.&#10;&#10;Pour l'installer (dans une invite de commandes administrateur) :&#10;{0}&#10;&#10;Détails : {1}</value>
-  </data>
   <data name="PawnIo_Missing" xml:space="preserve">
     <value>PawnIO n'est pas installé. Pour l'installer : {0}</value>
   </data>
@@ -313,7 +310,7 @@
     <value>« Démarrer à l'ouverture de session » n'est pas la tâche attendue ({0}). Pour la faire pointer vers cet exe, désactivez puis réactivez l'option dans le menu de la zone de notification.</value>
   </data>
   <data name="SignIn_ChangeFailed" xml:space="preserve">
-    <value>« Démarrer à l'ouverture de session » n'a pas pu être modifié : {0}</value>
+    <value>« Démarrer à l'ouverture de session » n'a pas pu être modifié. Consultez le fichier journal pour plus de détails.</value>
   </data>
   <data name="Editor_DiscardQuestion" xml:space="preserve">
     <value>Abandonner les modifications non enregistrées ?</value>
@@ -719,5 +716,14 @@
   </data>
   <data name="Update_UnknownVersion" xml:space="preserve">
     <value>La version de cette build est inconnue, elle ne peut donc pas être comparée.</value>
+  </data>
+  <data name="Shell_UrlCopied" xml:space="preserve">
+    <value>M-Tool n'a pas ouvert le navigateur, car il se serait exécuté avec les droits d'administrateur. L'adresse est dans le presse-papiers : collez-la dans votre navigateur.</value>
+  </data>
+  <data name="Shell_UrlNotOpened" xml:space="preserve">
+    <value>M-Tool n'a pas ouvert le navigateur, car il se serait exécuté avec les droits d'administrateur. L'adresse figure dans le fichier journal.</value>
+  </data>
+  <data name="Session_PawnIoMissing" xml:space="preserve">
+    <value>PawnIO n'est pas installé, donc Cooler Boost et la limite de charge sont masqués. Pour les utiliser, installez-le (dans une invite de commandes administrateur : {0}) puis redémarrez M-Tool.</value>
   </data>
 </root>

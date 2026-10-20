@@ -189,9 +189,6 @@
   <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
     <value>WMI 返回了意外的结果：{0}</value>
   </data>
-  <data name="Startup_PawnIoMissing" xml:space="preserve">
-    <value>未安装 PawnIO。M-Tool 通过 PawnIO 驱动访问 EC。&#10;&#10;安装方法（在管理员命令提示符中运行）：&#10;{0}&#10;&#10;详细信息：{1}</value>
-  </data>
   <data name="PawnIo_Missing" xml:space="preserve">
     <value>未安装 PawnIO。安装方法：{0}</value>
   </data>
@@ -313,7 +310,7 @@
     <value>“登录时启动”不是预期的任务（{0}）。要将其切换到此 exe，请在托盘菜单中将其关闭后再重新开启。</value>
   </data>
   <data name="SignIn_ChangeFailed" xml:space="preserve">
-    <value>无法更改“登录时启动”：{0}</value>
+    <value>无法更改“登录时启动”。详细信息请查看日志文件。</value>
   </data>
   <data name="Editor_DiscardQuestion" xml:space="preserve">
     <value>放弃未保存的更改？</value>
@@ -719,5 +716,14 @@
   </data>
   <data name="Update_UnknownVersion" xml:space="preserve">
     <value>此构建的版本未知，因此无法比较。</value>
+  </data>
+  <data name="Shell_UrlCopied" xml:space="preserve">
+    <value>M-Tool 没有打开浏览器，因为浏览器会以管理员权限运行。地址已复制到剪贴板：请粘贴到浏览器中。</value>
+  </data>
+  <data name="Shell_UrlNotOpened" xml:space="preserve">
+    <value>M-Tool 没有打开浏览器，因为浏览器会以管理员权限运行。地址已记录在日志文件中。</value>
+  </data>
+  <data name="Session_PawnIoMissing" xml:space="preserve">
+    <value>未安装 PawnIO，因此 Cooler Boost 和充电上限已隐藏。要使用它们，请安装 PawnIO（在管理员命令提示符中：{0}），然后重新启动 M-Tool。</value>
   </data>
 </root>

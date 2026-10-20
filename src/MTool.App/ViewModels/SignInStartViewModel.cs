@@ -68,8 +68,9 @@ public sealed partial class SignInStartViewModel(
         }
         catch (Exception ex)
         {
+            // The reason can name the exe's path, so it goes to the log only.
             log.Error("Start at sign-in could not be changed", ex);
-            status.ShowWarning(string.Format(Strings.SignIn_ChangeFailed, ex.Message));
+            status.ShowWarning(Strings.SignIn_ChangeFailed);
         }
 
         await QueryAsync();

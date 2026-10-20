@@ -189,9 +189,6 @@
   <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
     <value>WMI вернул неожиданный ответ: {0}</value>
   </data>
-  <data name="Startup_PawnIoMissing" xml:space="preserve">
-    <value>PawnIO не установлен. M-Tool обращается к EC через драйвер PawnIO.&#10;&#10;Для установки (в командной строке от имени администратора):&#10;{0}&#10;&#10;Подробности: {1}</value>
-  </data>
   <data name="PawnIo_Missing" xml:space="preserve">
     <value>PawnIO не установлен. Для установки: {0}</value>
   </data>
@@ -313,7 +310,7 @@
     <value>«Запускать при входе» указывает не на ту задачу ({0}). Чтобы переключить её на этот exe, выключите и снова включите этот пункт в меню в области уведомлений.</value>
   </data>
   <data name="SignIn_ChangeFailed" xml:space="preserve">
-    <value>Не удалось изменить «Запускать при входе»: {0}</value>
+    <value>Не удалось изменить «Запускать при входе». Подробности в файле журнала.</value>
   </data>
   <data name="Editor_DiscardQuestion" xml:space="preserve">
     <value>Отменить несохранённые изменения?</value>
@@ -719,5 +716,14 @@
   </data>
   <data name="Update_UnknownVersion" xml:space="preserve">
     <value>Версия этой сборки неизвестна, поэтому её нельзя сравнить.</value>
+  </data>
+  <data name="Shell_UrlCopied" xml:space="preserve">
+    <value>M-Tool не открыл браузер, потому что он запустился бы с правами администратора. Адрес в буфере обмена: вставьте его в браузер.</value>
+  </data>
+  <data name="Shell_UrlNotOpened" xml:space="preserve">
+    <value>M-Tool не открыл браузер, потому что он запустился бы с правами администратора. Адрес записан в файле журнала.</value>
+  </data>
+  <data name="Session_PawnIoMissing" xml:space="preserve">
+    <value>PawnIO не установлен, поэтому Cooler Boost и лимит заряда скрыты. Чтобы ими пользоваться, установите его (в командной строке администратора: {0}) и перезапустите M-Tool.</value>
   </data>
 </root>

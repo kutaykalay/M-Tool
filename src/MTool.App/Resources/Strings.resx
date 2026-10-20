@@ -248,10 +248,6 @@
     <value>WMI gave an unexpected answer: {0}</value>
     <comment>{0}: technical detail in English, keep as is.</comment>
   </data>
-  <data name="Startup_PawnIoMissing" xml:space="preserve">
-    <value>PawnIO is not installed. M-Tool reaches the EC through the PawnIO driver.&#10;&#10;To install (in an administrator command prompt):&#10;{0}&#10;&#10;Details: {1}</value>
-    <comment>SAFETY. Error box. {0} is the install command: copy it unchanged. {1} is the folder of the log files. PawnIO is a product name. EC = the laptop's embedded controller.</comment>
-  </data>
   <data name="PawnIo_Missing" xml:space="preserve">
     <value>PawnIO is not installed. To install: {0}</value>
     <comment>SAFETY. Error text. {0} is the install command: copy it unchanged. PawnIO is a product name.</comment>
@@ -413,8 +409,8 @@
     <comment>Warning band. {0} is SignIn_ForeignTask or SignIn_OtherExe. The tray menu item is Tray_StartAtSignIn: use the same wording.</comment>
   </data>
   <data name="SignIn_ChangeFailed" xml:space="preserve">
-    <value>Start at sign-in could not be changed: {0}</value>
-    <comment>Warning band. {0} is the technical reason.</comment>
+    <value>Start at sign-in could not be changed. See the log file for details.</value>
+    <comment>Warning band. It must not contain a path or a user name.</comment>
   </data>
   <data name="Editor_DiscardQuestion" xml:space="preserve">
     <value>Discard the unsaved changes?</value>
@@ -957,5 +953,17 @@
   <data name="Update_UnknownVersion" xml:space="preserve">
     <value>The version of this build is unknown, so it cannot be compared.</value>
     <comment>Update status when the exe has no version (a local build).</comment>
+  </data>
+  <data name="Shell_UrlCopied" xml:space="preserve">
+    <value>M-Tool did not open the browser, because it would have run with administrator rights. The address is on the clipboard: paste it into your browser.</value>
+    <comment>Warning band. Shown when the browser could only have been started from M-Tool itself (with its administrator rights), so it was not opened and the web address was copied instead.</comment>
+  </data>
+  <data name="Shell_UrlNotOpened" xml:space="preserve">
+    <value>M-Tool did not open the browser, because it would have run with administrator rights. The address is in the log file.</value>
+    <comment>Warning band. Like Shell_UrlCopied, but copying the address failed too.</comment>
+  </data>
+  <data name="Session_PawnIoMissing" xml:space="preserve">
+    <value>PawnIO is not installed, so Cooler Boost and the charge limit are hidden. To use them, install it (in an administrator command prompt: {0}) and restart M-Tool.</value>
+    <comment>SAFETY. Warning banner. {0} is the install command: copy it unchanged. PawnIO is a product name. Cooler Boost is MSI's name: keep it.</comment>
   </data>
 </root>

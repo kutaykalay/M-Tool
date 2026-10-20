@@ -1,3 +1,4 @@
+using MTool.App.Resources;
 using MTool.App.ViewModels;
 using MTool.Tests.Fakes;
 
@@ -206,8 +207,20 @@ public class SignInStartViewModelTests
         vm.IsKnown.Should().BeTrue();
         vm.IsEnabled.Should().BeTrue();
         _status.MessageKind.Should().Be(MessageKind.Warning);
-        _status.Message.Should().Contain("denied");
-        _log.Lines.Should().Contain(l => l.StartsWith("ERROR"));
+        _status.Message.Should().Be(Strings.SignIn_ChangeFailed);
+        _log.Lines.Should().Contain(l => l.StartsWith("ERROR") && l.Contains("denied"));
+    }
+
+    [Fact]
+    public async Task A_failed_toggle_keeps_the_reason_and_its_paths_out_of_the_band()
+    {
+        var vm = await Loaded();
+        _task.Failure = new UnauthorizedAccessException($@"Access to {DownloadedExe} is denied.");
+
+        await vm.ToggleCommand.ExecuteAsync(null);
+
+        _status.Message.Should().NotContain(DownloadedExe).And.NotContain("denied");
+        _log.Lines.Should().Contain(l => l.Contains(DownloadedExe), "the log keeps the reason");
     }
 
     [Fact]

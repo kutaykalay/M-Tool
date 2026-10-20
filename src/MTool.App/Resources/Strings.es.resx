@@ -189,9 +189,6 @@
   <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
     <value>WMI dio una respuesta inesperada: {0}</value>
   </data>
-  <data name="Startup_PawnIoMissing" xml:space="preserve">
-    <value>PawnIO no está instalado. M-Tool accede al EC a través del controlador PawnIO.&#10;&#10;Para instalarlo (en un símbolo del sistema de administrador):&#10;{0}&#10;&#10;Detalles: {1}</value>
-  </data>
   <data name="PawnIo_Missing" xml:space="preserve">
     <value>PawnIO no está instalado. Para instalarlo: {0}</value>
   </data>
@@ -313,7 +310,7 @@
     <value>«Iniciar al iniciar sesión» no es la tarea esperada ({0}). Para cambiarla a este exe, desactívela y vuelva a activarla en el menú de la bandeja.</value>
   </data>
   <data name="SignIn_ChangeFailed" xml:space="preserve">
-    <value>No se pudo cambiar «Iniciar al iniciar sesión»: {0}</value>
+    <value>No se pudo cambiar «Iniciar al iniciar sesión». Consulte el archivo de registro para más detalles.</value>
   </data>
   <data name="Editor_DiscardQuestion" xml:space="preserve">
     <value>¿Descartar los cambios sin guardar?</value>
@@ -719,5 +716,14 @@
   </data>
   <data name="Update_UnknownVersion" xml:space="preserve">
     <value>Se desconoce la versión de esta compilación, así que no se puede comparar.</value>
+  </data>
+  <data name="Shell_UrlCopied" xml:space="preserve">
+    <value>M-Tool no abrió el navegador, porque se habría ejecutado con derechos de administrador. La dirección está en el portapapeles: péguela en su navegador.</value>
+  </data>
+  <data name="Shell_UrlNotOpened" xml:space="preserve">
+    <value>M-Tool no abrió el navegador, porque se habría ejecutado con derechos de administrador. La dirección está en el archivo de registro.</value>
+  </data>
+  <data name="Session_PawnIoMissing" xml:space="preserve">
+    <value>PawnIO no está instalado, por lo que Cooler Boost y el límite de carga están ocultos. Para usarlos, instálelo (en un símbolo del sistema de administrador: {0}) y reinicie M-Tool.</value>
   </data>
 </root>

@@ -528,6 +528,18 @@ public sealed class ReportViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task An_issue_form_kept_from_an_elevated_browser_says_the_address_was_copied()
+    {
+        _shell.UrlFailure = new BrowserNotOpenedException(addressCopied: true);
+        var vm = ViewModel(new FakeReportSources());
+        await Run(vm.CreateCommand);
+
+        vm.ReportIssueCommand.Execute(null);
+
+        _status.Message.Should().Be(Strings.Shell_UrlCopied);
+    }
+
+    [Fact]
     public async Task A_launcher_that_fails_is_a_warning_without_path_not_a_crash()
     {
         _shell.Fails = true;

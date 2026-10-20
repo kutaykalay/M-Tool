@@ -373,7 +373,7 @@ internal sealed class GuiBootstrapper : IDisposable
         catch (PawnIoMissingException)
         {
             log.Error("PawnIO not installed; GUI not opened.");
-            StartupProblem(string.Format(Strings.Startup_PawnIoMissing, PawnIoInstallation.InstallCommand, AppPaths.Logs));
+            StartupProblem(string.Format(Strings.PawnIo_Missing, PawnIoInstallation.InstallCommand));
             return null;
         }
         catch (Exception ex)

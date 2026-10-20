@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using MTool.App.Reports;
+using MTool.App.Resources;
 using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Reports;
@@ -114,22 +115,58 @@ public sealed class ShellLauncherTests
     }
 
     [Fact]
-    public void Without_the_desktop_shell_the_form_is_opened_directly_and_that_is_logged()
+    public void Without_the_desktop_shell_an_address_is_copied_instead_of_opened_with_administrator_rights()
     {
         var shell = new Recorder(desktopOpens: false);
         var url = IssueUrl.Build("P65 Creator 9SE", "16Q4EMS2.107");
 
-        shell.Launcher().OpenUrl(url);
+        var open = () => shell.Launcher().OpenUrl(url);
 
-        shell.Direct.Should().Equal(url.AbsoluteUri);
+        open.Should().Throw<BrowserNotOpenedException>().Which.AddressCopied.Should().BeTrue();
+        shell.Direct.Should().BeEmpty();
+        shell.Clipboard.Texts.Should().Equal(url.AbsoluteUri);
         shell.Log.Lines.Should().ContainSingle(l => l.StartsWith("WARN") && l.Contains("desktop shell"));
+    }
+
+    [Fact]
+    public void An_address_that_cannot_be_copied_either_is_left_in_the_log()
+    {
+        var shell = new Recorder(desktopOpens: false);
+        shell.Clipboard.Fails = true;
+
+        var open = () => shell.Launcher().OpenUrl(ProjectLinks.Releases);
+
+        open.Should().Throw<BrowserNotOpenedException>().Which.AddressCopied.Should().BeFalse();
+        shell.Direct.Should().BeEmpty();
+        shell.Log.Lines.Should().Contain(l => l.StartsWith("WARN") && l.Contains(ProjectLinks.Releases.AbsoluteUri));
+    }
+
+    [Fact]
+    public void Without_the_desktop_shell_a_folder_is_still_opened_and_that_is_logged()
+    {
+        var shell = new Recorder(desktopOpens: false);
+        var folder = Path.GetTempPath();
+
+        shell.Launcher().OpenFolder(folder);
+
+        shell.Direct.Should().Equal(Path.GetFullPath(folder));
+        shell.Clipboard.Texts.Should().BeEmpty();
+        shell.Log.Lines.Should().ContainSingle(l => l.StartsWith("WARN") && l.Contains("desktop shell"));
+    }
+
+    [Fact]
+    public void The_warning_says_where_the_address_went()
+    {
+        ShellLauncher.WarningFor(new BrowserNotOpenedException(addressCopied: true)).Should().Be(Strings.Shell_UrlCopied);
+        ShellLauncher.WarningFor(new BrowserNotOpenedException(addressCopied: false)).Should().Be(Strings.Shell_UrlNotOpened);
+        ShellLauncher.WarningFor(new InvalidOperationException(@"C:\Users\secret")).Should().Be(Strings.Report_OpenFailed);
     }
 
     [Fact]
     public void A_desktop_shell_that_fails_to_open_it_is_not_followed_by_an_elevated_open()
     {
         var direct = new List<string>();
-        var launcher = new ShellLauncher(_ => throw new System.Runtime.InteropServices.COMException("no browser"), direct.Add);
+        var launcher = new ShellLauncher(_ => throw new System.Runtime.InteropServices.COMException("no browser"), direct.Add, new FakeClipboard());
 
         var open = () => launcher.OpenUrl(IssueUrl.Build("P65 Creator 9SE", "16Q4EMS2.107"));
 
@@ -181,6 +218,8 @@ public sealed class ShellLauncherTests
 
         public ListLog Log { get; } = new();
 
+        public FakeClipboard Clipboard { get; } = new();
+
         public ShellLauncher Launcher() => new(
             target =>
             {
@@ -188,6 +227,7 @@ public sealed class ShellLauncherTests
                 return desktopOpens;
             },
             Direct.Add,
+            Clipboard,
             Log);
     }
 }

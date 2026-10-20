@@ -189,9 +189,6 @@
   <data name="Wmi_UnexpectedAnswer" xml:space="preserve">
     <value>O WMI deu uma resposta inesperada: {0}</value>
   </data>
-  <data name="Startup_PawnIoMissing" xml:space="preserve">
-    <value>O PawnIO não está instalado. O M-Tool acessa o EC pelo driver PawnIO.&#10;&#10;Para instalar (em um prompt de comando de administrador):&#10;{0}&#10;&#10;Detalhes: {1}</value>
-  </data>
   <data name="PawnIo_Missing" xml:space="preserve">
     <value>O PawnIO não está instalado. Para instalar: {0}</value>
   </data>
@@ -313,7 +310,7 @@
     <value>"Iniciar ao entrar" não é a tarefa esperada ({0}). Para trocá-la para este exe, desative e ative de novo no menu da bandeja.</value>
   </data>
   <data name="SignIn_ChangeFailed" xml:space="preserve">
-    <value>Não foi possível alterar "Iniciar ao entrar": {0}</value>
+    <value>Não foi possível alterar "Iniciar ao entrar". Veja o arquivo de log para mais detalhes.</value>
   </data>
   <data name="Editor_DiscardQuestion" xml:space="preserve">
     <value>Descartar as alterações não salvas?</value>
@@ -719,5 +716,14 @@
   </data>
   <data name="Update_UnknownVersion" xml:space="preserve">
     <value>A versão desta compilação é desconhecida, então não pode ser comparada.</value>
+  </data>
+  <data name="Shell_UrlCopied" xml:space="preserve">
+    <value>O M-Tool não abriu o navegador, porque ele seria executado com direitos de administrador. O endereço está na área de transferência: cole-o no seu navegador.</value>
+  </data>
+  <data name="Shell_UrlNotOpened" xml:space="preserve">
+    <value>O M-Tool não abriu o navegador, porque ele seria executado com direitos de administrador. O endereço está no arquivo de log.</value>
+  </data>
+  <data name="Session_PawnIoMissing" xml:space="preserve">
+    <value>O PawnIO não está instalado, por isso o Cooler Boost e o limite de carga estão ocultos. Para usá-los, instale-o (em um prompt de comando de administrador: {0}) e reinicie o M-Tool.</value>
   </data>
 </root>
