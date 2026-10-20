@@ -16,6 +16,9 @@ public sealed record DeviceInfoLine(string Label, string Value);
 /// </summary>
 internal static class DeviceInfo
 {
+    /// <summary>A row is one line in a narrow window; SMBIOS text is the vendor's and may be anything.</summary>
+    public const int MaxValueLength = 200;
+
     /// <param name="system">Null when SMBIOS could not be read.</param>
     /// <param name="pawnIo">The installed PawnIO version; null when unknown.</param>
     public static IReadOnlyList<DeviceInfoLine> Lines(SystemInfo? system, DeviceAccess access, Version? pawnIo) =>
@@ -85,6 +88,11 @@ internal static class DeviceInfo
         }
 
         var cleaned = text.ToString().TrimEnd();
-        return cleaned.Length == 0 ? null : cleaned;
+        return cleaned.Length switch
+        {
+            0 => null,
+            > MaxValueLength => string.Concat(cleaned.AsSpan(0, MaxValueLength - 1), "…"),
+            _ => cleaned,
+        };
     }
 }

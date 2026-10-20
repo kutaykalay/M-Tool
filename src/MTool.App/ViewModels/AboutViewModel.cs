@@ -50,11 +50,22 @@ internal sealed partial class AboutViewModel(
 
     public string LicenseText => _licenses ??= ReadLicenses();
 
-    /// <summary>SMBIOS and PawnIO are read once; the access part follows the session every time.</summary>
+    /// <summary>
+    /// SMBIOS and PawnIO are read once; the access part follows the session every time. Never throws: on
+    /// a failure the rows stay as they were and the next load tries again.
+    /// </summary>
     public async Task LoadAsync()
     {
-        var (system, pawnIoVersion) = await (_fixedValues ??= Task.Run(ReadFixedValues));
-        DeviceLines = DeviceInfo.Lines(system, access(), pawnIoVersion);
+        try
+        {
+            var (system, pawnIoVersion) = await (_fixedValues ??= Task.Run(ReadFixedValues));
+            DeviceLines = DeviceInfo.Lines(system, access(), pawnIoVersion);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            _fixedValues = null;
+            log.Warn($"About: the device rows could not be made: {ex.GetType().Name}");
+        }
     }
 
     internal static string DisplayVersion(string informational)

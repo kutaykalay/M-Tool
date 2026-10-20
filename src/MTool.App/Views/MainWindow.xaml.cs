@@ -69,9 +69,9 @@ internal partial class MainWindow : Window
         Close();
     }
 
-    /// <summary>One editor at a time: a second click brings the open one to the front.</summary>
     private void OnSettingsClick(object sender, RoutedEventArgs e) => _showSettings();
 
+    /// <summary>One editor at a time: a second click brings the open one to the front.</summary>
     private void OnEditCurvesClick(object sender, RoutedEventArgs e)
     {
         if (_editor is null)

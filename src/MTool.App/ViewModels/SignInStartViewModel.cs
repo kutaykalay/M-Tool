@@ -73,6 +73,9 @@ public sealed partial class SignInStartViewModel(
         }
 
         await QueryAsync();
+
+        // A clicked check box shows the new state by itself; when nothing changed it must hear the old one again.
+        OnPropertyChanged(nameof(IsEnabled));
     }
 
     /// <summary>

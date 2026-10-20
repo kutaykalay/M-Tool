@@ -120,4 +120,14 @@ public sealed class DeviceInfoTests
         string.Concat(lines.Select(l => l.Value)).Should().NotContainAny("\r", "\n", "\u0007", "‮");
         Value(lines, Strings.About_Device_Model).Should().Be("Micro-Star International Co., Ltd. P65 Creator");
     }
+
+    [Fact]
+    public void A_very_long_SMBIOS_value_is_cut()
+    {
+        var lines = DeviceInfo.Lines(P65System with { Cpu = new string('x', 5000) }, Access(), null);
+
+        var cpu = Value(lines, Strings.About_Device_Cpu);
+        cpu.Length.Should().Be(DeviceInfo.MaxValueLength);
+        cpu.Should().EndWith("…");
+    }
 }

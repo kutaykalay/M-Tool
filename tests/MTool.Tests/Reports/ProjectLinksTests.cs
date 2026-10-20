@@ -54,6 +54,14 @@ public sealed class ProjectLinksTests
     [InlineData("https://github.com/kutaykalay/M-Tool/issues")]
     [InlineData("https://github.com/someone/M-Tool")]
     [InlineData("file:///C:/Windows/System32/calc.exe")]
+    [InlineData("https://github.com./kutaykalay/M-Tool")]
+    [InlineData("https://xn--gthub-n4a.com/kutaykalay/M-Tool")]
+    [InlineData("https://github.com:444/kutaykalay/M-Tool/releases")]
+    [InlineData("https://github.com/kutaykalay/M-Tool/releases/")]
+    [InlineData("https://github.com/kutaykalay/m-tool/releases")]
+    [InlineData("https://github.com/kutaykalay/M-Tool/%2e%2e/evil")]
+    [InlineData("https://github.com/kutaykalay/M-Tool/releases?")]
+    [InlineData("https://:@github.com/kutaykalay/M-Tool")]
     public void An_address_that_is_not_exactly_a_project_link_is_refused(string address)
     {
         var url = new Uri(address);

@@ -46,6 +46,9 @@ public sealed partial class PowerSwitchViewModel : ObservableObject
     {
         var result = await _service.SetPowerSwitchAsync(!IsOn);
         IsOn = _service.PowerSwitch.Enabled;
+
+        // A clicked check box shows the new state by itself; when nothing changed it must hear the old one again.
+        OnPropertyChanged(nameof(IsOn));
         if ((result.Error ?? result.SaveWarning) is { } problem)
         {
             _status.ShowWarning(problem);

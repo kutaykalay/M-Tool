@@ -209,4 +209,18 @@ public class SignInStartViewModelTests
         _status.Message.Should().Contain("denied");
         _log.Lines.Should().Contain(l => l.StartsWith("ERROR"));
     }
+
+    [Fact]
+    public async Task A_failed_toggle_still_tells_the_check_box_the_state_it_did_not_change()
+    {
+        var vm = await Loaded();
+        _task.Failure = new UnauthorizedAccessException("denied");
+        var changed = new List<string?>();
+        vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        await vm.ToggleCommand.ExecuteAsync(null);
+
+        vm.IsEnabled.Should().BeFalse();
+        changed.Should().Contain(nameof(SignInStartViewModel.IsEnabled), "the clicked check box shows on until it hears the state again");
+    }
 }

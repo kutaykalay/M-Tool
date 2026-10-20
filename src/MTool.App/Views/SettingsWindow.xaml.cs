@@ -6,7 +6,7 @@ namespace MTool.App.Views;
 
 /// <summary>
 /// The settings window: General (the tray's switches and the language) and About. No logic here; the
-/// device rows are loaded when the window first shows, off the UI thread.
+/// device rows are loaded each time the window is shown (a failed write may have locked writing since).
 /// </summary>
 internal partial class SettingsWindow : Window
 {
@@ -20,7 +20,7 @@ internal partial class SettingsWindow : Window
         InitializeComponent();
         SourceInitialized += (_, _) => ApplyTheme();
         theme.Changed += ApplyTheme;
-        Loaded += OnLoaded;
+        IsVisibleChanged += OnIsVisibleChanged;
     }
 
     /// <summary>Brings the one window to the front, restoring it when minimised.</summary>
@@ -41,8 +41,14 @@ internal partial class SettingsWindow : Window
         base.OnClosed(e);
     }
 
-    // LoadAsync catches its own read failures; the device rows stay empty only if the window closes first.
-    private async void OnLoaded(object sender, RoutedEventArgs e) => await _viewModel.About.LoadAsync();
+    // LoadAsync never throws: a failure is logged and the rows stay as they were.
+    private async void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (IsVisible)
+        {
+            await _viewModel.About.LoadAsync();
+        }
+    }
 
     private void ApplyTheme() => TitleBar.ApplyTheme(this, _theme.IsDark);
 }

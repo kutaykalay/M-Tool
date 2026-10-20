@@ -25,6 +25,7 @@ public sealed class AboutViewModelTests
     private int _systemReads;
     private Func<SystemInfo> _readSystem;
     private Func<string?> _readLicenses = () => "GPL text";
+    private Func<DeviceAccess>? _accessRead;
 
     public AboutViewModelTests()
     {
@@ -37,7 +38,7 @@ public sealed class AboutViewModelTests
     }
 
     private AboutViewModel ViewModel(string version = "0.16.0-beta.1+448e0a5c0ffee") => new(
-        version, () => _access, () => _readSystem(), () => new Version(2, 0, 1), () => _readLicenses(),
+        version, () => (_accessRead ?? (() => _access))(), () => _readSystem(), () => new Version(2, 0, 1), () => _readLicenses(),
         _shell, _clipboard, _status, _log, @"C:\Users\x\AppData\Roaming\M-Tool\logs");
 
     [Theory]
@@ -183,6 +184,22 @@ public sealed class AboutViewModelTests
 
         ViewModel().LicenseText.Should().Be(Strings.About_LicensesUnavailable);
         _log.Lines.Should().ContainSingle(l => l.StartsWith("WARN") && l.Contains("license"));
+    }
+
+    [Fact]
+    public async Task A_load_that_fails_is_logged_and_the_next_one_tries_again()
+    {
+        var vm = ViewModel();
+        var fail = true;
+        var access = _access;
+        _accessRead = () => fail ? throw new InvalidOperationException("session closed") : access;
+
+        await vm.LoadAsync();
+        fail = false;
+        await vm.LoadAsync();
+
+        _log.Lines.Should().ContainSingle(l => l.StartsWith("WARN") && l.Contains("device rows"));
+        vm.DeviceLines.Should().NotBeEmpty();
     }
 
     private sealed class FakeClipboard : IClipboard
