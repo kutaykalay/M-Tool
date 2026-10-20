@@ -242,6 +242,46 @@ laptop keeps it across sleep and restarts.
     you or the laptop is sent. "Check once when M-Tool starts" is off unless you turn it on. M-Tool
     never downloads or replaces itself; a newer version is only named, with a link to its release page.
 
+## FAQ
+
+### Is M-Tool an MSI Center alternative?
+
+For the fan and power settings, yes. M-Tool sets fan curves, Cooler Boost, the performance mode,
+the battery charge limit and the keyboard backlight, from a single exe with no background service.
+It does not replace the rest of MSI Center or Dragon Center, such as driver updates, RGB lighting
+or the GPU switch. Today it controls one model, the MSI P65 Creator 9SE; see the next question.
+
+### Does it work on my MSI laptop?
+
+M-Tool writes settings only on the MSI P65 Creator 9SE with EC firmware `16Q4EMS2.107`, because
+every write was tested by hand on that laptop. On other MSI laptops it only reads, and the values
+it shows are not verified yet; see [Supported devices](#supported-devices). Sending your laptop's
+data with **Send EC data** is how a new model gets added.
+
+### Can I set a battery charge limit on an MSI laptop without MSI Center?
+
+On the supported P65, yes: M-Tool sets it between 50 and 100 % and the laptop keeps it across sleep
+and restarts. It needs [PawnIO](https://pawnio.eu), because the charge limit has no field in MSI's
+WMI interface.
+
+### Is there a G-Helper for MSI laptops?
+
+[G-Helper](https://github.com/seerge/g-helper) is for ASUS laptops. M-Tool follows the same idea
+for MSI: a small tray app instead of the vendor's large control center. It is a separate project
+and not affiliated with G-Helper.
+
+### Is it safe to change fan settings with M-Tool?
+
+Every write goes through one gate: a firmware check, a register whitelist with value rules, a fan
+curve check with a safety floor, and a read-back. The first start is a dry run that writes nothing.
+If a write fails, M-Tool restores the factory fan table and stops writing. See
+[How it works](#how-it-works). It is still a beta, and you use it at your own risk.
+
+### Does M-Tool send data anywhere?
+
+Only when you ask: **Send EC data** sends exactly the text it showed you, and **Check for updates**
+asks GitHub for its list of releases. See [How it works](#how-it-works).
+
 ## Build
 
 ```
