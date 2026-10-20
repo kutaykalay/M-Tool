@@ -81,7 +81,8 @@ window with the same report actions instead of the app.
 
 ### Easiest: Send EC data
 
-1. Right-click the M-Tool tray icon and choose **Send EC data (for a config)**.
+1. Choose **Send EC data (for a config)**: in the window M-Tool opens on a laptop it cannot
+   control yet, or in the tray menu (right-click the M-Tool icon) on one it can.
 2. M-Tool reads the data, writes nothing to disk, and shows the whole text it would send. The
    default button is **Don't send**.
 3. Read the text and choose **Send** if you agree. M-Tool makes one HTTPS request to the M-Tool
@@ -234,7 +235,8 @@ laptop keeps it across sleep and restarts.
   lock with `M-Tool.exe --unlock --confirm`.
 - The EC runs the fan curve itself, so the fans keep the last good profile even if M-Tool closes.
 - **Network:** M-Tool goes online in only two places, and only when you ask:
-  - **Send EC data** (tray menu), after you have seen exactly what is sent.
+  - **Send EC data** (tray menu, or the window M-Tool opens on a laptop it cannot control yet),
+    after you have seen exactly what is sent.
   - **Check for updates** (Settings › About): one request for GitHub's list of releases. Nothing about
     you or the laptop is sent. "Check once when M-Tool starts" is off unless you turn it on. M-Tool
     never downloads or replaces itself; a newer version is only named, with a link to its release page.
@@ -247,7 +249,7 @@ dotnet test
 dotnet publish src/MTool.App -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:DebugType=embedded
 ```
 
-The result is a single `M-Tool.exe` of about 2 MB.
+The result is a single `M-Tool.exe` of about 2.4 MB.
 
 ## Command line
 
@@ -257,6 +259,8 @@ M-Tool.exe --report [--wmi2]                   device report for another MSI mod
 M-Tool.exe --watch [seconds]                   log changes, read-only
 M-Tool.exe --apply fan default|cool|silent     also: perf, boost, charge, fanmode
 M-Tool.exe --restore                           factory fan table
+M-Tool.exe --unlock --confirm                  remove the lock left by a failed write
+M-Tool.exe --tray                              start in the tray, without the window
 ```
 
 Without `--confirm`, `--apply` and `--restore` only show what they would write.

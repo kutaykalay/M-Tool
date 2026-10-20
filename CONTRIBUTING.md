@@ -6,7 +6,8 @@ The most useful help is a device report from an MSI laptop M-Tool does not suppo
 "How to help" in the [README](README.md#how-to-help). A report only reads; it never writes to the
 embedded controller (EC).
 
-There are two ways. The tray item **Send EC data (for a config)** shows the exact text first and,
+There are two ways. **Send EC data (for a config)** (in the tray menu, or in the window M-Tool
+opens on a laptop it cannot control yet) shows the exact text first and,
 if the owner agrees, sends it to the M-Tool server, which keeps it as an issue in a private
 repository (what is and is not sent: [README](README.md#what-send-ec-data-sends)). The other way
 is **Create device report** and **Send report (GitHub)**, which attaches a zip that also holds the
@@ -150,7 +151,7 @@ Rules (the tests check the first three):
 
 ## Code
 
-Open an issue before a larger change. YAMDCC and msi-ec are used as references for facts only;
-do not copy code, files or comments from them (see "Data sources" in
+Open an issue before a larger change. YAMDCC, msi-ec and GhostDeck are used as references for
+facts only; do not copy code, files or comments from them (see "Data sources" in
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)). Automated tests never touch a real EC; they use
 the simulated EC in the test project.
