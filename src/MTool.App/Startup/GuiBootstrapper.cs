@@ -367,14 +367,9 @@ internal sealed class GuiBootstrapper : IDisposable
 
         try
         {
-            // Hybrid only where writes are verified; elsewhere the session opens WMI only, without PawnIO.
-            return EcSession.Open(log, EcBackends.Hybrid, accessGate);
-        }
-        catch (PawnIoMissingException)
-        {
-            log.Error("PawnIO not installed; GUI not opened.");
-            StartupProblem(string.Format(Strings.PawnIo_Missing, PawnIoInstallation.InstallCommand));
-            return null;
+            // Hybrid only where writes are verified and PawnIO is installed; elsewhere the session opens
+            // WMI only, without Cooler Boost and the charge limit, and the window says why.
+            return EcSession.Open(log, EcBackends.PreferHybrid, accessGate);
         }
         catch (Exception ex)
         {

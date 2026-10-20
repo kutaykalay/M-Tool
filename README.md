@@ -169,8 +169,9 @@ on their laptop. How that works is in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Windows 10 or 11, x64
 - [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)
 - Administrator rights (the app asks through UAC)
-- [PawnIO](https://pawnio.eu) (`winget install namazso.PawnIO`), only on the supported P65;
-  elsewhere M-Tool reads through MSI's WMI alone
+- [PawnIO](https://pawnio.eu) (`winget install namazso.PawnIO`), only for Cooler Boost and the
+  charge limit on the supported P65. Without it M-Tool still opens, with those two hidden; elsewhere
+  it reads through MSI's WMI alone
 
 ## Download
 

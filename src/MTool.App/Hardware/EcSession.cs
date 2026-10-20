@@ -23,6 +23,12 @@ internal enum EcBackends
     /// </summary>
     Hybrid,
 
+    /// <summary>
+    /// <see cref="Hybrid"/>, except that a missing PawnIO is not an error: the session then opens WMI
+    /// only, without Cooler Boost and the charge limit, and says so in <see cref="EcSession.StartupWarnings"/>.
+    /// </summary>
+    PreferHybrid,
+
     /// <summary>WMI only. PawnIO is never opened, so the port cannot be used at all.</summary>
     WmiOnly,
 }
@@ -79,11 +85,13 @@ internal sealed class EcSession : IDisposable
 
     /// <param name="accessGate">When it returns false, EC operations fail without touching the EC (sleep/resume).</param>
     /// <param name="backend">
-    /// What the caller would like. <see cref="EcBackends.Hybrid"/> becomes WMI only unless the firmware
-    /// is one a record was verified for writes on (<see cref="DeviceSelection"/>).
+    /// What the caller would like. <see cref="EcBackends.Hybrid"/> and <see cref="EcBackends.PreferHybrid"/>
+    /// become WMI only unless the firmware is one a record was verified for writes on (<see cref="DeviceSelection"/>).
     /// </param>
     /// <exception cref="UnsupportedDeviceException">The laptop has no MSI WMI1 interface (WMI2 only, or none).</exception>
-    /// <exception cref="PawnIoMissingException">The port is allowed and wanted, but PawnIO is not installed.</exception>
+    /// <exception cref="PawnIoMissingException">
+    /// <see cref="EcBackends.Hybrid"/>, the port is allowed, but PawnIO is not installed (<see cref="EcBackends.PreferHybrid"/> opens WMI only instead).
+    /// </exception>
     /// <exception cref="EcAccessException">PawnIO or WMI1 does not answer.</exception>
     /// <exception cref="InvalidOperationException">An embedded device record did not load.</exception>
     public static EcSession Open(IAppLog log, EcBackends backend, Func<bool>? accessGate = null)
@@ -96,11 +104,8 @@ internal sealed class EcSession : IDisposable
         {
             var firmware = ReadFirmware(catalog, ecLock, log, accessGate);
             var selection = DeviceSelection.Choose(firmware, catalog, EmbeddedDevices.Wmi1GenericId);
-            var usePort = backend == EcBackends.Hybrid && selection.PortAllowed;
-            if (usePort && PawnIoInstallation.InstalledVersion() is null)
-            {
-                throw new PawnIoMissingException();
-            }
+            var choice = PortChoice.For(backend, selection.PortAllowed, () => PawnIoInstallation.InstalledVersion() is not null);
+            var usePort = choice.UsePort;
 
             var layout = EmbeddedDevices.LayoutOf(selection.Record);
             layout = usePort ? layout : layout.WithoutPortFeatures();
@@ -116,9 +121,8 @@ internal sealed class EcSession : IDisposable
 
             var registers = RoutedEcRegisters.Create(wmi, controller, layout.Wmi);
             var worker = new EcWorker(registers, ecLock, LockTimeout, (message, ex) => log.Error(message, ex), accessGate);
-            var fallback = backend == EcBackends.Hybrid && !usePort ? " (unverified firmware: port closed)" : "";
-            log.Info($"EC session: {(usePort ? EcBackends.Hybrid : EcBackends.WmiOnly)}, device record {layout.Id}{fallback}");
-            string[] warnings = firmware is null && backend == EcBackends.Hybrid ? [Strings.Session_FirmwareUnread] : [];
+            log.Info($"EC session: {(usePort ? EcBackends.Hybrid : EcBackends.WmiOnly)}, device record {layout.Id}{choice.LogSuffix}");
+            var warnings = choice.Warnings(firmwareRead: firmware is not null, backend);
             return new EcSession(ports, ecLock, controller, worker, catalog, layout, log, troubleLog, warnings);
         }
         catch
