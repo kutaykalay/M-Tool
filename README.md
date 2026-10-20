@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="M-Tool" width="100%">
+  <img src="assets/hero.png" alt="M-Tool: the main window and the fan curve editor, with fan curves, Cooler Boost, performance mode and charge limit for MSI laptops" width="100%">
 </p>
 
 [![Build](https://github.com/kutaykalay/M-Tool/actions/workflows/build.yml/badge.svg)](https://github.com/kutaykalay/M-Tool/actions/workflows/build.yml)
