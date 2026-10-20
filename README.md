@@ -28,6 +28,9 @@ mode and battery charge limit. One exe, no background service.
   pick on AC and on battery are remembered apart, and applied a few seconds after the cable is
   plugged in or pulled out. The charge limit and Cooler Boost stay as they are.
 - Live temperatures and fan speeds, and a tray menu for quick switching.
+- **Settings window** (tray "Settings…" or the small button in the main window): a General tab
+  (start at sign-in, language, AC/battery switching) and an About tab (version, device info with
+  copy, licenses, GitHub, log folder).
 - A drift band when the laptop no longer holds what you chose, with one-click reapply.
 - A command line for dumps and scripted changes.
 

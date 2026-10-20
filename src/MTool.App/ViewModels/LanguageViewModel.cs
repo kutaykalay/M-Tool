@@ -26,18 +26,9 @@ public sealed partial class LanguageViewModel(ProfileService service, StatusView
     public IReadOnlyList<LanguageOption> Options { get; } =
         [new(null, Strings.Lang_Windows), .. SupportedLanguages.All.Select(name => new LanguageOption(name, OwnName(name)))];
 
-    /// <summary>The option of <see cref="Current"/>; setting another one saves it, as the tray menu does.</summary>
-    public LanguageOption Chosen
-    {
-        get => Options.FirstOrDefault(o => string.Equals(o.Name, Current, StringComparison.OrdinalIgnoreCase)) ?? Options[0];
-        set
-        {
-            if (value is not null && value != Chosen)
-            {
-                ChangeCommand.Execute(value.Name);
-            }
-        }
-    }
+    /// <summary>The option of <see cref="Current"/>: the settings window marks it.</summary>
+    public LanguageOption Chosen =>
+        Options.FirstOrDefault(o => string.Equals(o.Name, Current, StringComparison.OrdinalIgnoreCase)) ?? Options[0];
 
     /// <param name="language">A name from <see cref="SupportedLanguages"/>, or null for the Windows language.</param>
     [RelayCommand]

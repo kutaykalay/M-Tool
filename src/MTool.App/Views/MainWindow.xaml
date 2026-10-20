@@ -206,6 +206,12 @@
                     Visibility="{Binding Status.Message, Converter={StaticResource NotNullToVisible}}">
                 <TextBlock Text="{Binding Status.Message}" TextWrapping="Wrap" />
             </Border>
+
+            <!-- Settings and About (Aşama 14): small, so the controls above stay the point of the window. -->
+            <Button Style="{StaticResource Pill}" Margin="0,10,0,0" HorizontalAlignment="Right" Click="OnSettingsClick"
+                    ToolTip="{x:Static res:Strings.Main_Settings}" AutomationProperties.Name="{x:Static res:Strings.Main_Settings}">
+                <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="12" Text="&#xE713;" />
+            </Button>
         </StackPanel>
     </ScrollViewer>
 </Window>

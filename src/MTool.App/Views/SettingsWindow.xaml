@@ -1,0 +1,113 @@
+<Window x:Class="MTool.App.Views.SettingsWindow" x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:MTool.App.ViewModels"
+        xmlns:res="clr-namespace:MTool.App.Resources"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel}"
+        Title="{x:Static res:Strings.Settings_Title}" Width="460" SizeToContent="Height" ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
+        FontFamily="Segoe UI" FontSize="13" UseLayoutRounding="True">
+    <!-- No EC access from this window: everything here changes the settings file or only shows values. -->
+    <DockPanel Margin="14,10,14,14">
+
+        <!-- Result of the last command (a failed sign-in change, a copy) -->
+        <Border DockPanel.Dock="Bottom" Style="{StaticResource Band}" Margin="0,10,0,0" Tag="{Binding Status.MessageKind}"
+                Visibility="{Binding Status.Message, Converter={StaticResource NotNullToVisible}}">
+            <TextBlock Text="{Binding Status.Message}" TextWrapping="Wrap" />
+        </Border>
+
+        <TabControl>
+            <TabItem Header="{x:Static res:Strings.Settings_TabGeneral}">
+                <StackPanel Margin="2,12,2,0">
+                    <CheckBox Foreground="{DynamicResource Brush.Text}"
+                              IsChecked="{Binding SignInStart.IsEnabled, Mode=OneWay}" Command="{Binding SignInStart.ToggleCommand}">
+                        <TextBlock Text="{x:Static res:Strings.Tray_StartAtSignIn}" TextWrapping="Wrap" />
+                    </CheckBox>
+
+                    <CheckBox Margin="0,10,0,0" Foreground="{DynamicResource Brush.Text}" ToolTipService.ShowDuration="20000"
+                              IsChecked="{Binding PowerSwitch.IsOn, Mode=OneWay}" Command="{Binding PowerSwitch.ToggleCommand}"
+                              ToolTip="{x:Static res:Strings.Main_PowerSwitchTip}">
+                        <TextBlock Text="{x:Static res:Strings.Main_PowerSwitch}" TextWrapping="Wrap" />
+                    </CheckBox>
+                    <TextBlock Style="{StaticResource Muted}" Margin="20,2,0,0" Text="{Binding PowerSwitch.SourceLabel}"
+                               Visibility="{Binding PowerSwitch.SourceLabel, Converter={StaticResource NotNullToVisible}}" />
+
+                    <TextBlock Style="{StaticResource Section}" Margin="0,16,0,6" Text="{x:Static res:Strings.Settings_Language}" />
+                    <ItemsControl ItemsSource="{Binding Language.Options}" Margin="0,0,0,-6">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:LanguageOption}">
+                                <Button Style="{StaticResource Choice}" Margin="0,0,6,6" ToolTip="{Binding Display}"
+                                        Command="{Binding DataContext.Language.ChangeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding Name}">
+                                    <TextBlock Text="{Binding Display}" />
+                                    <Button.Tag>
+                                        <MultiBinding Converter="{StaticResource Equal}">
+                                            <Binding />
+                                            <Binding Path="DataContext.Language.Chosen" RelativeSource="{RelativeSource AncestorType=Window}" />
+                                        </MultiBinding>
+                                    </Button.Tag>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Style="{StaticResource Muted}" Margin="2,6,0,0" TextWrapping="Wrap" Text="{x:Static res:Strings.Settings_LanguageNote}" />
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="{x:Static res:Strings.Settings_TabAbout}">
+                <StackPanel Margin="2,12,2,0">
+                    <TextBlock Style="{StaticResource Value}" Text="M-Tool" />
+                    <TextBlock Style="{StaticResource Muted}" Text="{Binding About.VersionText}" />
+                    <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap" Text="{x:Static res:Strings.About_License}" />
+
+                    <WrapPanel Margin="0,10,0,0">
+                        <Button Style="{StaticResource Choice}" Margin="0,0,6,6" Content="{x:Static res:Strings.About_OpenGitHub}" Command="{Binding About.OpenGitHubCommand}" />
+                        <Button Style="{StaticResource Choice}" Margin="0,0,6,6" Content="{x:Static res:Strings.About_OpenReleases}" Command="{Binding About.OpenReleasesCommand}" />
+                        <Button Style="{StaticResource Choice}" Margin="0,0,6,6" Content="{x:Static res:Strings.About_OpenLogFolder}" Command="{Binding About.OpenLogFolderCommand}" />
+                    </WrapPanel>
+
+                    <!-- The pill is taller than the title; negative vertical margins center it on the title line. -->
+                    <DockPanel Margin="0,10,0,6">
+                        <Button DockPanel.Dock="Right" Style="{StaticResource Pill}" Margin="10,-4,0,-4" VerticalAlignment="Center"
+                                Content="{x:Static res:Strings.About_Copy}" Command="{Binding About.CopyCommand}" />
+                        <TextBlock Style="{StaticResource Section}" Margin="2,0,0,0" VerticalAlignment="Center" Text="{x:Static res:Strings.About_DeviceHeader}" />
+                    </DockPanel>
+                    <Border Style="{StaticResource Card}">
+                        <ItemsControl ItemsSource="{Binding About.DeviceLines}" Grid.IsSharedSizeScope="True">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:DeviceInfoLine}">
+                                    <Grid Margin="0,1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="Label" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Style="{StaticResource Muted}" Margin="0,0,12,0" Text="{Binding Label}" />
+                                        <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding Value}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+
+                    <Expander Margin="0,10,0,0" Header="{x:Static res:Strings.About_Licenses}">
+                        <TextBox Height="220" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                                 FontFamily="Consolas" FontSize="11" Padding="4,3"
+                                 Foreground="{DynamicResource Brush.Text}" Background="{DynamicResource Brush.Surface}"
+                                 BorderBrush="{DynamicResource Brush.Border}" CaretBrush="{DynamicResource Brush.Text}"
+                                 Text="{Binding About.LicenseText, Mode=OneTime}"
+                                 AutomationProperties.Name="{x:Static res:Strings.About_Licenses}" />
+                    </Expander>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

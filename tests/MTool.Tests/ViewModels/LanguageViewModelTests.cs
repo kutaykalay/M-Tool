@@ -1,5 +1,4 @@
 using System.Globalization;
-using CommunityToolkit.Mvvm.Input;
 using MTool.App.Resources;
 using MTool.App.ViewModels;
 using MTool.Core.Localization;
@@ -44,40 +43,15 @@ public sealed class LanguageViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task Choosing_another_option_saves_it_like_the_tray_does()
+    public async Task Saving_another_language_moves_the_mark()
     {
         var vm = ViewModel();
         var changed = new List<string?>();
         vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 
-        vm.Chosen = vm.Options.Single(o => o.Name == "de");
-        await ((IAsyncRelayCommand)vm.ChangeCommand).ExecutionTask!;
+        await vm.ChangeCommand.ExecuteAsync("de");
 
-        vm.Current.Should().Be("de");
         vm.Chosen.Name.Should().Be("de");
         changed.Should().Contain(nameof(LanguageViewModel.Chosen));
-        _notifier.Infos.Should().ContainSingle();
-    }
-
-    [Fact]
-    public void Choosing_the_option_already_chosen_saves_nothing()
-    {
-        var vm = ViewModel("fr");
-
-        vm.Chosen = vm.Options.Single(o => o.Name == "fr");
-
-        ((IAsyncRelayCommand)vm.ChangeCommand).ExecutionTask.Should().BeNull();
-        _notifier.Infos.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void A_null_choice_is_ignored()
-    {
-        var vm = ViewModel("fr");
-
-        vm.Chosen = null!;
-
-        vm.Chosen.Name.Should().Be("fr");
-        _notifier.Infos.Should().BeEmpty();
     }
 }

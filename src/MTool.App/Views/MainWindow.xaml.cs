@@ -17,12 +17,13 @@ internal partial class MainWindow : Window
 
     private readonly MainViewModel _viewModel;
     private readonly Func<FanCurveEditorWindow> _createEditor;
+    private readonly Action _showSettings;
     private FanCurveEditorWindow? _editor;
     private bool _exiting;
 
-    public MainWindow(MainViewModel viewModel, Func<FanCurveEditorWindow> createEditor)
+    public MainWindow(MainViewModel viewModel, Func<FanCurveEditorWindow> createEditor, Action showSettings)
     {
-        (_viewModel, _createEditor) = (viewModel, createEditor);
+        (_viewModel, _createEditor, _showSettings) = (viewModel, createEditor, showSettings);
         DataContext = viewModel;
         InitializeComponent();
         HookBacklightBar();
@@ -69,6 +70,8 @@ internal partial class MainWindow : Window
     }
 
     /// <summary>One editor at a time: a second click brings the open one to the front.</summary>
+    private void OnSettingsClick(object sender, RoutedEventArgs e) => _showSettings();
+
     private void OnEditCurvesClick(object sender, RoutedEventArgs e)
     {
         if (_editor is null)

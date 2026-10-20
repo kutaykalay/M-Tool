@@ -115,7 +115,8 @@ internal sealed class GuiBootstrapper : IDisposable
         teardown.Push(("theme", theme.Dispose));
 
         MainWindow? window = null;
-        var tray = new TrayIconHost(theme, () => window?.ToggleFromTray(), () => window?.ShowNearTray(), exit);
+        SettingsWindowHost? settingsWindow = null;
+        var tray = new TrayIconHost(theme, () => window?.ToggleFromTray(), () => window?.ShowNearTray(), () => settingsWindow?.Show(), exit);
         teardown.Push(("tray icon", tray.Dispose));
 
         // Before the view model: with switching on, the window must first show the current source's pair,
@@ -153,7 +154,7 @@ internal sealed class GuiBootstrapper : IDisposable
             FanCurveEditorWindow? editor = null;
             editor = new FanCurveEditorWindow(viewModel.CreateEditor(new DialogConfirm(() => editor, theme)), theme);
             return editor;
-        });
+        }, () => settingsWindow?.Show());
         teardown.Push(("window", window.CloseForExit));
         window.SourceInitialized += (_, _) => window.ApplyTitleBarTheme(theme.IsDark);
         theme.Changed += () => window.ApplyTitleBarTheme(theme.IsDark);
@@ -199,6 +200,7 @@ internal sealed class GuiBootstrapper : IDisposable
             new ReportService(new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords()),
             new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(log),
             viewModel.Status, tray, log, stop: stopSubmission.Token);
+        settingsWindow = CreateSettingsWindow(viewModel, signInStart, control, theme, log, teardown);
         tray.Attach(viewModel, signInStart, report); // Only now does the icon appear.
         _ = signInStart.LoadAsync(); // Off the UI thread; the menu item stays disabled until it answers.
         _ = report.LoadAsync(); // Off the UI thread; the WMI2 item stays hidden until it answers.
@@ -295,6 +297,20 @@ internal sealed class GuiBootstrapper : IDisposable
     /// could not be read and then refuses to save over it, which a new store would not know.
     /// </param>
     internal sealed record LoadedSettings(SettingsStore Store, AppSettings Settings, IReadOnlyList<string> Warnings, CultureInfo WindowsUi);
+
+    /// <summary>The settings window shares the tray's view models; it reads SMBIOS for the About tab, never the EC.</summary>
+    private static SettingsWindowHost CreateSettingsWindow(
+        MainViewModel viewModel, SignInStartViewModel signInStart, IP65Control control, ThemeManager theme, IAppLog log,
+        Stack<(string Name, Action Dispose)> teardown)
+    {
+        var about = new AboutViewModel(
+            AppVersion, () => control.Access, new LiveReportSources(log).ReadSystem, PawnIoInstallation.InstalledVersion,
+            EmbeddedLicenses.Read, new ShellLauncher(log), new WpfClipboard(), viewModel.Status, log, AppPaths.Logs);
+        var settings = new SettingsViewModel(signInStart, viewModel.Language, viewModel.PowerSwitch, viewModel.Status, about);
+        var host = new SettingsWindowHost(() => new SettingsWindow(settings, theme));
+        teardown.Push(("settings window", host.CloseForExit));
+        return host;
+    }
 
     private static string CurrentExe =>
         Environment.ProcessPath ?? throw new InvalidOperationException("The path of the running exe is unknown.");

@@ -22,14 +22,15 @@ internal sealed class TrayIconHost : INotifier, IDisposable
     private readonly ThemeManager _theme;
     private readonly Action _toggleWindow;
     private readonly Action _showWindow;
+    private readonly Action _showSettings;
     private readonly Action _exit;
     private MainViewModel? _viewModel;
     private SignInStartViewModel? _signInStart;
     private ReportViewModel? _report;
 
-    public TrayIconHost(ThemeManager theme, Action toggleWindow, Action showWindow, Action exit)
+    public TrayIconHost(ThemeManager theme, Action toggleWindow, Action showWindow, Action showSettings, Action exit)
     {
-        (_theme, _toggleWindow, _showWindow, _exit) = (theme, toggleWindow, showWindow, exit);
+        (_theme, _toggleWindow, _showWindow, _showSettings, _exit) = (theme, toggleWindow, showWindow, showSettings, exit);
         using var iconStream = typeof(TrayIconHost).Assembly.GetManifestResourceStream("MTool.m-tool.ico")
             ?? throw new InvalidOperationException("The embedded tray icon is missing.");
         _icon = new NotifyIcon
@@ -124,6 +125,7 @@ internal sealed class TrayIconHost : INotifier, IDisposable
                 () => Run(signInStart.ToggleCommand, null)));
         }
 
+        _menu.Items.Add(Item(Strings.Tray_Settings, isChecked: false, enabled: true, _showSettings));
         _menu.Items.Add(Item(Strings.Tray_OpenWindow, isChecked: false, enabled: true, _showWindow));
         _menu.Items.Add(Item(Strings.Tray_Exit, isChecked: false, enabled: true, _exit));
         e.Cancel = false;

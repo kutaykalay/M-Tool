@@ -38,6 +38,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Hardware\Resources\LpcACPIEC.bin" LogicalName="MTool.LpcACPIEC.bin" />
     <EmbeddedResource Include="Resources\m-tool.ico" LogicalName="MTool.m-tool.ico" />
+    <!-- Shown offline in the About tab (GPL and MIT notices). -->
+    <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.md" LogicalName="MTool.THIRD-PARTY-NOTICES.md" />
+    <EmbeddedResource Include="..\..\LICENSE" LogicalName="MTool.LICENSE" />
     <EmbeddedResource Update="Resources\Strings.resx">
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
       <StronglyTypedNamespace>MTool.App.Resources</StronglyTypedNamespace>
