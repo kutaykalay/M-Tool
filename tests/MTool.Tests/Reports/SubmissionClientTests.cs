@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using MTool.App.Net;
 using MTool.App.Reports;
 using MTool.Core.Diagnostics;
 using MTool.Tests.Fakes;
@@ -54,7 +55,7 @@ public sealed class SubmissionClientTests
     [Fact]
     public void The_real_handler_follows_no_redirect_and_keeps_no_cookie()
     {
-        using var handler = SubmissionClient.CreateHandler();
+        using var handler = SafeHttp.CreateHandler();
 
         handler.AllowAutoRedirect.Should().BeFalse();
         handler.UseCookies.Should().BeFalse();

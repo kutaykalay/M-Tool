@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 using MTool.App.Hardware;
+using MTool.App.Net;
 using MTool.App.Reports;
 using MTool.App.Resources;
 using MTool.App.Services;
@@ -193,7 +194,7 @@ internal sealed class GuiBootstrapper : IDisposable
 
         await viewModel.InitializeAsync([.. settings.Warnings, .. session.StartupWarnings]);
         var signInStart = new SignInStartViewModel(new StartupTask(), CurrentExe, viewModel.Status, log, File.Exists);
-        var submissions = new SubmissionClient(SubmissionClient.CreateHandler(), SubmissionEndpoint.Uri, AppVersion, SubmissionClient.DefaultTimeout);
+        var submissions = new SubmissionClient(SafeHttp.CreateHandler(), SubmissionEndpoint.Uri, AppVersion, SubmissionClient.DefaultTimeout);
         var stopSubmission = new CancellationTokenSource();
         teardown.Push(("EC data submission", () => StopSubmissions(stopSubmission, submissions)));
         var report = new ReportViewModel(
@@ -374,7 +375,7 @@ internal sealed class GuiBootstrapper : IDisposable
     {
         using var theme = new ThemeManager(app);
         using var status = new StatusViewModel(BandNotifier.Silent, new DispatcherUi(app), TimeProvider.System);
-        using var submissions = new SubmissionClient(SubmissionClient.CreateHandler(), SubmissionEndpoint.Uri, AppVersion, SubmissionClient.DefaultTimeout);
+        using var submissions = new SubmissionClient(SafeHttp.CreateHandler(), SubmissionEndpoint.Uri, AppVersion, SubmissionClient.DefaultTimeout);
         using var stop = new CancellationTokenSource();
         var coordinator = new PowerStateCoordinator(TimeProvider.System, AutoReapplyOptions.Default.GateDelay);
         using var powerEvents = new SystemPowerEvents(log);
