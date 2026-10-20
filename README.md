@@ -4,8 +4,9 @@
 
 [![Build](https://github.com/kutaykalay/M-Tool/actions/workflows/build.yml/badge.svg)](https://github.com/kutaykalay/M-Tool/actions/workflows/build.yml)
 
-A small Windows tray app for the **MSI P65 Creator 9SE**: fan curves, Cooler Boost, performance
-mode and battery charge limit. One exe, no background service.
+A small Windows tray app for MSI laptops: fan curves, Cooler Boost, performance mode and battery
+charge limit. One exe, no background service. Today it controls the **MSI P65 Creator 9SE**; other
+MSI laptops are read-only for now (see [Supported devices](#supported-devices)).
 
 > **Status:** beta. M-Tool writes settings on one laptop and firmware only. Other MSI laptops with
 > WMI1 are read-only and experimental, and on MSI laptops with WMI2 it shows a few values, read-only
