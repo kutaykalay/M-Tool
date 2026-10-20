@@ -104,7 +104,7 @@ internal sealed class EcSession : IDisposable
         {
             var firmware = ReadFirmware(catalog, ecLock, log, accessGate);
             var selection = DeviceSelection.Choose(firmware, catalog, EmbeddedDevices.Wmi1GenericId);
-            var choice = PortChoice.For(backend, selection.PortAllowed, () => PawnIoInstallation.InstalledVersion() is not null);
+            var choice = PortChoice.For(backend, selection.PortAllowed, PawnIoLookup(log));
             var usePort = choice.UsePort;
 
             var layout = EmbeddedDevices.LayoutOf(selection.Record);
@@ -131,6 +131,19 @@ internal sealed class EcSession : IDisposable
             ecLock.Dispose();
             throw;
         }
+    }
+
+    private static Func<bool> PawnIoLookup(IAppLog log)
+    {
+        Func<bool> installed = () => PawnIoInstallation.InstalledVersion() is not null;
+#if DEBUG
+        if (NoPawnIoPreview.IsOn)
+        {
+            log.Warn($"{NoPawnIoPreview.Variable}=1: PawnIO counts as not installed (Debug build).");
+            return NoPawnIoPreview.Installed(previewOn: true, installed);
+        }
+#endif
+        return installed;
     }
 
     /// <summary>
