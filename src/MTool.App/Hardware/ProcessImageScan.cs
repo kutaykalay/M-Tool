@@ -8,16 +8,18 @@ using MTool.Core.Diagnostics;
 namespace MTool.App.Hardware;
 
 /// <summary>What a process scan found.</summary>
-/// <param name="Companies">The file company of every distinct image (null entry = that program could not be read or was skipped).</param>
-/// <param name="Truncated">The time budget ran out before every process was looked at.</param>
+/// <param name="Companies">The file company of every distinct image a process reported (null entry = skipped or could not be read).</param>
+/// <param name="Truncated">The answer is incomplete: the time budget ran out, or fewer than half of the images could be read.</param>
 internal sealed record ProcessScanResult(IReadOnlyList<string?> Companies, bool Truncated);
 
 /// <summary>
 /// Reads the file company of the programs that are running, read-only. The image path comes from
 /// <c>QueryFullProcessImageNameW</c> on a limited-rights handle (no module list, so no 32/64-bit trouble and
-/// no hang on a protected process); only local drive-letter images are opened, so a network image can never stall the
-/// scan; each image file is read once however many processes use it. The whole scan runs on a worker task and is
-/// waited for at most the budget: a slow disk or a stuck read cuts the scan off instead of hanging the caller.
+/// no hang on a protected process); only images on a fixed local disk are opened (not network, removable or optical
+/// drives, which can stall), each image file is read once however many processes use it. The whole scan runs on a
+/// dedicated long-running thread and is waited for at most the budget: a slow disk or a stuck read cuts the scan off
+/// instead of hanging the caller (the stuck thread is abandoned, not killed). If fewer than half of the images that
+/// processes reported could be read, the scan counts as incomplete too.
 /// </summary>
 internal static class ProcessImageScan
 {
@@ -27,11 +29,15 @@ internal static class ProcessImageScan
     /// <summary>The longest path Windows can return (32,767 characters plus the terminator).</summary>
     private const int MaxImagePath = 32768;
 
-    /// <summary>Runs the scan for at most <paramref name="budget"/>; what was read by then is returned, marked truncated.</summary>
+    /// <summary>
+    /// Runs the scan for at most <paramref name="budget"/>; what was read by then is returned, marked truncated.
+    /// Blocks the calling thread for up to the budget: never call it on the UI thread.
+    /// </summary>
     /// <param name="listImages">The image path of every process (null = could not be queried).</param>
     /// <param name="readCompany">The file company of one image; may throw for reasons outside M-Tool.</param>
+    /// <param name="isFixedDisk">Whether the image lies on a fixed local disk; anything else is skipped unread.</param>
     /// <param name="budget">How long the caller waits.</param>
-    public static ProcessScanResult Run(Func<IEnumerable<string?>> listImages, Func<string, string?> readCompany, TimeSpan budget)
+    public static ProcessScanResult Run(Func<IEnumerable<string?>> listImages, Func<string, string?> readCompany, Func<string, bool> isFixedDisk, TimeSpan budget)
     {
         var companies = new List<string?>();
         var gate = new object();
@@ -49,7 +55,7 @@ internal static class ProcessImageScan
             }
         }
 
-        var worker = Task.Run(() =>
+        var worker = Task.Factory.StartNew(() =>
         {
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             try
@@ -61,13 +67,18 @@ internal static class ProcessImageScan
                         return;
                     }
 
-                    if (image is null || !MofImagePathResolver.IsLocalDrivePath(image))
+                    if (image is null)
+                    {
+                        continue;
+                    }
+
+                    if (!MofImagePathResolver.IsLocalDrivePath(image))
                     {
                         Append(null);
                     }
                     else if (seen.Add(image))
                     {
-                        Append(ReadCompanyOf(image, readCompany));
+                        Append(ReadCompanyOf(image, readCompany, isFixedDisk));
                     }
                 }
             }
@@ -75,7 +86,7 @@ internal static class ProcessImageScan
             {
                 Volatile.Write(ref listingFailed, true);
             }
-        });
+        }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
         bool finished;
         try
@@ -91,19 +102,21 @@ internal static class ProcessImageScan
         lock (gate)
         {
             stopped = true;
-            return new ProcessScanResult(companies.ToArray(), !finished || Volatile.Read(ref listingFailed));
+            var readable = companies.Count(company => company is not null);
+            var tooFewRead = readable * 2 < companies.Count;
+            return new ProcessScanResult(companies.ToArray(), !finished || Volatile.Read(ref listingFailed) || tooFewRead);
         }
     }
 
     /// <summary>The scan as the probe runs it on this machine: running programs, company from the file's version info.</summary>
     public static ProcessScanResult RunOnThisMachine(TimeSpan budget) =>
-        Run(ListRunningImages, path => FileVersionInfo.GetVersionInfo(path).CompanyName, budget);
+        Run(ListRunningImages, path => FileVersionInfo.GetVersionInfo(path).CompanyName, FixedDisk.Is, budget);
 
-    private static string? ReadCompanyOf(string image, Func<string, string?> readCompany)
+    private static string? ReadCompanyOf(string image, Func<string, string?> readCompany, Func<string, bool> isFixedDisk)
     {
         try
         {
-            return readCompany(image) ?? string.Empty;
+            return isFixedDisk(image) ? readCompany(image) ?? string.Empty : null;
         }
         catch (Exception ex) when (!MsiSoftwareProbe.IsFatal(ex))
         {

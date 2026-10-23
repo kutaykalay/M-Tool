@@ -19,6 +19,7 @@ public class ProcessImageScanTests
                 reads.Add(path);
                 return "Vendor";
             },
+            _ => true,
             Generous);
 
         reads.Should().Equal(@"C:\a\x.exe", @"C:\b\y.exe");
@@ -32,32 +33,35 @@ public class ProcessImageScanTests
         var reads = new List<string>();
 
         var result = ProcessImageScan.Run(
-            () => [null, @"\\server\share\x.exe", @"\\?\C:\x.exe", @"C:\ok.exe"],
+            () => [null, @"\\server\share\x.exe", @"\\?\C:\x.exe", @"C:\ok.exe", @"C:\ok2.exe"],
             path =>
             {
                 reads.Add(path);
                 return "Vendor";
             },
+            _ => true,
             Generous);
 
-        reads.Should().Equal(@"C:\ok.exe");
-        result.Companies.Should().Equal(null, null, null, "Vendor");
+        reads.Should().Equal(@"C:\ok.exe", @"C:\ok2.exe");
+        // A null image path (not queryable) is not counted; the two skipped paths are.
+        result.Companies.Should().Equal(null, null, "Vendor", "Vendor");
     }
 
     [Fact]
     public void A_failing_read_is_an_unknown_entry_and_the_scan_goes_on()
     {
         var result = ProcessImageScan.Run(
-            () => [@"C:\a.exe", @"C:\b.exe", @"C:\c.exe"],
+            () => [@"C:\a.exe", @"C:\b.exe", @"C:\c.exe", @"C:\d.exe"],
             path => path switch
             {
                 @"C:\a.exe" => throw new IOException(),
                 @"C:\b.exe" => throw new FormatException(),
                 _ => "Vendor",
             },
+            _ => true,
             Generous);
 
-        result.Companies.Should().Equal(null, null, "Vendor");
+        result.Companies.Should().Equal(null, null, "Vendor", "Vendor");
         result.Truncated.Should().BeFalse();
     }
 
@@ -74,7 +78,7 @@ public class ProcessImageScanTests
 
         try
         {
-            var result = ProcessImageScan.Run(Slow, _ => "Micro-Star", TimeSpan.FromMilliseconds(300));
+            var result = ProcessImageScan.Run(Slow, _ => "Micro-Star", _ => true, TimeSpan.FromMilliseconds(300));
 
             result.Truncated.Should().BeTrue();
             result.Companies.Should().Equal("Micro-Star");
@@ -102,6 +106,7 @@ public class ProcessImageScanTests
 
                     return "Vendor";
                 },
+                _ => true,
                 TimeSpan.FromMilliseconds(300));
 
             result.Truncated.Should().BeTrue();
@@ -111,5 +116,74 @@ public class ProcessImageScanTests
         {
             release.Set();
         }
+    }
+
+    [Fact]
+    public void An_image_on_a_disk_that_is_not_fixed_is_skipped_unread()
+    {
+        var reads = new List<string>();
+
+        var result = ProcessImageScan.Run(
+            () => [@"Z:\net.exe", @"C:\local.exe", @"D:\other.exe"],
+            path =>
+            {
+                reads.Add(path);
+                return "Vendor";
+            },
+            path => path[0] == 'C',
+            Generous);
+
+        reads.Should().Equal(@"C:\local.exe");
+        result.Companies.Should().Equal(null, "Vendor", null);
+    }
+
+    [Fact]
+    public void A_failing_disk_type_check_is_an_unknown_entry()
+    {
+        var result = ProcessImageScan.Run(
+            () => [@"C:\a.exe"],
+            _ => throw new InvalidOperationException("must not be read"),
+            _ => throw new IOException(),
+            Generous);
+
+        result.Companies.Should().Equal((string?)null);
+    }
+
+    [Fact]
+    public void Too_few_readable_programs_make_the_scan_count_as_cut_off()
+    {
+        var result = ProcessImageScan.Run(
+            () => [@"C:\a.exe", @"C:\b.exe", @"C:\c.exe", @"C:\d.exe"],
+            path => path == @"C:\d.exe" ? "Micro-Star" : throw new IOException(),
+            _ => true,
+            Generous);
+
+        result.Truncated.Should().BeTrue();
+        result.Companies.Should().Equal(null, null, null, "Micro-Star");
+    }
+
+    [Fact]
+    public void Exactly_half_readable_is_enough()
+    {
+        var result = ProcessImageScan.Run(
+            () => [@"C:\a.exe", @"C:\b.exe"],
+            path => path == @"C:\a.exe" ? "Vendor" : throw new IOException(),
+            _ => true,
+            Generous);
+
+        result.Truncated.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Programs_without_an_image_path_do_not_count_against_coverage()
+    {
+        var result = ProcessImageScan.Run(
+            () => [null, null, null, null, @"C:\a.exe"],
+            _ => "Vendor",
+            _ => true,
+            Generous);
+
+        result.Truncated.Should().BeFalse();
+        result.Companies.Should().Equal("Vendor");
     }
 }

@@ -16,6 +16,9 @@ public class MofImagePathResolverTests
     [InlineData(@"\systemroot\System32\x.dll", @"C:\Windows\System32\x.dll")]
     [InlineData(@"D:\Drivers\x.dll", @"D:\Drivers\x.dll")]
     [InlineData(@"C:\Windows\System32\..\x.dll", @"C:\Windows\x.dll")]
+    [InlineData(@"C:\Windows\console.dll", @"C:\Windows\console.dll")]
+    [InlineData(@"C:\Windows\com10.dll", @"C:\Windows\com10.dll")]
+    [InlineData(@"C:\Windows\CON\x.dll", @"C:\Windows\CON\x.dll")]
     public void Known_roots_and_plain_local_paths_resolve_to_a_full_path(string raw, string expected)
     {
         MofImagePathResolver.Resolve(raw, WindowsDir).Should().Be(expected);
@@ -40,6 +43,16 @@ public class MofImagePathResolverTests
     [InlineData(@"\Windows\x.dll")]
     [InlineData(@"C:x.dll")]
     [InlineData(@"C:\a:stream")]
+    [InlineData(@"C:\Windows\CON")]
+    [InlineData(@"C:\Windows\con.dll")]
+    [InlineData(@"C:\Windows\NUL.tar.gz")]
+    [InlineData(@"C:\Windows\Aux")]
+    [InlineData(@"C:\Windows\prn.")]
+    [InlineData(@"C:\Windows\prn . ")]
+    [InlineData(@"C:\Windows\COM1.dll")]
+    [InlineData(@"C:\Windows\com9")]
+    [InlineData(@"C:\Windows\LPT3.txt")]
+    [InlineData(@"%windir%\lpt9")]
     [InlineData("")]
     public void Anything_else_is_rejected(string raw)
     {

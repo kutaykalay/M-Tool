@@ -15,13 +15,15 @@ public class MsiSoftwareProbeTests
         Func<string, string?>? signer = null,
         Func<IReadOnlyList<IReadOnlyList<string?>?>>? publishers = null,
         Func<IReadOnlyList<string?>?>? companies = null,
-        Func<ProcessScanResult?>? scan = null) => new(
+        Func<ProcessScanResult?>? scan = null,
+        Func<string, bool>? isFixedDisk = null) => new(
             mofImagePath ?? (() => RawPath),
             () => @"C:\Windows",
             fileExists ?? (_ => true),
             signer ?? (_ => null),
             publishers ?? (() => [[], []]),
-            scan ?? (() => companies?.Invoke() is { } list ? new ProcessScanResult(list, false) : null));
+            scan ?? (() => companies?.Invoke() is { } list ? new ProcessScanResult(list, false) : null),
+            isFixedDisk ?? (_ => true));
 
     [Fact]
     public void A_missing_value_means_the_schema_is_not_installed()

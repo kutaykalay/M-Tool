@@ -16,6 +16,7 @@ namespace MTool.App.Hardware;
 /// <param name="FileExists">Whether the file is there.</param>
 /// <param name="ReadSignerSubject">The signer's subject, or null when the file has no signature.</param>
 /// <param name="ReadPublishers">The <c>Publisher</c> of every Uninstall entry, one list per hive (null = that hive could not be read).</param>
+/// <param name="IsFixedDisk">Whether the file lies on a fixed local disk; the schema file is read only then.</param>
 /// <param name="ReadProcessScan">The file company of every running program, within the time budget (null = no scan could be made).</param>
 internal sealed record MsiSoftwareSources(
     Func<string?> ReadMofImagePath,
@@ -23,7 +24,8 @@ internal sealed record MsiSoftwareSources(
     Func<string, bool> FileExists,
     Func<string, string?> ReadSignerSubject,
     Func<IReadOnlyList<IReadOnlyList<string?>?>> ReadPublishers,
-    Func<ProcessScanResult?> ReadProcessScan);
+    Func<ProcessScanResult?> ReadProcessScan,
+    Func<string, bool> IsFixedDisk);
 
 /// <summary>
 /// Looks, read-only, for what MSI's WMI interface needs: the schema DLL Windows was told about, and
@@ -48,7 +50,8 @@ internal sealed class MsiSoftwareProbe(MsiSoftwareSources sources)
         File.Exists,
         AuthenticodeSigner.ReadSubject,
         () => [ReadPublishersOf(UninstallKey), ReadPublishersOf(UninstallKeyWow64)],
-        () => ProcessImageScan.RunOnThisMachine(ProcessScanBudget)));
+        () => ProcessImageScan.RunOnThisMachine(ProcessScanBudget),
+        FixedDisk.Is));
 
     /// <summary>
     /// The schema facts. Narrow filters below give the better answer where the cause is known; any other
@@ -66,28 +69,37 @@ internal sealed class MsiSoftwareProbe(MsiSoftwareSources sources)
         }
     }
 
+    /// <summary>
+    /// The software facts. Blocks the calling thread for up to the process scan budget (3 s) plus the registry
+    /// read: never call it on the UI thread.
+    /// </summary>
     public MsiSoftwareInfo ReadSoftware() => new(Installed(), Running());
 
     /// <summary>Out of memory or a corrupted process: nothing the probe may answer around.</summary>
     internal static bool IsFatal(Exception ex) => ex is OutOfMemoryException or AccessViolationException or StackOverflowException;
 
-    /// <summary>Reads one value per name; a name that cannot be read adds a null entry and the rest are still read.</summary>
-    internal static IReadOnlyList<string?> ReadEntries(IEnumerable<string> names, Func<string, string?> readValue)
+    /// <summary>
+    /// Reads one value per name; a name that cannot be read adds a null entry and the rest are still read.
+    /// Null when there were names and every one of them failed: nothing was read, so it is not a miss.
+    /// </summary>
+    internal static IReadOnlyList<string?>? ReadEntries(IEnumerable<string> names, Func<string, string?> readValue)
     {
         var values = new List<string?>();
+        var failures = 0;
         foreach (var name in names)
         {
             try
             {
                 values.Add(readValue(name));
             }
-            catch (Exception ex) when (IsSystemTrouble(ex))
+            catch (Exception ex) when (!IsFatal(ex))
             {
                 values.Add(null);
+                failures++;
             }
         }
 
-        return values;
+        return values.Count > 0 && failures == values.Count ? null : values;
     }
 
     private MsiSchemaInfo ReadSchemaCore()
@@ -112,7 +124,7 @@ internal sealed class MsiSoftwareProbe(MsiSoftwareSources sources)
         try
         {
             path = MofImagePathResolver.Resolve(raw, sources.WindowsDirectory());
-            if (path is null)
+            if (path is null || !sources.IsFixedDisk(path))
             {
                 return new MsiSchemaInfo(MofImagePathState.Set, SchemaFileState.Unknown, SchemaSignature.Unknown);
             }

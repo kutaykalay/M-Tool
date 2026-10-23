@@ -95,6 +95,41 @@ public class MsiSoftwareProbeHardeningTests
     }
 
     [Fact]
+    public void A_path_on_a_disk_that_is_not_fixed_touches_no_file()
+    {
+        var sources = MsiSoftwareProbeTests.Sources(
+            isFixedDisk: _ => false,
+            fileExists: _ => throw new InvalidOperationException("must not be checked"),
+            signer: _ => throw new InvalidOperationException("must not be read"));
+
+        new MsiSoftwareProbe(sources).ReadSchema()
+            .Should().Be(new MsiSchemaInfo(MofImagePathState.Set, SchemaFileState.Unknown, SchemaSignature.Unknown));
+    }
+
+    [Fact]
+    public void A_failing_disk_type_check_is_unknown_not_an_exception()
+    {
+        var sources = MsiSoftwareProbeTests.Sources(isFixedDisk: _ => throw new IOException());
+
+        new MsiSoftwareProbe(sources).ReadSchema()
+            .Should().Be(new MsiSchemaInfo(MofImagePathState.Set, SchemaFileState.Unknown, SchemaSignature.Unknown));
+    }
+
+    [Fact]
+    public void A_hive_where_every_entry_failed_is_unknown_not_a_miss()
+    {
+        MsiSoftwareProbe.ReadEntries(["a", "b"], _ => throw new IOException()).Should().BeNull();
+        MsiSoftwareProbe.ReadEntries([], _ => throw new IOException()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_fatal_exception_in_an_entry_propagates()
+    {
+        var act = () => MsiSoftwareProbe.ReadEntries(["a"], _ => throw new OutOfMemoryException());
+
+        act.Should().Throw<OutOfMemoryException>();
+    }
+    [Fact]
     public void An_empty_file_reads_as_a_signature_that_cannot_be_read()
     {
         ProbeSignatureOfTempFile([]).Should().Be(SchemaSignature.Unknown);
