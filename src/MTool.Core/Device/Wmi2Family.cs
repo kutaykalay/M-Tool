@@ -65,10 +65,11 @@ public static class Wmi2Family
     public const byte GpuTach = 0xCA;
     public const int TachLength = 2;
 
-    private const byte CoolerBoostRegister = 0x98;
-    private const byte PerformanceModeRegister = 0xD2;
-    private const byte FanModeRegister = 0xD4;
-    private const byte ChargeLimitRegister = 0xD7;
+    // One map for reads and the write ceiling.
+    private const byte CoolerBoostRegister = Wmi2WriteCeiling.CoolerBoostRegister;
+    private const byte PerformanceModeRegister = Wmi2WriteCeiling.PerformanceRegister;
+    private const byte FanModeRegister = Wmi2WriteCeiling.FanModeRegister;
+    private const byte ChargeLimitRegister = Wmi2WriteCeiling.ChargeLimitRegister;
 
     public static IReadOnlyList<byte> SensorRegisters { get; } = Array.AsReadOnly<byte>(
         [CpuTemperature, GpuTemperature, CpuFanPercent, GpuFanPercent, CpuTach, CpuTach + 1, GpuTach, GpuTach + 1]);
