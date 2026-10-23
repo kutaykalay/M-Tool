@@ -15,6 +15,7 @@ using MTool.App.Views;
 using MTool.Core;
 using MTool.Core.Device;
 using MTool.Core.Device.Config;
+using MTool.Core.Diagnostics;
 using MTool.Core.Ec;
 using MTool.Core.Localization;
 using MTool.Core.Power;
@@ -356,13 +357,21 @@ internal sealed class GuiBootstrapper : IDisposable
         // The probe comes first: no PawnIO question for a model M-Tool cannot read at all. Hybrid only
         // where writes are verified and PawnIO is installed; elsewhere the session opens WMI only,
         // without Cooler Boost and the charge limit, and the window says why.
+        Func<TimeSpan?, WmiProbeOutcome> probe = WmiInterfaceCheck.Default.Probe;
+        Func<EcSession> openSession = () => app.Dispatcher.Invoke(() => EcSession.Open(log, EcBackends.PreferHybrid, accessGate, interfaceChecked: true));
+        Func<MsiSchemaInfo> readSchema = MsiSoftwareProbe.Default.ReadSchema;
+#if DEBUG
+        if (ProbeFailurePreview.Current is { } probeFailure)
+        {
+            log.Warn($"{ProbeFailurePreview.Variable}: start-up acts as if WMI never answered (Debug build).");
+            (probe, openSession) = (probeFailure.Probe, probeFailure.OpenSession<EcSession>);
+            var realSchema = readSchema;
+            readSchema = () => probeFailure.ReadSchema(realSchema);
+        }
+#endif
+
         // The probes, the pause and the schema check run off the UI thread; the session opens on it, as it always has.
-        var decision = await Task.Run(() => StartupRoute.Decide(
-            WmiInterfaceCheck.Default.Probe,
-            () => app.Dispatcher.Invoke(() => EcSession.Open(log, EcBackends.PreferHybrid, accessGate, interfaceChecked: true)),
-            Thread.Sleep,
-            MsiSoftwareProbe.Default.ReadSchema,
-            log));
+        var decision = await Task.Run(() => StartupRoute.Decide(probe, openSession, Thread.Sleep, readSchema, log));
         if (decision.ReportsOnly is { } reportsOnly)
         {
             log.Warn($"Unsupported or unanswered MSI WMI; reports-only window opened. {reportsOnly.LogMessage}");
