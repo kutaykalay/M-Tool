@@ -65,7 +65,7 @@ internal sealed class GuiBootstrapper : IDisposable
         var catalog = ProfileCatalog.BuiltIn;
         var reapplyOptions = AutoReapplyOptions.Default;
         var coordinator = new PowerStateCoordinator(TimeProvider.System, reapplyOptions.GateDelay);
-        if (OpenSession(app, instance, log, () => coordinator.IsEcAccessAllowed) is not { } session)
+        if (await OpenSessionAsync(app, instance, log, () => coordinator.IsEcAccessAllowed) is not { } session)
         {
             return null;
         }
@@ -342,7 +342,7 @@ internal sealed class GuiBootstrapper : IDisposable
     internal static string AppVersion =>
         typeof(GuiBootstrapper).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "no version";
 
-    private static EcSession? OpenSession(Application app, SingleInstance instance, FileLog log, Func<bool> accessGate)
+    private static async Task<EcSession?> OpenSessionAsync(Application app, SingleInstance instance, FileLog log, Func<bool> accessGate)
     {
 #if DEBUG
         if (Wmi2Preview.Current is { } preview)
@@ -356,12 +356,13 @@ internal sealed class GuiBootstrapper : IDisposable
         // The probe comes first: no PawnIO question for a model M-Tool cannot read at all. Hybrid only
         // where writes are verified and PawnIO is installed; elsewhere the session opens WMI only,
         // without Cooler Boost and the charge limit, and the window says why.
-        var decision = StartupRoute.Decide(
+        // The probes, the pause and the schema check run off the UI thread; the session opens on it, as it always has.
+        var decision = await Task.Run(() => StartupRoute.Decide(
             WmiInterfaceCheck.Default.Probe,
-            () => EcSession.Open(log, EcBackends.PreferHybrid, accessGate),
+            () => app.Dispatcher.Invoke(() => EcSession.Open(log, EcBackends.PreferHybrid, accessGate, interfaceChecked: true)),
             Thread.Sleep,
             MsiSoftwareProbe.Default.ReadSchema,
-            log);
+            log));
         if (decision.ReportsOnly is { } reportsOnly)
         {
             log.Warn($"Unsupported or unanswered MSI WMI; reports-only window opened. {reportsOnly.LogMessage}");

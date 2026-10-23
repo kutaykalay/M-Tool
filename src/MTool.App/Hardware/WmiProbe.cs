@@ -172,9 +172,11 @@ internal static class WmiProbe
 }
 
 /// <summary>
-/// The check before a session opens. Only a definite answer stops start-up: a probe that times out
-/// or fails (WMI still starting at log-on) is logged and the session opens as it did before the
-/// probe existed, failing there if WMI1 really is missing. A confirmed WMI1 is not probed again.
+/// The check before a session opens. Only a definite answer stops it: a probe that times out or
+/// fails (WMI still starting at log-on) is logged and the session opens as it did before the probe
+/// existed, failing there if WMI1 really is missing. A confirmed WMI1 is not probed again. The GUI
+/// start-up probes through <see cref="Probe"/> and decides in <c>StartupRoute</c>; the command line
+/// uses <see cref="EnsureWmi1"/>.
 /// </summary>
 /// <param name="detect">The probe with its time budget.</param>
 internal sealed class WmiInterfaceCheck(Func<TimeSpan?, WmiProbeOutcome> detect)
@@ -212,9 +214,10 @@ internal sealed class WmiInterfaceCheck(Func<TimeSpan?, WmiProbeOutcome> detect)
             return;
         }
 
-        if (outcome.Interface is not WmiInterface.Wmi1 and var detected)
+        if (outcome.Interface != WmiInterface.Wmi1)
         {
-            throw new UnsupportedDeviceException(WmiProbe.UnsupportedMessage(detected), WmiProbe.UnsupportedLogMessage(detected), detected);
+            throw new UnsupportedDeviceException(
+                WmiProbe.UnsupportedMessage(outcome.Interface), WmiProbe.UnsupportedLogMessage(outcome.Interface), outcome.Interface);
         }
     }
 }

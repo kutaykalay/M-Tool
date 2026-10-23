@@ -79,6 +79,8 @@ public sealed class StartupRouteTests
 
         decision.Session.Should().NotBeNull("a cold WMI at log-on must not cost the --tray start");
         _waits.Should().BeEmpty();
+        _budgets.Should().ContainSingle();
+        _opens.Should().Be(1);
         _log.Lines.Should().Contain(l => l.StartsWith("WARN", StringComparison.Ordinal) && l.Contains("QuerySoftware 0x8004100C"));
     }
 
@@ -138,6 +140,62 @@ public sealed class StartupRouteTests
 
         decision.ReportsOnly.Should().Be(new ReportsOnlyRoute("henüz desteklenmiyor", "not supported yet", WmiInterface.Wmi2));
         _waits.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_session_that_finds_no_msi_class_itself_gets_the_hint_without_the_schema()
+    {
+        var unsupported = new UnsupportedDeviceException("henüz desteklenmiyor", "not supported yet", null);
+
+        var decision = Decide([NotSupported], open: _ => throw unsupported, schema: NotRegistered);
+
+        decision.ReportsOnly!.Message.Should().Contain("bir kez kurun");
+        decision.ReportsOnly.Detected.Should().BeNull();
+    }
+
+    [Fact]
+    public void A_second_open_that_finds_no_wmi1_is_the_reports_only_window()
+    {
+        var unsupported = new UnsupportedDeviceException("henüz desteklenmiyor", "not supported yet", WmiInterface.Wmi2);
+
+        var decision = Decide([NotSupported, Wmi1], open: n => n == 1 ? throw Unreachable() : throw unsupported);
+
+        decision.ReportsOnly!.Detected.Should().Be(WmiInterface.Wmi2);
+        decision.SessionError.Should().BeNull();
+    }
+
+    [Fact]
+    public void Only_wmi2_ever_reaches_the_window_as_the_detected_interface()
+    {
+        var odd = new UnsupportedDeviceException("x", "x", WmiInterface.Wmi1);
+
+        Decide([NotSupported], open: _ => throw odd).ReportsOnly!.Detected.Should().BeNull();
+    }
+
+    [Fact]
+    public void Running_out_of_memory_is_not_turned_into_a_route()
+    {
+        var act = () => Decide([NotSupported], open: _ => throw new OutOfMemoryException());
+
+        act.Should().Throw<OutOfMemoryException>();
+    }
+
+    [Fact]
+    public void A_schema_read_that_hangs_only_loses_the_hint()
+    {
+        using var hang = new ManualResetEventSlim();
+        try
+        {
+            var decision = StartupRoute.Decide<object>(
+                _ => NoClass, () => new object(), _ => { }, () => hang.Wait(Timeout.Infinite) ? NotRegistered : NotRegistered, _log);
+
+            decision.ReportsOnly!.Message.Should().NotContain("bir kez kurun");
+            _log.Lines.Should().Contain(l => l.Contains("schema not checked"));
+        }
+        finally
+        {
+            hang.Set();
+        }
     }
 
     [Fact]

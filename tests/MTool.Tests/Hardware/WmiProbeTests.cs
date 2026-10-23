@@ -113,6 +113,20 @@ public class WmiProbeTests
         budgets.Should().Equal(TimeSpan.FromSeconds(5));
     }
 
+    [Theory]
+    [InlineData(WmiInterface.Wmi2)]
+    [InlineData(null)]
+    public void Only_wmi1_is_remembered(WmiInterface? first)
+    {
+        var calls = 0;
+        var check = new WmiInterfaceCheck(_ => ++calls == 1 ? WmiProbeOutcome.Answered(first) : WmiProbeOutcome.Answered(WmiInterface.Wmi1));
+
+        check.Probe();
+        check.Probe().Interface.Should().Be(WmiInterface.Wmi1);
+
+        calls.Should().Be(2);
+    }
+
     [Fact]
     public void Models_without_msi_wmi_get_a_clear_unsupported_message()
     {

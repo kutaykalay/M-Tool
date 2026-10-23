@@ -94,9 +94,14 @@ internal sealed class EcSession : IDisposable
     /// </exception>
     /// <exception cref="EcAccessException">PawnIO or WMI1 does not answer.</exception>
     /// <exception cref="InvalidOperationException">An embedded device record did not load.</exception>
-    public static EcSession Open(IAppLog log, EcBackends backend, Func<bool>? accessGate = null)
+    /// <param name="interfaceChecked">The caller has probed already (start-up's <c>StartupRoute</c>): no second probe, no second warning.</param>
+    public static EcSession Open(IAppLog log, EcBackends backend, Func<bool>? accessGate = null, bool interfaceChecked = false)
     {
-        WmiInterfaceCheck.Default.EnsureWmi1(log);
+        if (!interfaceChecked)
+        {
+            WmiInterfaceCheck.Default.EnsureWmi1(log);
+        }
+
         var catalog = DeviceConfigLoader.LoadEmbedded(log);
         var ecLock = new AccessEcMutex();
         PawnIoPortIo? ports = null;

@@ -29,8 +29,12 @@ internal static class StartupRoute
     public static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(3);
     public static readonly TimeSpan RetryBudget = TimeSpan.FromSeconds(5);
 
+    /// <summary>The schema check only decides a hint: a slow disk loses the hint, not the start-up.</summary>
+    public static readonly TimeSpan SchemaBudget = TimeSpan.FromSeconds(2);
+
+    /// <summary>Blocks for up to about ten seconds when WMI does not answer: never call it on the UI thread.</summary>
     /// <param name="probe">The interface probe with a time budget; null for its default.</param>
-    /// <param name="openSession">Opens the EC session; throws when it cannot.</param>
+    /// <param name="openSession">Opens the EC session without probing again; throws when it cannot.</param>
     /// <param name="wait">Waits before the second probe.</param>
     /// <param name="readSchema">Whether MSI's WMI schema is registered, for the MSI Center hint.</param>
     public static StartupDecision<TSession> Decide<TSession>(
@@ -40,7 +44,9 @@ internal static class StartupRoute
         var first = probe(null);
         if (first.Failure is null)
         {
-            return first.Interface == WmiInterface.Wmi1 ? Open(openSession) : Reports<TSession>(Unsupported(first.Interface, readSchema, log));
+            return first.Interface == WmiInterface.Wmi1
+                ? Open(openSession, readSchema, log)
+                : Reports<TSession>(Unsupported(first.Interface, readSchema, log));
         }
 
         log.Warn($"MSI WMI interface not detected ({first.Failure}), trying to open the session anyway.");
@@ -50,7 +56,7 @@ internal static class StartupRoute
         }
         catch (UnsupportedDeviceException ex)
         {
-            return Reports<TSession>(new ReportsOnlyRoute(ex.Message, ex.LogMessage, ex.Detected));
+            return Reports<TSession>(FromUnsupported(ex, readSchema, log));
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -64,10 +70,12 @@ internal static class StartupRoute
             return Reports<TSession>(NotAnswering(failure, readSchema, log));
         }
 
-        return second.Interface == WmiInterface.Wmi1 ? Open(openSession) : Reports<TSession>(Unsupported(second.Interface, readSchema, log));
+        return second.Interface == WmiInterface.Wmi1
+            ? Open(openSession, readSchema, log)
+            : Reports<TSession>(Unsupported(second.Interface, readSchema, log));
     }
 
-    private static StartupDecision<TSession> Open<TSession>(Func<TSession> openSession)
+    private static StartupDecision<TSession> Open<TSession>(Func<TSession> openSession, Func<MsiSchemaInfo> readSchema, IAppLog log)
         where TSession : class
     {
         try
@@ -76,7 +84,7 @@ internal static class StartupRoute
         }
         catch (UnsupportedDeviceException ex)
         {
-            return Reports<TSession>(new ReportsOnlyRoute(ex.Message, ex.LogMessage, ex.Detected));
+            return Reports<TSession>(FromUnsupported(ex, readSchema, log));
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -90,11 +98,20 @@ internal static class StartupRoute
     private static StartupDecision<TSession> Reports<TSession>(ReportsOnlyRoute route)
         where TSession : class => new(null, route, null);
 
-    private static ReportsOnlyRoute Unsupported(WmiInterface? detected, Func<MsiSchemaInfo> readSchema, IAppLog log)
-    {
-        var route = new ReportsOnlyRoute(WmiProbe.UnsupportedMessage(detected), WmiProbe.UnsupportedLogMessage(detected), detected);
-        return detected is null ? WithHint(route, readSchema, log) : route;
-    }
+    private static ReportsOnlyRoute Unsupported(WmiInterface? detected, Func<MsiSchemaInfo> readSchema, IAppLog log) =>
+        Route(WmiProbe.UnsupportedMessage(detected), WmiProbe.UnsupportedLogMessage(detected), detected, readSchema, log);
+
+    private static ReportsOnlyRoute FromUnsupported(UnsupportedDeviceException ex, Func<MsiSchemaInfo> readSchema, IAppLog log) =>
+        Route(ex.Message, ex.LogMessage, ex.Detected, readSchema, log);
+
+    /// <summary>
+    /// The live values only for an answered WMI2, whatever else is passed in; the MSI Center hint
+    /// only when no interface was found.
+    /// </summary>
+    private static ReportsOnlyRoute Route(string message, string logMessage, WmiInterface? detected, Func<MsiSchemaInfo> readSchema, IAppLog log) =>
+        detected == WmiInterface.Wmi2
+            ? new ReportsOnlyRoute(message, logMessage, WmiInterface.Wmi2)
+            : WithHint(new ReportsOnlyRoute(message, logMessage, null), readSchema, log);
 
     private static ReportsOnlyRoute NotAnswering(WmiFailure failure, Func<MsiSchemaInfo> readSchema, IAppLog log)
     {
@@ -108,11 +125,18 @@ internal static class StartupRoute
         bool missing;
         try
         {
-            missing = readSchema().SchemaMissing;
+            var read = Task.Run(readSchema);
+            if (!read.Wait(SchemaBudget))
+            {
+                log.Warn($"MSI WMI schema not checked: no answer within {SchemaBudget.TotalSeconds:0} s.");
+                return route;
+            }
+
+            missing = read.Result.SchemaMissing;
         }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
+        catch (AggregateException ex) when (ex.InnerException is { } inner and not OutOfMemoryException)
         {
-            log.Warn($"MSI WMI schema not checked: {ex.ForLog()}");
+            log.Warn($"MSI WMI schema not checked: {inner.ForLog()}");
             return route;
         }
 
