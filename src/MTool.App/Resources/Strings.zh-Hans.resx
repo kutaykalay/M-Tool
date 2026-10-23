@@ -201,6 +201,9 @@
   <data name="Probe_MsiCenterOnce" xml:space="preserve">
     <value>请在这台笔记本上安装一次 MSI Center：MSI 的 WMI 接口随它一起提供。之后可以卸载它，无需保持打开。</value>
   </data>
+  <data name="Probe_WmiNotAnswering" xml:space="preserve">
+    <value>Windows WMI 没有响应（{0}）。仍然可以创建设备报告并发送。</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool：无法应用设置</value>
   </data>

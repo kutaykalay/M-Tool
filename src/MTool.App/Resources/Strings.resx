@@ -264,6 +264,10 @@
     <value>Install MSI Center on this laptop once: MSI's WMI interface comes with it. You can uninstall it afterwards; it does not need to stay open.</value>
     <comment>Hint line. MSI Center and WMI are names: keep them. M-Tool is the app name.</comment>
   </data>
+  <data name="Probe_WmiNotAnswering" xml:space="preserve">
+    <value>Windows WMI did not answer ({0}). You can still make a device report and send it.</value>
+    <comment>Reports-only window. {0}: the failing step and its code, such as "QuerySoftware 0x8004100C"; copy it unchanged. WMI is a name: keep it.</comment>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool: setting could not be applied</value>
     <comment>Title of the error balloon shown when writing a setting failed. Keep M-Tool.</comment>

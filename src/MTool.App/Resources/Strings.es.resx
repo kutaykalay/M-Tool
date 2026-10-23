@@ -201,6 +201,9 @@
   <data name="Probe_MsiCenterOnce" xml:space="preserve">
     <value>Instale MSI Center una vez en este portátil: la interfaz WMI de MSI viene con él. Después puede desinstalarlo; no hace falta que permanezca abierto.</value>
   </data>
+  <data name="Probe_WmiNotAnswering" xml:space="preserve">
+    <value>WMI de Windows no respondió ({0}). Aun así puede crear un informe del dispositivo y enviarlo.</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool: no se pudo aplicar el ajuste</value>
   </data>

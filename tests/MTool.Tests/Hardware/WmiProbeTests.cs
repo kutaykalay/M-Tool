@@ -46,7 +46,7 @@ public class WmiProbeTests
     [InlineData(null)]
     public void A_definite_answer_without_wmi1_stops_start_up(WmiInterface? detected)
     {
-        var check = new WmiInterfaceCheck(() => detected);
+        var check = new WmiInterfaceCheck(_ => WmiProbeOutcome.Answered(detected));
 
         var act = () => check.EnsureWmi1(new ListLog());
 
@@ -59,22 +59,22 @@ public class WmiProbeTests
     public void A_probe_that_fails_lets_start_up_continue_as_before()
     {
         var log = new ListLog();
-        var check = new WmiInterfaceCheck(() => throw new EcAccessException("WMI cold, timed out"));
+        var check = new WmiInterfaceCheck(_ => WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.Connect, null)));
 
         var act = () => check.EnsureWmi1(log);
 
         act.Should().NotThrow();
-        log.Lines.Should().ContainSingle().Which.Should().StartWith("WARN").And.Contain("WMI cold");
+        log.Lines.Should().ContainSingle().Which.Should().StartWith("WARN").And.Contain("Connect timeout");
     }
 
     [Fact]
     public void A_confirmed_wmi1_is_not_probed_again()
     {
         var calls = 0;
-        var check = new WmiInterfaceCheck(() =>
+        var check = new WmiInterfaceCheck(_ =>
         {
             calls++;
-            return WmiInterface.Wmi1;
+            return WmiProbeOutcome.Answered(WmiInterface.Wmi1);
         });
 
         check.EnsureWmi1(new ListLog());
@@ -87,12 +87,30 @@ public class WmiProbeTests
     public void A_failed_probe_is_tried_again_next_time()
     {
         var calls = 0;
-        var check = new WmiInterfaceCheck(() => ++calls == 1 ? throw new EcAccessException("cold") : WmiInterface.Wmi1);
+        var check = new WmiInterfaceCheck(_ => ++calls == 1
+            ? WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.QuerySoftware, 0x8004100C))
+            : WmiProbeOutcome.Answered(WmiInterface.Wmi1));
 
         check.EnsureWmi1(new ListLog());
         check.EnsureWmi1(new ListLog());
 
         calls.Should().Be(2);
+    }
+
+    [Fact]
+    public void A_wmi1_found_by_probe_is_not_probed_again_by_the_session()
+    {
+        var budgets = new List<TimeSpan?>();
+        var check = new WmiInterfaceCheck(budget =>
+        {
+            budgets.Add(budget);
+            return WmiProbeOutcome.Answered(WmiInterface.Wmi1);
+        });
+
+        check.Probe(TimeSpan.FromSeconds(5));
+        check.EnsureWmi1(new ListLog());
+
+        budgets.Should().Equal(TimeSpan.FromSeconds(5));
     }
 
     [Fact]

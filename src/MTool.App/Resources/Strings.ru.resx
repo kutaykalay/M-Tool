@@ -201,6 +201,9 @@
   <data name="Probe_MsiCenterOnce" xml:space="preserve">
     <value>Установите MSI Center на этот ноутбук один раз: интерфейс WMI от MSI поставляется вместе с ним. Потом его можно удалить; держать его открытым не нужно.</value>
   </data>
+  <data name="Probe_WmiNotAnswering" xml:space="preserve">
+    <value>Windows WMI не ответил ({0}). Отчёт об устройстве всё равно можно создать и отправить.</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool: не удалось применить настройку</value>
   </data>

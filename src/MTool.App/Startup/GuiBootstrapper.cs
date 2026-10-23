@@ -353,30 +353,30 @@ internal sealed class GuiBootstrapper : IDisposable
         }
 #endif
 
-        try
+        // The probe comes first: no PawnIO question for a model M-Tool cannot read at all. Hybrid only
+        // where writes are verified and PawnIO is installed; elsewhere the session opens WMI only,
+        // without Cooler Boost and the charge limit, and the window says why.
+        var decision = StartupRoute.Decide(
+            WmiInterfaceCheck.Default.Probe,
+            () => EcSession.Open(log, EcBackends.PreferHybrid, accessGate),
+            Thread.Sleep,
+            MsiSoftwareProbe.Default.ReadSchema,
+            log);
+        if (decision.ReportsOnly is { } reportsOnly)
         {
-            // First: no PawnIO question for a model M-Tool cannot read at all.
-            WmiInterfaceCheck.Default.EnsureWmi1(log);
-        }
-        catch (UnsupportedDeviceException ex)
-        {
-            log.Warn($"Unsupported model; reports-only window opened. {ex.LogMessage}");
-            ShowReportsOnly(app, instance, log, ex.Message, ex.Detected, gate => Wmi2LiveSource.Open(gate, log));
+            log.Warn($"Unsupported or unanswered MSI WMI; reports-only window opened. {reportsOnly.LogMessage}");
+            ShowReportsOnly(app, instance, log, reportsOnly.Message, reportsOnly.Detected, gate => Wmi2LiveSource.Open(gate, log));
             return null;
         }
 
-        try
-        {
-            // Hybrid only where writes are verified and PawnIO is installed; elsewhere the session opens
-            // WMI only, without Cooler Boost and the charge limit, and the window says why.
-            return EcSession.Open(log, EcBackends.PreferHybrid, accessGate);
-        }
-        catch (Exception ex)
+        if (decision.SessionError is { } ex)
         {
             log.Error("Could not open the EC session; GUI not opened.", ex);
             StartupProblem(string.Format(Strings.Startup_EcUnreachable, ex.Message, AppPaths.Logs));
             return null;
         }
+
+        return decision.Session;
     }
 
     /// <summary>

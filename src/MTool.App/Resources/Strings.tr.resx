@@ -201,6 +201,9 @@
   <data name="Probe_MsiCenterOnce" xml:space="preserve">
     <value>MSI Center'ı bu dizüstüne bir kez kurun; MSI'ın WMI arayüzü onunla gelir. Sonra kaldırabilirsiniz, açık kalması gerekmez.</value>
   </data>
+  <data name="Probe_WmiNotAnswering" xml:space="preserve">
+    <value>Windows WMI cevap vermedi ({0}). Yine de cihaz raporu oluşturup gönderebilirsiniz.</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool: ayar uygulanamadı</value>
   </data>

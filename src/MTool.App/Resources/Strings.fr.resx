@@ -201,6 +201,9 @@
   <data name="Probe_MsiCenterOnce" xml:space="preserve">
     <value>Installez MSI Center une fois sur cet ordinateur portable : l'interface WMI de MSI est fournie avec lui. Vous pouvez ensuite le désinstaller ; il n'a pas besoin de rester ouvert.</value>
   </data>
+  <data name="Probe_WmiNotAnswering" xml:space="preserve">
+    <value>WMI de Windows n'a pas répondu ({0}). Vous pouvez quand même créer un rapport de l'appareil et l'envoyer.</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool : le réglage n'a pas pu être appliqué</value>
   </data>

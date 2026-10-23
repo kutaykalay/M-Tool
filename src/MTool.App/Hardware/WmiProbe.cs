@@ -40,7 +40,11 @@ internal static class WmiProbe
     /// its own. <c>MSI_ACPI</c> is asked only when <c>MSI_Software</c> answered "absent": WMI1 wins,
     /// and a failed <c>MSI_Software</c> query is never read as WMI2. Never throws.
     /// </summary>
-    public static WmiProbeOutcome DetectDetailed() => DetectDetailed(MsiWmiFields.Connect, HasClass, ProbeBudget);
+    public static WmiProbeOutcome DetectDetailed() => DetectDetailed(ProbeBudget);
+
+    /// <inheritdoc cref="DetectDetailed()"/>
+    /// <param name="budget">For all steps together, instead of the default 2 s.</param>
+    public static WmiProbeOutcome DetectDetailed(TimeSpan budget) => DetectDetailed(MsiWmiFields.Connect, HasClass, budget);
 
     /// <param name="budget">For all steps together; a step gets what the earlier ones left.</param>
     internal static WmiProbeOutcome DetectDetailed<TScope>(Func<TScope> connect, Func<TScope, string, bool> hasClass, TimeSpan budget)
@@ -172,36 +176,45 @@ internal static class WmiProbe
 /// or fails (WMI still starting at log-on) is logged and the session opens as it did before the
 /// probe existed, failing there if WMI1 really is missing. A confirmed WMI1 is not probed again.
 /// </summary>
-internal sealed class WmiInterfaceCheck(Func<WmiInterface?> detect)
+/// <param name="detect">The probe with its time budget.</param>
+internal sealed class WmiInterfaceCheck(Func<TimeSpan?, WmiProbeOutcome> detect)
 {
     private volatile bool _wmi1Confirmed;
 
-    public static WmiInterfaceCheck Default { get; } = new(WmiProbe.Detect);
+    public static WmiInterfaceCheck Default { get; } =
+        new(budget => budget is { } b ? WmiProbe.DetectDetailed(b) : WmiProbe.DetectDetailed());
+
+    /// <summary>The probe's answer; a WMI1 answer is remembered, so the session that follows does not probe again.</summary>
+    /// <param name="budget">Null for the probe's default.</param>
+    public WmiProbeOutcome Probe(TimeSpan? budget = null)
+    {
+        if (_wmi1Confirmed)
+        {
+            return WmiProbeOutcome.Answered(WmiInterface.Wmi1);
+        }
+
+        var outcome = detect(budget);
+        if (outcome is { Failure: null, Interface: WmiInterface.Wmi1 })
+        {
+            _wmi1Confirmed = true;
+        }
+
+        return outcome;
+    }
 
     /// <exception cref="UnsupportedDeviceException">The probe answered: WMI2 only, or no MSI WMI at all.</exception>
     public void EnsureWmi1(IAppLog log)
     {
-        if (_wmi1Confirmed)
+        var outcome = Probe();
+        if (outcome.Failure is { } failure)
         {
+            log.Warn($"MSI WMI interface not detected ({failure}), trying to open the session anyway.");
             return;
         }
 
-        WmiInterface? detected;
-        try
-        {
-            detected = detect();
-        }
-        catch (EcAccessException ex)
-        {
-            log.Warn($"MSI WMI interface not detected, trying to open the session anyway: {ex.ForLog()}");
-            return;
-        }
-
-        if (detected != WmiInterface.Wmi1)
+        if (outcome.Interface is not WmiInterface.Wmi1 and var detected)
         {
             throw new UnsupportedDeviceException(WmiProbe.UnsupportedMessage(detected), WmiProbe.UnsupportedLogMessage(detected), detected);
         }
-
-        _wmi1Confirmed = true;
     }
 }

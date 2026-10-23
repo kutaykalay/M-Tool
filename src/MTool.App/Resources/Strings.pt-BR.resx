@@ -201,6 +201,9 @@
   <data name="Probe_MsiCenterOnce" xml:space="preserve">
     <value>Instale o MSI Center uma vez neste notebook: a interface WMI da MSI vem com ele. Depois você pode desinstalá-lo; ele não precisa ficar aberto.</value>
   </data>
+  <data name="Probe_WmiNotAnswering" xml:space="preserve">
+    <value>O WMI do Windows não respondeu ({0}). Você ainda pode criar um relatório do dispositivo e enviá-lo.</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool: não foi possível aplicar a configuração</value>
   </data>
