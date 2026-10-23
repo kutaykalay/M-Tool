@@ -198,6 +198,9 @@
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Этот компьютер пока не поддерживается: интерфейс MSI WMI ({0} или {1} в root\WMI) не найден.</value>
   </data>
+  <data name="Probe_MsiCenterOnce" xml:space="preserve">
+    <value>Установите MSI Center на этот ноутбук один раз: интерфейс WMI от MSI поставляется вместе с ним. Потом его можно удалить; держать его открытым не нужно.</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool: не удалось применить настройку</value>
   </data>

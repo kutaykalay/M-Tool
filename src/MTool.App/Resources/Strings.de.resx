@@ -198,6 +198,9 @@
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Dieser Computer wird noch nicht unterstützt: Die MSI-WMI-Schnittstelle ({0} oder {1} in root\WMI) wurde nicht gefunden.</value>
   </data>
+  <data name="Probe_MsiCenterOnce" xml:space="preserve">
+    <value>Installieren Sie MSI Center einmalig auf diesem Laptop: Die WMI-Schnittstelle von MSI wird damit mitgeliefert. Sie können es danach deinstallieren; es muss nicht geöffnet bleiben.</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool: Einstellung konnte nicht angewendet werden</value>
   </data>

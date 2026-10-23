@@ -198,6 +198,9 @@
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Bu bilgisayar henüz desteklenmiyor: MSI WMI arayüzü (root\WMI içinde {0} ya da {1}) bulunamadı.</value>
   </data>
+  <data name="Probe_MsiCenterOnce" xml:space="preserve">
+    <value>MSI Center'ı bu dizüstüne bir kez kurun; MSI'ın WMI arayüzü onunla gelir. Sonra kaldırabilirsiniz, açık kalması gerekmez.</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool: ayar uygulanamadı</value>
   </data>

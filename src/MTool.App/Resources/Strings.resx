@@ -260,6 +260,10 @@
     <value>This computer is not supported yet: the MSI WMI interface ({0} or {1} in root\WMI) was not found.</value>
     <comment>Error box. {0} and {1} are WMI class names: copy them unchanged.</comment>
   </data>
+  <data name="Probe_MsiCenterOnce" xml:space="preserve">
+    <value>Install MSI Center on this laptop once: MSI's WMI interface comes with it. You can uninstall it afterwards; it does not need to stay open.</value>
+    <comment>Hint line. MSI Center and WMI are names: keep them. M-Tool is the app name.</comment>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool: setting could not be applied</value>
     <comment>Title of the error balloon shown when writing a setting failed. Keep M-Tool.</comment>

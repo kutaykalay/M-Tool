@@ -198,6 +198,9 @@
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Este equipo aún no es compatible: no se encontró la interfaz WMI de MSI ({0} o {1} en root\WMI).</value>
   </data>
+  <data name="Probe_MsiCenterOnce" xml:space="preserve">
+    <value>Instale MSI Center una vez en este portátil: la interfaz WMI de MSI viene con él. Después puede desinstalarlo; no hace falta que permanezca abierto.</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool: no se pudo aplicar el ajuste</value>
   </data>

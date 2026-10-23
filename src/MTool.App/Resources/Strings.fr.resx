@@ -198,6 +198,9 @@
   <data name="Probe_UnsupportedNoWmi" xml:space="preserve">
     <value>Cet ordinateur n'est pas encore pris en charge : l'interface WMI de MSI ({0} ou {1} dans root\WMI) est introuvable.</value>
   </data>
+  <data name="Probe_MsiCenterOnce" xml:space="preserve">
+    <value>Installez MSI Center une fois sur cet ordinateur portable : l'interface WMI de MSI est fournie avec lui. Vous pouvez ensuite le désinstaller ; il n'a pas besoin de rester ouvert.</value>
+  </data>
   <data name="Status_FailureTitle" xml:space="preserve">
     <value>M-Tool : le réglage n'a pas pu être appliqué</value>
   </data>
