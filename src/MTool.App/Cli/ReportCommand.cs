@@ -13,9 +13,13 @@ internal interface IReportSources
 {
     SystemInfo ReadSystem();
 
-    WmiInterface? ReadInterface();
+    /// <summary>The probe itself never throws; it answers a failure with its step and code.</summary>
+    WmiProbeOutcome ReadInterface();
 
     IReadOnlyList<WmiClassInfo> ReadClasses();
+
+    /// <summary>Read-only: the MSI WMI schema registration and MSI's software; never throws for the system's sake.</summary>
+    MsiInfo ReadMsi();
 
     byte[] ReadDsdt();
 
@@ -40,6 +44,9 @@ internal static class ReportCommand
 
     private const string TempSuffix = ".tmp";
 
+    /// <summary>E_FAIL, for an exception that carries no HRESULT of its own.</summary>
+    private const uint EFail = 0x80004005;
+
     /// <summary>A broken character in a firmware string becomes U+FFFD; it must not fail the whole report.</summary>
     private static readonly UTF8Encoding LenientUtf8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: false);
 
@@ -62,10 +69,10 @@ internal static class ReportCommand
     public static ReportData Collect(
         IReportSources sources, string appVersion, DateTimeOffset at, Action<string> warn, bool includeWmi2 = false, bool includeDsdt = true)
     {
-        var wmi = Read("MSI WMI interface", sources.ReadInterface, warn);
+        var wmi = ReadInterface(sources, warn);
         var dsdt = includeDsdt ? Read("DSDT", sources.ReadDsdt, warn) : Section.Failed<byte[]>("not read: not needed");
-        var ec = !wmi.IsOk ? Section.Failed<EcReadout>("not read: MSI WMI interface unknown")
-            : wmi.Value switch
+        var ec = wmi.Status != WmiProbeStatus.Ok ? Section.Failed<EcReadout>("not read: MSI WMI interface unknown")
+            : wmi.Interface switch
             {
                 WmiInterface.Wmi1 => Read("EC", sources.ReadEc, warn),
                 WmiInterface.Wmi2 => Section.Failed<EcReadout>("not read: M-Tool reads the EC only through WMI1 so far"),
@@ -78,16 +85,54 @@ internal static class ReportCommand
             Read("system information", sources.ReadSystem, warn),
             wmi,
             Read("MSI classes", sources.ReadClasses, warn),
+            ReadMsi(sources, warn),
             dsdt.IsOk ? Section.Ok(dsdt.Value!.Length) : Section.Failed<int>(dsdt.Error!),
             ec,
             includeWmi2 ? Wmi2(sources, wmi, warn) : null);
         return new ReportData(input, dsdt.Value);
     }
 
-    private static Section<Wmi2Readout> Wmi2(IReportSources sources, Section<WmiInterface?> wmi, Action<string> warn) =>
-        wmi is { IsOk: true, Value: WmiInterface.Wmi2 }
+    private static Section<Wmi2Readout> Wmi2(IReportSources sources, WmiProbeOutcome wmi, Action<string> warn) =>
+        wmi is { Status: WmiProbeStatus.Ok, Interface: WmiInterface.Wmi2 }
             ? Read("WMI2 packets", sources.ReadWmi2, warn)
-            : Section.Failed<Wmi2Readout>(wmi.IsOk ? "not read: this computer has no WMI2 interface" : "not read: MSI WMI interface unknown");
+            : Section.Failed<Wmi2Readout>(wmi.Status == WmiProbeStatus.Ok
+                ? "not read: this computer has no WMI2 interface"
+                : "not read: MSI WMI interface unknown");
+
+    /// <summary>A source that throws all the same (a bug) is written as a failed connect with the exception's HRESULT.</summary>
+    private static WmiProbeOutcome ReadInterface(IReportSources sources, Action<string> warn)
+    {
+        WmiProbeOutcome probe;
+        try
+        {
+            probe = sources.ReadInterface();
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            warn($"Report: MSI WMI interface unreadable: {ex.ForLog()}");
+            return WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.Connect, ex.HResult == 0 ? EFail : unchecked((uint)ex.HResult)));
+        }
+
+        if (probe.Failure is { } failure)
+        {
+            warn($"Report: MSI WMI interface unknown: {failure}");
+        }
+
+        return probe;
+    }
+
+    private static MsiInfo ReadMsi(IReportSources sources, Action<string> warn)
+    {
+        try
+        {
+            return sources.ReadMsi();
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            warn($"Report: MSI schema and software unreadable: {ex.ForLog()}");
+            return MsiInfo.Unknown;
+        }
+    }
 
     /// <returns>The zip's path.</returns>
     /// <exception cref="IOException">The zip could not be written (it already exists, the disk is full); no partial file is left.</exception>

@@ -45,14 +45,24 @@ public sealed record FieldReadout(byte Register, string Field, byte? Value);
 public sealed record EcReadout(
     FirmwareInfo? Firmware, DeviceMatch Match, string LayoutId, DeviceCapabilities Capabilities, FieldScan Fields);
 
+/// <summary>Where Windows takes MSI's WMI classes from, and whether MSI's own software is there.</summary>
+public sealed record MsiInfo(MsiSchemaInfo Schema, MsiSoftwareInfo Software)
+{
+    /// <summary>For a read that failed outright: nothing is known.</summary>
+    public static MsiInfo Unknown { get; } = new(
+        new MsiSchemaInfo(MofImagePathState.Unreadable, SchemaFileState.Unknown, SchemaSignature.Unknown), new MsiSoftwareInfo(null, null));
+}
+
 /// <param name="Computer">SMBIOS and Windows.</param>
+/// <param name="Interface">The probe's answer; when WMI did not answer, the step that failed and its code.</param>
 /// <param name="Wmi2">The raw WMI2 packets; null when not asked for (<c>--report --wmi2</c>).</param>
 public sealed record DeviceReportInput(
     string AppVersion,
     DateTimeOffset At,
     Section<SystemInfo> Computer,
-    Section<WmiInterface?> Interface,
+    WmiProbeOutcome Interface,
     Section<IReadOnlyList<WmiClassInfo>> Classes,
+    MsiInfo Msi,
     Section<int> DsdtBytes,
     Section<EcReadout> Ec,
     Section<Wmi2Readout>? Wmi2 = null);

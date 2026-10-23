@@ -51,10 +51,16 @@ public static class DeviceReport
     {
         text.AppendLine()
             .AppendLine("[MSI WMI]")
-            .AppendLine(Line("Interface", Describe(input.Interface, Name)));
-        if (input.Classes.Value is not { } classes)
+            .AppendLine(Line("Interface", Name(input.Interface)));
+        AppendClasses(text, input.Classes);
+        AppendMsi(text, input.Msi, input.Interface);
+    }
+
+    private static void AppendClasses(StringBuilder text, Section<IReadOnlyList<WmiClassInfo>> section)
+    {
+        if (section.Value is not { } classes)
         {
-            text.AppendLine(Line("Classes", $"not read ({input.Classes.Error})"));
+            text.AppendLine(Line("Classes", $"not read ({section.Error})"));
             return;
         }
 
@@ -64,6 +70,26 @@ public static class DeviceReport
             text.AppendLine($"  {c.Name}: {string.Join(", ", c.Properties)}");
         }
     }
+
+    /// <summary>The hint only when no interface was found: a working WMI1 or WMI2 needs no MSI Center.</summary>
+    private static void AppendMsi(StringBuilder text, MsiInfo msi, WmiProbeOutcome probe)
+    {
+        var schema = msi.Schema;
+        text.AppendLine(Line("Schema", $"registration {DiagnosticWords.Registration(schema.MofImagePath)}, " +
+                $"file {DiagnosticWords.File(schema.File)}, signer {DiagnosticWords.Signature(schema.Signature)}"))
+            .AppendLine(Line("MSI software", $"installed {YesNo(msi.Software.Installed)}, running {YesNo(msi.Software.Running)}"));
+        if (schema.SchemaMissing && probe.Interface is null)
+        {
+            text.AppendLine(Line("Hint", "install MSI Center once: MSI's WMI interface comes with it. It can be uninstalled afterwards."));
+        }
+    }
+
+    private static string YesNo(bool? value) => value switch
+    {
+        true => "yes",
+        false => "no",
+        null => "unknown",
+    };
 
     private static void AppendEc(StringBuilder text, Section<EcReadout> section)
     {
@@ -95,7 +121,7 @@ public static class DeviceReport
     /// <summary>Only on a WMI2 laptop, or when asked for: the raw packets, then a cautious reading of them.</summary>
     private static void AppendWmi2(StringBuilder text, DeviceReportInput input)
     {
-        if (input.Wmi2 is null && input.Interface.Value != WmiInterface.Wmi2)
+        if (input.Wmi2 is null && input.Interface.Interface != WmiInterface.Wmi2)
         {
             return;
         }
@@ -176,10 +202,12 @@ public static class DeviceReport
         return $"{string.Join(", ", names.OfType<string>())}; modes {string.Join(", ", c.PerformanceModes)}";
     }
 
-    private static string Name(WmiInterface? wmi) => wmi switch
+    /// <summary>"none" only when WMI answered without an MSI class; a probe that failed is "unknown" with its step and code.</summary>
+    private static string Name(WmiProbeOutcome probe) => probe switch
     {
-        WmiInterface.Wmi1 => "WMI1",
-        WmiInterface.Wmi2 => "WMI2",
+        { Failure: { } failure } => $"unknown ({failure})",
+        { Interface: WmiInterface.Wmi1 } => "WMI1",
+        { Interface: WmiInterface.Wmi2 } => "WMI2",
         _ => "none",
     };
 

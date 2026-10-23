@@ -36,7 +36,13 @@ internal sealed class ReportService(
     {
         try
         {
-            return sources.ReadInterface() == WmiInterface.Wmi2;
+            var probe = sources.ReadInterface();
+            if (probe.Failure is { } failure)
+            {
+                log.Warn($"Report: could not tell whether this laptop has WMI2: {failure}");
+            }
+
+            return probe.Interface == WmiInterface.Wmi2;
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {

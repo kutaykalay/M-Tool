@@ -23,6 +23,10 @@ public sealed class ReportCommandTests : IDisposable
 
         public bool ProbeFails { get; init; }
 
+        public bool ProbeThrows { get; init; }
+
+        public bool MsiThrows { get; init; }
+
         public bool DsdtFails { get; init; }
 
         public bool SystemFails { get; init; }
@@ -37,7 +41,12 @@ public sealed class ReportCommandTests : IDisposable
             ? throw new InvalidOperationException("WMI yok")
             : new SystemInfo("MSI", "P65 Creator 9SE", "MS-16Q4", "E16Q4IMS.10D", "2019-05-13", "i7-9750H", "Windows 11");
 
-        public WmiInterface? ReadInterface() => ProbeFails ? throw new TimeoutException("zaman aşımı") : Wmi;
+        public WmiProbeOutcome ReadInterface() =>
+            ProbeThrows ? throw new TimeoutException("zaman aşımı")
+            : ProbeFails ? WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.QuerySoftware, 0x8004100C))
+            : WmiProbeOutcome.Answered(Wmi);
+
+        public MsiInfo ReadMsi() => MsiThrows ? throw new InvalidOperationException("kayıt defteri yok") : MsiInfo.Unknown;
 
         public IReadOnlyList<WmiClassInfo> ReadClasses() =>
             ClassesFail ? throw new InvalidOperationException("sınıf yok") : [new WmiClassInfo("MSI_CPU", ["CPU"])];
@@ -97,7 +106,7 @@ public sealed class ReportCommandTests : IDisposable
         var data = Collect(new FakeSources());
 
         data.Input.Computer.Value!.Model.Should().Be("P65 Creator 9SE");
-        data.Input.Interface.Value.Should().Be(WmiInterface.Wmi1);
+        data.Input.Interface.Should().Be(WmiProbeOutcome.Answered(WmiInterface.Wmi1));
         data.Input.Classes.Value.Should().ContainSingle().Which.Name.Should().Be("MSI_CPU");
         data.Input.DsdtBytes.Value.Should().Be(DsdtBytes.Length);
         data.Input.Ec.IsOk.Should().BeTrue();
@@ -161,8 +170,34 @@ public sealed class ReportCommandTests : IDisposable
         var data = Collect(sources);
 
         sources.EcReads.Should().Be(0);
-        data.Input.Interface.Error.Should().Contain("zaman aşımı");
+        data.Input.Interface.Failure.Should().Be(new WmiFailure(WmiProbeStage.QuerySoftware, 0x8004100C));
         data.Input.Ec.Error.Should().Contain("interface unknown");
+    }
+
+    [Fact]
+    public void An_msi_read_that_throws_is_unknown_and_the_report_goes_on()
+    {
+        var warnings = new List<string>();
+
+        var data = ReportCommand.Collect(new FakeSources { MsiThrows = true }, "0.9.0", DateTimeOffset.UnixEpoch, warnings.Add);
+
+        data.Input.Msi.Should().Be(MsiInfo.Unknown);
+        data.Input.Ec.IsOk.Should().BeTrue();
+        warnings.Should().Contain(w => w.Contains("kayıt defteri yok"));
+    }
+
+    [Fact]
+    public void A_probe_that_throws_all_the_same_is_a_failed_connect_and_leaves_the_ec_alone()
+    {
+        var sources = new FakeSources { ProbeThrows = true };
+        var warnings = new List<string>();
+
+        var data = ReportCommand.Collect(sources, "0.9.0", DateTimeOffset.UnixEpoch, warnings.Add);
+
+        sources.EcReads.Should().Be(0);
+        data.Input.Interface.Failure!.Stage.Should().Be(WmiProbeStage.Connect);
+        data.Input.Interface.Failure.Code.Should().Be(unchecked((uint)new TimeoutException().HResult));
+        warnings.Should().Contain(w => w.Contains("zaman aşımı"));
     }
 
     [Fact]

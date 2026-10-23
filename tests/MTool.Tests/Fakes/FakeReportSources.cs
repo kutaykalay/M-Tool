@@ -48,11 +48,13 @@ internal sealed class FakeReportSources : IReportSources
             : new SystemInfo("MSI", Model, "MS-16Q4", "E16Q4IMS.10D", "2019-05-13", "i7-9750H", Windows);
     }
 
-    public WmiInterface? ReadInterface()
+    public WmiProbeOutcome ReadInterface()
     {
         InterfaceReads++;
-        return ProbeFails ? throw new TimeoutException("zaman aşımı") : Wmi;
+        return ProbeFails ? WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.Connect, null)) : WmiProbeOutcome.Answered(Wmi);
     }
+
+    public MsiInfo ReadMsi() => MsiInfo.Unknown;
 
     public IReadOnlyList<WmiClassInfo> Classes { get; init; } = [new WmiClassInfo("MSI_CPU", ["CPU"])];
 

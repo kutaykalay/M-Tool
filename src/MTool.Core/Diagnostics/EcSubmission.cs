@@ -8,15 +8,15 @@ using MTool.Core.Device.Config;
 namespace MTool.Core.Diagnostics;
 
 /// <summary>
-/// What "Send EC data" sends: the report's read-only data as JSON (schema version 1), written once so
+/// What "Send EC data" sends: the report's read-only data as JSON (schema version 2), written once so
 /// the preview and the request body are the same bytes. The server checks the same schema
-/// (<c>tests/MTool.Tests/Contracts/ec-submission-v1.sample.json</c> is the contract).
+/// (<c>tests/MTool.Tests/Contracts/ec-submission-v2.sample.json</c> is the contract).
 /// What it leaves out on purpose: the DSDT, the time, the language, any error message or path, and
 /// every name of the user or the computer. A part that could not be read is a fixed code, never text.
 /// </summary>
 public static class EcSubmission
 {
-    public const int SchemaVersion = 1;
+    public const int SchemaVersion = 2;
 
     /// <summary>The server refuses larger bodies; M-Tool does not send them.</summary>
     public const int MaxBytes = 32 * 1024;
@@ -46,6 +46,7 @@ public static class EcSubmission
             json.WriteEndObject();
             WriteSystem(json, input.Computer.Value, text);
             WriteWmi(json, input, text);
+            WriteMsi(json, input.Msi);
             WriteEc(json, input, text);
             WriteWmi2(json, input.Wmi2, text);
             json.WriteEndObject();
@@ -71,6 +72,9 @@ public static class EcSubmission
     {
         json.WriteStartObject("wmi");
         json.WriteString("interface", InterfaceName(input.Interface));
+        json.WriteString("interfaceStatus", DiagnosticWords.Status(input.Interface.Status));
+        WriteFailure(json, input.Interface.Failure);
+        json.WriteString("classesStatus", input.Classes.IsOk ? "ok" : "failed");
         json.WriteStartArray("classes");
         foreach (var info in input.Classes.Value ?? [])
         {
@@ -90,11 +94,53 @@ public static class EcSubmission
         json.WriteEndObject();
     }
 
+    /// <summary>The step and the number only: Windows' message never goes.</summary>
+    private static void WriteFailure(Utf8JsonWriter json, WmiFailure? failure)
+    {
+        if (failure is null)
+        {
+            json.WriteNull("failure");
+            return;
+        }
+
+        json.WriteStartObject("failure");
+        json.WriteString("stage", DiagnosticWords.Stage(failure.Stage));
+        json.WriteString("code", failure.TimedOut ? null : failure.CodeText);
+        json.WriteEndObject();
+    }
+
+    private static void WriteMsi(Utf8JsonWriter json, MsiInfo msi)
+    {
+        json.WriteStartObject("msi");
+        json.WriteStartObject("schema");
+        json.WriteString("registration", DiagnosticWords.Registration(msi.Schema.MofImagePath));
+        json.WriteString("file", DiagnosticWords.File(msi.Schema.File));
+        json.WriteString("signature", DiagnosticWords.Signature(msi.Schema.Signature));
+        json.WriteEndObject();
+        json.WriteStartObject("software");
+        WriteFlag(json, "installed", msi.Software.Installed);
+        WriteFlag(json, "running", msi.Software.Running);
+        json.WriteEndObject();
+        json.WriteEndObject();
+    }
+
+    private static void WriteFlag(Utf8JsonWriter json, string name, bool? value)
+    {
+        if (value is { } flag)
+        {
+            json.WriteBoolean(name, flag);
+        }
+        else
+        {
+            json.WriteNull(name);
+        }
+    }
+
     private static void WriteEc(Utf8JsonWriter json, DeviceReportInput input, Cleaner text)
     {
         var ec = input.Ec.Value;
         json.WriteStartObject("ec");
-        json.WriteString("status", ec is not null ? "ok" : input.Interface.Value == WmiInterface.Wmi1 ? "failed" : "not_read");
+        json.WriteString("status", ec is not null ? "ok" : input.Interface.Interface == WmiInterface.Wmi1 ? "failed" : "not_read");
         json.WriteString("firmware", text.Clean(ec?.Firmware?.Version));
         json.WriteString("firmwareDate", text.Clean(ec?.Firmware?.Date));
         json.WriteStartObject("match");
@@ -135,12 +181,15 @@ public static class EcSubmission
         json.WriteEndObject();
     }
 
-    private static string InterfaceName(Section<WmiInterface?> wmi) => wmi.Value switch
+    /// <summary>"none" only when WMI answered without an MSI class; a probe that failed is "unknown".</summary>
+    private static string InterfaceName(WmiProbeOutcome probe) => probe switch
     {
-        WmiInterface.Wmi1 => "WMI1",
-        WmiInterface.Wmi2 => "WMI2",
+        { Failure: not null } => "unknown",
+        { Interface: WmiInterface.Wmi1 } => "WMI1",
+        { Interface: WmiInterface.Wmi2 } => "WMI2",
         _ => "none",
     };
+
 
     private static string Hex(byte value) => "0x" + Hex2(value);
 

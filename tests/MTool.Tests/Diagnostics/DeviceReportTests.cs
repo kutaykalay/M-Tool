@@ -30,8 +30,9 @@ public class DeviceReportTests
         AppVersion: "0.9.0+abc",
         At: At,
         Computer: Section.Ok(P65System),
-        Interface: Section.Ok(wmi),
+        Interface: WmiProbeOutcome.Answered(wmi),
         Classes: Section.Ok<IReadOnlyList<WmiClassInfo>>([new WmiClassInfo("MSI_CPU", ["CPU", "InstanceName"]), new WmiClassInfo("MSI_VGA", ["VGA"])]),
+        Msi: new MsiInfo(new MsiSchemaInfo(MofImagePathState.Set, SchemaFileState.Exists, SchemaSignature.Unsigned), new MsiSoftwareInfo(true, false)),
         DsdtBytes: dsdt ?? Section.Ok(240_896),
         Ec: ec ?? Section.Ok(P65Ec));
 
@@ -95,15 +96,65 @@ public class DeviceReportTests
     }
 
     [Fact]
-    public void A_failed_wmi_probe_is_reported()
+    public void A_failed_wmi_probe_is_reported_with_its_step_and_code()
     {
-        var input = Input() with { Interface = Section.Failed<WmiInterface?>("WMI zaman aşımı"), Classes = Section.Failed<IReadOnlyList<WmiClassInfo>>("WMI zaman aşımı") };
+        var input = Input() with
+        {
+            Interface = WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.QuerySoftware, 0x8004100C)),
+            Classes = Section.Failed<IReadOnlyList<WmiClassInfo>>("WMI zaman aşımı"),
+        };
 
         var text = DeviceReport.Format(input, privateWords: []);
 
-        text.Should().Contain("Interface    : not read (WMI zaman aşımı)")
+        text.Should().Contain("Interface    : unknown (QuerySoftware 0x8004100C)")
             .And.Contain("Classes      : not read (WMI zaman aşımı)");
     }
+
+    [Fact]
+    public void A_probe_that_timed_out_says_so()
+    {
+        var input = Input() with { Interface = WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.Connect, null)) };
+
+        DeviceReport.Format(input, privateWords: []).Should().Contain("Interface    : unknown (Connect timeout)");
+    }
+
+    [Fact]
+    public void Lists_the_msi_schema_and_software()
+    {
+        var text = DeviceReport.Format(Input(), privateWords: []);
+
+        text.Should().Contain("Schema       : registration set, file exists, signer unsigned")
+            .And.Contain("MSI software : installed yes, running no")
+            .And.NotContain("Hint");
+    }
+
+    [Fact]
+    public void A_missing_schema_comes_with_the_msi_center_hint()
+    {
+        var input = Input(wmi: null) with { Msi = NoSchema };
+
+        var text = DeviceReport.Format(input, privateWords: []);
+
+        text.Should().Contain("Schema       : registration not_set, file unknown, signer unknown")
+            .And.Contain("MSI software : installed unknown, running unknown")
+            .And.Contain("Hint         : install MSI Center once");
+    }
+
+    [Fact]
+    public void A_probe_that_failed_with_no_schema_gets_the_hint_too() =>
+        DeviceReport.Format(
+                Input() with { Msi = NoSchema, Interface = WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.Connect, 0x80041003)) },
+                privateWords: [])
+            .Should().Contain("Hint         : install MSI Center once");
+
+    [Theory]
+    [InlineData(WmiInterface.Wmi1)]
+    [InlineData(WmiInterface.Wmi2)]
+    public void A_working_interface_gets_no_msi_center_hint(WmiInterface wmi) =>
+        DeviceReport.Format(Input(wmi) with { Msi = NoSchema }, privateWords: []).Should().NotContain("Hint");
+
+    private static readonly MsiInfo NoSchema = new(
+        new MsiSchemaInfo(MofImagePathState.NotSet, SchemaFileState.Unknown, SchemaSignature.Unknown), new MsiSoftwareInfo(null, null));
 
     [Fact]
     public void Masks_the_user_and_machine_names_wherever_they_appear()

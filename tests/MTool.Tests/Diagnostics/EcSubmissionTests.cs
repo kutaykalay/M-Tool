@@ -24,17 +24,23 @@ public sealed class EcSubmissionTests
         TestLayouts.P65.Capabilities,
         new FieldScan(fields, 0));
 
+    /// <summary>What the P65 has: the schema DLL is registered and there but unsigned; Battery Calibration is MSI's.</summary>
+    private static readonly MsiInfo P65Msi = new(
+        new MsiSchemaInfo(MofImagePathState.Set, SchemaFileState.Exists, SchemaSignature.Unsigned), new MsiSoftwareInfo(true, false));
+
     private static DeviceReportInput Input(
         Section<SystemInfo>? system = null,
-        Section<WmiInterface?>? wmi = null,
+        WmiProbeOutcome? wmi = null,
         Section<EcReadout>? ec = null,
         Section<Wmi2Readout>? wmi2 = null,
-        Section<IReadOnlyList<WmiClassInfo>>? classes = null) => new(
+        Section<IReadOnlyList<WmiClassInfo>>? classes = null,
+        MsiInfo? msi = null) => new(
             "0.12.0-beta.1+abc1234",
             new DateTimeOffset(2026, 10, 14, 9, 30, 0, TimeSpan.FromHours(3)),
             system ?? Section.Ok(P65System),
-            wmi ?? Section.Ok<WmiInterface?>(WmiInterface.Wmi1),
+            wmi ?? WmiProbeOutcome.Answered(WmiInterface.Wmi1),
             classes ?? Section.Ok(P65Classes),
+            msi ?? P65Msi,
             Section.Ok(240_000),
             ec ?? Section.Ok(P65Ec(new FieldReadout(0x68, "MSI_CPU[1]", 0x2D), new FieldReadout(0x71, "MSI_CPU[3]", null))),
             wmi2);
@@ -46,7 +52,7 @@ public sealed class EcSubmissionTests
     [Fact]
     public void The_payload_is_byte_for_byte_the_contract_sample()
     {
-        var sample = File.ReadAllText(Path.Combine(RepoFiles.Root, "tests", "MTool.Tests", "Contracts", "ec-submission-v1.sample.json"));
+        var sample = File.ReadAllText(Path.Combine(RepoFiles.Root, "tests", "MTool.Tests", "Contracts", "ec-submission-v2.sample.json"));
 
         Json(Input()).Should().Be(sample.ReplaceLineEndings("\n").TrimEnd('\n'));
     }
@@ -58,7 +64,7 @@ public sealed class EcSubmissionTests
     [Fact]
     public void The_wmi2_payload_is_byte_for_byte_the_wmi2_contract_sample()
     {
-        var sample = File.ReadAllText(Path.Combine(RepoFiles.Root, "tests", "MTool.Tests", "Contracts", "ec-submission-v1-wmi2.sample.json"));
+        var sample = File.ReadAllText(Path.Combine(RepoFiles.Root, "tests", "MTool.Tests", "Contracts", "ec-submission-v2-wmi2.sample.json"));
 
         Json(Wmi2Input()).Should().Be(sample.ReplaceLineEndings("\n").TrimEnd('\n'));
     }
@@ -78,7 +84,7 @@ public sealed class EcSubmissionTests
         });
         return Input(
             system: Section.Ok(P65System with { Model = "Katana GF66 11UE", BaseBoard = "MS-1581" }),
-            wmi: Section.Ok<WmiInterface?>(WmiInterface.Wmi2),
+            wmi: WmiProbeOutcome.Answered(WmiInterface.Wmi2),
             classes: Section.Ok<IReadOnlyList<WmiClassInfo>>([new WmiClassInfo("MSI_ACPI", [])]),
             ec: Section.Failed<EcReadout>("not read: M-Tool reads the EC only through WMI1 so far"),
             wmi2: Section.Ok(new Wmi2Readout(calls.ToList())));
@@ -127,7 +133,7 @@ public sealed class EcSubmissionTests
     [InlineData(null, "none")]
     public void Without_WMI1_the_EC_is_not_read(WmiInterface? wmi, string name)
     {
-        var root = Parse(Json(Input(wmi: Section.Ok(wmi), ec: Section.Failed<EcReadout>("not read: no WMI1"))));
+        var root = Parse(Json(Input(wmi: WmiProbeOutcome.Answered(wmi), ec: Section.Failed<EcReadout>("not read: no WMI1"))));
 
         root.GetProperty("wmi").GetProperty("interface").GetString().Should().Be(name);
         var ec = root.GetProperty("ec");
@@ -139,18 +145,92 @@ public sealed class EcSubmissionTests
     }
 
     [Fact]
-    public void An_interface_that_could_not_be_probed_is_none_and_the_EC_not_read()
+    public void An_interface_that_could_not_be_probed_is_unknown_with_its_stage_and_code()
     {
-        var root = Parse(Json(Input(wmi: Section.Failed<WmiInterface?>("timeout"), ec: Section.Failed<EcReadout>("not read"))));
+        var probe = WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.QuerySoftware, 0x8004100C));
 
-        root.GetProperty("wmi").GetProperty("interface").GetString().Should().Be("none");
+        var root = Parse(Json(Input(wmi: probe, ec: Section.Failed<EcReadout>("not read"))));
+
+        var wmi = root.GetProperty("wmi");
+        wmi.GetProperty("interface").GetString().Should().Be("unknown", "\"none\" means WMI answered without an MSI class");
+        wmi.GetProperty("interfaceStatus").GetString().Should().Be("failed");
+        wmi.GetProperty("failure").GetProperty("stage").GetString().Should().Be("query_software");
+        wmi.GetProperty("failure").GetProperty("code").GetString().Should().Be("0x8004100C");
         root.GetProperty("ec").GetProperty("status").GetString().Should().Be("not_read");
     }
 
+    [Theory]
+    [InlineData(WmiProbeStage.Connect, "connect")]
+    [InlineData(WmiProbeStage.QuerySoftware, "query_software")]
+    [InlineData(WmiProbeStage.QueryAcpi, "query_acpi")]
+    public void A_probe_that_timed_out_has_no_code(WmiProbeStage stage, string name)
+    {
+        var wmi = Parse(Json(Input(wmi: WmiProbeOutcome.Failed(new WmiFailure(stage, null))))).GetProperty("wmi");
+
+        wmi.GetProperty("interfaceStatus").GetString().Should().Be("timeout");
+        wmi.GetProperty("failure").GetProperty("stage").GetString().Should().Be(name);
+        wmi.GetProperty("failure").GetProperty("code").ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
     [Fact]
-    public void Classes_that_could_not_be_read_are_an_empty_list() =>
-        Parse(Json(Input(classes: Section.Failed<IReadOnlyList<WmiClassInfo>>("access denied"))))
-            .GetProperty("wmi").GetProperty("classes").GetArrayLength().Should().Be(0);
+    public void A_probe_that_answered_has_no_failure()
+    {
+        var wmi = Parse(Json(Input(wmi: WmiProbeOutcome.Answered(null)))).GetProperty("wmi");
+
+        wmi.GetProperty("interface").GetString().Should().Be("none");
+        wmi.GetProperty("interfaceStatus").GetString().Should().Be("ok");
+        wmi.GetProperty("failure").ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
+    [Fact]
+    public void Classes_that_could_not_be_read_are_an_empty_list_marked_failed()
+    {
+        var wmi = Parse(Json(Input(classes: Section.Failed<IReadOnlyList<WmiClassInfo>>("access denied")))).GetProperty("wmi");
+
+        wmi.GetProperty("classesStatus").GetString().Should().Be("failed");
+        wmi.GetProperty("classes").GetArrayLength().Should().Be(0);
+    }
+
+    [Fact]
+    public void No_class_is_an_empty_list_that_was_read() =>
+        Parse(Json(Input(classes: Section.Ok<IReadOnlyList<WmiClassInfo>>([])))).GetProperty("wmi")
+            .GetProperty("classesStatus").GetString().Should().Be("ok");
+
+    [Fact]
+    public void A_missing_schema_and_unknown_software_are_fixed_words_and_nulls()
+    {
+        var msi = new MsiInfo(
+            new MsiSchemaInfo(MofImagePathState.NotSet, SchemaFileState.Unknown, SchemaSignature.Unknown), new MsiSoftwareInfo(null, null));
+
+        var root = Parse(Json(Input(msi: msi))).GetProperty("msi");
+
+        root.GetProperty("schema").GetProperty("registration").GetString().Should().Be("not_set");
+        root.GetProperty("schema").GetProperty("file").GetString().Should().Be("unknown");
+        root.GetProperty("schema").GetProperty("signature").GetString().Should().Be("unknown");
+        root.GetProperty("software").GetProperty("installed").ValueKind.Should().Be(JsonValueKind.Null);
+        root.GetProperty("software").GetProperty("running").ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
+    [Theory]
+    [InlineData(MofImagePathState.Unreadable, SchemaFileState.Missing, SchemaSignature.MicroStar, "unreadable", "missing", "micro_star")]
+    [InlineData(MofImagePathState.Set, SchemaFileState.Exists, SchemaSignature.Other, "set", "exists", "other")]
+    public void Every_schema_state_has_its_word(
+        MofImagePathState path, SchemaFileState file, SchemaSignature signature, string pathWord, string fileWord, string signatureWord)
+    {
+        var msi = new MsiInfo(new MsiSchemaInfo(path, file, signature), new MsiSoftwareInfo(false, true));
+
+        var root = Parse(Json(Input(msi: msi))).GetProperty("msi");
+
+        root.GetProperty("schema").GetProperty("registration").GetString().Should().Be(pathWord);
+        root.GetProperty("schema").GetProperty("file").GetString().Should().Be(fileWord);
+        root.GetProperty("schema").GetProperty("signature").GetString().Should().Be(signatureWord);
+        root.GetProperty("software").GetProperty("installed").GetBoolean().Should().BeFalse();
+        root.GetProperty("software").GetProperty("running").GetBoolean().Should().BeTrue();
+    }
+
+    [Fact]
+    public void There_is_no_experimental_block_before_experimental_writes_exist() =>
+        Parse(Json(Input())).TryGetProperty("experimental", out _).Should().BeFalse();
 
     [Fact]
     public void An_unread_firmware_is_null()

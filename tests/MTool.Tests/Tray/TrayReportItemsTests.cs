@@ -152,7 +152,7 @@ public sealed class TrayReportItemsTests : IDisposable
 
         await Click(vm, "EC verisini gönder (config için)");
 
-        preview.Shown.Should().ContainSingle().Which.Should().Contain("\"schemaVersion\": 1");
+        preview.Shown.Should().ContainSingle().Which.Should().Contain("\"schemaVersion\": 2");
         _log.Lines.Should().Contain("INFO EC submission: not sent (declined in preview).");
     }
 

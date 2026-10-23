@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "app": {
     "version": "0.12.0-beta.1+abc1234"
   },
@@ -14,12 +14,26 @@
   },
   "wmi": {
     "interface": "WMI2",
+    "interfaceStatus": "ok",
+    "failure": null,
+    "classesStatus": "ok",
     "classes": [
       {
         "name": "MSI_ACPI",
         "properties": []
       }
     ]
+  },
+  "msi": {
+    "schema": {
+      "registration": "set",
+      "file": "exists",
+      "signature": "unsigned"
+    },
+    "software": {
+      "installed": true,
+      "running": false
+    }
   },
   "ec": {
     "status": "not_read",

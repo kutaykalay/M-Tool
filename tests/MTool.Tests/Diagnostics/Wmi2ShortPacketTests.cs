@@ -34,8 +34,9 @@ public class Wmi2ShortPacketTests
         AppVersion: "0.9.0",
         At: At,
         Computer: Section.Ok(new SystemInfo("MSI", "Katana GF66", "MS-1581", "E1581IMS.10C", "2022-05-13", "i7-11800H", "Windows 11")),
-        Interface: Section.Ok<WmiInterface?>(WmiInterface.Wmi2),
+        Interface: WmiProbeOutcome.Answered(WmiInterface.Wmi2),
         Classes: Section.Ok<IReadOnlyList<WmiClassInfo>>([new WmiClassInfo("MSI_ACPI", ["Get_EC"])]),
+        Msi: MsiInfo.Unknown,
         DsdtBytes: Section.Ok(300_000),
         Ec: Section.Failed<EcReadout>("not read: M-Tool reads the EC only through WMI1 so far"),
         Wmi2: Section.Ok(readout));

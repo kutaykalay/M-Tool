@@ -32,9 +32,11 @@ internal sealed class LiveReportSources(IAppLog log) : IReportSources
         return new SystemInfo(computer[0], computer[1], board[0], bios[0], Date(bios[1]), cpu[0], windows.Length > 0 ? windows : null);
     }
 
-    public WmiInterface? ReadInterface() => WmiProbe.Detect();
+    public WmiProbeOutcome ReadInterface() => WmiProbe.DetectDetailed();
 
     public IReadOnlyList<WmiClassInfo> ReadClasses() => WmiProbe.MsiClasses();
+
+    public MsiInfo ReadMsi() => new(MsiSoftwareProbe.Default.ReadSchema(), MsiSoftwareProbe.Default.ReadSoftware());
 
     public byte[] ReadDsdt() => FirmwareTables.ReadDsdt();
 

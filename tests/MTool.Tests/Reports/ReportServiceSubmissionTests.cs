@@ -1,3 +1,4 @@
+using MTool.Core.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.Time.Testing;
 using MTool.App.Reports;
@@ -43,7 +44,7 @@ public sealed class ReportServiceSubmissionTests : IDisposable
         var json = Service(new FakeReportSources { Model = "Kutay P65" }, "Kutay").CollectForSubmission(includeWmi2: false);
 
         var root = JsonDocument.Parse(json).RootElement;
-        root.GetProperty("schemaVersion").GetInt32().Should().Be(1);
+        root.GetProperty("schemaVersion").GetInt32().Should().Be(EcSubmission.SchemaVersion);
         root.GetProperty("app").GetProperty("version").GetString().Should().Be("0.12.0");
         root.GetProperty("system").GetProperty("model").GetString().Should().Be("<hidden> P65");
         root.GetProperty("ec").GetProperty("status").GetString().Should().Be("ok");
