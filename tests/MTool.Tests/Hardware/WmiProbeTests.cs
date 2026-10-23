@@ -1,6 +1,9 @@
+using System.Runtime.InteropServices;
 using MTool.App.Hardware;
 using MTool.Core.Device.Config;
+using MTool.Core.Diagnostics;
 using MTool.Core.Ec;
+using MTool.Core.Localization;
 using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Hardware;
@@ -96,5 +99,155 @@ public class WmiProbeTests
     public void Models_without_msi_wmi_get_a_clear_unsupported_message()
     {
         WmiProbe.UnsupportedMessage(null).Should().Contain("henüz desteklenmiyor").And.Contain("MSI WMI");
+    }
+
+    // --- the detailed probe: each step on its own, with its stage and code ---
+
+    private const uint NotSupported = 0x8004100C;
+    private static readonly TimeSpan Generous = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan Short = TimeSpan.FromMilliseconds(300);
+
+    private static COMException Com(uint code) => new("WMI says no", unchecked((int)code));
+
+    /// <param name="budget">Generous unless the test is about a timeout: hung tests park pool threads.</param>
+    private static WmiProbeOutcome Probe(Func<string, bool> hasClass, Func<object>? connect = null, TimeSpan? budget = null) =>
+        WmiProbe.DetectDetailed(connect ?? (() => new object()), (_, className) => hasClass(className), budget ?? Generous);
+
+    [Fact]
+    public void A_found_wmi1_is_the_answer_without_asking_for_wmi2()
+    {
+        var asked = new List<string>();
+
+        var outcome = Probe(className =>
+        {
+            asked.Add(className);
+            return true;
+        });
+
+        outcome.Should().Be(WmiProbeOutcome.Answered(WmiInterface.Wmi1));
+        asked.Should().Equal(["MSI_Software"], "WMI1 wins, so a hung MSI_ACPI query must not slow a WMI1 start-up");
+    }
+
+    [Fact]
+    public void Wmi2_is_asked_only_after_wmi1_was_found_absent()
+    {
+        var asked = new List<string>();
+
+        var outcome = Probe(className =>
+        {
+            asked.Add(className);
+            return className == "MSI_ACPI";
+        });
+
+        outcome.Should().Be(WmiProbeOutcome.Answered(WmiInterface.Wmi2));
+        asked.Should().Equal("MSI_Software", "MSI_ACPI");
+    }
+
+    [Fact]
+    public void A_failed_software_query_does_not_ask_for_wmi2()
+    {
+        var asked = new List<string>();
+
+        Probe(className =>
+        {
+            asked.Add(className);
+            throw Com(NotSupported);
+        });
+
+        asked.Should().Equal(["MSI_Software"]);
+    }
+
+    [Fact]
+    public void A_failed_connect_carries_its_code()
+    {
+        Probe(_ => true, connect: () => throw Com(0x80041003))
+            .Should().Be(WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.Connect, 0x80041003)));
+    }
+
+    [Fact]
+    public void A_failed_acpi_query_without_wmi1_carries_its_code()
+    {
+        Probe(className => className == "MSI_Software" ? false : throw Com(NotSupported))
+            .Should().Be(WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.QueryAcpi, NotSupported)));
+    }
+
+    [Fact]
+    public void A_failed_software_query_is_not_read_as_wmi2()
+    {
+        Probe(className => className == "MSI_ACPI" ? true : throw Com(NotSupported))
+            .Should().Be(WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.QuerySoftware, NotSupported)));
+    }
+
+    [Fact]
+    public void An_error_without_a_com_code_keeps_its_hresult()
+    {
+        var error = new InvalidOperationException("broken");
+
+        Probe(_ => throw error).Failure.Should().Be(new WmiFailure(WmiProbeStage.QuerySoftware, unchecked((uint)error.HResult)));
+    }
+
+    [Fact]
+    public void A_hung_query_is_a_timeout_at_its_stage()
+    {
+        using var hang = new ManualResetEventSlim();
+        try
+        {
+            var outcome = Probe(className => className == "MSI_Software" ? false : hang.Wait(Timeout.Infinite), budget: Short);
+
+            outcome.Should().Be(WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.QueryAcpi, null)));
+        }
+        finally
+        {
+            hang.Set();
+        }
+    }
+
+    [Fact]
+    public void The_steps_share_one_time_budget()
+    {
+        var budget = TimeSpan.FromSeconds(1);
+        var slow = budget * 0.7;
+
+        var outcome = Probe(
+            _ =>
+            {
+                Thread.Sleep(slow);
+                return true;
+            },
+            connect: () =>
+            {
+                Thread.Sleep(slow);
+                return new object();
+            },
+            budget: budget);
+
+        outcome.Failure.Should().Be(
+            new WmiFailure(WmiProbeStage.QuerySoftware, null),
+            "after a slow connect only part of the budget is left; a budget per step would have answered WMI1");
+    }
+
+    [Fact]
+    public void Detect_turns_a_failure_into_a_wmi_error_naming_stage_and_code()
+    {
+        var act = () => WmiProbe.InterfaceOrThrow(WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.QuerySoftware, NotSupported)));
+
+        act.Should().Throw<EcAccessException>().Which.ForLog().Should().Contain("QuerySoftware").And.Contain("0x8004100C");
+    }
+
+    [Fact]
+    public void Detect_turns_a_timeout_into_a_no_answer_error()
+    {
+        var act = () => WmiProbe.InterfaceOrThrow(WmiProbeOutcome.Failed(new WmiFailure(WmiProbeStage.Connect, null)));
+
+        act.Should().Throw<EcAccessException>().Which.ForLog().Should().Contain("Connect").And.Contain("timeout");
+    }
+
+    [Theory]
+    [InlineData(WmiInterface.Wmi1)]
+    [InlineData(WmiInterface.Wmi2)]
+    [InlineData(null)]
+    public void Detect_passes_an_answer_through(WmiInterface? detected)
+    {
+        WmiProbe.InterfaceOrThrow(WmiProbeOutcome.Answered(detected)).Should().Be(detected);
     }
 }
