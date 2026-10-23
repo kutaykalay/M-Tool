@@ -15,6 +15,10 @@ internal static class AuthenticodeSigner
     private const int NoSignature = unchecked((int)0x80092009);
 
     /// <summary>The subject of the signing certificate, or null when the file has no embedded signature.</summary>
+    /// <remarks>
+    /// A text file (not a PE image) carries no signature and reads as unsigned (null), like any other file without one. An empty file cannot be parsed at all: it throws, and the probe reports the signature as unknown.
+    /// The subject is read from a file a local administrator can replace and the chain is not checked, so it can be spoofed: never a trust decision.
+    /// </remarks>
     /// <exception cref="CryptographicException">The file could not be read or its signature is malformed.</exception>
     public static string? ReadSubject(string path)
     {

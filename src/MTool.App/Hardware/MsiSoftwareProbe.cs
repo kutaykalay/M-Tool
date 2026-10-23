@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.IO;
-using System.Diagnostics;
 using System.Security;
 using System.Security.Cryptography;
 using Microsoft.Win32;
@@ -13,18 +12,18 @@ namespace MTool.App.Hardware;
 /// or processes. A source may throw: the probe treats that as "could not be read".
 /// </summary>
 /// <param name="ReadMofImagePath">The <c>MofImagePath</c> value (not expanded), or null when it is not there.</param>
-/// <param name="Expand">Expands environment variables such as <c>%windir%</c>.</param>
+/// <param name="WindowsDirectory">The Windows directory, the only thing a <c>%SystemRoot%</c> form is expanded to (never the process environment).</param>
 /// <param name="FileExists">Whether the file is there.</param>
 /// <param name="ReadSignerSubject">The signer's subject, or null when the file has no signature.</param>
 /// <param name="ReadPublishers">The <c>Publisher</c> of every Uninstall entry, one list per hive (null = that hive could not be read).</param>
-/// <param name="ReadCompanies">The file company of every running program (null entry = that program could not be read; null list = none could).</param>
+/// <param name="ReadProcessScan">The file company of every running program, within the time budget (null = no scan could be made).</param>
 internal sealed record MsiSoftwareSources(
     Func<string?> ReadMofImagePath,
-    Func<string, string> Expand,
+    Func<string> WindowsDirectory,
     Func<string, bool> FileExists,
     Func<string, string?> ReadSignerSubject,
     Func<IReadOnlyList<IReadOnlyList<string?>?>> ReadPublishers,
-    Func<IReadOnlyList<string?>?> ReadCompanies);
+    Func<ProcessScanResult?> ReadProcessScan);
 
 /// <summary>
 /// Looks, read-only, for what MSI's WMI interface needs: the schema DLL Windows was told about, and
@@ -36,21 +35,62 @@ internal sealed class MsiSoftwareProbe(MsiSoftwareSources sources)
 {
     private const string WmiAcpiKey = @"SYSTEM\CurrentControlSet\Services\WmiAcpi";
     private const string MofImagePathValue = "MofImagePath";
+    private const string PublisherValue = "Publisher";
     private const string UninstallKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
     private const string UninstallKeyWow64 = @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
 
-    /// <summary>Reading a process's main module can be slow; the whole process scan stops after this.</summary>
+    /// <summary>Looking at running programs can be slow; the whole process scan stops after this.</summary>
     private static readonly TimeSpan ProcessScanBudget = TimeSpan.FromSeconds(3);
 
     public static MsiSoftwareProbe Default { get; } = new(new MsiSoftwareSources(
         ReadMofImagePathFromRegistry,
-        Environment.ExpandEnvironmentVariables,
+        () => Environment.GetFolderPath(Environment.SpecialFolder.Windows),
         File.Exists,
         AuthenticodeSigner.ReadSubject,
         () => [ReadPublishersOf(UninstallKey), ReadPublishersOf(UninstallKeyWow64)],
-        ReadProcessCompanies));
+        () => ProcessImageScan.RunOnThisMachine(ProcessScanBudget)));
 
+    /// <summary>
+    /// The schema facts. Narrow filters below give the better answer where the cause is known; any other
+    /// non-fatal exception still ends in "unknown" rather than reaching the caller.
+    /// </summary>
     public MsiSchemaInfo ReadSchema()
+    {
+        try
+        {
+            return ReadSchemaCore();
+        }
+        catch (Exception ex) when (!IsFatal(ex))
+        {
+            return new MsiSchemaInfo(MofImagePathState.Unreadable, SchemaFileState.Unknown, SchemaSignature.Unknown);
+        }
+    }
+
+    public MsiSoftwareInfo ReadSoftware() => new(Installed(), Running());
+
+    /// <summary>Out of memory or a corrupted process: nothing the probe may answer around.</summary>
+    internal static bool IsFatal(Exception ex) => ex is OutOfMemoryException or AccessViolationException or StackOverflowException;
+
+    /// <summary>Reads one value per name; a name that cannot be read adds a null entry and the rest are still read.</summary>
+    internal static IReadOnlyList<string?> ReadEntries(IEnumerable<string> names, Func<string, string?> readValue)
+    {
+        var values = new List<string?>();
+        foreach (var name in names)
+        {
+            try
+            {
+                values.Add(readValue(name));
+            }
+            catch (Exception ex) when (IsSystemTrouble(ex))
+            {
+                values.Add(null);
+            }
+        }
+
+        return values;
+    }
+
+    private MsiSchemaInfo ReadSchemaCore()
     {
         string? raw;
         try
@@ -67,11 +107,16 @@ internal sealed class MsiSoftwareProbe(MsiSoftwareSources sources)
             return new MsiSchemaInfo(MofImagePathState.NotSet, SchemaFileState.Unknown, SchemaSignature.Unknown);
         }
 
-        string path;
+        string? path;
         bool exists;
         try
         {
-            path = sources.Expand(raw);
+            path = MofImagePathResolver.Resolve(raw, sources.WindowsDirectory());
+            if (path is null)
+            {
+                return new MsiSchemaInfo(MofImagePathState.Set, SchemaFileState.Unknown, SchemaSignature.Unknown);
+            }
+
             exists = sources.FileExists(path);
         }
         catch (Exception ex) when (IsSystemTrouble(ex))
@@ -83,8 +128,6 @@ internal sealed class MsiSoftwareProbe(MsiSoftwareSources sources)
             ? new MsiSchemaInfo(MofImagePathState.Set, SchemaFileState.Exists, SignatureOf(path))
             : new MsiSchemaInfo(MofImagePathState.Set, SchemaFileState.Missing, SchemaSignature.Unknown);
     }
-
-    public MsiSoftwareInfo ReadSoftware() => new(Installed(), Running());
 
     private SchemaSignature SignatureOf(string path)
     {
@@ -105,7 +148,7 @@ internal sealed class MsiSoftwareProbe(MsiSoftwareSources sources)
             return MsiSoftwareInfo.Decide(sources.ReadPublishers()
                 .Select(hive => hive is null ? (bool?)null : hive.Any(MsiSoftwareInfo.IsMicroStar)));
         }
-        catch (Exception ex) when (IsSystemTrouble(ex))
+        catch (Exception ex) when (!IsFatal(ex))
         {
             return null;
         }
@@ -115,24 +158,26 @@ internal sealed class MsiSoftwareProbe(MsiSoftwareSources sources)
     {
         try
         {
-            return sources.ReadCompanies() is { } companies
-                ? MsiSoftwareInfo.Decide(companies.Select(company => company is null ? (bool?)null : MsiSoftwareInfo.IsMicroStar(company)))
+            return sources.ReadProcessScan() is { } scan
+                ? MsiSoftwareInfo.Decide(
+                    scan.Companies.Select(company => company is null ? (bool?)null : MsiSoftwareInfo.IsMicroStar(company)),
+                    scan.Truncated)
                 : null;
         }
-        catch (Exception ex) when (IsSystemTrouble(ex))
+        catch (Exception ex) when (!IsFatal(ex))
         {
             return null;
         }
     }
 
-    /// <summary>What a registry, file or process read throws for reasons outside M-Tool; anything else is a bug and surfaces.</summary>
+    /// <summary>What a registry, file or process read throws for reasons outside M-Tool.</summary>
     private static bool IsSystemTrouble(Exception ex) => ex is IOException or UnauthorizedAccessException or SecurityException
         or InvalidOperationException or Win32Exception or CryptographicException or ArgumentException or NotSupportedException;
 
     private static string? ReadMofImagePathFromRegistry()
     {
         using var key = Registry.LocalMachine.OpenSubKey(WmiAcpiKey);
-        return key?.GetValue(MofImagePathValue) as string;
+        return key?.GetValue(MofImagePathValue, null, RegistryValueOptions.DoNotExpandEnvironmentNames) as string;
     }
 
     private static IReadOnlyList<string?>? ReadPublishersOf(string uninstallKey)
@@ -140,19 +185,7 @@ internal sealed class MsiSoftwareProbe(MsiSoftwareSources sources)
         try
         {
             using var root = Registry.LocalMachine.OpenSubKey(uninstallKey);
-            if (root is null)
-            {
-                return null;
-            }
-
-            var publishers = new List<string?>();
-            foreach (var name in root.GetSubKeyNames())
-            {
-                using var entry = root.OpenSubKey(name);
-                publishers.Add(entry?.GetValue("Publisher") as string);
-            }
-
-            return publishers;
+            return root is null ? null : ReadEntries(root.GetSubKeyNames(), name => ReadPublisher(root, name));
         }
         catch (Exception ex) when (IsSystemTrouble(ex))
         {
@@ -160,36 +193,9 @@ internal sealed class MsiSoftwareProbe(MsiSoftwareSources sources)
         }
     }
 
-    /// <summary>Services run as processes too. A process whose main module cannot be read (access denied, exited meanwhile, 32/64-bit) is skipped.</summary>
-    private static IReadOnlyList<string?>? ReadProcessCompanies()
+    private static string? ReadPublisher(RegistryKey root, string name)
     {
-        var clock = Stopwatch.StartNew();
-        var companies = new List<string?>();
-        foreach (var process in Process.GetProcesses())
-        {
-            using (process)
-            {
-                if (clock.Elapsed > ProcessScanBudget)
-                {
-                    break;
-                }
-
-                companies.Add(CompanyOf(process));
-            }
-        }
-
-        return companies;
-    }
-
-    private static string? CompanyOf(Process process)
-    {
-        try
-        {
-            return process.MainModule?.FileVersionInfo.CompanyName ?? string.Empty;
-        }
-        catch (Exception ex) when (IsSystemTrouble(ex))
-        {
-            return null;
-        }
+        using var entry = root.OpenSubKey(name);
+        return entry?.GetValue(PublisherValue, null, RegistryValueOptions.DoNotExpandEnvironmentNames) as string;
     }
 }

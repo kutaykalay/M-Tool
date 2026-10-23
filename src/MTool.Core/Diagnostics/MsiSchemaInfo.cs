@@ -23,7 +23,11 @@ public enum SchemaFileState
     Unknown,
 }
 
-/// <summary>Who signed the schema DLL. A fact to report: it is never a reason to refuse anything (MSI's own file is unsigned).</summary>
+/// <summary>
+/// Who signed the schema DLL. A fact to report: it is never a reason to refuse anything (MSI's own file is unsigned).
+/// The signer text is read from a file a local administrator can replace and is not verified (no chain, no trust),
+/// so it can be spoofed: it must never gate a write, a firmware check or any trust decision.
+/// </summary>
 public enum SchemaSignature
 {
     MicroStar,
@@ -37,7 +41,8 @@ public enum SchemaSignature
 /// <summary>
 /// Whether Windows knows MSI's WMI classes on this laptop. They exist only when <c>MofImagePath</c>
 /// points at the MOF resource DLL that MSI Center installs once (it stays after MSI Center is
-/// uninstalled). No path is kept here: the report must not carry one.
+/// uninstalled). No path is kept here: the report must not carry one. These are reporting facts only: the registry
+/// value and the file can be set by a local user, so none of it may gate a write, a firmware check or a trust decision.
 /// </summary>
 public sealed record MsiSchemaInfo(MofImagePathState MofImagePath, SchemaFileState File, SchemaSignature Signature)
 {
@@ -58,7 +63,9 @@ public sealed record MsiSchemaInfo(MofImagePathState MofImagePath, SchemaFileSta
 
 /// <summary>
 /// Whether MSI's own software is on this laptop, by vendor metadata only (no names are guessed):
-/// an Uninstall entry whose publisher, or a running program whose file's company, says Micro-Star.
+/// an Uninstall entry whose publisher, or a running program whose file's company, says Micro-Star. Both texts are
+/// free text any local user can forge, and a running check can be spoofed the same way, so it never gates a write,
+/// a firmware check or a trust decision.
 /// </summary>
 /// <param name="Installed">Null when it could not be determined.</param>
 /// <param name="Running">Null when it could not be determined.</param>
@@ -72,9 +79,10 @@ public sealed record MsiSoftwareInfo(bool? Installed, bool? Running)
 
     /// <summary>
     /// Folds per-source answers (true = hit, false = read and no hit, null = could not read): one hit
-    /// wins, otherwise a miss wins, and only when nothing could be read is the answer unknown.
+    /// wins, otherwise a miss wins, and only when nothing could be read is the answer unknown. A scan that
+    /// was cut off (<paramref name="truncated"/>) cannot claim a miss: without a hit it is unknown.
     /// </summary>
-    public static bool? Decide(IEnumerable<bool?> answers)
+    public static bool? Decide(IEnumerable<bool?> answers, bool truncated = false)
     {
         var anyRead = false;
         foreach (var answer in answers)
@@ -87,6 +95,6 @@ public sealed record MsiSoftwareInfo(bool? Installed, bool? Running)
             anyRead |= answer.HasValue;
         }
 
-        return anyRead ? false : null;
+        return anyRead && !truncated ? false : null;
     }
 }

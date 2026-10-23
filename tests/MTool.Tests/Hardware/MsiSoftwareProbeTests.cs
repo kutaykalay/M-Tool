@@ -9,18 +9,19 @@ public class MsiSoftwareProbeTests
     private const string RawPath = @"%windir%\sysWOW64\msiapcfg.dll";
     private const string ExpandedPath = @"C:\Windows\sysWOW64\msiapcfg.dll";
 
-    private static MsiSoftwareSources Sources(
+    internal static MsiSoftwareSources Sources(
         Func<string?>? mofImagePath = null,
         Func<string, bool>? fileExists = null,
         Func<string, string?>? signer = null,
         Func<IReadOnlyList<IReadOnlyList<string?>?>>? publishers = null,
-        Func<IReadOnlyList<string?>?>? companies = null) => new(
+        Func<IReadOnlyList<string?>?>? companies = null,
+        Func<ProcessScanResult?>? scan = null) => new(
             mofImagePath ?? (() => RawPath),
-            path => path.Replace("%windir%", @"C:\Windows", StringComparison.Ordinal),
+            () => @"C:\Windows",
             fileExists ?? (_ => true),
             signer ?? (_ => null),
             publishers ?? (() => [[], []]),
-            companies ?? (() => []));
+            scan ?? (() => companies?.Invoke() is { } list ? new ProcessScanResult(list, false) : null));
 
     [Fact]
     public void A_missing_value_means_the_schema_is_not_installed()

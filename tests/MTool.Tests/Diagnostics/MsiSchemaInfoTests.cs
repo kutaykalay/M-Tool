@@ -64,4 +64,17 @@ public class MsiSchemaInfoTests
         MsiSoftwareInfo.Decide([null, null]).Should().BeNull();
         MsiSoftwareInfo.Decide([]).Should().BeNull();
     }
+
+    [Fact]
+    public void A_hit_still_wins_when_the_scan_was_cut_off()
+    {
+        MsiSoftwareInfo.Decide([false, true], truncated: true).Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_cut_off_scan_without_a_hit_is_unknown_never_no()
+    {
+        MsiSoftwareInfo.Decide([false, null, false], truncated: true).Should().BeNull();
+        MsiSoftwareInfo.Decide([], truncated: true).Should().BeNull();
+    }
 }
