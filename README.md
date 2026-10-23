@@ -311,8 +311,9 @@ Without `--confirm`, `--apply` and `--restore` only show what they would write.
 [YAMDCC](https://codeberg.org/Sparronator9999/YAMDCC), the Linux
 [msi-ec](https://github.com/BeardOverflow/msi-ec) driver and
 [GhostDeck](https://github.com/wygodad/ghostdeck) were used as references for the register map,
-the other models' records and the WMI2 reading. Only facts were taken, by hand; no code was
-copied. See "Data sources" in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). EC access goes
+the other models' records and the WMI2 reading. Only facts were taken, by hand, except the WMI2
+firmware list, whose firmware strings a script extracts from msi-ec; no code was copied. See
+"Data sources" in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). EC access goes
 through [PawnIO](https://github.com/namazso/PawnIO).
 
 ## License

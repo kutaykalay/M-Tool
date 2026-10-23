@@ -50,8 +50,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 The device records in `src/MTool.Core/Devices/`, the WMI2 report and the live WMI2 values are
 M-Tool's own files in M-Tool's own format. Facts about MSI embedded controllers (register
 addresses, bit meanings, mode values, firmware name prefixes, WMI method names and packet
-positions) were taken by hand from the projects below. No code, files, file structure, comments
-or descriptions were copied.
+positions) were taken by hand from the projects below, except the WMI2 firmware list
+(`src/MTool.Core/Devices/msi-wmi2-firmware.json`), whose firmware strings were extracted by a
+script (`tools/msiec-import`). No code, files, file structure, comments or descriptions were copied.
 
 - **YAMDCC** by Sparronator9999, <https://codeberg.org/Sparronator9999/YAMDCC>, commit
   `da7d9d8068625217605f2dd1f5057b7b55974700`. Licence: GNU General Public License v3.0 or later.
@@ -59,11 +60,16 @@ or descriptions were copied.
   constant used to read the opt-in WMI2 report.
 - **msi-ec** (Linux driver), <https://github.com/BeardOverflow/msi-ec>, commit
   `d7fbbd88e6831e56801b860e46475cbf8ddbc7c1`. Licence: GNU General Public License v2.0 or later.
-  Used for: the firmware families and features of the older WMI1 record (`CONF_G1_10`), and a
-  cross-check of the Cooler Boost, charge limit and mode registers.
+  Used for: the firmware families and features of the older WMI1 record (`CONF_G1_10`), a
+  cross-check of the Cooler Boost, charge limit and mode registers, and the WMI2 firmware list:
+  firmware lists and register facts of `CONF_G2_0`…`CONF_G2_6` and `CONF_G2_10`, extracted by a
+  script.
 - **GhostDeck** by wygodad, <https://github.com/wygodad/ghostdeck>, commit
   `7f3a67040da2626a60231f2b31a8f531ecf1112a` (v1.38.0). Licence: GNU General Public License v3.0.
   Used for: the `Get_Data` packet layout and the two tach formats, from its tested entries only.
+  At commit `1dbd1efbbf887bbb0d84d5033ab85d3651d62b30`: the two performance bytes in the WMI2
+  firmware list that differ from msi-ec (eco `0xC6` on `15M1IMS2`, high `0xC0` on `14D3EMS1`),
+  from its records of what MSI's own software writes.
 
 The P65 Creator 9SE record was measured on that laptop; the references only confirmed it. Each
 record lists its own sources in its `sources` field.

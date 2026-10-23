@@ -182,6 +182,36 @@ public class Wmi2FirmwareListTests
         Rejects(With(exact: [.. Valid().Exact, "15M3EMS1.10\n"]), "control");
     }
 
+    [Theory]
+    [InlineData("15m3EMS1.106")] // lowercase
+    [InlineData("15M3EMS1 106")] // space instead of the dot
+    [InlineData("15M3EMS1.1 6")]
+    [InlineData("15M3EMŞ1.106")] // non-ASCII
+    [InlineData("15M3EMS1-106")]
+    public void Rejects_firmware_outside_the_firmware_pattern(string firmware)
+    {
+        Rejects(With(exact: [.. Valid().Exact, firmware]), "pattern");
+    }
+
+    [Theory]
+    [InlineData("15m3EMS1.1")]
+    [InlineData("15M3EMS1-1")]
+    [InlineData("15M3EMŞ1.1")]
+    public void Rejects_a_family_outside_the_family_pattern(string family)
+    {
+        Rejects(With(families: [.. Valid().Families, family]), "pattern");
+    }
+
+    [Theory]
+    [InlineData("158NIMS1.10D")] // hex-like build letters are real
+    [InlineData("15FMIBA1.102")]
+    public void Accepts_real_firmware_with_letters(string firmware)
+    {
+        var list = With(exact: [.. Valid().Exact, firmware], families: [.. Valid().Families, firmware[..10]]);
+
+        Wmi2FirmwareList.Validate(list, Catalog).Should().BeEmpty();
+    }
+
     [Fact]
     public void Rejects_a_repeated_firmware()
     {

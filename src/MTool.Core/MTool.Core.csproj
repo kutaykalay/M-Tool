@@ -10,7 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Devices\*.json" LogicalName="MTool.Devices.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Devices\*.json" Exclude="Devices\msi-wmi2-firmware.json" LogicalName="MTool.Devices.%(Filename)%(Extension)" />
+    <!-- Not a device record: its own name keeps it away from DeviceConfigLoader. -->
+    <EmbeddedResource Include="Devices\msi-wmi2-firmware.json" LogicalName="MTool.Wmi2Firmware.json" />
     <EmbeddedResource Update="Resources\CoreStrings.resx">
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
       <StronglyTypedNamespace>MTool.Core.Resources</StronglyTypedNamespace>

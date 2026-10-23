@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using MTool.Core.Ec;
 
 namespace MTool.Core.Device.Config;
@@ -11,7 +12,7 @@ namespace MTool.Core.Device.Config;
 /// Use <see cref="Load"/>: a list that has not passed <see cref="Validate"/> must not be used.
 /// </summary>
 /// <param name="FamilyOverrides">Family → mode → the code's exception byte for that mode (<see cref="Wmi2WriteCeiling.PerformanceExceptions"/>).</param>
-public sealed record Wmi2FirmwareList(
+public sealed partial record Wmi2FirmwareList(
     int SchemaVersion,
     IReadOnlyList<string> Sources,
     IReadOnlyList<string> Exact,
@@ -22,6 +23,29 @@ public sealed record Wmi2FirmwareList(
 
     /// <summary>The EC firmware string: <c>xxxxbMSn.yzz</c>.</summary>
     public const int FirmwareLength = 12;
+
+    // Uppercase ASCII letters and digits around the dot (158NIMS1.10D and 15FMIBA1.102 are real);
+    // \z, not $: $ also matches before a final line break.
+    [GeneratedRegex(@"^[0-9A-Z]{8}\.[0-9A-Z]{3}\z")]
+    private static partial Regex FirmwarePattern();
+
+    [GeneratedRegex(@"^[0-9A-Z]{8}\.[0-9A-Z]\z")]
+    private static partial Regex FamilyPattern();
+
+    /// <summary>The embedded <c>Devices/msi-wmi2-firmware.json</c>; outside <see cref="DeviceConfigLoader.ResourcePrefix"/> on purpose.</summary>
+    public const string ResourceName = "MTool.Wmi2Firmware.json";
+
+    /// <summary>Loads the list built into M-Tool.</summary>
+    /// <param name="catalog">The loaded device records: no WMI2 firmware or family may overlap theirs.</param>
+    /// <exception cref="InvalidDataException">The resource is missing or breaks a rule.</exception>
+    /// <exception cref="JsonException">The resource is not a single, complete list.</exception>
+    public static Wmi2FirmwareList LoadEmbedded(IReadOnlyList<DeviceConfig> catalog)
+    {
+        using var stream = typeof(Wmi2FirmwareList).Assembly.GetManifestResourceStream(ResourceName)
+            ?? throw new InvalidDataException($"The embedded resource {ResourceName} is missing.");
+        using var reader = new StreamReader(stream);
+        return Load(reader.ReadToEnd(), catalog);
+    }
 
     /// <summary>Parses and validates the list.</summary>
     /// <param name="catalog">The loaded device records: no WMI2 firmware or family may overlap theirs.</param>
@@ -128,7 +152,7 @@ public sealed record Wmi2FirmwareList(
 
         foreach (var firmware in list.Exact)
         {
-            CheckText("exact", firmware, FirmwareLength, errors);
+            CheckText("exact", firmware, FirmwareLength, FirmwarePattern(), errors);
             if (firmware.Length == FirmwareLength && FamilyOf(firmware) is { } family && !list.Families.Contains(family, StringComparer.Ordinal))
             {
                 errors.Add($"firmware \"{ConfigText.Show(firmware)}\" is not in the families.");
@@ -137,7 +161,7 @@ public sealed record Wmi2FirmwareList(
 
         foreach (var family in list.Families)
         {
-            CheckText("families", family, DeviceConfigValidator.FamilyLength, errors);
+            CheckText("families", family, DeviceConfigValidator.FamilyLength, FamilyPattern(), errors);
             if (!list.Exact.Any(f => f.StartsWith(family, StringComparison.Ordinal)))
             {
                 errors.Add($"family \"{ConfigText.Show(family)}\" has no exact firmware.");
@@ -148,7 +172,8 @@ public sealed record Wmi2FirmwareList(
         errors.AddRange(Duplicates(list.Families).Select(f => $"family \"{ConfigText.Show(f)}\" is listed twice."));
     }
 
-    private static void CheckText(string field, string text, int length, List<string> errors)
+    /// <summary>An exact match opens writes, so only the firmware string shape MSI uses is accepted.</summary>
+    private static void CheckText(string field, string text, int length, Regex pattern, List<string> errors)
     {
         if (ConfigText.HasControl(text))
         {
@@ -158,6 +183,10 @@ public sealed record Wmi2FirmwareList(
         if (text.Length != length)
         {
             errors.Add($"{field} \"{ConfigText.Show(text)}\" must be {length} characters.");
+        }
+        else if (!pattern.IsMatch(text))
+        {
+            errors.Add($"{field} \"{ConfigText.Show(text)}\" does not fit the pattern (uppercase letters and digits, a dot).");
         }
     }
 
