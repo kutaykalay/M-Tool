@@ -33,6 +33,10 @@ public static class Wmi2WriteCeiling
         [PerformanceMode.High] = 0xC4,
     }.ToFrozenDictionary();
 
+    // Built from StandardPerformance so the two cannot drift; read on every status round.
+    private static readonly FrozenDictionary<byte, PerformanceMode> StandardModes =
+        StandardPerformance.ToFrozenDictionary(p => p.Value, p => p.Key);
+
     /// <summary>
     /// The one vendor byte each mode may use instead of the standard one, seen on single families:
     /// eco C6 (15M1IMS2, GhostDeck #104, #234) and high C0 (14D3EMS1, GhostDeck #170). Balanced has none.
@@ -49,6 +53,10 @@ public static class Wmi2WriteCeiling
         [Wmi2FanMode.Auto] = 0x0D,
         [Wmi2FanMode.Silent] = 0x1D,
     }.ToFrozenDictionary();
+
+    /// <summary>The mode a standard performance byte stands for; null for any other byte.</summary>
+    public static PerformanceMode? StandardModeOf(byte value) =>
+        StandardModes.TryGetValue(value, out var mode) ? mode : null;
 
     /// <summary>True when <paramref name="value"/> is the exception byte the code allows for <paramref name="mode"/>.</summary>
     public static bool IsPerformanceException(PerformanceMode mode, byte value) =>

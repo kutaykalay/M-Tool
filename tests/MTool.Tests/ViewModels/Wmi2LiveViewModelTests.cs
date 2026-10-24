@@ -2,6 +2,7 @@ using Microsoft.Extensions.Time.Testing;
 using MTool.App.Resources;
 using MTool.App.ViewModels;
 using MTool.Core.Device;
+using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 using MTool.Core.Sensors;
 using MTool.Tests.Fakes;
@@ -23,7 +24,7 @@ public class Wmi2LiveViewModelTests
         {
             _opened++;
             return _source;
-        }), _breaker, _confirm, () => _gateOpen, _time, _log);
+        }), _breaker, _confirm, () => _gateOpen, _time, _log, WmiInterface.Wmi2, list: null);
 
     private static string Unverified(string name, string raw) => string.Format(Strings.Wmi2_Unverified, name, raw);
 

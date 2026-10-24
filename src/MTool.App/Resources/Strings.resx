@@ -758,6 +758,30 @@
     <value>MSI_ACPI: an earlier call is still running (it never answered); no call made.</value>
     <comment>A WMI2 read is refused because the previous one never returned. MSI_ACPI is a technical class name, keep as is. Shown in the report and live-read windows.</comment>
   </data>
+  <data name="Wmi2_ListMatch" xml:space="preserve">
+    <value>msi-ec list</value>
+    <comment>Row name in the WMI2 live values: whether the laptop's EC firmware is in the firmware list taken from msi-ec (a Linux driver project; keep "msi-ec" as is).</comment>
+  </data>
+  <data name="Wmi2_ListExact" xml:space="preserve">
+    <value>This exact firmware is listed</value>
+    <comment>Value of Wmi2_ListMatch: the exact EC firmware version is in the list.</comment>
+  </data>
+  <data name="Wmi2_ListFamily" xml:space="preserve">
+    <value>Its family is listed, this exact version is not</value>
+    <comment>Value of Wmi2_ListMatch: firmware of the same family (same model, other version) is in the list, but not this version.</comment>
+  </data>
+  <data name="Wmi2_ListNone" xml:space="preserve">
+    <value>Not listed</value>
+    <comment>Value of Wmi2_ListMatch: the firmware is not in the list.</comment>
+  </data>
+  <data name="Wmi2_ListUnavailable" xml:space="preserve">
+    <value>The built-in list could not be loaded; experimental writes are not available.</value>
+    <comment>SAFETY. Value of Wmi2_ListMatch when M-Tool's own firmware list is damaged: nothing is matched and M-Tool will not change anything on this laptop.</comment>
+  </data>
+  <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
+    <value>MSI software is running (for example MSI Center); it may undo your settings.</value>
+    <comment>Information band in the WMI2 window when MSI's own software is running. Any program from MSI (Micro-Star) counts, so say "MSI software", with MSI Center as an example; keep "MSI Center" as is. M-Tool is not blocked; this is only a warning.</comment>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Settings…</value>
     <comment>Tray menu item that opens the settings window (General and About tabs).</comment>

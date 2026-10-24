@@ -570,6 +570,24 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI : un appel précédent est toujours en cours (il n'a jamais répondu) ; aucun appel effectué.</value>
   </data>
+  <data name="Wmi2_ListMatch" xml:space="preserve">
+    <value>Liste msi-ec</value>
+  </data>
+  <data name="Wmi2_ListExact" xml:space="preserve">
+    <value>Ce firmware exact figure dans la liste</value>
+  </data>
+  <data name="Wmi2_ListFamily" xml:space="preserve">
+    <value>Sa famille figure dans la liste, mais pas cette version exacte</value>
+  </data>
+  <data name="Wmi2_ListNone" xml:space="preserve">
+    <value>Absent de la liste</value>
+  </data>
+  <data name="Wmi2_ListUnavailable" xml:space="preserve">
+    <value>La liste intégrée n'a pas pu être chargée ; l'écriture expérimentale n'est pas disponible.</value>
+  </data>
+  <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
+    <value>Un logiciel MSI est en cours d'exécution (par ex. MSI Center) ; il peut annuler vos réglages.</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Paramètres…</value>
   </data>

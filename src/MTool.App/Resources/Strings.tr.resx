@@ -570,6 +570,24 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI: önceki bir çağrı hâlâ sürüyor (hiç cevap vermedi); çağrı yapılmadı.</value>
   </data>
+  <data name="Wmi2_ListMatch" xml:space="preserve">
+    <value>msi-ec listesi</value>
+  </data>
+  <data name="Wmi2_ListExact" xml:space="preserve">
+    <value>Bu firmware birebir listede</value>
+  </data>
+  <data name="Wmi2_ListFamily" xml:space="preserve">
+    <value>Ailesi listede, bu sürüm değil</value>
+  </data>
+  <data name="Wmi2_ListNone" xml:space="preserve">
+    <value>Listede yok</value>
+  </data>
+  <data name="Wmi2_ListUnavailable" xml:space="preserve">
+    <value>Gömülü liste yüklenemedi; deneysel yazma kullanılamaz.</value>
+  </data>
+  <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
+    <value>MSI yazılımı açık (ör. MSI Center); ayarlarınızı geri alabilir.</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Ayarlar…</value>
   </data>

@@ -43,12 +43,12 @@ internal static class Wmi2Preview
     private sealed class Source(Wmi2PreviewKind kind) : IWmi2LiveSource
     {
         private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(300); // long enough to see the busy state
-        private static readonly byte[] Modes = [0xC1, 0xC2, 0xC4, 0xC3]; // the last one is unknown: raw only
+        private static readonly byte[] Modes = [0xC1, 0xC6, 0xC4, 0xC3]; // C6 is this family's eco; the last one is unknown: raw only
 
         private int _round;
 
         public Task<string?> ReadFirmwareAsync(CancellationToken cancellationToken) =>
-            Answer(() => (string?)"16Q4EMS2.107", cancellationToken);
+            Answer(() => (string?)"15M1IMS2.105", cancellationToken); // in the msi-ec list, with a family override
 
         public Task<Wmi2Status> ReadStatusAsync(CancellationToken cancellationToken) =>
             Answer(() => new Wmi2Status((byte)(_round % 2 == 0 ? 0x00 : 0x80), Modes[_round % Modes.Length], 0x0D, 0xD0), cancellationToken);

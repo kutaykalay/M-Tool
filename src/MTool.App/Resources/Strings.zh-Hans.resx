@@ -570,6 +570,24 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI：之前的调用仍在进行（一直未响应）；未发起调用。</value>
   </data>
+  <data name="Wmi2_ListMatch" xml:space="preserve">
+    <value>msi-ec 列表</value>
+  </data>
+  <data name="Wmi2_ListExact" xml:space="preserve">
+    <value>列表中有这个确切的固件</value>
+  </data>
+  <data name="Wmi2_ListFamily" xml:space="preserve">
+    <value>列表中有其所属系列，但没有这个确切版本</value>
+  </data>
+  <data name="Wmi2_ListNone" xml:space="preserve">
+    <value>不在列表中</value>
+  </data>
+  <data name="Wmi2_ListUnavailable" xml:space="preserve">
+    <value>无法加载内置列表；实验性写入不可用。</value>
+  </data>
+  <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
+    <value>MSI 软件正在运行（例如 MSI Center）；它可能会撤销你的设置。</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>设置…</value>
   </data>

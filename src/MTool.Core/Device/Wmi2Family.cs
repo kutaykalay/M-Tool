@@ -23,13 +23,7 @@ public sealed record Wmi2Status(byte CoolerBoostRaw, byte PerformanceRaw, byte F
     public bool CoolerBoost => (CoolerBoostRaw & EnableBit) != 0;
 
     /// <summary>C1 balanced (also MSI Center's silent), C2 eco, C4 extreme; null for anything else.</summary>
-    public PerformanceMode? Performance => PerformanceRaw switch
-    {
-        0xC1 => PerformanceMode.Balanced,
-        0xC2 => PerformanceMode.Eco,
-        0xC4 => PerformanceMode.High,
-        _ => null,
-    };
+    public PerformanceMode? Performance => Wmi2WriteCeiling.StandardModeOf(PerformanceRaw);
 
     /// <summary>Bit 7 marks a custom curve (0x8D, also seen as 0x9D); 0x0D auto, 0x1D silent.</summary>
     public Wmi2FanMode? FanMode => (FanModeRaw & EnableBit) != 0

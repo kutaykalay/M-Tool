@@ -147,6 +147,64 @@ public class Wmi2FirmwareListTests
     }
 
     [Theory]
+    [InlineData("15M3EMS1.105", 0xC1, PerformanceMode.Balanced)]
+    [InlineData("15M3EMS1.105", 0xC2, PerformanceMode.Eco)]
+    [InlineData("15M3EMS1.105", 0xC4, PerformanceMode.High)]
+    [InlineData("15M1IMS2.105", 0xC6, PerformanceMode.Eco)] // the family's override
+    [InlineData("15M1IMS2.199", 0xC6, PerformanceMode.Eco)] // a family match reads it too
+    [InlineData("14D3EMS1.116", 0xC0, PerformanceMode.High)]
+    [InlineData("15M1IMS2.105", 0xC2, PerformanceMode.Eco)] // the standard byte still reads
+    [InlineData("16Q4EMS2.107", 0xC4, PerformanceMode.High)] // not in the list: standard bytes only
+    public void A_read_byte_resolves_to_its_mode(string firmware, byte raw, PerformanceMode expected)
+    {
+        Valid().PerformanceOf(Fw(firmware), raw).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("15M3EMS1.105", 0xC6)] // another family's override
+    [InlineData("14D3EMS1.116", 0xC6)]
+    [InlineData("15M1IMS2.105", 0xC0)]
+    [InlineData("16Q4EMS2.107", 0xC6)] // not in the list
+    [InlineData("15M1IMS2.105", 0xC5)]
+    [InlineData("15M1IMS2.105", 0x00)]
+    public void An_unknown_byte_resolves_to_no_mode(string firmware, byte raw)
+    {
+        Valid().PerformanceOf(Fw(firmware), raw).Should().BeNull();
+    }
+
+    [Fact]
+    public void Without_firmware_only_standard_bytes_resolve()
+    {
+        Valid().PerformanceOf(null, 0xC2).Should().Be(PerformanceMode.Eco);
+        Valid().PerformanceOf(null, 0xC6).Should().BeNull();
+    }
+
+    [Fact]
+    public void An_unvalidated_override_is_never_read_as_a_mode()
+    {
+        var bad = With(overrides: Override("15M1IMS2.1", PerformanceMode.Eco, 0xC5));
+
+        bad.PerformanceOf(Fw("15M1IMS2.105"), 0xC5).Should().BeNull();
+    }
+
+    [Fact]
+    public void A_short_unvalidated_exact_entry_reads_standard_bytes_only()
+    {
+        var bad = With(exact: ["15M1"]);
+
+        bad.PerformanceOf(Fw("15M1"), 0xC6).Should().BeNull();
+        bad.PerformanceOf(Fw("15M1"), 0xC1).Should().Be(PerformanceMode.Balanced);
+    }
+
+    [Fact]
+    public void An_override_for_a_family_not_in_the_list_is_never_read()
+    {
+        var bad = With(exact: ["15M3EMS1.105"], families: ["15M3EMS1.1"]); // overrides still name 15M1IMS2.1
+
+        bad.PerformanceOf(Fw("15M1IMS2.105"), 0xC6).Should().BeNull();
+    }
+
+    [Theory]
     [InlineData(0)]
     [InlineData(2)]
     public void Rejects_an_unknown_schema_version(int version)

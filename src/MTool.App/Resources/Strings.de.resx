@@ -570,6 +570,24 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI: Ein früherer Aufruf läuft noch (er hat nie geantwortet); kein Aufruf erfolgt.</value>
   </data>
+  <data name="Wmi2_ListMatch" xml:space="preserve">
+    <value>msi-ec-Liste</value>
+  </data>
+  <data name="Wmi2_ListExact" xml:space="preserve">
+    <value>Genau diese Firmware ist gelistet</value>
+  </data>
+  <data name="Wmi2_ListFamily" xml:space="preserve">
+    <value>Ihre Familie ist gelistet, diese genaue Version nicht</value>
+  </data>
+  <data name="Wmi2_ListNone" xml:space="preserve">
+    <value>Nicht gelistet</value>
+  </data>
+  <data name="Wmi2_ListUnavailable" xml:space="preserve">
+    <value>Die integrierte Liste konnte nicht geladen werden; experimentelles Schreiben ist nicht verfügbar.</value>
+  </data>
+  <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
+    <value>MSI-Software läuft (z. B. MSI Center); sie kann Ihre Einstellungen rückgängig machen.</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Einstellungen…</value>
   </data>

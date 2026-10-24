@@ -570,6 +570,24 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI: una llamada anterior sigue en curso (nunca respondió); no se hizo ninguna llamada.</value>
   </data>
+  <data name="Wmi2_ListMatch" xml:space="preserve">
+    <value>Lista de msi-ec</value>
+  </data>
+  <data name="Wmi2_ListExact" xml:space="preserve">
+    <value>Este firmware exacto figura en la lista</value>
+  </data>
+  <data name="Wmi2_ListFamily" xml:space="preserve">
+    <value>Su familia figura en la lista, esta versión exacta no</value>
+  </data>
+  <data name="Wmi2_ListNone" xml:space="preserve">
+    <value>No figura en la lista</value>
+  </data>
+  <data name="Wmi2_ListUnavailable" xml:space="preserve">
+    <value>No se pudo cargar la lista integrada; la escritura experimental no está disponible.</value>
+  </data>
+  <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
+    <value>Hay software de MSI en ejecución (p. ej., MSI Center); puede deshacer sus ajustes.</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Ajustes…</value>
   </data>

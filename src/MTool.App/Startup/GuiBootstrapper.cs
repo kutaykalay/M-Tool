@@ -415,11 +415,15 @@ internal sealed class GuiBootstrapper : IDisposable
             new ReportService(new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords()),
             new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(log),
             status, new BandNotifier(status), log, stop: stop.Token);
+        // The msi-ec list only matters on a WMI2 laptop; one that does not load is logged and counts as no list.
+        var wmi2List = detected == WmiInterface.Wmi2 ? Wmi2Support.LoadEmbedded(log) : null;
         using var live = Wmi2LiveViewModel.For(
-            detected, () => openLive(AccessAllowed), new DialogConfirm(() => window, theme), AccessAllowed, log);
-        window = new ReportOnlyWindow(problem, report, status, live, theme.IsDark);
+            detected, () => openLive(AccessAllowed), new DialogConfirm(() => window, theme), AccessAllowed, log, wmi2List);
+        var msiBand = live is null ? null : new MsiSoftwareBand(MsiSoftwareProbe.Default.ReadSoftware, log);
+        window = new ReportOnlyWindow(problem, report, status, live, msiBand, theme.IsDark);
         instance.ListenForShowRequests(() => app.Dispatcher.BeginInvoke(() => window.Activate()));
         _ = report.LoadAsync(); // Off the UI thread; the WMI2 button stays hidden until it answers.
+        _ = msiBand?.LoadAsync(); // Off the UI thread too; no band until it answers.
         try
         {
             window.ShowDialog();

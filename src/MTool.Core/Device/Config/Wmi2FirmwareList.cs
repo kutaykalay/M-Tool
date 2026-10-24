@@ -107,6 +107,34 @@ public sealed partial record Wmi2FirmwareList(
             : throw new InvalidOperationException($"Override 0x{value:X2} for {mode} is not allowed by the code.");
     }
 
+    /// <summary>
+    /// The mode a read performance byte stands for: a standard byte everywhere, a family's override
+    /// only on firmware of that family (an exact or a family match: reading is all it gives). Null for
+    /// any other byte, and for an override the code does not allow (it was never validated).
+    /// </summary>
+    public PerformanceMode? PerformanceOf(FirmwareInfo? firmware, byte raw)
+    {
+        if (Wmi2WriteCeiling.StandardModeOf(raw) is { } standard)
+        {
+            return standard;
+        }
+
+        if (Match(firmware) == MatchKind.None || FamilyOf(firmware!.Version) is not { } family || !FamilyOverrides.TryGetValue(family, out var modes))
+        {
+            return null;
+        }
+
+        foreach (var (mode, value) in modes)
+        {
+            if (value == raw && Wmi2WriteCeiling.IsPerformanceException(mode, value))
+            {
+                return mode;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>Returns the problems (English, for the log); empty when the list is valid.</summary>
     /// <param name="catalog">The loaded device records: no WMI2 firmware or family may overlap theirs.</param>
     public static IReadOnlyList<string> Validate(Wmi2FirmwareList list, IReadOnlyList<DeviceConfig> catalog)

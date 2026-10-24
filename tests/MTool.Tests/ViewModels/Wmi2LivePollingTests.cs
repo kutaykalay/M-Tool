@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Time.Testing;
 using MTool.App.Resources;
 using MTool.App.ViewModels;
+using MTool.Core.Device.Config;
 using MTool.Core.Sensors;
 using MTool.Tests.Fakes;
 
@@ -18,7 +19,7 @@ public class Wmi2LivePollingTests
     private readonly Wmi2CircuitBreaker _breaker = new();
     private bool _gateOpen = true;
 
-    private Wmi2LiveViewModel Create() => new(() => _source, _breaker, _confirm, () => _gateOpen, _time, _log);
+    private Wmi2LiveViewModel Create() => new(() => _source, _breaker, _confirm, () => _gateOpen, _time, _log, WmiInterface.Wmi2, list: null);
 
     private async Task<Wmi2LiveViewModel> ShownAndStartedAsync()
     {

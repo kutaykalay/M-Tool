@@ -14,7 +14,7 @@ public class Wmi2LiveForTests
         {
             _opened++;
             return new FakeWmi2LiveSource();
-        }, new FakeConfirm(), () => true, _log);
+        }, new FakeConfirm(), () => true, _log, list: null);
 
     [Theory]
     [InlineData(WmiInterface.Wmi1)]

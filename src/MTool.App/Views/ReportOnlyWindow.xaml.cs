@@ -10,17 +10,19 @@ namespace MTool.App.Views;
 /// Shown instead of M-Tool on a laptop it cannot control yet (no WMI1): why, and the report actions, so
 /// the owner can still send what M-Tool needs to learn the model. It never opens the port or the gateway;
 /// a report reads the EC through WMI only, as on the command line. On a WMI2 laptop it also has the
-/// experimental live values (read only, after the user says yes). Closing it ends M-Tool.
+/// experimental live values (read only, after the user says yes), the msi-ec list match and a band
+/// while MSI's own software runs; there the live values come first and the report actions below them.
+/// Closing it ends M-Tool.
 /// </summary>
 internal partial class ReportOnlyWindow : Window
 {
     private const int ScreenMargin = 12;
 
-    public ReportOnlyWindow(string problem, ReportViewModel report, StatusViewModel status, Wmi2LiveViewModel? live, bool dark)
+    public ReportOnlyWindow(string problem, ReportViewModel report, StatusViewModel status, Wmi2LiveViewModel? live, MsiSoftwareBand? msiBand, bool dark)
     {
         InitializeComponent();
         ProblemText.Text = problem;
-        DataContext = new Context(report, status, live);
+        DataContext = new Context(report, status, live, msiBand);
         SourceInitialized += (_, _) =>
         {
             TitleBar.ApplyTheme(this, dark);
@@ -33,8 +35,8 @@ internal partial class ReportOnlyWindow : Window
         StateChanged += (_, _) => live?.SetWindowShown(IsOnScreen);
     }
 
-    /// <summary>What the bindings read: the report commands, the message band and, on a WMI2 laptop, the live values.</summary>
-    internal sealed record Context(ReportViewModel Report, StatusViewModel Status, Wmi2LiveViewModel? Live);
+    /// <summary>What the bindings read: the report commands, the message band and, on a WMI2 laptop, the live values and the MSI software band.</summary>
+    internal sealed record Context(ReportViewModel Report, StatusViewModel Status, Wmi2LiveViewModel? Live, MsiSoftwareBand? MsiBand);
 
     private bool IsOnScreen => IsVisible && WindowState != WindowState.Minimized;
 

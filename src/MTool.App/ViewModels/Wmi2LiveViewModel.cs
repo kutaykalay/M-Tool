@@ -20,16 +20,22 @@ namespace MTool.App.ViewModels;
 /// Once the breaker is open nothing is read and the timer stops until the user tries again.
 /// Whether reading has stopped is read from the breaker itself, which other readers may share.
 /// Every value is shown with its raw byte and marked not verified; messages never hold error text.
+/// The msi-ec list match and a family's performance bytes come from the firmware already read: nothing
+/// more is read for them (<see cref="Wmi2Support"/>).
 /// </summary>
 /// <param name="open">Opens the interface (blocking, run off the UI thread); null when the laptop has no WMI2.</param>
 /// <param name="accessGate">False while sleep closes EC access: nothing is opened or read.</param>
+/// <param name="detected">What the start-up probe found; only WMI2 is matched against the list.</param>
+/// <param name="list">The msi-ec firmware list; null when it could not be loaded.</param>
 internal sealed partial class Wmi2LiveViewModel(
     Func<IWmi2LiveSource?> open,
     Wmi2CircuitBreaker breaker,
     IConfirm confirm,
     Func<bool> accessGate,
     TimeProvider time,
-    IAppLog log) : ObservableObject, IDisposable
+    IAppLog log,
+    WmiInterface? detected,
+    Wmi2FirmwareList? list) : ObservableObject, IDisposable
 {
     /// <summary>
     /// A little over the 2 s rule, so a tick that comes a few milliseconds early on a busy UI thread
@@ -44,6 +50,8 @@ internal sealed partial class Wmi2LiveViewModel(
     private IWmi2LiveSource? _source;
     private long? _lastRound; // a monotonic timestamp: a clock change must not shorten the 2 s rule
     private bool _hasFirmware;
+    private string? _firmware;
+    private bool _statusWanted; // a refresh held back by the 2 s rule: the next timed round reads the status too
     // All state below is touched on the UI thread only: the commands, the window events and the timer loop
     // (started there, its awaits resume there). Keep it so: none of it is locked.
     private PeriodicTimer? _timer;
@@ -63,6 +71,10 @@ internal sealed partial class Wmi2LiveViewModel(
 
     [ObservableProperty]
     public partial string Firmware { get; private set; } = Missing;
+
+    /// <summary>Whether the firmware is in the msi-ec list; known once it is read, except that a list that did not load says so at once.</summary>
+    [ObservableProperty]
+    public partial string ListMatch { get; private set; } = NoMatchYet(detected, list);
 
     [ObservableProperty]
     public partial string CpuTemperature { get; private set; } = Missing;
@@ -134,10 +146,11 @@ internal sealed partial class Wmi2LiveViewModel(
     /// The section for a laptop whose probe found <paramref name="detected"/>: only a WMI2 laptop gets
     /// one, with a breaker of its own. Nothing is opened or read until the user asks.
     /// </summary>
+    /// <param name="list">The msi-ec firmware list; null when it could not be loaded.</param>
     public static Wmi2LiveViewModel? For(
-        WmiInterface? detected, Func<IWmi2LiveSource?> open, IConfirm confirm, Func<bool> accessGate, IAppLog log) =>
+        WmiInterface? detected, Func<IWmi2LiveSource?> open, IConfirm confirm, Func<bool> accessGate, IAppLog log, Wmi2FirmwareList? list) =>
         detected == WmiInterface.Wmi2
-            ? new Wmi2LiveViewModel(open, new Wmi2CircuitBreaker(), confirm, accessGate, TimeProvider.System, log)
+            ? new Wmi2LiveViewModel(open, new Wmi2CircuitBreaker(), confirm, accessGate, TimeProvider.System, log, detected, list)
             : null;
 
     /// <summary>The window tells whether it is on screen (shown and not minimised); only then does the timer run.</summary>
@@ -216,8 +229,21 @@ internal sealed partial class Wmi2LiveViewModel(
         StartPolling();
     }
 
+    /// <summary>
+    /// Within the 2 s rule the refresh is not dropped: the next timed round reads the status too. The
+    /// timer ticks every <see cref="PollInterval"/>, so a refresh would otherwise almost always be skipped.
+    /// </summary>
     [RelayCommand(CanExecute = nameof(CanRefresh))]
-    private async Task RefreshAsync() => await ReadAsync(AskedRound);
+    private async Task RefreshAsync()
+    {
+        if (TooSoon())
+        {
+            _statusWanted = true;
+            return;
+        }
+
+        await ReadAsync(AskedRound);
+    }
 
     [RelayCommand(CanExecute = nameof(CanTryAgain))]
     private async Task TryAgainAsync()
@@ -244,6 +270,9 @@ internal sealed partial class Wmi2LiveViewModel(
         IsStarted = false;
         IsStopped = false;
         _hasFirmware = false;
+        _firmware = null;
+        _statusWanted = false;
+        ListMatch = NoMatchYet(detected, list);
         Message = null;
         Firmware = CpuTemperature = GpuTemperature = CpuFan = GpuFan = Missing;
         PerformanceMode = FanMode = ChargeLimit = CoolerBoost = Missing;
@@ -287,7 +316,7 @@ internal sealed partial class Wmi2LiveViewModel(
             // A tick already taken when the timer was stopped (window hidden, Stop, breaker) or replaced reads nothing.
             while (await timer.WaitForNextTickAsync() && ReferenceEquals(_timer, timer))
             {
-                await ReadAsync(RoundKind.Sensors);
+                await ReadAsync(_statusWanted ? AskedRound : RoundKind.Sensors);
             }
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
@@ -416,7 +445,9 @@ internal sealed partial class Wmi2LiveViewModel(
         if (round.HasFirmware)
         {
             Firmware = round.Firmware ?? Missing;
+            _firmware = round.Firmware;
             _hasFirmware = true;
+            ListMatch = round.Firmware is null ? NoMatchYet(detected, list) : MatchName(Wmi2Support.Match(detected, list, round.Firmware));
         }
 
         var s = round.Sensors;
@@ -429,11 +460,25 @@ internal sealed partial class Wmi2LiveViewModel(
             return;
         }
 
-        PerformanceMode = Named(PerformanceName(status.Performance), status.PerformanceRaw);
+        _statusWanted = false;
+
+        PerformanceMode = Named(PerformanceName(Wmi2Support.Performance(detected, list, _firmware, status.PerformanceRaw)), status.PerformanceRaw);
         FanMode = Named(FanModeName(status.FanMode), status.FanModeRaw);
         ChargeLimit = Named(status.ChargeLimitPercent is { } percent ? Percent(percent) : null, status.ChargeRaw);
         CoolerBoost = Named(status.CoolerBoost ? Strings.Wmi2_On : Strings.Wmi2_Off, status.CoolerBoostRaw);
     }
+
+    /// <summary>Before the firmware is read, or when the answer had none: only a list that did not load is known.</summary>
+    private static string NoMatchYet(WmiInterface? detected, Wmi2FirmwareList? list) =>
+        Wmi2Support.Match(detected, list, firmware: null) == Wmi2ListMatch.Unavailable ? Strings.Wmi2_ListUnavailable : Missing;
+
+    private static string MatchName(Wmi2ListMatch match) => match switch
+    {
+        Wmi2ListMatch.Exact => Strings.Wmi2_ListExact,
+        Wmi2ListMatch.Family => Strings.Wmi2_ListFamily,
+        Wmi2ListMatch.Unavailable => Strings.Wmi2_ListUnavailable,
+        _ => Strings.Wmi2_ListNone,
+    };
 
     private static string Temperature(int? celsius) =>
         celsius is { } c ? string.Create(CultureInfo.InvariantCulture, $"{c} °C") : Missing;

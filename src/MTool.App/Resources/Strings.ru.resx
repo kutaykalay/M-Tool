@@ -570,6 +570,24 @@
   <data name="Wmi2_StillRunning" xml:space="preserve">
     <value>MSI_ACPI: предыдущий вызов всё ещё выполняется (ответа так и не было); вызов не сделан.</value>
   </data>
+  <data name="Wmi2_ListMatch" xml:space="preserve">
+    <value>Список msi-ec</value>
+  </data>
+  <data name="Wmi2_ListExact" xml:space="preserve">
+    <value>Именно эта прошивка есть в списке</value>
+  </data>
+  <data name="Wmi2_ListFamily" xml:space="preserve">
+    <value>Её семейство есть в списке, а эта версия — нет</value>
+  </data>
+  <data name="Wmi2_ListNone" xml:space="preserve">
+    <value>Нет в списке</value>
+  </data>
+  <data name="Wmi2_ListUnavailable" xml:space="preserve">
+    <value>Не удалось загрузить встроенный список; экспериментальная запись недоступна.</value>
+  </data>
+  <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
+    <value>Запущено ПО MSI (например, MSI Center); оно может отменить ваши настройки.</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Настройки…</value>
   </data>
