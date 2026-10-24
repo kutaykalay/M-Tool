@@ -60,7 +60,8 @@ issue reads the same for everyone. Corrections are welcome: see "Translations" i
 | MSI P65 Creator 9SE | `16Q4EMS2.107` | WMI1 | yes | yes |
 | MSI P65 Creator 9SE, other firmware (`16Q4EMS2.1xx`) | | WMI1 | yes, unverified | no |
 | Other MSI laptops with WMI1 (mostly Intel 10th gen and older) | | WMI1 | yes, unverified | no |
-| MSI laptops with WMI2 (mostly Intel 11th gen and newer) | | WMI2 | experimental, a few values; [help check them](#wmi2-testers-wanted) | no |
+| MSI laptops with WMI2 that msi-ec lists (258 firmware versions) | | WMI2 | experimental, a few values; [help check them](#wmi2-testers-wanted) | no |
+| Other MSI laptops with WMI2 (mostly Intel 11th gen and newer) | | WMI2 | experimental, a few values | no |
 
 M-Tool checks the firmware at start-up and, with any other firmware, only **reads**. Other MSI
 models use different register layouts, so a wrong write could set a fan to the wrong speed. Each new
@@ -72,7 +73,11 @@ On a WMI2 laptop M-Tool opens its reports window instead of the app. Its **Live 
 WMI2 `Get_*` methods: only after you say Yes, and about every 2 seconds while the window is on screen.
 Nothing is written. The EC addresses come from other projects and have not been checked with
 M-Tool on any WMI2 laptop yet, so every value is shown with its raw byte and marked *not
-verified*. You can help check them: see [WMI2 testers wanted](#wmi2-testers-wanted).
+verified*. The **msi-ec list** row says whether the Linux [msi-ec](https://github.com/BeardOverflow/msi-ec)
+driver lists your exact EC firmware, only its family (same model, other version), or neither; on
+a listed family M-Tool also names that family's own performance-mode bytes. A band warns while MSI
+software such as MSI Center is running, since it may undo settings. You can help check the values:
+see [WMI2 testers wanted](#wmi2-testers-wanted).
 
 ## How to help
 
@@ -100,7 +105,7 @@ M-Tool's WMI2 reading has not run on a real WMI2 laptop yet. If you have one (mo
 from Intel 11th gen on), a ten-minute check helps a lot. Nothing in it writes to the laptop.
 
 1. Start M-Tool. In the reports window, under **Live values (experimental)**, choose **Show live
-   values** and answer **Yes**.
+   values** and answer **Yes**. Note what the **msi-ec list** row says.
 2. Open HWiNFO or MSI Center next to it. Do the CPU and GPU temperatures match within about 3 °C,
    and the fan speeds within about 10 %?
 3. Switch the performance or fan mode (with MSI Center or the laptop's hotkey) and choose **Refresh**.
