@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Hardware;
@@ -29,23 +30,34 @@ public class Wmi2ControlWiringTests
     [Fact]
     public void The_start_up_builds_control_only_inside_the_reports_only_path()
     {
-        var code = File.ReadAllText(Path.Combine(RepoFiles.Root, "src", "MTool.App", "Startup", "GuiBootstrapper.cs"));
-        var reportsOnly = code.IndexOf("private static void ShowReportsOnly(", StringComparison.Ordinal);
+        var reportsOnly = Method(Bootstrapper, "private static void ShowReportsOnly(");
+        var p65 = Method(Bootstrapper, "private static async Task<GuiBootstrapper> BuildAsync(");
 
-        reportsOnly.Should().BePositive();
-        code.IndexOf("new Wmi2ControlsViewModel(", StringComparison.Ordinal).Should().BeGreaterThan(reportsOnly);
-        code.IndexOf("BuildAsync(", StringComparison.Ordinal).Should().BeLessThan(reportsOnly, "the P65 window is built before, and apart from, it");
+        reportsOnly.Should().Contain("new Wmi2ControlsViewModel(");
+        p65.Should().NotContain("Wmi2Control").And.NotContain("ShowReportsOnly(");
+        Regex.Matches(Bootstrapper, @"\bWmi2Control\(settings,").Should().HaveCount(1, "built once, for the reports-only window");
+        Method(Bootstrapper, "private static async Task<EcSession?> OpenSessionAsync(")
+            .Should().MatchRegex(@"ReportsOnly is \{ \} reportsOnly\)[\s\S]{0,400}?Wmi2Control\(settings,");
     }
 
     [Fact]
     public void The_wmi2_snapshot_lives_in_the_folder_of_the_p65_one_so_it_gets_the_same_permissions()
     {
         // Neither store sets its own ACL: both files inherit the permissions of AppPaths.Root.
-        var code = File.ReadAllText(Path.Combine(RepoFiles.Root, "src", "MTool.App", "Startup", "GuiBootstrapper.cs")).ReplaceLineEndings("\n");
-
-        code.Should().Contain("WriteAccessBootstrap.CreateAsync(\n            session.Worker, session.Layout, AppPaths.Root,");
-        code.Should().Contain("Wmi2ControlSource.OpenAsync(firmware, list, AppPaths.Root,");
+        Bootstrapper.Should().MatchRegex(@"WriteAccessBootstrap\.CreateAsync\(\s*session\.Worker,\s*session\.Layout,\s*AppPaths\.Root,");
+        Bootstrapper.Should().MatchRegex(@"Wmi2ControlSource\.OpenAsync\(\s*firmware,\s*list,\s*AppPaths\.Root,");
         RepoFiles.Under("src", "*.cs").Select(File.ReadAllText).Should().NotContain(c => c.Contains("SetAccessControl"));
+    }
+
+    private static string Bootstrapper => File.ReadAllText(Path.Combine(RepoFiles.Root, "src", "MTool.App", "Startup", "GuiBootstrapper.cs"));
+
+    /// <summary>From the signature to the next member at class level (four spaces of indent).</summary>
+    private static string Method(string code, string signature)
+    {
+        var start = code.IndexOf(signature, StringComparison.Ordinal);
+        start.Should().BeGreaterThanOrEqualTo(0, signature);
+        var end = Regex.Match(code[(start + signature.Length)..], @"\n    (private|public|internal) ").Index;
+        return end > 0 ? code.Substring(start, signature.Length + end) : code[start..];
     }
 
     private static IEnumerable<string?> Users(string text) =>

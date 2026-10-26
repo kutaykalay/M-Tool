@@ -97,10 +97,12 @@ internal static class Wmi2ControlPreview
             return Task.FromResult(new SensorSnapshot(55 + round % 10, 44 + round % 5, 40 + round % 20, 30, 2987, 0, new Wmi2Tach(0, 0xA0, 0x01, 0xA0)));
         }
 
-        public Task<Wmi2WriteOutcome> TestWritePathAsync(CancellationToken cancellationToken)
+        /// <summary>Passes, like the real test, only when the write held or was a dry run; a failed one runs again before the next write.</summary>
+        public async Task<Wmi2WriteOutcome> TestWritePathAsync(CancellationToken cancellationToken)
         {
-            IsWritePathTested = true;
-            return ApplyAsync(new Wmi2Change.Performance(PerformanceMode.Balanced), cancellationToken);
+            var outcome = await ApplyAsync(new Wmi2Change.Performance(PerformanceMode.Balanced), cancellationToken);
+            IsWritePathTested = outcome.Status is WriteStatus.Applied or WriteStatus.DryRun;
+            return outcome;
         }
 
         public Task<Wmi2WriteOutcome> ApplyAsync(Wmi2Change change, CancellationToken cancellationToken)
@@ -126,7 +128,12 @@ internal static class Wmi2ControlPreview
 
         public Task<IReadOnlyList<Wmi2WriteOutcome>> RevertAsync(CancellationToken cancellationToken)
         {
-            var status = _kind == Wmi2ControlPreviewKind.Fail ? WriteStatus.FailedUnrecovered : WriteStatus.Applied;
+            var status = _kind switch
+            {
+                Wmi2ControlPreviewKind.Fail => WriteStatus.FailedUnrecovered,
+                Wmi2ControlPreviewKind.DryRun => WriteStatus.DryRun,
+                _ => WriteStatus.Applied,
+            };
             IReadOnlyList<Wmi2WriteOutcome> outcomes = [.. Wmi2WriteCeiling.Registers.Select(r => new Wmi2WriteOutcome(
                 status, r, Problem: status == WriteStatus.Applied ? null : Wmi2GatewayProblem.WriteFailed))];
             return Task.FromResult(outcomes);

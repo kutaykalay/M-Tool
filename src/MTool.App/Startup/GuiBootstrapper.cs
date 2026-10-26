@@ -446,8 +446,8 @@ internal sealed class GuiBootstrapper : IDisposable
         var msiBand = live is null ? null : new MsiSoftwareBand(MsiSoftwareProbe.Default.ReadSoftware, log);
 
         // The view model asks only on an exact entry of a list that loaded; without one nothing is opened.
-        Task<Wmi2ControlOpening> OpenControl(string firmware, CancellationToken ct) => wmi2List is { } list
-            ? control!.Open(AccessAllowed, list, firmware, ct)
+        Task<Wmi2ControlOpening> OpenControl(string firmware, CancellationToken ct) => (control, wmi2List) is ({ } wiring, { } list)
+            ? wiring.Open(AccessAllowed, list, firmware, ct)
             : Task.FromResult(Wmi2ControlOpening.NotOpened(Wmi2ControlUnavailable.NotExactFirmware));
 
         window = new ReportOnlyWindow(problem, report, status, live, controls, msiBand, theme.IsDark);

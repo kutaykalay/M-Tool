@@ -106,6 +106,26 @@ public class Wmi2ControlPreviewTests
     }
 
     [Fact]
+    public async Task A_failed_write_path_test_runs_again_before_the_next_write()
+    {
+        using var control = await OpenedAsync(Wmi2ControlPreviewKind.Fail);
+
+        await control.TestWritePathAsync(CancellationToken.None);
+
+        control.IsWritePathTested.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task A_dry_run_revert_writes_nothing_back()
+    {
+        using var control = await OpenedAsync(Wmi2ControlPreviewKind.DryRun);
+
+        var reverted = await control.RevertAsync(CancellationToken.None);
+
+        reverted.Should().AllSatisfy(o => o.Status.Should().Be(WriteStatus.DryRun));
+    }
+
+    [Fact]
     public async Task Layout_does_not_fit()
     {
         using var control = await OpenedAsync(Wmi2ControlPreviewKind.Layout);
