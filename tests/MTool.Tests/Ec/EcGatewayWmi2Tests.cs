@@ -528,6 +528,46 @@ public sealed class EcGatewayWmi2Tests : IDisposable
         WritesAfterTest.Should().BeEmpty();
     }
 
+    // --- a charge limit under 50 % (Kutay, 2026-10-26: no trip to MSI Center) ---
+
+    [Fact]
+    public async Task A_new_charge_limit_under_50_is_still_refused()
+    {
+        var gateway = await TestedGateway();
+
+        var outcome = await gateway.ApplyWmi2Async(new Wmi2Change.ChargeLimit(30));
+
+        outcome.Rejection.Should().Be(Wmi2Rejection.ValueNotAllowed);
+        WritesAfterTest.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task A_failed_charge_write_puts_a_limit_under_50_back()
+    {
+        _ec[0xD7] = 0x9E; // 30 %, set by MSI Center
+        var gateway = await TestedGateway();
+        _ec.WriteAnswer = w => w.Value == 0xBC ? FakeWmi2Methods.Packet(0, status: 0) : null;
+
+        var outcome = await gateway.ApplyWmi2Async(new Wmi2Change.ChargeLimit(60));
+
+        outcome.Status.Should().Be(WriteStatus.FailedRecovered);
+        WritesAfterTest.Should().Equal(Wmi2Writes.Request(0xD7, 0xBC), Wmi2Writes.Request(0xD7, 0x9E));
+        _ec[0xD7].Should().Be(0x9E);
+    }
+
+    [Fact]
+    public async Task Revert_puts_a_saved_limit_under_50_back()
+    {
+        _ec[0xD7] = 0x9E;
+        var gateway = await TestedGateway();
+        await gateway.ApplyWmi2Async(new Wmi2Change.ChargeLimit(80));
+
+        var outcomes = await gateway.RevertWmi2Async();
+
+        outcomes.Single(o => o.Register == 0xD7).Write.Should().Be(new RegisterWrite(0xD7, 0x9E));
+        _ec[0xD7].Should().Be(0x9E);
+    }
+
     // --- Cooler Boost: the low bits change by themselves ---
 
     [Fact]

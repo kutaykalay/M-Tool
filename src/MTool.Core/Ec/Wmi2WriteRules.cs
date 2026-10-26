@@ -112,7 +112,25 @@ public static class Wmi2WriteRules
         ArgumentNullException.ThrowIfNull(list);
         try
         {
-            return CheckRules(write, current, list, firmware);
+            return CheckRules(write, current, list, firmware, restore: false);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
+        {
+            return Wmi2Rejection.ListInvalid;
+        }
+    }
+
+    /// <summary>
+    /// <see cref="Check"/> for writing back a byte the register held before (recovery, "back to before M-Tool"):
+    /// the same rules, except that a charge limit may be 10-49 % too. Nothing else is widened.
+    /// </summary>
+    public static Wmi2Rejection? CheckRestore(RegisterWrite write, byte current, Wmi2FirmwareList list, FirmwareInfo? firmware)
+    {
+        ArgumentNullException.ThrowIfNull(write);
+        ArgumentNullException.ThrowIfNull(list);
+        try
+        {
+            return CheckRules(write, current, list, firmware, restore: true);
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
         {
@@ -134,7 +152,7 @@ public static class Wmi2WriteRules
         return write.Register == Wmi2WriteCeiling.PerformanceRegister && write.Value == current ? null : Wmi2Rejection.NotAWritePathTest;
     }
 
-    private static Wmi2Rejection? CheckRules(RegisterWrite write, byte current, Wmi2FirmwareList list, FirmwareInfo? firmware)
+    private static Wmi2Rejection? CheckRules(RegisterWrite write, byte current, Wmi2FirmwareList list, FirmwareInfo? firmware, bool restore)
     {
         if (list.Match(firmware) != MatchKind.Exact)
         {
@@ -156,7 +174,9 @@ public static class Wmi2WriteRules
             Wmi2WriteCeiling.CoolerBoostRegister when ((write.Value ^ current) & CoolerBoostOtherBits) != 0 => Wmi2Rejection.OtherBitsChanged,
             Wmi2WriteCeiling.PerformanceRegister when !IsFamilyPerformanceByte(write.Value, list, firmware) => Wmi2Rejection.ValueNotAllowed,
             Wmi2WriteCeiling.FanModeRegister when !Wmi2WriteCeiling.FanModeValues.Values.Contains(write.Value) => Wmi2Rejection.ValueNotAllowed,
-            Wmi2WriteCeiling.ChargeLimitRegister when !Wmi2WriteCeiling.IsChargeLimitByte(write.Value) => Wmi2Rejection.ValueNotAllowed,
+            Wmi2WriteCeiling.ChargeLimitRegister when !(restore
+                ? Wmi2WriteCeiling.IsRestorableChargeLimitByte(write.Value)
+                : Wmi2WriteCeiling.IsChargeLimitByte(write.Value)) => Wmi2Rejection.ValueNotAllowed,
             _ => null,
         };
     }

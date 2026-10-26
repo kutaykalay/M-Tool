@@ -37,6 +37,8 @@ public class Wmi2WritesTests
     [InlineData(0xD2, 0xC6)]
     [InlineData(0xD4, 0x0D)]
     [InlineData(0xD4, 0x1D)]
+    [InlineData(0xD7, 0x8A)] // 10 %: written back only
+    [InlineData(0xD7, 0xB1)] // 49 %: written back only
     [InlineData(0xD7, 0xB2)] // 50 %
     [InlineData(0xD7, 0xE4)] // 100 %
     public void A_request_inside_the_ceiling_is_made(byte register, byte value)
@@ -71,7 +73,7 @@ public class Wmi2WritesTests
     [InlineData(0xD4, 0x00)]
     [InlineData(0xD7, 0x00)]
     [InlineData(0xD7, 0x50)] // 80 % without the enable bit
-    [InlineData(0xD7, 0xB1)] // 49 %
+    [InlineData(0xD7, 0x89)] // 9 %
     [InlineData(0xD7, 0xE5)] // 101 %
     [InlineData(0xD7, 0xFF)]
     public void A_byte_outside_the_ceiling_has_no_request(byte register, byte value)
@@ -93,13 +95,25 @@ public class Wmi2WritesTests
                     for (var current = 0; current <= byte.MaxValue; current++)
                     {
                         var write = new RegisterWrite(register, (byte)value);
-                        if (Wmi2WriteRules.Check(write, (byte)current, List, new FirmwareInfo(firmware, "")) is null)
+                        var info = new FirmwareInfo(firmware, "");
+                        if (Wmi2WriteRules.Check(write, (byte)current, List, info) is null
+                            || Wmi2WriteRules.CheckRestore(write, (byte)current, List, info) is null)
                         {
                             Wmi2Writes.IsWithinCeiling(register, (byte)value).Should().BeTrue($"0x{register:X2} = 0x{value:X2} on {firmware}");
                         }
                     }
                 }
             }
+        }
+    }
+
+    [Fact]
+    public void Every_charge_limit_the_layout_reads_can_be_written_back_and_nothing_more()
+    {
+        for (var value = 0; value <= byte.MaxValue; value++)
+        {
+            Wmi2WriteCeiling.IsRestorableChargeLimitByte((byte)value).Should()
+                .Be(Wmi2LayoutCheck.Fits(Wmi2WriteCeiling.ChargeLimitRegister, (byte)value), $"0x{value:X2}");
         }
     }
 

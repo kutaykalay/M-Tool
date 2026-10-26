@@ -34,7 +34,8 @@ public static class Wmi2Writes
 
     /// <summary>
     /// True for a byte the ceiling has for the register, whatever the family: any Cooler Boost byte (the rules
-    /// keep its other bits), a standard or exception performance byte, auto or silent, a 50-100 % charge limit.
+    /// keep its other bits), a standard or exception performance byte, auto or silent, a 10-100 % charge limit
+    /// (under 50 % only as a write back, which the rules decide).
     /// </summary>
     public static bool IsWithinCeiling(byte register, byte value) => register switch
     {
@@ -42,7 +43,7 @@ public static class Wmi2Writes
         Wmi2WriteCeiling.PerformanceRegister => Wmi2WriteCeiling.StandardPerformance.Values.Contains(value)
             || Wmi2WriteCeiling.PerformanceExceptions.Values.Contains(value),
         Wmi2WriteCeiling.FanModeRegister => Wmi2WriteCeiling.FanModeValues.Values.Contains(value),
-        Wmi2WriteCeiling.ChargeLimitRegister => Wmi2WriteCeiling.IsChargeLimitByte(value),
+        Wmi2WriteCeiling.ChargeLimitRegister => Wmi2WriteCeiling.IsRestorableChargeLimitByte(value),
         _ => false,
     };
 }

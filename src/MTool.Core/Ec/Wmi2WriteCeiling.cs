@@ -22,6 +22,12 @@ public static class Wmi2WriteCeiling
     public const int MinChargeLimitPercent = 50;
     public const int MaxChargeLimitPercent = 100;
 
+    /// <summary>
+    /// A lower limit is only ever written back: one the laptop held before (Kutay, 2026-10-26: the user is not
+    /// sent to MSI Center to undo M-Tool). The same floor as the layout's, so every limit read can be restored.
+    /// </summary>
+    public const int MinRestoreChargeLimitPercent = 10;
+
     public static IReadOnlyList<byte> Registers { get; } = Array.AsReadOnly<byte>(
         [CoolerBoostRegister, PerformanceRegister, FanModeRegister, ChargeLimitRegister]);
 
@@ -62,6 +68,11 @@ public static class Wmi2WriteCeiling
     public static bool IsChargeLimitByte(byte value) =>
         (value & ChargeLimitEnableMask) != 0
         && (value & ~ChargeLimitEnableMask) is >= MinChargeLimitPercent and <= MaxChargeLimitPercent;
+
+    /// <summary>A charge limit byte that may be written back: the enable bit and 10-100 %.</summary>
+    public static bool IsRestorableChargeLimitByte(byte value) =>
+        (value & ChargeLimitEnableMask) != 0
+        && (value & ~ChargeLimitEnableMask) is >= MinRestoreChargeLimitPercent and <= MaxChargeLimitPercent;
 
     /// <summary>True when <paramref name="value"/> is the exception byte the code allows for <paramref name="mode"/>.</summary>
     public static bool IsPerformanceException(PerformanceMode mode, byte value) =>

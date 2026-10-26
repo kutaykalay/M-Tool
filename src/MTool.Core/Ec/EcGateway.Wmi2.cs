@@ -299,7 +299,8 @@ public sealed partial class EcGateway
 
     /// <summary>
     /// Back to <paramref name="saved"/>: for Cooler Boost only bit 7, over the low bits read now. Null when the
-    /// register already holds it under its mask; otherwise the write the rules allow, or why they do not.
+    /// register already holds it under its mask; otherwise the write the write-back rules allow (a charge limit
+    /// under 50 % too), or why they do not.
     /// </summary>
     private static Wmi2Planned? RevertPlan(byte register, byte saved, byte current, Wmi2GatewaySetup setup)
     {
@@ -312,7 +313,7 @@ public sealed partial class EcGateway
         }
 
         var write = new RegisterWrite(register, value);
-        return Wmi2WriteRules.Check(write, current, setup.List, setup.Firmware) is { } rejection
+        return Wmi2WriteRules.CheckRestore(write, current, setup.List, setup.Firmware) is { } rejection
             ? Wmi2Planned.Refused(rejection)
             : Wmi2Planned.Of(write);
     }

@@ -38,6 +38,9 @@ public class Wmi2WriteRulesTests
     private static Wmi2Rejection? Check(byte register, byte value, byte current, string firmware = Standard) =>
         Wmi2WriteRules.Check(new RegisterWrite(register, value), current, List, Fw(firmware));
 
+    private static Wmi2Rejection? CheckRestore(byte register, byte value, byte current, string firmware = Standard) =>
+        Wmi2WriteRules.CheckRestore(new RegisterWrite(register, value), current, List, Fw(firmware));
+
     private static void Writes(Wmi2Planned planned, byte register, byte value)
     {
         planned.Rejection.Should().BeNull();
@@ -97,6 +100,43 @@ public class Wmi2WriteRulesTests
     public void A_charge_byte_outside_the_rule_is_refused(byte value)
     {
         Check(0xD7, value, current: 0xE4).Should().Be(Wmi2Rejection.ValueNotAllowed);
+    }
+
+    [Theory]
+    [InlineData(0x8A)] // 10 %
+    [InlineData(0x9E)] // 30 %
+    [InlineData(0xB1)] // 49 %
+    [InlineData(0xD0)] // 80 %
+    public void A_saved_charge_limit_the_layout_allows_may_be_written_back(byte value)
+    {
+        CheckRestore(0xD7, value, current: 0xD0).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(0x89)] // 9 %
+    [InlineData(0xE5)] // 101 %
+    [InlineData(0x50)] // 80 without the enable bit
+    [InlineData(0x00)]
+    public void A_charge_byte_outside_the_layout_is_not_written_back(byte value)
+    {
+        CheckRestore(0xD7, value, current: 0xD0).Should().Be(Wmi2Rejection.ValueNotAllowed);
+    }
+
+    [Theory]
+    [InlineData(0xD2, 0xC5, 0xC1)] // MSI Center's fourth mode
+    [InlineData(0xD4, 0x8D, 0x0D)] // advanced
+    [InlineData(0x98, 0x83, 0x02)] // other bits
+    public void Writing_back_widens_nothing_but_the_charge_limit(byte register, byte value, byte current)
+    {
+        CheckRestore(register, value, current).Should().Be(Check(register, value, current)).And.NotBeNull();
+    }
+
+    [Fact]
+    public void Writing_back_keeps_every_other_rule()
+    {
+        CheckRestore(0xD7, 0x9E, current: 0xD0, firmware: "15M3EMS1.199").Should().Be(Wmi2Rejection.NotExactFirmware);
+        CheckRestore(0xD7, 0x9E, current: 0x00).Should().Be(Wmi2Rejection.CurrentOutsideLayout);
+        CheckRestore(0xEB, 0x0F, current: 0x00).Should().Be(Wmi2Rejection.NotWritable);
     }
 
     [Theory]
