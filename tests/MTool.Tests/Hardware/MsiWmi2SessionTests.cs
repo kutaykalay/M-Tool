@@ -1,3 +1,4 @@
+using System.Reflection;
 using MTool.App.Hardware;
 using MTool.Core.Ec;
 using MTool.Core.Localization;
@@ -144,6 +145,110 @@ public class MsiWmi2SessionTests
     }
 
     [Fact]
+    public void A_writable_session_sends_one_packet_and_returns_the_answer_as_it_came()
+    {
+        var sent = new List<byte[]>();
+        var (session, _, calls) = Session(_ => FakeWmi2Methods.Packet(0), setData: packet =>
+        {
+            sent.Add(packet);
+            return FakeWmi2Methods.Packet(1);
+        });
+
+        var answer = session.SetData(Wmi2Writes.Request(0x98, 0x80));
+
+        answer.Should().Equal(FakeWmi2Methods.Packet(1));
+        sent.Should().ContainSingle().Which.Should().Equal([(byte)0x98, (byte)0x80, .. new byte[30]]);
+        calls.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_read_only_session_refuses_a_write_without_calling_anything()
+    {
+        var (session, _, calls) = Session(_ => FakeWmi2Methods.Packet(0));
+
+        var act = () => session.SetData(Wmi2Writes.Request(0x98, 0x80));
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("This WMI2 session is read-only.");
+        calls.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData((byte)0x6A, (byte)1)]
+    [InlineData((byte)0xEB, (byte)0x0F)]
+    [InlineData((byte)0xD4, (byte)0x8D)]
+    public void A_request_outside_the_ceiling_is_refused_before_any_call(byte register, byte value)
+    {
+        var sent = new List<byte[]>();
+        var (session, _, calls) = Session(_ => FakeWmi2Methods.Packet(0), setData: packet =>
+        {
+            sent.Add(packet);
+            return FakeWmi2Methods.Packet(1);
+        });
+        var request = (Wmi2WriteRequest)typeof(Wmi2WriteRequest)
+            .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, [typeof(byte), typeof(byte)])!.Invoke([register, value]);
+
+        var act = () => session.SetData(request);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage($"*0x{register:X2}*");
+        sent.Should().BeEmpty();
+        calls.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_write_after_a_call_that_timed_out_is_refused()
+    {
+        using var release = new ManualResetEventSlim();
+        var sent = new List<byte[]>();
+        var (session, _, _) = Session(_ =>
+        {
+            release.Wait();
+            return FakeWmi2Methods.Packet(0);
+        }, setData: packet =>
+        {
+            sent.Add(packet);
+            return FakeWmi2Methods.Packet(1);
+        });
+        var hung = () => session.Call(Wmi2Calls.Live[0]);
+        hung.Should().Throw<EcAccessException>();
+
+        var write = () => session.SetData(Wmi2Writes.Request(0x98, 0x80));
+
+        write.Should().Throw<EcAccessException>().Which.ForLog().Should().Contain("still running");
+        sent.Should().BeEmpty();
+        release.Set();
+    }
+
+    [Fact]
+    public void A_write_that_timed_out_makes_later_reads_refused()
+    {
+        using var release = new ManualResetEventSlim();
+        var (session, _, calls) = Session(_ => FakeWmi2Methods.Packet(0), setData: _ =>
+        {
+            release.Wait();
+            return FakeWmi2Methods.Packet(1);
+        });
+        var hung = () => session.SetData(Wmi2Writes.Request(0x98, 0x80));
+        hung.Should().Throw<EcAccessException>().Which.ForLog().Should().Contain("MSI_ACPI Set_Data(0x98, 0x80)");
+
+        var read = () => session.Call(Wmi2Calls.Live[0]);
+
+        read.Should().Throw<EcAccessException>().Which.ForLog().Should().Contain("still running");
+        calls.Should().BeEmpty();
+        release.Set();
+    }
+
+    [Fact]
+    public void A_write_after_dispose_throws()
+    {
+        var (session, _, _) = Session(_ => FakeWmi2Methods.Packet(0), setData: _ => FakeWmi2Methods.Packet(1));
+        session.Dispose();
+
+        var act = () => session.SetData(Wmi2Writes.Request(0x98, 0x80));
+
+        act.Should().Throw<ObjectDisposedException>();
+    }
+
+    [Fact]
     public void The_report_probe_makes_exactly_the_report_calls()
     {
         var wmi = new FakeWmi2Methods();
@@ -155,7 +260,7 @@ public class MsiWmi2SessionTests
     }
 
     private static (MsiWmi2Session Session, FakeInstance Instance, List<Wmi2Request> Calls) Session(
-        Func<Wmi2Request, byte[]> answer, Action? onDispose = null)
+        Func<Wmi2Request, byte[]> answer, Action? onDispose = null, Func<byte[], byte[]>? setData = null)
     {
         var instance = new FakeInstance(onDispose);
         var calls = new List<Wmi2Request>();
@@ -167,7 +272,7 @@ public class MsiWmi2SessionTests
             }
 
             return answer(request);
-        }, ShortTimeout);
+        }, ShortTimeout, setData);
         return (session, instance, calls);
     }
 

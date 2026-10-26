@@ -23,16 +23,40 @@ internal sealed class Wmi2LiveSource : IWmi2LiveSource
 
     /// <param name="owned">Closed after the worker has stopped: the session, and the lock when this source made it.</param>
     internal Wmi2LiveSource(IWmi2Methods wmi, IDisposable owned, IEcLock ecLock, Func<bool> accessGate, IAppLog log)
+        : this(wmi, new Wmi2EcRegisters(wmi), owned, ecLock, accessGate, log)
+    {
+    }
+
+    /// <param name="registers">
+    /// What the worker reads (and, for <see cref="Wmi2ControlSource"/> only, writes) through: <see cref="Wmi2EcRegisters"/>
+    /// for the read-only source, <see cref="Wmi2WritableRegisters"/> over the same session for experimental control.
+    /// </param>
+    internal Wmi2LiveSource(IWmi2Methods wmi, IEcRegisters registers, IDisposable owned, IEcLock ecLock, Func<bool> accessGate, IAppLog log)
     {
         (_wmi, _owned) = (wmi, owned);
-        _worker = new EcWorker(new Wmi2EcRegisters(wmi), ecLock, EcSession.LockTimeout, (message, ex) => log.Error(message, ex), accessGate);
+        _worker = new EcWorker(registers, ecLock, EcSession.LockTimeout, (message, ex) => log.Error(message, ex), accessGate);
     }
+
+    /// <summary>The one EC thread of this source; a WMI2 gateway is built on it, so reads and writes never interleave.</summary>
+    internal EcWorker Worker => _worker;
 
     /// <summary>Probes the interface again and opens it only on a WMI2 laptop; null otherwise (nothing opened).</summary>
     /// <exception cref="EcAccessException">The interface cannot be opened.</exception>
-    public static Wmi2LiveSource? Open(Func<bool> accessGate, IAppLog log)
+    public static Wmi2LiveSource? Open(Func<bool> accessGate, IAppLog log) =>
+        Open(accessGate, log, MsiWmi2Session.Open, session => new Wmi2EcRegisters(session));
+
+    /// <summary>
+    /// <see cref="Open(Func{bool}, IAppLog)"/> over a session opened for writing and <see cref="Wmi2WritableRegisters"/>:
+    /// for <see cref="Wmi2ControlSource"/> only, after the user consented (CLAUDE.md, "WMI2 deneysel yazma").
+    /// </summary>
+    /// <exception cref="EcAccessException">The interface cannot be opened.</exception>
+    internal static Wmi2LiveSource? OpenForControl(Func<bool> accessGate, IAppLog log) =>
+        Open(accessGate, log, MsiWmi2Session.OpenWritable, session => new Wmi2WritableRegisters(session, session));
+
+    private static Wmi2LiveSource? Open(
+        Func<bool> accessGate, IAppLog log, Func<MsiWmi2Session> openSession, Func<MsiWmi2Session, IEcRegisters> registersOf)
     {
-        if (Wmi2Live.OpenIfWmi2(WmiProbe.Detect, MsiWmi2Session.Open, log) is not { } session)
+        if (Wmi2Live.OpenIfWmi2(WmiProbe.Detect, openSession, log) is not { } session)
         {
             return null;
         }
@@ -41,7 +65,7 @@ internal sealed class Wmi2LiveSource : IWmi2LiveSource
         try
         {
             ecLock = new AccessEcMutex();
-            return new Wmi2LiveSource(session, new Both(session, ecLock), ecLock, accessGate, log);
+            return new Wmi2LiveSource(session, registersOf(session), new Both(session, ecLock), ecLock, accessGate, log);
         }
         catch
         {

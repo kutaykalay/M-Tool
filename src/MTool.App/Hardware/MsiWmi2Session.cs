@@ -8,16 +8,18 @@ namespace MTool.App.Hardware;
 
 /// <summary>
 /// One open <c>MSI_ACPI</c> instance (MSI's WMI2 interface, newer laptops) and the only way M-Tool
-/// calls its methods. Read-only by construction: every call is checked against
-/// <see cref="Wmi2Calls.Allowed"/> and the "Get_" prefix before any WMI access. The instance name and
-/// the packet format come from YAMDCC and GhostDeck ([assumption], never tested on hardware here).
+/// calls its methods. Every read is checked against <see cref="Wmi2Calls.Allowed"/> and the "Get_"
+/// prefix before any WMI access. Only a session from <see cref="OpenWritable"/> can call
+/// <c>Set_Data</c>, and only with a request the write ceiling allows. The instance name and the packet
+/// format come from YAMDCC and GhostDeck ([assumption], never tested on hardware here).
 /// </summary>
 /// <remarks>
 /// A call that does not answer in time is abandoned on its thread but may still be using the
-/// instance, which is not thread-safe. From then on the session refuses every call, and the
-/// instance is disposed only once no call is running on it.
+/// instance, which is not thread-safe. While it runs the session refuses every call, read or write,
+/// and the instance is disposed only once no call is running on it. An abandoned <c>Set_Data</c> may
+/// still land late: the gateway has already locked WMI2 writes for the session by then.
 /// </remarks>
-internal sealed class MsiWmi2Session : IWmi2Methods, IDisposable
+internal sealed class MsiWmi2Session : IWmi2Methods, IWmi2DataWriter, IDisposable
 {
     private const string InstancePath = @"MSI_ACPI.InstanceName='ACPI\PNP0C14\0_0'";
     private const string ReadPrefix = "Get_";
@@ -28,24 +30,40 @@ internal sealed class MsiWmi2Session : IWmi2Methods, IDisposable
 
     private readonly IDisposable _instance;
     private readonly Func<Wmi2Request, byte[]> _invoke;
+    private readonly Func<byte[], byte[]>? _setData;
     private readonly TimeSpan _timeout;
     private int _running;
     private int _disposed;
     private int _instanceDisposed;
 
     /// <param name="invoke">One raw call on <paramref name="instance"/>, without a time limit.</param>
-    internal MsiWmi2Session(IDisposable instance, Func<Wmi2Request, byte[]> invoke, TimeSpan timeout) =>
-        (_instance, _invoke, _timeout) = (instance, invoke, timeout);
+    /// <param name="setData">One raw <c>Set_Data</c> call with the given 32-byte packet, without a time limit; null means read-only.</param>
+    internal MsiWmi2Session(
+        IDisposable instance, Func<Wmi2Request, byte[]> invoke, TimeSpan timeout, Func<byte[], byte[]>? setData = null) =>
+        (_instance, _invoke, _timeout, _setData) = (instance, invoke, timeout, setData);
 
     /// <summary>
     /// Opens the instance. If opening times out, an instance that opens later is not disposed: one
     /// object for the life of the process, and only after a user action.
     /// </summary>
     /// <exception cref="EcAccessException">The instance cannot be opened.</exception>
-    public static MsiWmi2Session Open()
+    public static MsiWmi2Session Open() => Open(writable: false);
+
+    /// <summary>
+    /// Like <see cref="Open"/>, but the session can also call <c>Set_Data</c>. Only for experimental control
+    /// (CLAUDE.md, "WMI2 deneysel yazma"); the method name is fixed.
+    /// </summary>
+    /// <exception cref="EcAccessException">The instance cannot be opened.</exception>
+    public static MsiWmi2Session OpenWritable() => Open(writable: true);
+
+    private static MsiWmi2Session Open(bool writable)
     {
         var instance = MsiWmiFields.Bounded("MSI_ACPI connection", CallTimeout, OpenInstance);
-        return new MsiWmi2Session(instance, request => Invoke(instance, request), CallTimeout);
+        return new MsiWmi2Session(
+            instance,
+            request => InvokeRead(instance, request),
+            CallTimeout,
+            writable ? packet => Invoke(instance, Wmi2Writes.SetData, packet) : null);
     }
 
     /// <summary>
@@ -69,6 +87,30 @@ internal sealed class MsiWmi2Session : IWmi2Methods, IDisposable
     public byte[] Call(Wmi2Request request)
     {
         EnsureAllowed(request);
+        return RunBounded($"MSI_ACPI {request.Method}(0x{request.Sub:X2})", () => _invoke(request));
+    }
+
+    /// <summary>One <c>Set_Data</c> call: only on a session from <see cref="OpenWritable"/>, only for a request inside the ceiling.</summary>
+    /// <exception cref="InvalidOperationException">The session is read-only, or the request is outside the ceiling; WMI was not touched.</exception>
+    /// <exception cref="EcAccessException">The call failed or timed out, or an earlier one never answered.</exception>
+    public byte[] SetData(Wmi2WriteRequest request)
+    {
+        var setData = _setData ?? throw new InvalidOperationException("This WMI2 session is read-only.");
+        var (register, value) = (request.Register, request.Value);
+        if (!Wmi2Writes.IsWithinCeiling(register, value))
+        {
+            throw new InvalidOperationException(
+                $"{Wmi2Writes.SetData}(0x{register:X2}, 0x{value:X2}) is outside the WMI2 write ceiling.");
+        }
+
+        var packet = new byte[Wmi2Probe.PacketLength];
+        (packet[0], packet[1]) = (register, value);
+        return RunBounded($"MSI_ACPI {Wmi2Writes.SetData}(0x{register:X2}, 0x{value:X2})", () => setData(packet));
+    }
+
+    /// <summary>The one path of every call, read or write: disposed check, the single running gate, the time limit.</summary>
+    private byte[] RunBounded(string name, Func<byte[]> work)
+    {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) == 1, this);
         if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
         {
@@ -76,11 +118,11 @@ internal sealed class MsiWmi2Session : IWmi2Methods, IDisposable
             throw new EcAccessException(text).WithLog(log);
         }
 
-        return MsiWmiFields.Bounded($"MSI_ACPI {request.Method}(0x{request.Sub:X2})", _timeout, () =>
+        return MsiWmiFields.Bounded(name, _timeout, () =>
         {
             try
             {
-                return _invoke(request);
+                return work();
             }
             finally
             {
@@ -129,14 +171,19 @@ internal sealed class MsiWmi2Session : IWmi2Methods, IDisposable
         }
     }
 
-    /// <summary>A 32-byte packet whose first byte is the request's sub; the answer's bytes as they came.</summary>
-    private static byte[] Invoke(ManagementObject instance, Wmi2Request request)
+    /// <summary>A 32-byte packet whose first byte is the request's sub.</summary>
+    private static byte[] InvokeRead(ManagementObject instance, Wmi2Request request)
     {
-        var method = request.Method;
-        using var parameters = instance.GetMethodParameters(method);
-        using var data = (parameters[DataParameter] as ManagementBaseObject) ?? NewData(instance, parameters);
         var packet = new byte[Wmi2Probe.PacketLength];
         packet[0] = request.Sub;
+        return Invoke(instance, request.Method, packet);
+    }
+
+    /// <summary>One raw call with the given packet; the answer's bytes as they came.</summary>
+    private static byte[] Invoke(ManagementObject instance, string method, byte[] packet)
+    {
+        using var parameters = instance.GetMethodParameters(method);
+        using var data = (parameters[DataParameter] as ManagementBaseObject) ?? NewData(instance, parameters);
         data[BytesProperty] = packet;
         parameters[DataParameter] = data;
         using var result = instance.InvokeMethod(method, parameters, null)
