@@ -44,11 +44,32 @@ public static class PreStateCapture
 /// Stores the pre-M-Tool snapshot once; an existing file is never overwritten. Only a complete,
 /// readable snapshot for the running firmware counts as saved.
 /// </summary>
-public sealed class PreStateStore(string directory)
+public sealed class PreStateStore
 {
     private const string FileName = "pre-mtool-state.json";
+    private const string Wmi2FileName = "pre-mtool-state-wmi2.json";
 
-    private string FilePath => Path.Combine(directory, FileName);
+    private readonly string _directory;
+    private readonly string _fileName;
+    private readonly IReadOnlyCollection<byte> _required;
+
+    public PreStateStore(string directory)
+        : this(directory, FileName, RequiredRegisters)
+    {
+    }
+
+    private PreStateStore(string directory, string fileName, IReadOnlyCollection<byte> required)
+    {
+        _directory = directory;
+        _fileName = fileName;
+        _required = required;
+    }
+
+    /// <summary>The store for WMI2 experimental writes: its own file, and the ceiling registers are required.</summary>
+    public static PreStateStore ForWmi2(string directory) =>
+        new(directory, Wmi2FileName, [.. Wmi2WriteCeiling.Registers]);
+
+    private string FilePath => Path.Combine(_directory, _fileName);
 
     public bool Exists => File.Exists(FilePath);
 
@@ -76,7 +97,7 @@ public sealed class PreStateStore(string directory)
     /// <returns>True when saved; false when a snapshot file already existed.</returns>
     public bool SaveIfMissing(PreMToolState state)
     {
-        Directory.CreateDirectory(directory);
+        Directory.CreateDirectory(_directory);
         var temporary = $"{FilePath}.{Guid.NewGuid():N}.tmp";
         File.WriteAllText(temporary, JsonSerializer.Serialize(state, JsonDefaults.Options));
         try
@@ -103,10 +124,10 @@ public sealed class PreStateStore(string directory)
     /// Every required register must be present. Extra registers are allowed: snapshots taken by older
     /// versions also hold the down offsets, which are no longer writable.
     /// </summary>
-    private static bool IsComplete(PreMToolState? state) =>
+    private bool IsComplete(PreMToolState? state) =>
         state is { FirmwareVersion: not null, FirmwareDate: not null, Registers: not null }
         && state.Registers.All(r => r is not null)
         && state.Registers.Select(r => r.Register).ToHashSet() is var saved
         && saved.Count == state.Registers.Count
-        && saved.IsSupersetOf(RequiredRegisters);
+        && saved.IsSupersetOf(_required);
 }

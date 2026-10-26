@@ -18,7 +18,7 @@ namespace MTool.Core.Ec;
 /// of them holds nothing else, is refused untouched when the port is closed, and fails if
 /// <see cref="PortWriteGuard"/> sees other registers change around it.
 /// </summary>
-public sealed class EcGateway
+public sealed partial class EcGateway
 {
     private const int WriteAttempts = 3;
 
@@ -42,6 +42,14 @@ public sealed class EcGateway
         _lockReason = InitialLockReason(policy);
     }
 
+    /// <summary>A WMI2 experimental gateway: it writes only through <see cref="ApplyWmi2Async"/>; P65 plans are refused untouched.</summary>
+    public EcGateway(EcWorker worker, Wmi2GatewaySetup wmi2, IAppLog log)
+        : this(worker, ClosedP65Policy, log)
+    {
+        _wmi2 = wmi2 ?? throw new ArgumentNullException(nameof(wmi2));
+        _lockReason = Plain(P65PlanOnWmi2Gateway);
+    }
+
     public bool IsWriteEnabled => LockReason is null;
 
     /// <summary>Why writes are refused (firmware, missing backup, a failed write), or null when open. Read-only.</summary>
@@ -59,6 +67,11 @@ public sealed class EcGateway
     {
         // Snapshot: the caller's list must not change between validation and writing.
         var snapshot = plan with { Writes = plan.Writes.ToArray().AsReadOnly() };
+
+        if (Kind != EcGatewayKind.P65Wmi1)
+        {
+            return Reject(snapshot, Plain(P65PlanOnWmi2Gateway));
+        }
 
         if (Volatile.Read(ref _lockReason) is { } reason)
         {
