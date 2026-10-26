@@ -588,6 +588,123 @@
   <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
     <value>MSI-Software läuft (z. B. MSI Center); sie kann Ihre Einstellungen rückgängig machen.</value>
   </data>
+  <data name="Wmi2_ControlEnable" xml:space="preserve">
+    <value>Experimentelle Steuerung einschalten…</value>
+  </data>
+  <data name="Wmi2_ControlConfirm" xml:space="preserve">
+    <value>Experimentelle Steuerung für diesen Laptop einschalten?&#10;&#10;M-Tool kann dann Cooler Boost, den Leistungsmodus, den Lüftermodus (Auto oder Leise) und das Ladelimit ändern. M-Tool wurde auf diesem Modell nicht getestet: msi-ec listet diese Firmware, aber ein falscher Wert kann dazu führen, dass Lüfter, Leistung oder Laden sich anders verhalten, als Sie erwarten.&#10;&#10;M-Tool schreibt nur, wenn Sie einen Schalter ändern, prüft jeden Wert vorher und liest ihn zurück. Vor der ersten Änderung speichert es die Werte von vor M-Tool; "Zurück auf den Stand vor M-Tool" schreibt sie zurück. MSI Center kann ebenfalls alles neu einstellen.&#10;&#10;Nach einem BIOS-Update werden Sie erneut gefragt.</value>
+  </data>
+  <data name="Wmi2_ControlBand" xml:space="preserve">
+    <value>Experimentelle Steuerung ist an: M-Tool schreibt nur, wenn Sie einen Schalter ändern. "Zurück auf den Stand vor M-Tool" stellt die vor der ersten Änderung gespeicherten Werte wieder her.</value>
+  </data>
+  <data name="Wmi2_ControlRevert" xml:space="preserve">
+    <value>Zurück auf den Stand vor M-Tool</value>
+  </data>
+  <data name="Wmi2_ControlTurnOff" xml:space="preserve">
+    <value>Experimentelle Steuerung ausschalten</value>
+  </data>
+  <data name="Wmi2_ControlOpening" xml:space="preserve">
+    <value>Experimentelle Steuerung wird geöffnet…</value>
+  </data>
+  <data name="Wmi2_ControlNotExact" xml:space="preserve">
+    <value>Experimentelle Steuerung gibt es nur für Firmware, die in der msi-ec-Liste genau genannt ist. Die Firmware dieses Laptops gehört nicht dazu, daher liest M-Tool nur.</value>
+  </data>
+  <data name="Wmi2_ControlListUnavailable" xml:space="preserve">
+    <value>Die msi-ec-Liste konnte nicht geladen werden, daher ist die experimentelle Steuerung aus.</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareChanged" xml:space="preserve">
+    <value>Die Firmware hat sich seit dem Einschalten der experimentellen Steuerung geändert (BIOS-Update). Schalten Sie sie erneut ein, um fortzufahren.</value>
+  </data>
+  <data name="Wmi2_ControlNotWmi2" xml:space="preserve">
+    <value>Der Laptop hat nicht als WMI2-Laptop geantwortet, daher wurde die experimentelle Steuerung nicht geöffnet.</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareUnreadable" xml:space="preserve">
+    <value>Die Firmware konnte nicht gelesen werden, daher wurde die experimentelle Steuerung nicht geöffnet.</value>
+  </data>
+  <data name="Wmi2_ControlOpenFailed" xml:space="preserve">
+    <value>Die experimentelle Steuerung konnte nicht geöffnet werden. Die Werte werden weiter gelesen.</value>
+  </data>
+  <data name="Wmi2_ControlLayout" xml:space="preserve">
+    <value>Dieser Laptop enthält Werte, die M-Tool nicht erwartet ({0}), daher ist in dieser Sitzung jedes Schreiben aus.</value>
+  </data>
+  <data name="Wmi2_ConsentNotSaved" xml:space="preserve">
+    <value>Die Einstellung konnte nicht in settings.json gespeichert werden; die Änderung gilt nur für diese Sitzung.</value>
+  </data>
+  <data name="Wmi2_WarnC5" xml:space="preserve">
+    <value>Der Leistungsmodus ist auf einen Wert gesetzt, den M-Tool nicht benennen kann (0xC5, von MSI Center gesetzt). Wenn Sie ihn ändern, kann ihn nur MSI Center zurücksetzen.&#10;&#10;Trotzdem ändern?</value>
+  </data>
+  <data name="Wmi2_WarnCustomCurve" xml:space="preserve">
+    <value>Eine benutzerdefinierte Lüfterkurve ist aktiv (von MSI Center gesetzt). Auto oder Leise schaltet sie aus, und nur MSI Center kann sie wieder einschalten.&#10;&#10;Trotzdem ändern?</value>
+  </data>
+  <data name="Wmi2_WarnLowChargeLimit" xml:space="preserve">
+    <value>Das Ladelimit ist auf {0} % gesetzt; M-Tool selbst setzt Limits erst ab 50 %. "Zurück auf den Stand vor M-Tool" stellt den vor der ersten Änderung durch M-Tool gespeicherten Wert wieder her.&#10;&#10;Trotzdem ändern?</value>
+  </data>
+  <data name="Wmi2_OutcomeApplied" xml:space="preserve">
+    <value>Fertig: Der Wert wurde wie geschrieben zurückgelesen.</value>
+  </data>
+  <data name="Wmi2_OutcomeAlreadySet" xml:space="preserve">
+    <value>Bereits gesetzt: Es wurde nichts geschrieben.</value>
+  </data>
+  <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
+    <value>Testmodus: geprüft und protokolliert, nichts geschrieben. Zum Schreiben setzen Sie "dryRun": false in settings.json.</value>
+  </data>
+  <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
+    <value>{0} Der alte Wert wurde zurückgeschrieben und zurückgelesen. Bis M-Tool neu startet, ist jedes Schreiben aus.</value>
+  </data>
+  <data name="Wmi2_OutcomeUnrecovered" xml:space="preserve">
+    <value>{0} Der alte Wert konnte nicht zurückgeschrieben werden. Stellen Sie ihn in MSI Center neu ein oder starten Sie den Laptop neu. Bis M-Tool neu startet, ist jedes Schreiben aus.</value>
+  </data>
+  <data name="Wmi2_OutcomeInternal" xml:space="preserve">
+    <value>M-Tool hat dieses Schreiben abgelehnt ({0}). Es wurde nichts geschrieben.</value>
+  </data>
+  <data name="Wmi2_RefusedValue" xml:space="preserve">
+    <value>Dieser Wert ist auf diesem Modell nicht erlaubt. Es wurde nichts geschrieben.</value>
+  </data>
+  <data name="Wmi2_RefusedOutsideLayout" xml:space="preserve">
+    <value>Das Register enthält einen Wert, den M-Tool nicht erwartet. Es wurde nichts geschrieben.</value>
+  </data>
+  <data name="Wmi2_RefusedListInvalid" xml:space="preserve">
+    <value>Die msi-ec-Liste hat ihre Prüfung nicht bestanden, daher ist jedes Schreiben aus.</value>
+  </data>
+  <data name="Wmi2_RefusedLocked" xml:space="preserve">
+    <value>Ein früheres Schreiben ist fehlgeschlagen, daher ist jedes Schreiben aus, bis M-Tool neu startet.</value>
+  </data>
+  <data name="Wmi2_RefusedWritePathTest" xml:space="preserve">
+    <value>Der Schreibtest wurde nicht bestanden, daher wurde nichts geändert.</value>
+  </data>
+  <data name="Wmi2_RefusedNotWmi2Only" xml:space="preserve">
+    <value>Der Laptop antwortet nicht mehr als reiner WMI2-Laptop. Es wurde nichts geschrieben.</value>
+  </data>
+  <data name="Wmi2_RefusedNoPreState" xml:space="preserve">
+    <value>Es sind noch keine Werte von vor M-Tool gespeichert. Es gibt nichts zurückzuschreiben.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateNotTaken" xml:space="preserve">
+    <value>Die Werte von vor M-Tool konnten nicht gespeichert werden, daher wurde nichts geschrieben.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateUnreadable" xml:space="preserve">
+    <value>{0} kann nicht gelesen werden, und M-Tool überschreibt sie nie, daher wurde nichts geschrieben. Verschieben Sie die Datei in einen anderen Ordner (behalten Sie sie: Sie enthält die Werte von vor M-Tool) und versuchen Sie es erneut.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateOtherFirmware" xml:space="preserve">
+    <value>{0} wurde mit einer anderen Firmware gespeichert (vor einem BIOS-Update), daher wurde nichts geschrieben. Verschieben Sie die Datei in einen anderen Ordner und versuchen Sie es erneut: M-Tool speichert dann die aktuellen Werte.</value>
+  </data>
+  <data name="Wmi2_ProblemUnreachable" xml:space="preserve">
+    <value>Der Laptop war nicht erreichbar (Ruhezustand oder beschäftigt). Nichts wurde geändert; versuchen Sie es erneut.</value>
+  </data>
+  <data name="Wmi2_ProblemReadBack" xml:space="preserve">
+    <value>Der Wert wurde nicht wie geschrieben zurückgelesen; möglicherweise hat MSI Center ihn zurückgesetzt.</value>
+  </data>
+  <data name="Wmi2_ProblemWriteFailed" xml:space="preserve">
+    <value>Das Schreiben ist nicht durchgegangen.</value>
+  </data>
+  <data name="Wmi2_ProblemRegisterMoved" xml:space="preserve">
+    <value>Der Wert hat sich zwischen zwei Versuchen geändert, daher wurde nicht erneut geschrieben.</value>
+  </data>
+  <data name="Wmi2_ProblemCancelled" xml:space="preserve">
+    <value>Nicht versucht: vor diesem Wert abgebrochen.</value>
+  </data>
+  <data name="Wmi2_RevertLine" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Einstellungen…</value>
   </data>

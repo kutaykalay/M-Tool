@@ -60,7 +60,17 @@ internal sealed class FakeWmi2LiveSource : IWmi2LiveSource
         return await Answer(Sensors);
     }
 
-    public void Dispose() => Disposed = true;
+    /// <summary>Thrown by Dispose, after it has marked the source closed.</summary>
+    public Exception? DisposeError { get; set; }
+
+    public void Dispose()
+    {
+        Disposed = true;
+        if (DisposeError is { } error)
+        {
+            throw error;
+        }
+    }
 
     private Task<T> Answer<T>(T value) => Error is { } error ? Task.FromException<T>(error) : Task.FromResult(value);
 

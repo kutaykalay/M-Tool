@@ -588,6 +588,123 @@
   <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
     <value>Um software da MSI está em execução (ex.: MSI Center); ele pode desfazer suas configurações.</value>
   </data>
+  <data name="Wmi2_ControlEnable" xml:space="preserve">
+    <value>Ativar o controle experimental…</value>
+  </data>
+  <data name="Wmi2_ControlConfirm" xml:space="preserve">
+    <value>Ativar o controle experimental neste notebook?&#10;&#10;O M-Tool poderá alterar o Cooler Boost, o modo de desempenho, o modo da ventoinha (auto ou silencioso) e o limite de carga. O M-Tool não foi testado neste modelo: o msi-ec lista este firmware, mas um valor errado pode fazer as ventoinhas, o desempenho ou a carga se comportarem de forma diferente do esperado.&#10;&#10;O M-Tool só grava quando você muda um botão, verifica cada valor antes e o lê de volta. Antes da primeira alteração, ele salva os valores de antes do M-Tool; "Voltar ao estado anterior ao M-Tool" os grava de volta. O MSI Center também pode definir tudo de novo.&#10;&#10;A pergunta é feita de novo após uma atualização da BIOS.</value>
+  </data>
+  <data name="Wmi2_ControlBand" xml:space="preserve">
+    <value>O controle experimental está ativado: o M-Tool só grava quando você muda um botão. "Voltar ao estado anterior ao M-Tool" restaura os valores salvos antes da primeira alteração.</value>
+  </data>
+  <data name="Wmi2_ControlRevert" xml:space="preserve">
+    <value>Voltar ao estado anterior ao M-Tool</value>
+  </data>
+  <data name="Wmi2_ControlTurnOff" xml:space="preserve">
+    <value>Desativar o controle experimental</value>
+  </data>
+  <data name="Wmi2_ControlOpening" xml:space="preserve">
+    <value>Abrindo o controle experimental…</value>
+  </data>
+  <data name="Wmi2_ControlNotExact" xml:space="preserve">
+    <value>O controle experimental é só para firmware que a lista do msi-ec cita exatamente. O firmware deste notebook não é um deles, então o M-Tool apenas lê.</value>
+  </data>
+  <data name="Wmi2_ControlListUnavailable" xml:space="preserve">
+    <value>Não foi possível carregar a lista do msi-ec, então o controle experimental está desativado.</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareChanged" xml:space="preserve">
+    <value>O firmware mudou desde que você ativou o controle experimental (uma atualização da BIOS). Ative-o de novo para continuar.</value>
+  </data>
+  <data name="Wmi2_ControlNotWmi2" xml:space="preserve">
+    <value>O notebook não respondeu como um notebook WMI2, então o controle experimental não foi aberto.</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareUnreadable" xml:space="preserve">
+    <value>Não foi possível ler o firmware, então o controle experimental não foi aberto.</value>
+  </data>
+  <data name="Wmi2_ControlOpenFailed" xml:space="preserve">
+    <value>Não foi possível abrir o controle experimental. Os valores continuam sendo lidos.</value>
+  </data>
+  <data name="Wmi2_ControlLayout" xml:space="preserve">
+    <value>Este notebook contém valores que o M-Tool não espera ({0}), então toda gravação está desativada nesta sessão.</value>
+  </data>
+  <data name="Wmi2_ConsentNotSaved" xml:space="preserve">
+    <value>Não foi possível salvar a configuração em settings.json; a alteração vale apenas para esta sessão.</value>
+  </data>
+  <data name="Wmi2_WarnC5" xml:space="preserve">
+    <value>O modo de desempenho está em um valor que o M-Tool não sabe nomear (0xC5, definido pelo MSI Center). Se você alterá-lo, só o MSI Center poderá defini-lo de volta.&#10;&#10;Alterar mesmo assim?</value>
+  </data>
+  <data name="Wmi2_WarnCustomCurve" xml:space="preserve">
+    <value>Uma curva de ventoinha personalizada está ativa (definida pelo MSI Center). Auto ou silencioso a desativa, e só o MSI Center pode ativá-la de novo.&#10;&#10;Alterar mesmo assim?</value>
+  </data>
+  <data name="Wmi2_WarnLowChargeLimit" xml:space="preserve">
+    <value>O limite de carga está em {0}%; o M-Tool só define limites a partir de 50%. "Voltar ao estado anterior ao M-Tool" restaura o valor salvo antes da primeira alteração do M-Tool.&#10;&#10;Alterar mesmo assim?</value>
+  </data>
+  <data name="Wmi2_OutcomeApplied" xml:space="preserve">
+    <value>Pronto: o valor foi lido de volta como gravado.</value>
+  </data>
+  <data name="Wmi2_OutcomeAlreadySet" xml:space="preserve">
+    <value>Já definido: nada foi gravado.</value>
+  </data>
+  <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
+    <value>Modo de teste: verificado e registrado, nada foi gravado. Para gravar, defina "dryRun": false em settings.json.</value>
+  </data>
+  <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
+    <value>{0} O valor antigo foi gravado de volta e lido de volta. Toda gravação fica desativada até o M-Tool iniciar de novo.</value>
+  </data>
+  <data name="Wmi2_OutcomeUnrecovered" xml:space="preserve">
+    <value>{0} Não foi possível gravar o valor antigo de volta. Defina-o de novo no MSI Center ou reinicie o notebook. Toda gravação fica desativada até o M-Tool iniciar de novo.</value>
+  </data>
+  <data name="Wmi2_OutcomeInternal" xml:space="preserve">
+    <value>O M-Tool recusou esta gravação ({0}). Nada foi gravado.</value>
+  </data>
+  <data name="Wmi2_RefusedValue" xml:space="preserve">
+    <value>Este valor não é permitido neste modelo. Nada foi gravado.</value>
+  </data>
+  <data name="Wmi2_RefusedOutsideLayout" xml:space="preserve">
+    <value>O registrador contém um valor que o M-Tool não espera. Nada foi gravado.</value>
+  </data>
+  <data name="Wmi2_RefusedListInvalid" xml:space="preserve">
+    <value>A lista do msi-ec não passou na verificação, então toda gravação está desativada.</value>
+  </data>
+  <data name="Wmi2_RefusedLocked" xml:space="preserve">
+    <value>Uma gravação falhou antes, então toda gravação está desativada até o M-Tool iniciar de novo.</value>
+  </data>
+  <data name="Wmi2_RefusedWritePathTest" xml:space="preserve">
+    <value>O teste de gravação não passou, então nada foi alterado.</value>
+  </data>
+  <data name="Wmi2_RefusedNotWmi2Only" xml:space="preserve">
+    <value>O notebook não responde mais como um notebook somente WMI2. Nada foi gravado.</value>
+  </data>
+  <data name="Wmi2_RefusedNoPreState" xml:space="preserve">
+    <value>Ainda não há valores de antes do M-Tool salvos. Nada para gravar de volta.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateNotTaken" xml:space="preserve">
+    <value>Não foi possível salvar os valores de antes do M-Tool, então nada foi gravado.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateUnreadable" xml:space="preserve">
+    <value>{0} não pode ser lido, e o M-Tool nunca grava por cima dele, então nada foi gravado. Mova o arquivo para outra pasta (guarde-o: ele contém os valores de antes do M-Tool) e tente de novo.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateOtherFirmware" xml:space="preserve">
+    <value>{0} foi salvo com outro firmware (antes de uma atualização da BIOS), então nada foi gravado. Mova o arquivo para outra pasta e tente de novo: o M-Tool então salva os valores atuais.</value>
+  </data>
+  <data name="Wmi2_ProblemUnreachable" xml:space="preserve">
+    <value>Não foi possível alcançar o notebook (suspenso ou ocupado). Nada mudou; tente de novo.</value>
+  </data>
+  <data name="Wmi2_ProblemReadBack" xml:space="preserve">
+    <value>O valor não foi lido de volta como gravado; o MSI Center pode tê-lo definido de volta.</value>
+  </data>
+  <data name="Wmi2_ProblemWriteFailed" xml:space="preserve">
+    <value>A gravação não foi concluída.</value>
+  </data>
+  <data name="Wmi2_ProblemRegisterMoved" xml:space="preserve">
+    <value>O valor mudou entre duas tentativas, então não foi gravado de novo.</value>
+  </data>
+  <data name="Wmi2_ProblemCancelled" xml:space="preserve">
+    <value>Não tentado: interrompido antes deste valor.</value>
+  </data>
+  <data name="Wmi2_RevertLine" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Configurações…</value>
   </data>

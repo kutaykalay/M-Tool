@@ -588,6 +588,123 @@
   <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
     <value>Запущено ПО MSI (например, MSI Center); оно может отменить ваши настройки.</value>
   </data>
+  <data name="Wmi2_ControlEnable" xml:space="preserve">
+    <value>Включить экспериментальное управление…</value>
+  </data>
+  <data name="Wmi2_ControlConfirm" xml:space="preserve">
+    <value>Включить экспериментальное управление для этого ноутбука?&#10;&#10;M-Tool сможет менять Cooler Boost, режим производительности, режим вентилятора (авто или тихий) и лимит заряда. M-Tool не тестировался на этой модели: msi-ec содержит эту прошивку, но неверное значение может привести к тому, что вентиляторы, производительность или зарядка поведут себя не так, как вы ожидаете.&#10;&#10;M-Tool записывает только тогда, когда вы меняете переключатель, сначала проверяет каждое значение и считывает его обратно. Перед первым изменением он сохраняет значения, которые были до M-Tool; "Вернуть состояние до M-Tool" записывает их обратно. MSI Center тоже может задать всё заново.&#10;&#10;После обновления BIOS вопрос будет задан снова.</value>
+  </data>
+  <data name="Wmi2_ControlBand" xml:space="preserve">
+    <value>Экспериментальное управление включено: M-Tool записывает только тогда, когда вы меняете переключатель. "Вернуть состояние до M-Tool" восстанавливает значения, сохранённые перед первым изменением.</value>
+  </data>
+  <data name="Wmi2_ControlRevert" xml:space="preserve">
+    <value>Вернуть состояние до M-Tool</value>
+  </data>
+  <data name="Wmi2_ControlTurnOff" xml:space="preserve">
+    <value>Выключить экспериментальное управление</value>
+  </data>
+  <data name="Wmi2_ControlOpening" xml:space="preserve">
+    <value>Открывается экспериментальное управление…</value>
+  </data>
+  <data name="Wmi2_ControlNotExact" xml:space="preserve">
+    <value>Экспериментальное управление доступно только для прошивок, которые список msi-ec называет точно. Прошивки этого ноутбука в нём нет, поэтому M-Tool только читает.</value>
+  </data>
+  <data name="Wmi2_ControlListUnavailable" xml:space="preserve">
+    <value>Не удалось загрузить список msi-ec, поэтому экспериментальное управление выключено.</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareChanged" xml:space="preserve">
+    <value>Прошивка изменилась с тех пор, как вы включили экспериментальное управление (обновление BIOS). Чтобы продолжить, включите его снова.</value>
+  </data>
+  <data name="Wmi2_ControlNotWmi2" xml:space="preserve">
+    <value>Ноутбук не ответил как ноутбук с WMI2, поэтому экспериментальное управление не открыто.</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareUnreadable" xml:space="preserve">
+    <value>Не удалось прочитать прошивку, поэтому экспериментальное управление не открыто.</value>
+  </data>
+  <data name="Wmi2_ControlOpenFailed" xml:space="preserve">
+    <value>Не удалось открыть экспериментальное управление. Значения по-прежнему читаются.</value>
+  </data>
+  <data name="Wmi2_ControlLayout" xml:space="preserve">
+    <value>В этом ноутбуке есть значения, которых M-Tool не ожидает ({0}), поэтому в этом сеансе любая запись выключена.</value>
+  </data>
+  <data name="Wmi2_ConsentNotSaved" xml:space="preserve">
+    <value>Не удалось сохранить настройку в settings.json; изменение действует только в этом сеансе.</value>
+  </data>
+  <data name="Wmi2_WarnC5" xml:space="preserve">
+    <value>Режим производительности установлен на значение, которое M-Tool не может назвать (0xC5, задано MSI Center). Если вы его измените, вернуть его сможет только MSI Center.&#10;&#10;Всё равно изменить?</value>
+  </data>
+  <data name="Wmi2_WarnCustomCurve" xml:space="preserve">
+    <value>Включена пользовательская кривая вентилятора (задана MSI Center). Авто или тихий режим её выключит, а включить её снова сможет только MSI Center.&#10;&#10;Всё равно изменить?</value>
+  </data>
+  <data name="Wmi2_WarnLowChargeLimit" xml:space="preserve">
+    <value>Лимит заряда установлен на {0}%; сам M-Tool задаёт лимиты только от 50%. "Вернуть состояние до M-Tool" восстанавливает значение, сохранённое перед первым изменением M-Tool.&#10;&#10;Всё равно изменить?</value>
+  </data>
+  <data name="Wmi2_OutcomeApplied" xml:space="preserve">
+    <value>Готово: значение считано обратно так, как записано.</value>
+  </data>
+  <data name="Wmi2_OutcomeAlreadySet" xml:space="preserve">
+    <value>Уже задано: ничего не записано.</value>
+  </data>
+  <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
+    <value>Пробный режим: проверено и записано в журнал, ничего не записано. Чтобы записывать, укажите "dryRun": false в settings.json.</value>
+  </data>
+  <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
+    <value>{0} Старое значение записано обратно и считано обратно. Любая запись выключена до следующего запуска M-Tool.</value>
+  </data>
+  <data name="Wmi2_OutcomeUnrecovered" xml:space="preserve">
+    <value>{0} Старое значение не удалось записать обратно. Задайте его снова в MSI Center или перезагрузите ноутбук. Любая запись выключена до следующего запуска M-Tool.</value>
+  </data>
+  <data name="Wmi2_OutcomeInternal" xml:space="preserve">
+    <value>M-Tool отклонил эту запись ({0}). Ничего не записано.</value>
+  </data>
+  <data name="Wmi2_RefusedValue" xml:space="preserve">
+    <value>Это значение недопустимо для этой модели. Ничего не записано.</value>
+  </data>
+  <data name="Wmi2_RefusedOutsideLayout" xml:space="preserve">
+    <value>Регистр содержит значение, которого M-Tool не ожидает. Ничего не записано.</value>
+  </data>
+  <data name="Wmi2_RefusedListInvalid" xml:space="preserve">
+    <value>Список msi-ec не прошёл проверку, поэтому любая запись выключена.</value>
+  </data>
+  <data name="Wmi2_RefusedLocked" xml:space="preserve">
+    <value>Раньше запись не удалась, поэтому любая запись выключена до следующего запуска M-Tool.</value>
+  </data>
+  <data name="Wmi2_RefusedWritePathTest" xml:space="preserve">
+    <value>Проверка записи не пройдена, поэтому ничего не изменено.</value>
+  </data>
+  <data name="Wmi2_RefusedNotWmi2Only" xml:space="preserve">
+    <value>Ноутбук больше не отвечает как ноутбук только с WMI2. Ничего не записано.</value>
+  </data>
+  <data name="Wmi2_RefusedNoPreState" xml:space="preserve">
+    <value>Значений, которые были до M-Tool, пока не сохранено. Записывать обратно нечего.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateNotTaken" xml:space="preserve">
+    <value>Не удалось сохранить значения, которые были до M-Tool, поэтому ничего не записано.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateUnreadable" xml:space="preserve">
+    <value>{0} не читается, а M-Tool никогда не пишет поверх него, поэтому ничего не записано. Переместите файл в другую папку (не удаляйте его: в нём значения, которые были до M-Tool) и повторите попытку.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateOtherFirmware" xml:space="preserve">
+    <value>{0} сохранён для другой прошивки (до обновления BIOS), поэтому ничего не записано. Переместите файл в другую папку и повторите попытку: тогда M-Tool сохранит текущие значения.</value>
+  </data>
+  <data name="Wmi2_ProblemUnreachable" xml:space="preserve">
+    <value>Не удалось связаться с ноутбуком (спящий режим или занят). Ничего не изменилось; повторите попытку.</value>
+  </data>
+  <data name="Wmi2_ProblemReadBack" xml:space="preserve">
+    <value>Значение считано обратно не так, как записано; возможно, MSI Center вернул его.</value>
+  </data>
+  <data name="Wmi2_ProblemWriteFailed" xml:space="preserve">
+    <value>Запись не прошла.</value>
+  </data>
+  <data name="Wmi2_ProblemRegisterMoved" xml:space="preserve">
+    <value>Значение изменилось между двумя попытками, поэтому повторно не записано.</value>
+  </data>
+  <data name="Wmi2_ProblemCancelled" xml:space="preserve">
+    <value>Не пробовали: остановлено перед этим значением.</value>
+  </data>
+  <data name="Wmi2_RevertLine" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Настройки…</value>
   </data>

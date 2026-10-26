@@ -31,15 +31,15 @@ internal enum Wmi2ControlUnavailable
 /// <summary>Control, or why there is none; never both, never neither.</summary>
 internal sealed record Wmi2ControlOpening
 {
-    private Wmi2ControlOpening(Wmi2ControlSource? source, Wmi2ControlUnavailable? unavailable) =>
+    private Wmi2ControlOpening(IWmi2Control? source, Wmi2ControlUnavailable? unavailable) =>
         (Source, Unavailable) = (source, unavailable);
 
     /// <summary>The open control; the caller owns and disposes it.</summary>
-    public Wmi2ControlSource? Source { get; }
+    public IWmi2Control? Source { get; }
 
     public Wmi2ControlUnavailable? Unavailable { get; }
 
-    public static Wmi2ControlOpening Opened(Wmi2ControlSource source) => new(source ?? throw new ArgumentNullException(nameof(source)), null);
+    public static Wmi2ControlOpening Opened(IWmi2Control source) => new(source ?? throw new ArgumentNullException(nameof(source)), null);
 
     public static Wmi2ControlOpening NotOpened(Wmi2ControlUnavailable reason) => new(null, reason);
 }
@@ -51,11 +51,12 @@ internal sealed record Wmi2ControlOpening
 /// source's worker, so a write and a poll never interleave, and the session's layout check is read on it first.
 /// Only one <c>MSI_ACPI</c> session should be open: the window closes the read-only source before opening this.
 /// </summary>
-internal sealed class Wmi2ControlSource : IWmi2LiveSource
+internal sealed class Wmi2ControlSource : IWmi2Control
 {
     private readonly Wmi2LiveSource _live;
 
-    private Wmi2ControlSource(Wmi2LiveSource live, EcGateway gateway) => (_live, Gateway) = (live, gateway);
+    private Wmi2ControlSource(Wmi2LiveSource live, EcGateway gateway, Wmi2LayoutResult layout) =>
+        (_live, Gateway, Layout) = (live, gateway, layout);
 
     /// <summary>The only writer: <see cref="EcGateway.ApplyWmi2Async"/> and its siblings.</summary>
     public EcGateway Gateway { get; }
@@ -106,6 +107,17 @@ internal sealed class Wmi2ControlSource : IWmi2LiveSource
 
     public Task<SensorSnapshot> ReadSensorsAsync(CancellationToken cancellationToken) => _live.ReadSensorsAsync(cancellationToken);
 
+    public Wmi2LayoutResult Layout { get; }
+
+    public bool IsWritePathTested => Gateway.IsWmi2WritePathTested;
+
+    public Task<Wmi2WriteOutcome> TestWritePathAsync(CancellationToken cancellationToken) => Gateway.TestWmi2WritePathAsync(cancellationToken);
+
+    public Task<Wmi2WriteOutcome> ApplyAsync(Wmi2Change change, CancellationToken cancellationToken) =>
+        Gateway.ApplyWmi2Async(change, cancellationToken);
+
+    public Task<IReadOnlyList<Wmi2WriteOutcome>> RevertAsync(CancellationToken cancellationToken) => Gateway.RevertWmi2Async(cancellationToken);
+
     /// <summary>Waits for a running read or write to finish (at most the call timeout), then closes the session.</summary>
     public void Dispose() => _live.Dispose();
 
@@ -129,7 +141,7 @@ internal sealed class Wmi2ControlSource : IWmi2LiveSource
 
         var setup = new Wmi2GatewaySetup(options.List, firmware, Consented: true, layout, options.PreState, options.IsWmi2Only, options.DryRun);
         log.Info($"WMI2 experimental control open for {firmware.Version} (layout {layout}{(options.DryRun ? ", dry-run" : "")}).");
-        return Wmi2ControlOpening.Opened(new Wmi2ControlSource(live, new EcGateway(live.Worker, setup, log)));
+        return Wmi2ControlOpening.Opened(new Wmi2ControlSource(live, new EcGateway(live.Worker, setup, log), layout));
     }
 
     private static Wmi2ControlUnavailable? Unavailable(string? version, Wmi2ControlOptions options) =>

@@ -53,16 +53,23 @@ internal sealed class FakeConfirm : IConfirm
 {
     public bool Answer { get; set; } = true;
 
+    /// <summary>Answers in order, one per question; <see cref="Answer"/> once they run out.</summary>
+    public Queue<bool> Answers { get; } = new();
+
     public List<string> Questions { get; } = [];
 
     /// <summary>For each question, whether Enter would have answered yes.</summary>
     public List<bool> DefaultsToYes { get; } = [];
 
+    /// <summary>Runs while the question is open, as a modal dialog lets other work run on the UI thread.</summary>
+    public Action? WhileAsking { get; set; }
+
     public bool Ask(string question, bool defaultYes = true)
     {
         Questions.Add(question);
+        WhileAsking?.Invoke();
         DefaultsToYes.Add(defaultYes);
-        return Answer;
+        return Answers.TryDequeue(out var answer) ? answer : Answer;
     }
 }
 

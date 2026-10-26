@@ -588,6 +588,123 @@
   <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
     <value>MSI yazılımı açık (ör. MSI Center); ayarlarınızı geri alabilir.</value>
   </data>
+  <data name="Wmi2_ControlEnable" xml:space="preserve">
+    <value>Deneysel kontrolü aç…</value>
+  </data>
+  <data name="Wmi2_ControlConfirm" xml:space="preserve">
+    <value>Bu dizüstü için deneysel kontrol açılsın mı?&#10;&#10;M-Tool bundan sonra Cooler Boost'u, performans modunu, fan modunu (otomatik ya da sessiz) ve şarj limitini değiştirebilir. M-Tool bu modelde test edilmedi: msi-ec bu firmware'i listeliyor, ama yanlış bir değer fanların, performansın ya da şarjın beklediğinizden farklı davranmasına yol açabilir.&#10;&#10;M-Tool yalnızca siz bir anahtarı değiştirdiğinizde yazar, her değeri önce kontrol eder ve geri okur. İlk değişiklikten önce M-Tool öncesindeki değerleri kaydeder; "M-Tool öncesine dön" bunları geri yazar. MSI Center da her şeyi yeniden ayarlayabilir.&#10;&#10;BIOS güncellemesinden sonra yeniden sorulur.</value>
+  </data>
+  <data name="Wmi2_ControlBand" xml:space="preserve">
+    <value>Deneysel kontrol açık: M-Tool yalnızca siz bir anahtarı değiştirdiğinizde yazar. "M-Tool öncesine dön" ilk değişiklikten önce kaydedilen değerleri geri yükler.</value>
+  </data>
+  <data name="Wmi2_ControlRevert" xml:space="preserve">
+    <value>M-Tool öncesine dön</value>
+  </data>
+  <data name="Wmi2_ControlTurnOff" xml:space="preserve">
+    <value>Deneysel kontrolü kapat</value>
+  </data>
+  <data name="Wmi2_ControlOpening" xml:space="preserve">
+    <value>Deneysel kontrol açılıyor…</value>
+  </data>
+  <data name="Wmi2_ControlNotExact" xml:space="preserve">
+    <value>Deneysel kontrol yalnızca msi-ec listesinde birebir geçen firmware'ler içindir. Bu dizüstünün firmware'i bunlardan biri değil, bu yüzden M-Tool yalnızca okur.</value>
+  </data>
+  <data name="Wmi2_ControlListUnavailable" xml:space="preserve">
+    <value>msi-ec listesi yüklenemedi, bu yüzden deneysel kontrol kapalı.</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareChanged" xml:space="preserve">
+    <value>Deneysel kontrolü açtığınızdan beri firmware değişti (BIOS güncellemesi). Devam etmek için yeniden açın.</value>
+  </data>
+  <data name="Wmi2_ControlNotWmi2" xml:space="preserve">
+    <value>Dizüstü bir WMI2 dizüstüsü olarak yanıt vermedi, bu yüzden deneysel kontrol açılmadı.</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareUnreadable" xml:space="preserve">
+    <value>Firmware okunamadı, bu yüzden deneysel kontrol açılmadı.</value>
+  </data>
+  <data name="Wmi2_ControlOpenFailed" xml:space="preserve">
+    <value>Deneysel kontrol açılamadı. Değerler okunmaya devam ediyor.</value>
+  </data>
+  <data name="Wmi2_ControlLayout" xml:space="preserve">
+    <value>Bu dizüstü, M-Tool'un beklemediği değerler içeriyor ({0}); bu yüzden bu oturumda her yazma kapalı.</value>
+  </data>
+  <data name="Wmi2_ConsentNotSaved" xml:space="preserve">
+    <value>Ayar settings.json'a kaydedilemedi; değişiklik yalnızca bu oturumda geçerli.</value>
+  </data>
+  <data name="Wmi2_WarnC5" xml:space="preserve">
+    <value>Performans modu, M-Tool'un adlandıramadığı bir değere ayarlı (0xC5, MSI Center ayarlamış). Değiştirirseniz yalnızca MSI Center geri ayarlayabilir.&#10;&#10;Yine de değiştirilsin mi?</value>
+  </data>
+  <data name="Wmi2_WarnCustomCurve" xml:space="preserve">
+    <value>Özel bir fan eğrisi açık (MSI Center ayarlamış). Otomatik ya da sessiz mod onu kapatır ve yalnızca MSI Center yeniden açabilir.&#10;&#10;Yine de değiştirilsin mi?</value>
+  </data>
+  <data name="Wmi2_WarnLowChargeLimit" xml:space="preserve">
+    <value>Şarj limiti %{0} olarak ayarlı; M-Tool kendisi yalnızca %50 ve üstünü ayarlar. "M-Tool öncesine dön", M-Tool'un ilk değişikliğinden önce kaydedilen değeri geri yükler.&#10;&#10;Yine de değiştirilsin mi?</value>
+  </data>
+  <data name="Wmi2_OutcomeApplied" xml:space="preserve">
+    <value>Tamam: değer yazıldığı gibi geri okundu.</value>
+  </data>
+  <data name="Wmi2_OutcomeAlreadySet" xml:space="preserve">
+    <value>Zaten ayarlı: hiçbir şey yazılmadı.</value>
+  </data>
+  <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
+    <value>Deneme modu: kontrol edildi ve günlüğe yazıldı, hiçbir şey yazılmadı. Yazmak için settings.json'da "dryRun": false yapın.</value>
+  </data>
+  <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
+    <value>{0} Eski değer geri yazıldı ve geri okundu. M-Tool yeniden başlayana kadar her yazma kapalı.</value>
+  </data>
+  <data name="Wmi2_OutcomeUnrecovered" xml:space="preserve">
+    <value>{0} Eski değer geri yazılamadı. MSI Center'da yeniden ayarlayın ya da dizüstüyü yeniden başlatın. M-Tool yeniden başlayana kadar her yazma kapalı.</value>
+  </data>
+  <data name="Wmi2_OutcomeInternal" xml:space="preserve">
+    <value>M-Tool bu yazmayı reddetti ({0}). Hiçbir şey yazılmadı.</value>
+  </data>
+  <data name="Wmi2_RefusedValue" xml:space="preserve">
+    <value>Bu değere bu modelde izin verilmiyor. Hiçbir şey yazılmadı.</value>
+  </data>
+  <data name="Wmi2_RefusedOutsideLayout" xml:space="preserve">
+    <value>Register, M-Tool'un beklemediği bir değer içeriyor. Hiçbir şey yazılmadı.</value>
+  </data>
+  <data name="Wmi2_RefusedListInvalid" xml:space="preserve">
+    <value>msi-ec listesi kontrolden geçemedi, bu yüzden her yazma kapalı.</value>
+  </data>
+  <data name="Wmi2_RefusedLocked" xml:space="preserve">
+    <value>Daha önce bir yazma başarısız oldu, bu yüzden M-Tool yeniden başlayana kadar her yazma kapalı.</value>
+  </data>
+  <data name="Wmi2_RefusedWritePathTest" xml:space="preserve">
+    <value>Yazma testi geçilemedi, bu yüzden hiçbir şey değiştirilmedi.</value>
+  </data>
+  <data name="Wmi2_RefusedNotWmi2Only" xml:space="preserve">
+    <value>Dizüstü artık yalnızca WMI2 olan bir dizüstü olarak yanıt vermiyor. Hiçbir şey yazılmadı.</value>
+  </data>
+  <data name="Wmi2_RefusedNoPreState" xml:space="preserve">
+    <value>M-Tool öncesine ait kayıtlı değer henüz yok. Geri yazılacak bir şey yok.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateNotTaken" xml:space="preserve">
+    <value>M-Tool öncesindeki değerler kaydedilemedi, bu yüzden hiçbir şey yazılmadı.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateUnreadable" xml:space="preserve">
+    <value>{0} okunamıyor ve M-Tool onun üzerine asla yazmaz, bu yüzden hiçbir şey yazılmadı. Dosyayı başka bir klasöre taşıyın (silmeyin: M-Tool öncesindeki değerleri tutuyor), sonra yeniden deneyin.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateOtherFirmware" xml:space="preserve">
+    <value>{0} başka bir firmware altında kaydedilmiş (BIOS güncellemesinden önce), bu yüzden hiçbir şey yazılmadı. Dosyayı başka bir klasöre taşıyıp yeniden deneyin: M-Tool o zaman güncel değerleri kaydeder.</value>
+  </data>
+  <data name="Wmi2_ProblemUnreachable" xml:space="preserve">
+    <value>Dizüstüne ulaşılamadı (uyku ya da meşgul). Hiçbir şey değişmedi; yeniden deneyin.</value>
+  </data>
+  <data name="Wmi2_ProblemReadBack" xml:space="preserve">
+    <value>Değer yazıldığı gibi geri okunmadı; MSI Center geri ayarlamış olabilir.</value>
+  </data>
+  <data name="Wmi2_ProblemWriteFailed" xml:space="preserve">
+    <value>Yazma gerçekleşmedi.</value>
+  </data>
+  <data name="Wmi2_ProblemRegisterMoved" xml:space="preserve">
+    <value>Değer iki deneme arasında değişti, bu yüzden yeniden yazılmadı.</value>
+  </data>
+  <data name="Wmi2_ProblemCancelled" xml:space="preserve">
+    <value>Denenmedi: bu değerden önce durduruldu.</value>
+  </data>
+  <data name="Wmi2_RevertLine" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Ayarlar…</value>
   </data>

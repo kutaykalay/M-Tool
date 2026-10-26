@@ -588,6 +588,123 @@
   <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
     <value>MSI 软件正在运行（例如 MSI Center）；它可能会撤销你的设置。</value>
   </data>
+  <data name="Wmi2_ControlEnable" xml:space="preserve">
+    <value>开启实验性控制…</value>
+  </data>
+  <data name="Wmi2_ControlConfirm" xml:space="preserve">
+    <value>为这台笔记本电脑开启实验性控制？&#10;&#10;之后 M-Tool 可以更改 Cooler Boost、性能模式、风扇模式（自动或静音）和充电上限。M-Tool 尚未在此型号上测试：msi-ec 列出了这个固件，但错误的值可能使风扇、性能或充电的表现与你预期的不同。&#10;&#10;M-Tool 只在你更改开关时写入，会先检查每个值并读回。第一次更改前，它会保存使用 M-Tool 之前的值；"恢复到使用 M-Tool 之前"会把它们写回。MSI Center 也可以重新设置所有内容。&#10;&#10;BIOS 更新后会再次询问。</value>
+  </data>
+  <data name="Wmi2_ControlBand" xml:space="preserve">
+    <value>实验性控制已开启：M-Tool 只在你更改开关时写入。"恢复到使用 M-Tool 之前"会还原第一次更改前保存的值。</value>
+  </data>
+  <data name="Wmi2_ControlRevert" xml:space="preserve">
+    <value>恢复到使用 M-Tool 之前</value>
+  </data>
+  <data name="Wmi2_ControlTurnOff" xml:space="preserve">
+    <value>关闭实验性控制</value>
+  </data>
+  <data name="Wmi2_ControlOpening" xml:space="preserve">
+    <value>正在打开实验性控制…</value>
+  </data>
+  <data name="Wmi2_ControlNotExact" xml:space="preserve">
+    <value>实验性控制仅适用于 msi-ec 列表中明确列出的固件。这台笔记本电脑的固件不在其中，因此 M-Tool 只读取。</value>
+  </data>
+  <data name="Wmi2_ControlListUnavailable" xml:space="preserve">
+    <value>无法加载 msi-ec 列表，因此实验性控制已关闭。</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareChanged" xml:space="preserve">
+    <value>自你开启实验性控制以来，固件已更改（BIOS 更新）。请重新开启以继续。</value>
+  </data>
+  <data name="Wmi2_ControlNotWmi2" xml:space="preserve">
+    <value>这台笔记本电脑没有以 WMI2 笔记本电脑的方式响应，因此未打开实验性控制。</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareUnreadable" xml:space="preserve">
+    <value>无法读取固件，因此未打开实验性控制。</value>
+  </data>
+  <data name="Wmi2_ControlOpenFailed" xml:space="preserve">
+    <value>无法打开实验性控制。仍会继续读取数值。</value>
+  </data>
+  <data name="Wmi2_ControlLayout" xml:space="preserve">
+    <value>这台笔记本电脑包含 M-Tool 未预期的值（{0}），因此本次会话中所有写入都已关闭。</value>
+  </data>
+  <data name="Wmi2_ConsentNotSaved" xml:space="preserve">
+    <value>无法将设置保存到 settings.json；此更改仅在本次会话中有效。</value>
+  </data>
+  <data name="Wmi2_WarnC5" xml:space="preserve">
+    <value>性能模式被设为 M-Tool 无法命名的值（0xC5，由 MSI Center 设置）。如果你更改它，只有 MSI Center 能把它设回去。&#10;&#10;仍要更改吗？</value>
+  </data>
+  <data name="Wmi2_WarnCustomCurve" xml:space="preserve">
+    <value>自定义风扇曲线已开启（由 MSI Center 设置）。自动或静音会将其关闭，只有 MSI Center 能重新开启。&#10;&#10;仍要更改吗？</value>
+  </data>
+  <data name="Wmi2_WarnLowChargeLimit" xml:space="preserve">
+    <value>充电上限被设为 {0}%；M-Tool 自身只设置 50% 及以上的上限。"恢复到使用 M-Tool 之前"会还原 M-Tool 第一次更改前保存的值。&#10;&#10;仍要更改吗？</value>
+  </data>
+  <data name="Wmi2_OutcomeApplied" xml:space="preserve">
+    <value>完成：读回的值与写入的一致。</value>
+  </data>
+  <data name="Wmi2_OutcomeAlreadySet" xml:space="preserve">
+    <value>已经是该值：未写入任何内容。</value>
+  </data>
+  <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
+    <value>试运行：已检查并记录，未写入任何内容。要写入，请在 settings.json 中设置 "dryRun": false。</value>
+  </data>
+  <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
+    <value>{0} 旧值已写回并读回。在 M-Tool 重新启动之前，所有写入都已关闭。</value>
+  </data>
+  <data name="Wmi2_OutcomeUnrecovered" xml:space="preserve">
+    <value>{0} 无法写回旧值。请在 MSI Center 中重新设置，或重新启动笔记本电脑。在 M-Tool 重新启动之前，所有写入都已关闭。</value>
+  </data>
+  <data name="Wmi2_OutcomeInternal" xml:space="preserve">
+    <value>M-Tool 拒绝了这次写入（{0}）。未写入任何内容。</value>
+  </data>
+  <data name="Wmi2_RefusedValue" xml:space="preserve">
+    <value>此型号不允许这个值。未写入任何内容。</value>
+  </data>
+  <data name="Wmi2_RefusedOutsideLayout" xml:space="preserve">
+    <value>寄存器中的值不是 M-Tool 预期的。未写入任何内容。</value>
+  </data>
+  <data name="Wmi2_RefusedListInvalid" xml:space="preserve">
+    <value>msi-ec 列表未通过检查，因此所有写入都已关闭。</value>
+  </data>
+  <data name="Wmi2_RefusedLocked" xml:space="preserve">
+    <value>之前有一次写入失败，因此在 M-Tool 重新启动之前，所有写入都已关闭。</value>
+  </data>
+  <data name="Wmi2_RefusedWritePathTest" xml:space="preserve">
+    <value>写入测试未通过，因此未更改任何内容。</value>
+  </data>
+  <data name="Wmi2_RefusedNotWmi2Only" xml:space="preserve">
+    <value>这台笔记本电脑不再以仅 WMI2 笔记本电脑的方式响应。未写入任何内容。</value>
+  </data>
+  <data name="Wmi2_RefusedNoPreState" xml:space="preserve">
+    <value>尚未保存使用 M-Tool 之前的值。没有可写回的内容。</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateNotTaken" xml:space="preserve">
+    <value>无法保存使用 M-Tool 之前的值，因此未写入任何内容。</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateUnreadable" xml:space="preserve">
+    <value>无法读取 {0}，而且 M-Tool 绝不会覆盖它，因此未写入任何内容。请把该文件移到其他文件夹（请保留它：其中有使用 M-Tool 之前的值），然后重试。</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateOtherFirmware" xml:space="preserve">
+    <value>{0} 是在另一个固件下保存的（BIOS 更新之前），因此未写入任何内容。请把该文件移到其他文件夹，然后重试：M-Tool 随后会保存当前的值。</value>
+  </data>
+  <data name="Wmi2_ProblemUnreachable" xml:space="preserve">
+    <value>无法连接到笔记本电脑（睡眠或繁忙）。未作任何更改；请重试。</value>
+  </data>
+  <data name="Wmi2_ProblemReadBack" xml:space="preserve">
+    <value>读回的值与写入的不一致；可能是 MSI Center 把它设回去了。</value>
+  </data>
+  <data name="Wmi2_ProblemWriteFailed" xml:space="preserve">
+    <value>写入未成功。</value>
+  </data>
+  <data name="Wmi2_ProblemRegisterMoved" xml:space="preserve">
+    <value>两次尝试之间该值发生了变化，因此没有再次写入。</value>
+  </data>
+  <data name="Wmi2_ProblemCancelled" xml:space="preserve">
+    <value>未尝试：在处理这个值之前已停止。</value>
+  </data>
+  <data name="Wmi2_RevertLine" xml:space="preserve">
+    <value>{0}：{1}</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>设置…</value>
   </data>

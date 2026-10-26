@@ -782,6 +782,162 @@
     <value>MSI software is running (for example MSI Center); it may undo your settings.</value>
     <comment>Information band in the WMI2 window when MSI's own software is running. Any program from MSI (Micro-Star) counts, so say "MSI software", with MSI Center as an example; keep "MSI Center" as is. M-Tool is not blocked; this is only a warning.</comment>
   </data>
+  <data name="Wmi2_ControlEnable" xml:space="preserve">
+    <value>Turn on experimental control…</value>
+    <comment>Button in the WMI2 window that turns on experimental control (asks Wmi2_ControlConfirm first). Keep the ellipsis.</comment>
+  </data>
+  <data name="Wmi2_ControlConfirm" xml:space="preserve">
+    <value>Turn on experimental control for this laptop?&#10;&#10;M-Tool will be able to change Cooler Boost, the performance mode, the fan mode (auto or silent) and the charge limit. M-Tool has not been tested on this model: msi-ec lists this firmware, but a wrong value can make the fans, the performance or the charging act differently than you expect.&#10;&#10;M-Tool writes only when you change a switch, checks every value first and reads it back. Before the first change it saves the values from before M-Tool; "Back to before M-Tool" writes them back. MSI Center can also set everything again.&#10;&#10;You are asked again after a BIOS update.</value>
+    <comment>SAFETY. Question in a Yes/No window before experimental WMI2 control is turned on (No is the default). Say clearly: which four things M-Tool can then change; that M-Tool is not tested on this model and a wrong value can make fans, performance or charging act unexpectedly; that it writes only when the user changes a switch, checks and reads back every value; that it saves the values from before M-Tool and "Back to before M-Tool" (Wmi2_ControlRevert) writes them back; that MSI Center can set everything again; that the question comes again after a BIOS update. Keep M-Tool, msi-ec, MSI Center, Cooler Boost, the quoted button name as in Wmi2_ControlRevert, and the line breaks. The answer buttons are Common_Yes and Common_No.</comment>
+  </data>
+  <data name="Wmi2_ControlBand" xml:space="preserve">
+    <value>Experimental control is on: M-Tool writes only when you change a switch. "Back to before M-Tool" restores the values saved before the first change.</value>
+    <comment>SAFETY. Band in the WMI2 window while experimental control is on, in place of Wmi2_ExperimentalBand. Say that M-Tool writes only when the user changes a switch, and that the button named as in Wmi2_ControlRevert restores the values saved before the first change.</comment>
+  </data>
+  <data name="Wmi2_ControlRevert" xml:space="preserve">
+    <value>Back to before M-Tool</value>
+    <comment>Button: writes back the values saved before M-Tool's first experimental change. Keep M-Tool.</comment>
+  </data>
+  <data name="Wmi2_ControlTurnOff" xml:space="preserve">
+    <value>Turn off experimental control</value>
+    <comment>Button: turns experimental control off and forgets the consent; the window goes back to reading only. Nothing is written.</comment>
+  </data>
+  <data name="Wmi2_ControlOpening" xml:space="preserve">
+    <value>Opening experimental control…</value>
+    <comment>Shown while experimental control is opening (a second or two). Keep the ellipsis.</comment>
+  </data>
+  <data name="Wmi2_ControlNotExact" xml:space="preserve">
+    <value>Experimental control is only for firmware that the msi-ec list names exactly. This laptop's firmware is not one of them, so M-Tool only reads.</value>
+    <comment>Why there is no experimental control: the firmware is not an exact entry of the msi-ec list (only its family, or nothing). Keep msi-ec and M-Tool.</comment>
+  </data>
+  <data name="Wmi2_ControlListUnavailable" xml:space="preserve">
+    <value>The msi-ec list could not be loaded, so experimental control is off.</value>
+    <comment>Why there is no experimental control: the built-in msi-ec firmware list did not load. Keep msi-ec.</comment>
+  </data>
+  <data name="Wmi2_ControlFirmwareChanged" xml:space="preserve">
+    <value>The firmware has changed since you turned on experimental control (a BIOS update). Turn it on again to go on.</value>
+    <comment>Shown when the saved consent is for another firmware: the user has to turn experimental control on again (Wmi2_ControlEnable).</comment>
+  </data>
+  <data name="Wmi2_ControlNotWmi2" xml:space="preserve">
+    <value>The laptop did not answer as a WMI2 laptop, so experimental control was not opened.</value>
+    <comment>Experimental control was not opened: the check right before opening found no WMI2-only laptop. Keep WMI2.</comment>
+  </data>
+  <data name="Wmi2_ControlFirmwareUnreadable" xml:space="preserve">
+    <value>The firmware could not be read, so experimental control was not opened.</value>
+    <comment>Experimental control was not opened: the firmware version could not be read.</comment>
+  </data>
+  <data name="Wmi2_ControlOpenFailed" xml:space="preserve">
+    <value>Experimental control could not be opened. The values are still read.</value>
+    <comment>Experimental control failed to open (details are in the log); the window keeps reading only.</comment>
+  </data>
+  <data name="Wmi2_ControlLayout" xml:space="preserve">
+    <value>This laptop holds values M-Tool does not expect ({0}), so every write is off in this session.</value>
+    <comment>SAFETY. Shown when the layout check fails: no experimental write happens in this session. {0}: the raw registers and bytes, e.g. 0xD2=0x00. Keep M-Tool.</comment>
+  </data>
+  <data name="Wmi2_ConsentNotSaved" xml:space="preserve">
+    <value>The setting could not be saved to settings.json; the change holds for this session only.</value>
+    <comment>Turning experimental control on or off could not be saved; it holds until M-Tool closes. Keep settings.json.</comment>
+  </data>
+  <data name="Wmi2_WarnC5" xml:space="preserve">
+    <value>The performance mode is set to one M-Tool cannot name (0xC5, set by MSI Center). If you change it, only MSI Center can set it back.&#10;&#10;Change it anyway?</value>
+    <comment>SAFETY. Yes/No question (No is the default) before a performance-mode change while the register holds 0xC5, MSI Center's fourth mode. Say that only MSI Center can set it back. Keep 0xC5, M-Tool, MSI Center and the line breaks.</comment>
+  </data>
+  <data name="Wmi2_WarnCustomCurve" xml:space="preserve">
+    <value>A custom fan curve is on (set by MSI Center). Auto or silent turns it off, and only MSI Center can turn it back on.&#10;&#10;Change it anyway?</value>
+    <comment>SAFETY. Yes/No question (No is the default) before an auto or silent fan-mode write while a custom fan curve is on. Say that the change turns the curve off and only MSI Center can turn it back on. Keep MSI Center and the line breaks; auto and silent as in Wmi2_FanAuto and Wmi2_FanSilent.</comment>
+  </data>
+  <data name="Wmi2_WarnLowChargeLimit" xml:space="preserve">
+    <value>The charge limit is set to {0}%; M-Tool itself sets limits only from 50% up. "Back to before M-Tool" restores the value saved before M-Tool's first change.&#10;&#10;Change it anyway?</value>
+    <comment>SAFETY. Yes/No question (No is the default) before a new charge limit while the current one is under 50%. {0}: the current limit in percent. Say that M-Tool itself sets limits only from 50% up (it is not an error that the value is lower) and that the button named as in Wmi2_ControlRevert restores the saved value. Keep M-Tool and the line breaks.</comment>
+  </data>
+  <data name="Wmi2_OutcomeApplied" xml:space="preserve">
+    <value>Done: the value read back as written.</value>
+    <comment>Result of an experimental write: written and read back.</comment>
+  </data>
+  <data name="Wmi2_OutcomeAlreadySet" xml:space="preserve">
+    <value>Already set: nothing was written.</value>
+    <comment>Result of an experimental write: the laptop already held the value, so nothing was written.</comment>
+  </data>
+  <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
+    <value>Dry run: checked and logged, nothing was written. To write, set "dryRun": false in settings.json.</value>
+    <comment>Result of an experimental write in dry-run mode. Keep "dryRun": false and settings.json exactly.</comment>
+  </data>
+  <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
+    <value>{0} The old value was written back and read back. Every write is off until M-Tool starts again.</value>
+    <comment>SAFETY. Result of a failed experimental write that was undone. {0}: why it failed (one of the Wmi2_Problem* sentences). Say that the old value is back and every write is off until M-Tool restarts.</comment>
+  </data>
+  <data name="Wmi2_OutcomeUnrecovered" xml:space="preserve">
+    <value>{0} The old value could not be written back. Set it again in MSI Center, or restart the laptop. Every write is off until M-Tool starts again.</value>
+    <comment>SAFETY. Result of a failed experimental write that could not be undone. {0}: why it failed (one of the Wmi2_Problem* sentences). Say what to do (MSI Center or restart) and that every write is off until M-Tool restarts. Keep MSI Center.</comment>
+  </data>
+  <data name="Wmi2_OutcomeInternal" xml:space="preserve">
+    <value>M-Tool refused this write ({0}). Nothing was written.</value>
+    <comment>Result of an experimental write refused for a reason the window does not name. {0}: an internal code in English (e.g. NotWritable); leave it as is.</comment>
+  </data>
+  <data name="Wmi2_RefusedValue" xml:space="preserve">
+    <value>This value is not allowed on this model. Nothing was written.</value>
+    <comment>Result of an experimental write: the value is not one this model's family allows.</comment>
+  </data>
+  <data name="Wmi2_RefusedOutsideLayout" xml:space="preserve">
+    <value>The register holds a value M-Tool does not expect. Nothing was written.</value>
+    <comment>Result of an experimental write: the register held an unexpected byte right before the write.</comment>
+  </data>
+  <data name="Wmi2_RefusedListInvalid" xml:space="preserve">
+    <value>The msi-ec list failed its check, so every write is off.</value>
+    <comment>Result of an experimental write: the built-in msi-ec list holds an entry the code does not allow. Keep msi-ec.</comment>
+  </data>
+  <data name="Wmi2_RefusedLocked" xml:space="preserve">
+    <value>A write failed earlier, so every write is off until M-Tool starts again.</value>
+    <comment>SAFETY. Result of an experimental write: an earlier write failed in this session, so all writes are off until restart.</comment>
+  </data>
+  <data name="Wmi2_RefusedWritePathTest" xml:space="preserve">
+    <value>The write test did not pass, so nothing was changed.</value>
+    <comment>Result of an experimental write: the write test that runs before the first change (the current performance byte written again) failed.</comment>
+  </data>
+  <data name="Wmi2_RefusedNotWmi2Only" xml:space="preserve">
+    <value>The laptop no longer answers as a WMI2-only laptop. Nothing was written.</value>
+    <comment>Result of an experimental write: the check right before writing found an MSI WMI1 class or failed. Keep WMI2.</comment>
+  </data>
+  <data name="Wmi2_RefusedNoPreState" xml:space="preserve">
+    <value>No values from before M-Tool are saved yet. Nothing to write back.</value>
+    <comment>Result of "Back to before M-Tool" when no values were saved (no experimental change was made yet).</comment>
+  </data>
+  <data name="Wmi2_ProblemPreStateNotTaken" xml:space="preserve">
+    <value>The values from before M-Tool could not be saved, so nothing was written.</value>
+    <comment>SAFETY. Result of an experimental write: the snapshot of the values before M-Tool could not be taken or saved, so nothing was written.</comment>
+  </data>
+  <data name="Wmi2_ProblemPreStateUnreadable" xml:space="preserve">
+    <value>{0} cannot be read, and M-Tool never writes over it, so nothing was written. Move the file to another folder (keep it: it holds the values from before M-Tool), then try again.</value>
+    <comment>SAFETY. Result of an experimental write: the saved snapshot file is unreadable. {0}: its full path. Say to move it elsewhere and keep it, then try again.</comment>
+  </data>
+  <data name="Wmi2_ProblemPreStateOtherFirmware" xml:space="preserve">
+    <value>{0} was saved under another firmware (before a BIOS update), so nothing was written. Move the file to another folder, then try again: M-Tool then saves the current values.</value>
+    <comment>SAFETY. Result of an experimental write: the saved snapshot file belongs to another firmware. {0}: its full path. Say to move it elsewhere, then try again, and that M-Tool then saves the current values.</comment>
+  </data>
+  <data name="Wmi2_ProblemUnreachable" xml:space="preserve">
+    <value>The laptop could not be reached (sleep, or busy). Nothing changed; try again.</value>
+    <comment>Result of an experimental write: the EC could not be reached before writing; nothing changed.</comment>
+  </data>
+  <data name="Wmi2_ProblemReadBack" xml:space="preserve">
+    <value>The value did not read back as written; MSI Center may have set it back.</value>
+    <comment>Why an experimental write failed: the written bits did not read back. Keep MSI Center. A sentence on its own; it may be followed by Wmi2_OutcomeRecovered or Wmi2_OutcomeUnrecovered.</comment>
+  </data>
+  <data name="Wmi2_ProblemWriteFailed" xml:space="preserve">
+    <value>The write did not go through.</value>
+    <comment>Why an experimental write failed: the write call or a read after it failed. A sentence on its own.</comment>
+  </data>
+  <data name="Wmi2_ProblemRegisterMoved" xml:space="preserve">
+    <value>The value changed between two tries, so it was not written again.</value>
+    <comment>Why an experimental write failed: between tries the register came to hold a byte that may not be written over. A sentence on its own.</comment>
+  </data>
+  <data name="Wmi2_ProblemCancelled" xml:space="preserve">
+    <value>Not tried: stopped before this value.</value>
+    <comment>Result for one register of "Back to before M-Tool" when it was stopped before reaching it.</comment>
+  </data>
+  <data name="Wmi2_RevertLine" xml:space="preserve">
+    <value>{0}: {1}</value>
+    <comment>One line of the "Back to before M-Tool" result. {0}: what was written back (Wmi2_CoolerBoost, Wmi2_PerformanceMode, Wmi2_FanMode or Wmi2_ChargeLimit). {1}: the result sentence. Use the colon spacing of your language.</comment>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Settings…</value>
     <comment>Tray menu item that opens the settings window (General and About tabs).</comment>

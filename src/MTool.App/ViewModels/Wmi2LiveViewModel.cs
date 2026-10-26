@@ -51,6 +51,7 @@ internal sealed partial class Wmi2LiveViewModel(
     private long? _lastRound; // a monotonic timestamp: a clock change must not shorten the 2 s rule
     private bool _hasFirmware;
     private string? _firmware;
+    private Wmi2Status? _status;
     private bool _statusWanted; // a refresh held back by the 2 s rule: the next timed round reads the status too
     // All state below is touched on the UI thread only: the commands, the window events and the timer loop
     // (started there, its awaits resume there). Keep it so: none of it is locked.
@@ -143,6 +144,14 @@ internal sealed partial class Wmi2LiveViewModel(
     public partial bool IsPolling { get; private set; }
 
     /// <summary>
+    /// Experimental control is writing, or asking before it writes: the source must stay as it is, so Stop and a
+    /// switch wait. Closing the window still closes it; the EC worker lets a running write finish first.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StopCommand))]
+    public partial bool IsSourceHeld { get; internal set; }
+
+    /// <summary>
     /// The section for a laptop whose probe found <paramref name="detected"/>: only a WMI2 laptop gets
     /// one, with a breaker of its own. Nothing is opened or read until the user asks.
     /// </summary>
@@ -152,6 +161,21 @@ internal sealed partial class Wmi2LiveViewModel(
         detected == WmiInterface.Wmi2
             ? new Wmi2LiveViewModel(open, new Wmi2CircuitBreaker(), confirm, accessGate, TimeProvider.System, log, detected, list)
             : null;
+
+    /// <summary>After each round shown, a switch of source and Stop: what control reads below may have changed.</summary>
+    internal event EventHandler? StateChanged;
+
+    /// <summary>The firmware the first round read; null before it, after Stop, or when the answer had none.</summary>
+    internal string? FirmwareVersion => _firmware;
+
+    /// <summary>The status the last round read; null before it and after Stop.</summary>
+    internal Wmi2Status? LastStatus => _status;
+
+    /// <summary>What the rounds read through: the read-only source, or experimental control after a switch.</summary>
+    internal IWmi2LiveSource? Source => _source;
+
+    /// <summary>After a write: the next timed round reads the status too, still within the 2 s rule.</summary>
+    internal void WantStatus() => _statusWanted = true;
 
     /// <summary>The window tells whether it is on screen (shown and not minimised); only then does the timer run.</summary>
     public void SetWindowShown(bool shown)
@@ -271,12 +295,14 @@ internal sealed partial class Wmi2LiveViewModel(
         IsStopped = false;
         _hasFirmware = false;
         _firmware = null;
+        _status = null;
         _statusWanted = false;
         ListMatch = NoMatchYet(detected, list);
         Message = null;
         Firmware = CpuTemperature = GpuTemperature = CpuFan = GpuFan = Missing;
         PerformanceMode = FanMode = ChargeLimit = CoolerBoost = Missing;
         log.Info("WMI2 live read: stopped by the user.");
+        StateChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>Refresh and Try again; with the firmware too while the first round has not read it (skipped by the gate or the 2 s rule).</summary>
@@ -288,7 +314,7 @@ internal sealed partial class Wmi2LiveViewModel(
 
     private bool CanTryAgain() => IsStarted && !IsBusy && IsStopped;
 
-    private bool CanStop() => IsStarted && !IsBusy;
+    private bool CanStop() => IsStarted && !IsBusy && !IsSourceHeld;
 
     private void StartPolling()
     {
@@ -364,11 +390,13 @@ internal sealed partial class Wmi2LiveViewModel(
 
         _lastRound = time.GetTimestamp();
         IsBusy = true;
+        var shown = false;
         try
         {
             var round = await breaker.RunAsync(ct => ReadRoundAsync(source, kind, ct), _closing.Token);
             Show(round);
             Message = null;
+            shown = true;
         }
         catch (Exception) when (_closing.IsCancellationRequested)
         {
@@ -394,6 +422,11 @@ internal sealed partial class Wmi2LiveViewModel(
             {
                 StopPolling();
             }
+        }
+
+        if (shown)
+        {
+            StateChanged?.Invoke(this, EventArgs.Empty); // once the round is over, so a switch can follow at once
         }
     }
 
@@ -461,6 +494,7 @@ internal sealed partial class Wmi2LiveViewModel(
         }
 
         _statusWanted = false;
+        _status = status;
 
         PerformanceMode = Named(PerformanceName(Wmi2Support.Performance(detected, list, _firmware, status.PerformanceRaw)), status.PerformanceRaw);
         FanMode = Named(FanModeName(status.FanMode), status.FanModeRaw);

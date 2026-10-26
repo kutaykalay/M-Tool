@@ -588,6 +588,123 @@
   <data name="Wmi2_MsiSoftwareRunning" xml:space="preserve">
     <value>Hay software de MSI en ejecución (p. ej., MSI Center); puede deshacer sus ajustes.</value>
   </data>
+  <data name="Wmi2_ControlEnable" xml:space="preserve">
+    <value>Activar el control experimental…</value>
+  </data>
+  <data name="Wmi2_ControlConfirm" xml:space="preserve">
+    <value>¿Activar el control experimental en este portátil?&#10;&#10;M-Tool podrá cambiar Cooler Boost, el modo de rendimiento, el modo de ventilador (auto o silencioso) y el límite de carga. M-Tool no se ha probado en este modelo: msi-ec incluye este firmware, pero un valor incorrecto puede hacer que los ventiladores, el rendimiento o la carga se comporten de forma distinta a la que espera.&#10;&#10;M-Tool solo escribe cuando usted cambia un interruptor, comprueba cada valor antes y lo vuelve a leer. Antes del primer cambio guarda los valores de antes de M-Tool; "Volver al estado anterior a M-Tool" los escribe de nuevo. MSI Center también puede volver a establecerlo todo.&#10;&#10;Se le preguntará de nuevo después de una actualización de la BIOS.</value>
+  </data>
+  <data name="Wmi2_ControlBand" xml:space="preserve">
+    <value>El control experimental está activado: M-Tool solo escribe cuando usted cambia un interruptor. "Volver al estado anterior a M-Tool" restaura los valores guardados antes del primer cambio.</value>
+  </data>
+  <data name="Wmi2_ControlRevert" xml:space="preserve">
+    <value>Volver al estado anterior a M-Tool</value>
+  </data>
+  <data name="Wmi2_ControlTurnOff" xml:space="preserve">
+    <value>Desactivar el control experimental</value>
+  </data>
+  <data name="Wmi2_ControlOpening" xml:space="preserve">
+    <value>Abriendo el control experimental…</value>
+  </data>
+  <data name="Wmi2_ControlNotExact" xml:space="preserve">
+    <value>El control experimental es solo para firmware que la lista de msi-ec nombra exactamente. El firmware de este portátil no es uno de ellos, así que M-Tool solo lee.</value>
+  </data>
+  <data name="Wmi2_ControlListUnavailable" xml:space="preserve">
+    <value>No se pudo cargar la lista de msi-ec, así que el control experimental está desactivado.</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareChanged" xml:space="preserve">
+    <value>El firmware ha cambiado desde que activó el control experimental (una actualización de la BIOS). Actívelo de nuevo para continuar.</value>
+  </data>
+  <data name="Wmi2_ControlNotWmi2" xml:space="preserve">
+    <value>El portátil no respondió como un portátil WMI2, así que no se abrió el control experimental.</value>
+  </data>
+  <data name="Wmi2_ControlFirmwareUnreadable" xml:space="preserve">
+    <value>No se pudo leer el firmware, así que no se abrió el control experimental.</value>
+  </data>
+  <data name="Wmi2_ControlOpenFailed" xml:space="preserve">
+    <value>No se pudo abrir el control experimental. Los valores se siguen leyendo.</value>
+  </data>
+  <data name="Wmi2_ControlLayout" xml:space="preserve">
+    <value>Este portátil contiene valores que M-Tool no espera ({0}), así que toda escritura está desactivada en esta sesión.</value>
+  </data>
+  <data name="Wmi2_ConsentNotSaved" xml:space="preserve">
+    <value>No se pudo guardar el ajuste en settings.json; el cambio solo vale para esta sesión.</value>
+  </data>
+  <data name="Wmi2_WarnC5" xml:space="preserve">
+    <value>El modo de rendimiento está en un valor que M-Tool no puede nombrar (0xC5, establecido por MSI Center). Si lo cambia, solo MSI Center podrá volver a establecerlo.&#10;&#10;¿Cambiarlo de todos modos?</value>
+  </data>
+  <data name="Wmi2_WarnCustomCurve" xml:space="preserve">
+    <value>Hay una curva de ventilador personalizada activa (establecida por MSI Center). Auto o silencioso la desactiva, y solo MSI Center puede volver a activarla.&#10;&#10;¿Cambiarlo de todos modos?</value>
+  </data>
+  <data name="Wmi2_WarnLowChargeLimit" xml:space="preserve">
+    <value>El límite de carga está en el {0} %; M-Tool solo establece límites a partir del 50 %. "Volver al estado anterior a M-Tool" restaura el valor guardado antes del primer cambio de M-Tool.&#10;&#10;¿Cambiarlo de todos modos?</value>
+  </data>
+  <data name="Wmi2_OutcomeApplied" xml:space="preserve">
+    <value>Hecho: el valor se leyó de vuelta tal como se escribió.</value>
+  </data>
+  <data name="Wmi2_OutcomeAlreadySet" xml:space="preserve">
+    <value>Ya establecido: no se escribió nada.</value>
+  </data>
+  <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
+    <value>Modo de prueba: comprobado y registrado, no se escribió nada. Para escribir, ponga "dryRun": false en settings.json.</value>
+  </data>
+  <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
+    <value>{0} El valor anterior se escribió de nuevo y se volvió a leer. Toda escritura queda desactivada hasta que M-Tool se inicie otra vez.</value>
+  </data>
+  <data name="Wmi2_OutcomeUnrecovered" xml:space="preserve">
+    <value>{0} No se pudo escribir de nuevo el valor anterior. Vuelva a establecerlo en MSI Center o reinicie el portátil. Toda escritura queda desactivada hasta que M-Tool se inicie otra vez.</value>
+  </data>
+  <data name="Wmi2_OutcomeInternal" xml:space="preserve">
+    <value>M-Tool rechazó esta escritura ({0}). No se escribió nada.</value>
+  </data>
+  <data name="Wmi2_RefusedValue" xml:space="preserve">
+    <value>Este valor no está permitido en este modelo. No se escribió nada.</value>
+  </data>
+  <data name="Wmi2_RefusedOutsideLayout" xml:space="preserve">
+    <value>El registro contiene un valor que M-Tool no espera. No se escribió nada.</value>
+  </data>
+  <data name="Wmi2_RefusedListInvalid" xml:space="preserve">
+    <value>La lista de msi-ec no superó su comprobación, así que toda escritura está desactivada.</value>
+  </data>
+  <data name="Wmi2_RefusedLocked" xml:space="preserve">
+    <value>Una escritura falló antes, así que toda escritura está desactivada hasta que M-Tool se inicie otra vez.</value>
+  </data>
+  <data name="Wmi2_RefusedWritePathTest" xml:space="preserve">
+    <value>La prueba de escritura no se superó, así que no se cambió nada.</value>
+  </data>
+  <data name="Wmi2_RefusedNotWmi2Only" xml:space="preserve">
+    <value>El portátil ya no responde como un portátil solo WMI2. No se escribió nada.</value>
+  </data>
+  <data name="Wmi2_RefusedNoPreState" xml:space="preserve">
+    <value>Aún no hay valores guardados de antes de M-Tool. No hay nada que escribir de nuevo.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateNotTaken" xml:space="preserve">
+    <value>No se pudieron guardar los valores de antes de M-Tool, así que no se escribió nada.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateUnreadable" xml:space="preserve">
+    <value>{0} no se puede leer y M-Tool nunca escribe encima, así que no se escribió nada. Mueva el archivo a otra carpeta (consérvelo: contiene los valores de antes de M-Tool) e inténtelo de nuevo.</value>
+  </data>
+  <data name="Wmi2_ProblemPreStateOtherFirmware" xml:space="preserve">
+    <value>{0} se guardó con otro firmware (antes de una actualización de la BIOS), así que no se escribió nada. Mueva el archivo a otra carpeta e inténtelo de nuevo: M-Tool guardará entonces los valores actuales.</value>
+  </data>
+  <data name="Wmi2_ProblemUnreachable" xml:space="preserve">
+    <value>No se pudo contactar con el portátil (suspendido u ocupado). No cambió nada; inténtelo de nuevo.</value>
+  </data>
+  <data name="Wmi2_ProblemReadBack" xml:space="preserve">
+    <value>El valor no se leyó de vuelta tal como se escribió; puede que MSI Center lo haya vuelto a establecer.</value>
+  </data>
+  <data name="Wmi2_ProblemWriteFailed" xml:space="preserve">
+    <value>La escritura no se completó.</value>
+  </data>
+  <data name="Wmi2_ProblemRegisterMoved" xml:space="preserve">
+    <value>El valor cambió entre dos intentos, así que no se escribió de nuevo.</value>
+  </data>
+  <data name="Wmi2_ProblemCancelled" xml:space="preserve">
+    <value>No se intentó: se detuvo antes de este valor.</value>
+  </data>
+  <data name="Wmi2_RevertLine" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Ajustes…</value>
   </data>

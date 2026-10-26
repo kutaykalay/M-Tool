@@ -1,5 +1,6 @@
 using System.Text;
 using MTool.App.Hardware;
+using MTool.App.ViewModels;
 using MTool.Core.Device;
 using MTool.Core.Device.Config;
 using MTool.Core.Ec;
@@ -56,11 +57,11 @@ public sealed class Wmi2ControlSourceTests : IDisposable
     private async Task<Wmi2ControlOpening> Opening(Wmi2ControlOptions? options = null, CancellationToken cancellationToken = default)
     {
         var opening = await Wmi2ControlSource.CreateAsync(Live(), options ?? Options(), _log, cancellationToken);
-        _source = opening.Source;
+        _source = (Wmi2ControlSource?)opening.Source;
         return opening;
     }
 
-    private async Task<Wmi2ControlSource?> Create(Wmi2ControlOptions? options = null) => (await Opening(options)).Source;
+    private async Task<Wmi2ControlSource?> Create(Wmi2ControlOptions? options = null) => (Wmi2ControlSource?)(await Opening(options)).Source;
 
     private async Task NotOpened(Wmi2ControlUnavailable reason, Wmi2ControlOptions? options = null)
     {
@@ -82,6 +83,35 @@ public sealed class Wmi2ControlSourceTests : IDisposable
         (await source.Gateway.TestWmi2WritePathAsync()).Status.Should().Be(WriteStatus.Applied);
         (await source.ReadStatusAsync(CancellationToken.None)).PerformanceRaw.Should().Be(0xC1);
         _ec.Writes.Should().Equal(Wmi2Writes.Request(0xD2, 0xC1));
+    }
+
+    [Fact]
+    public async Task Control_goes_through_the_gateway_write_path_test_first()
+    {
+        IWmi2Control control = (await Create())!;
+
+        control.Layout.Verified.Should().BeTrue();
+        control.IsWritePathTested.Should().BeFalse();
+        (await control.TestWritePathAsync(CancellationToken.None)).Status.Should().Be(WriteStatus.Applied);
+        control.IsWritePathTested.Should().BeTrue();
+        var outcome = await control.ApplyAsync(new Wmi2Change.CoolerBoost(On: true), CancellationToken.None);
+
+        outcome.Status.Should().Be(WriteStatus.Applied);
+        outcome.Register.Should().Be(0x98);
+        (_ec[0x98] & 0x80).Should().Be(0x80);
+    }
+
+    [Fact]
+    public async Task Back_to_before_m_tool_answers_for_every_ceiling_register()
+    {
+        IWmi2Control control = (await Create())!;
+        await control.TestWritePathAsync(CancellationToken.None);
+        await control.ApplyAsync(new Wmi2Change.CoolerBoost(On: true), CancellationToken.None);
+
+        var outcomes = await control.RevertAsync(CancellationToken.None);
+
+        outcomes.Select(o => o.Register).Should().Equal(Wmi2WriteCeiling.Registers);
+        (_ec[0x98] & 0x80).Should().Be(0);
     }
 
     [Theory]
@@ -116,6 +146,8 @@ public sealed class Wmi2ControlSourceTests : IDisposable
         var source = await Create();
         var outcome = await source!.Gateway.TestWmi2WritePathAsync();
 
+        source.Layout.Verified.Should().BeFalse();
+        source.Layout.ToString().Should().Be("0xD2=0x00");
         outcome.Block.Should().Be(Wmi2WriteBlock.LayoutNotVerified);
         _ec.Writes.Should().BeEmpty();
         _log.Lines.Should().Contain(l => l.Contains("0xD2=0x00"));
