@@ -156,7 +156,7 @@ public static class Wmi2WriteRules
             Wmi2WriteCeiling.CoolerBoostRegister when ((write.Value ^ current) & CoolerBoostOtherBits) != 0 => Wmi2Rejection.OtherBitsChanged,
             Wmi2WriteCeiling.PerformanceRegister when !IsFamilyPerformanceByte(write.Value, list, firmware) => Wmi2Rejection.ValueNotAllowed,
             Wmi2WriteCeiling.FanModeRegister when !Wmi2WriteCeiling.FanModeValues.Values.Contains(write.Value) => Wmi2Rejection.ValueNotAllowed,
-            Wmi2WriteCeiling.ChargeLimitRegister when !IsChargeByte(write.Value) => Wmi2Rejection.ValueNotAllowed,
+            Wmi2WriteCeiling.ChargeLimitRegister when !Wmi2WriteCeiling.IsChargeLimitByte(write.Value) => Wmi2Rejection.ValueNotAllowed,
             _ => null,
         };
     }
@@ -179,8 +179,4 @@ public static class Wmi2WriteRules
     /// </summary>
     private static bool IsFamilyPerformanceByte(byte value, Wmi2FirmwareList list, FirmwareInfo? firmware) =>
         Wmi2WriteCeiling.StandardPerformance.Keys.Select(mode => list.PerformanceByte(firmware, mode)).ToArray().Contains(value);
-
-    private static bool IsChargeByte(byte value) =>
-        (value & Wmi2WriteCeiling.ChargeLimitEnableMask) != 0
-        && (value & ~Wmi2WriteCeiling.ChargeLimitEnableMask) is >= Wmi2WriteCeiling.MinChargeLimitPercent and <= Wmi2WriteCeiling.MaxChargeLimitPercent;
 }

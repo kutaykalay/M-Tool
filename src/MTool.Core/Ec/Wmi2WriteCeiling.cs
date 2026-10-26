@@ -58,6 +58,11 @@ public static class Wmi2WriteCeiling
     public static PerformanceMode? StandardModeOf(byte value) =>
         StandardModes.TryGetValue(value, out var mode) ? mode : null;
 
+    /// <summary>A charge limit byte the ceiling may write: the enable bit and 50-100 %.</summary>
+    public static bool IsChargeLimitByte(byte value) =>
+        (value & ChargeLimitEnableMask) != 0
+        && (value & ~ChargeLimitEnableMask) is >= MinChargeLimitPercent and <= MaxChargeLimitPercent;
+
     /// <summary>True when <paramref name="value"/> is the exception byte the code allows for <paramref name="mode"/>.</summary>
     public static bool IsPerformanceException(PerformanceMode mode, byte value) =>
         PerformanceExceptions.TryGetValue(mode, out var allowed) && allowed == value;

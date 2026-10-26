@@ -7,10 +7,6 @@ namespace MTool.Core.Ec;
 /// </summary>
 public sealed class Wmi2EcRegisters(IWmi2Methods wmi) : IEcRegisters
 {
-    private const int StatusByte = 0;
-    private const int ValueByte = 1;
-    private const byte Success = 1;
-    private const int PacketLength = 32;
     private const int AddressSpace = 0x100;
 
     /// <exception cref="InvalidOperationException">The register is not in the list; nothing was called.</exception>
@@ -26,24 +22,6 @@ public sealed class Wmi2EcRegisters(IWmi2Methods wmi) : IEcRegisters
         return Array.AsReadOnly(requests.Select(Call).ToArray());
     }
 
-    private byte Call(Wmi2Request request)
-    {
-        var name = $"{request.Method}(0x{request.Sub:X2})";
-        byte[]? answer;
-        try
-        {
-            answer = wmi.Call(request);
-        }
-        catch (Exception ex) when (ex is not EcAccessException and not OutOfMemoryException)
-        {
-            throw new EcAccessException($"WMI2 {name} failed: {ex.Message}", ex);
-        }
-
-        // GhostDeck docs/TECHNICAL.md §5.3: byte 0 is the OK flag (01), byte 1 the value.
-        return answer is { Length: PacketLength } && answer[StatusByte] == Success
-            ? answer[ValueByte]
-            : throw new EcAccessException(answer is null
-                ? $"WMI2 {name} answered nothing."
-                : $"WMI2 {name} answered {answer.Length} bytes, status {(answer.Length > 0 ? answer[StatusByte] : -1)}: not a value.");
-    }
+    private byte Call(Wmi2Request request) =>
+        Wmi2Answer.Of($"{request.Method}(0x{request.Sub:X2})", () => wmi.Call(request))[Wmi2Answer.ValueByte];
 }
