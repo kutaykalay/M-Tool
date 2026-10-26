@@ -114,6 +114,9 @@
   <data name="Settings_InvalidChargeLimit" xml:space="preserve">
     <value>Límite de carga no válido ({0} %); debe ser de {1} a {2} %, se ignora.</value>
   </data>
+  <data name="Settings_InvalidExperimentalWmi2" xml:space="preserve">
+    <value>El ajuste del control experimental de WMI2 está incompleto o no es válido; el control experimental está desactivado. Puede volver a activarlo en la ventana de WMI2.</value>
+  </data>
   <data name="Settings_PairMissingAc" xml:space="preserve">
     <value>No se encontró el perfil de ventilador para corriente ({0}); al pasar a corriente se mantiene el ajuste actual.</value>
   </data>

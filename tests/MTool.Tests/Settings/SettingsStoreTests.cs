@@ -614,6 +614,38 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void The_experimental_wmi2_consent_round_trips_in_the_file()
+    {
+        var store = new SettingsStore(_folder);
+        var consent = new Wmi2ExperimentalConsent("15M3EMS1.105", new DateTimeOffset(2026, 10, 26, 18, 0, 0, TimeSpan.FromHours(3)));
+
+        store.Save(AppSettings.Default with { ExperimentalWmi2 = consent });
+
+        store.Load().Settings.ExperimentalWmi2.Should().Be(consent);
+        File.ReadAllText(SettingsPath).Should().Contain("\"experimentalWmi2\"").And.Contain("\"firmware\": \"15M3EMS1.105\"");
+    }
+
+    [Fact]
+    public void A_file_without_the_experimental_consent_loads_with_it_off_and_keeps_its_version()
+    {
+        File.WriteAllText(SettingsPath, """{ "schemaVersion": 1, "dryRun": false }""");
+
+        var result = new SettingsStore(_folder).Load();
+
+        result.Warning.Should().BeNull();
+        result.Settings.ExperimentalWmi2.Should().BeNull();
+        AppSettings.Default.ExperimentalWmi2.Should().BeNull("experimental control is off until the user turns it on");
+        result.Settings.SchemaVersion.Should().Be(1);
+    }
+
+    [Fact]
+    public void Settings_that_differ_only_in_the_experimental_consent_are_not_equal()
+    {
+        (AppSettings.Default with { ExperimentalWmi2 = new Wmi2ExperimentalConsent("15M3EMS1.105", DateTimeOffset.UnixEpoch) })
+            .Should().NotBe(AppSettings.Default);
+    }
+
+    [Fact]
     public void A_file_without_a_language_loads_with_none_and_keeps_its_version()
     {
         File.WriteAllText(SettingsPath, """{ "schemaVersion": 1, "dryRun": false }""");

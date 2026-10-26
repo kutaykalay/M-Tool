@@ -454,4 +454,77 @@ public class SettingsSanitizerTests
         result.DroppedProfiles.Should().Be(0);
         result.Warnings.Should().ContainSingle();
     }
+
+    private static readonly DateTimeOffset ConsentTime = new(2026, 10, 26, 18, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    public void A_complete_experimental_consent_is_kept_without_a_warning()
+    {
+        var consent = new Wmi2ExperimentalConsent("15M3EMS1.105", ConsentTime);
+
+        var result = SettingsSanitizer.Sanitize(AppSettings.Default with { ExperimentalWmi2 = consent }, Catalog);
+
+        result.Settings.ExperimentalWmi2.Should().Be(consent);
+        result.Warnings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void No_experimental_consent_stays_off_without_a_warning()
+    {
+        var result = SettingsSanitizer.Sanitize(AppSettings.Default, Catalog);
+
+        result.Settings.ExperimentalWmi2.Should().BeNull();
+        result.Warnings.Should().BeEmpty();
+    }
+
+    public static TheoryData<string?, bool> BrokenConsents => new()
+    {
+        { null, true },
+        { "15M3EMS1.105", false },
+        { "", true },
+        { "15m3ems1.105", true },
+        { "15M3EMS1.1", true },
+        { "15M3EMS1.105\n", true },
+        { @"..\15M3EMS1.105", true },
+        { new string('A', 500), true },
+    };
+
+    [Theory]
+    [MemberData(nameof(BrokenConsents))]
+    public void A_missing_or_malformed_consent_field_turns_experimental_control_off_with_a_warning(string? firmware, bool hasTime)
+    {
+        var consent = new Wmi2ExperimentalConsent(firmware, hasTime ? ConsentTime : null);
+
+        var result = SettingsSanitizer.Sanitize(AppSettings.Default with { ExperimentalWmi2 = consent }, Catalog);
+
+        result.Settings.ExperimentalWmi2.Should().BeNull();
+        result.Warnings.Should().ContainSingle().Which.Should().Contain("WMI2");
+        result.LogWarnings.Should().ContainSingle().Which.Should().Contain("WMI2");
+    }
+
+    [Fact]
+    public void The_consent_warning_does_not_echo_the_stored_text()
+    {
+        var planted = "x[31m" + new string('a', 300);
+
+        var result = SettingsSanitizer.Sanitize(
+            AppSettings.Default with { ExperimentalWmi2 = new Wmi2ExperimentalConsent(planted, ConsentTime) }, Catalog);
+
+        result.Warnings.Single().Should().NotContain("aaaa").And.NotMatchRegex(@"\p{Cc}");
+    }
+
+    [Fact]
+    public void A_consent_problem_does_not_touch_the_rest_of_the_settings()
+    {
+        var settings = WithProfiles(Night("Gece")) with
+        {
+            Language = "tr",
+            Desired = new DesiredState("Cool", PerformanceMode.Eco, 70, FanMode.Auto),
+            ExperimentalWmi2 = new Wmi2ExperimentalConsent("bad", ConsentTime),
+        };
+
+        var result = SettingsSanitizer.Sanitize(settings, Catalog);
+
+        result.Settings.Should().Be(settings with { ExperimentalWmi2 = null });
+    }
 }

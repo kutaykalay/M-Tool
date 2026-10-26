@@ -114,6 +114,9 @@
   <data name="Settings_InvalidChargeLimit" xml:space="preserve">
     <value>Limite de carga inválido ({0}%); deve ser de {1} a {2}%, ignorado.</value>
   </data>
+  <data name="Settings_InvalidExperimentalWmi2" xml:space="preserve">
+    <value>A configuração do controle experimental WMI2 está incompleta ou é inválida; o controle experimental está desativado. Você pode ativá-lo novamente na janela WMI2.</value>
+  </data>
   <data name="Settings_PairMissingAc" xml:space="preserve">
     <value>O perfil de ventoinha usado na tomada não foi encontrado ({0}); a configuração atual é mantida ao passar para a tomada.</value>
   </data>

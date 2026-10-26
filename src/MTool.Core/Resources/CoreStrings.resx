@@ -148,6 +148,10 @@
     <value>Invalid charge limit ({0}%); it must be {1}-{2}%, ignored.</value>
     <comment>Settings warning. {0}: the value from settings.json, in percent. {1} and {2}: lowest and highest allowed percent.</comment>
   </data>
+  <data name="Settings_InvalidExperimentalWmi2" xml:space="preserve">
+    <value>The experimental WMI2 control setting is incomplete or invalid; experimental control is off. You can turn it on again in the WMI2 window.</value>
+    <comment>Settings warning. The experimentalWmi2 entry in settings.json is missing a field or names no valid firmware; it is dropped, so experimental WMI2 control is off. Keep WMI2.</comment>
+  </data>
   <data name="Settings_PairMissingAc" xml:space="preserve">
     <value>The fan profile used on AC power was not found ({0}); the current setting is kept when switching to AC.</value>
     <comment>Settings warning about the power-source switch. {0}: the name from the file, or the word for empty. AC = mains power.</comment>

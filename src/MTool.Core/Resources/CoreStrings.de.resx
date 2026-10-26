@@ -114,6 +114,9 @@
   <data name="Settings_InvalidChargeLimit" xml:space="preserve">
     <value>Ungültiges Ladelimit ({0} %); es muss {1}–{2} % betragen, ignoriert.</value>
   </data>
+  <data name="Settings_InvalidExperimentalWmi2" xml:space="preserve">
+    <value>Die Einstellung für die experimentelle WMI2-Steuerung ist unvollständig oder ungültig; die experimentelle Steuerung ist aus. Sie können sie im WMI2-Fenster wieder einschalten.</value>
+  </data>
   <data name="Settings_PairMissingAc" xml:space="preserve">
     <value>Das Lüfterprofil für den Netzbetrieb wurde nicht gefunden ({0}); beim Wechsel auf Netzbetrieb bleibt die aktuelle Einstellung.</value>
   </data>

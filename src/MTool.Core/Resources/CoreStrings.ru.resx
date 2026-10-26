@@ -114,6 +114,9 @@
   <data name="Settings_InvalidChargeLimit" xml:space="preserve">
     <value>Недопустимый лимит заряда ({0} %); он должен быть {1}–{2} %, пропущен.</value>
   </data>
+  <data name="Settings_InvalidExperimentalWmi2" xml:space="preserve">
+    <value>Параметр экспериментального управления WMI2 неполон или недопустим; экспериментальное управление выключено. Его можно снова включить в окне WMI2.</value>
+  </data>
   <data name="Settings_PairMissingAc" xml:space="preserve">
     <value>Профиль вентиляторов для работы от сети не найден ({0}); при переходе на сеть сохраняется текущая настройка.</value>
   </data>

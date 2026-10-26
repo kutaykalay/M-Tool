@@ -27,6 +27,11 @@ namespace MTool.Core.Settings;
 /// Ask GitHub for the newest release once at start-up. Off unless the user turns it on: M-Tool goes to
 /// the network only by a user's choice. Added without a new schema version; missing means off.
 /// </param>
+/// <param name="ExperimentalWmi2">
+/// The user turned on experimental control on a WMI2 laptop, for the firmware named there; null means off.
+/// Read only in the WMI2 window, never on the P65. Outside input: <see cref="SettingsSanitizer"/> drops an
+/// incomplete one. Added without a new schema version; missing means off.
+/// </param>
 public sealed record AppSettings(
     int SchemaVersion = AppSettings.CurrentSchemaVersion,
     bool DryRun = true,
@@ -34,7 +39,8 @@ public sealed record AppSettings(
     IReadOnlyList<FanProfile>? CustomProfiles = null,
     PowerSwitchSettings? PowerSwitch = null,
     string? Language = null,
-    bool AutoUpdateCheck = false)
+    bool AutoUpdateCheck = false,
+    Wmi2ExperimentalConsent? ExperimentalWmi2 = null)
 {
     public const int CurrentSchemaVersion = 1;
 
@@ -73,11 +79,21 @@ public sealed record AppSettings(
         && CustomProfiles.SequenceEqual(other.CustomProfiles)
         && PowerSwitch == other.PowerSwitch
         && Language == other.Language
-        && AutoUpdateCheck == other.AutoUpdateCheck;
+        && AutoUpdateCheck == other.AutoUpdateCheck
+        && ExperimentalWmi2 == other.ExperimentalWmi2;
 
     public override int GetHashCode() =>
-        HashCode.Combine(SchemaVersion, DryRun, Desired, CustomProfiles.Count, PowerSwitch, Language, AutoUpdateCheck);
+        HashCode.Combine(SchemaVersion, DryRun, Desired, CustomProfiles.Count, PowerSwitch, Language, AutoUpdateCheck, ExperimentalWmi2);
 }
+
+/// <summary>
+/// The user's yes to experimental WMI2 control (CLAUDE.md, "WMI2 deneysel yazma"). It holds only for
+/// <paramref name="Firmware"/>: after a BIOS update the window asks again. Both fields are nullable because
+/// the file is outside input; <see cref="SettingsSanitizer"/> keeps the consent only when both are there.
+/// </summary>
+/// <param name="Firmware">The EC firmware the user consented for, as WMI2 reports it.</param>
+/// <param name="At">When the user said yes; for the log only.</param>
+public sealed record Wmi2ExperimentalConsent(string? Firmware, DateTimeOffset? At);
 
 /// <param name="Warning">Set when the file was unusable and defaults were loaded instead. For the user, in the UI language of that moment.</param>
 /// <param name="LogWarning">The same warning for the log, always in English; null when <paramref name="Warning"/> is.</param>

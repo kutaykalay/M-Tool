@@ -114,6 +114,9 @@
   <data name="Settings_InvalidChargeLimit" xml:space="preserve">
     <value>Geçersiz şarj limiti (%{0}); %{1}-{2} olmalı, yok sayıldı.</value>
   </data>
+  <data name="Settings_InvalidExperimentalWmi2" xml:space="preserve">
+    <value>Deneysel WMI2 kontrolü ayarı eksik ya da geçersiz; deneysel kontrol kapalı. WMI2 penceresinden yeniden açabilirsiniz.</value>
+  </data>
   <data name="Settings_PairMissingAc" xml:space="preserve">
     <value>Prizde kullanılan fan profili bulunamadı ({0}); prize geçince o anki ayar korunacak.</value>
   </data>

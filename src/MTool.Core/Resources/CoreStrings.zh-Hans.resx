@@ -114,6 +114,9 @@
   <data name="Settings_InvalidChargeLimit" xml:space="preserve">
     <value>无效的充电上限（{0}%）；必须为 {1}–{2}%，已忽略。</value>
   </data>
+  <data name="Settings_InvalidExperimentalWmi2" xml:space="preserve">
+    <value>实验性 WMI2 控制的设置不完整或无效；实验性控制已关闭。可在 WMI2 窗口中重新开启。</value>
+  </data>
   <data name="Settings_PairMissingAc" xml:space="preserve">
     <value>未找到接通电源时使用的风扇配置（{0}）；切换到电源时保留当前设置。</value>
   </data>

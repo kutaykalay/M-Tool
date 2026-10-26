@@ -32,6 +32,9 @@ public sealed partial record Wmi2FirmwareList(
     [GeneratedRegex(@"^[0-9A-Z]{8}\.[0-9A-Z]\z")]
     private static partial Regex FamilyPattern();
 
+    /// <summary>Whether <paramref name="text"/> is spelled like an EC firmware string; says nothing about the list.</summary>
+    public static bool IsFirmwareVersion(string? text) => text is not null && FirmwarePattern().IsMatch(text);
+
     /// <summary>The embedded <c>Devices/msi-wmi2-firmware.json</c>; outside <see cref="DeviceConfigLoader.ResourcePrefix"/> on purpose.</summary>
     public const string ResourceName = "MTool.Wmi2Firmware.json";
 

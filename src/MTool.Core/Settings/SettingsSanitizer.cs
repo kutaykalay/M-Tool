@@ -1,4 +1,5 @@
 using System.Globalization;
+using MTool.Core.Device.Config;
 using MTool.Core.Ec;
 using MTool.Core.Localization;
 using MTool.Core.Power;
@@ -52,8 +53,30 @@ public static class SettingsSanitizer
         };
 
         return new SanitizedSettings(
-            settings with { Desired = desired, CustomProfiles = custom, PowerSwitch = powerSwitch, Language = ValidLanguage(settings.Language, warnings) },
+            settings with
+            {
+                Desired = desired,
+                CustomProfiles = custom,
+                PowerSwitch = powerSwitch,
+                Language = ValidLanguage(settings.Language, warnings),
+                ExperimentalWmi2 = CompleteConsent(settings.ExperimentalWmi2, warnings),
+            },
             warnings.Text.AsReadOnly(), warnings.Log.AsReadOnly(), full, dropped);
+    }
+
+    /// <summary>
+    /// A consent with a field missing, or with text that is no firmware string, is dropped: experimental
+    /// control is then off and the window asks again. The stored text is not echoed in the warning.
+    /// </summary>
+    private static Wmi2ExperimentalConsent? CompleteConsent(Wmi2ExperimentalConsent? consent, WarningList warnings)
+    {
+        if (consent is null || (consent.At is not null && Wmi2FirmwareList.IsFirmwareVersion(consent.Firmware)))
+        {
+            return consent;
+        }
+
+        warnings.Add(c => CoreText.Get(nameof(CoreStrings.Settings_InvalidExperimentalWmi2), c));
+        return null;
     }
 
     /// <summary>
