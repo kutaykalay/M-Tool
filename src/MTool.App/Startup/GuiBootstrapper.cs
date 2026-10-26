@@ -66,7 +66,7 @@ internal sealed class GuiBootstrapper : IDisposable
         var catalog = ProfileCatalog.BuiltIn;
         var reapplyOptions = AutoReapplyOptions.Default;
         var coordinator = new PowerStateCoordinator(TimeProvider.System, reapplyOptions.GateDelay);
-        if (await OpenSessionAsync(app, instance, log, () => coordinator.IsEcAccessAllowed) is not { } session)
+        if (await OpenSessionAsync(app, instance, log, settings, () => coordinator.IsEcAccessAllowed) is not { } session)
         {
             return null;
         }
@@ -343,7 +343,8 @@ internal sealed class GuiBootstrapper : IDisposable
     internal static string AppVersion =>
         typeof(GuiBootstrapper).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "no version";
 
-    private static async Task<EcSession?> OpenSessionAsync(Application app, SingleInstance instance, FileLog log, Func<bool> accessGate)
+    private static async Task<EcSession?> OpenSessionAsync(
+        Application app, SingleInstance instance, FileLog log, LoadedSettings settings, Func<bool> accessGate)
     {
 #if DEBUG
         if (Wmi2Preview.Current is { } preview)
@@ -352,7 +353,7 @@ internal sealed class GuiBootstrapper : IDisposable
             var control = Wmi2ControlPreview.Current;
             log.Warn($"{Wmi2ControlPreview.Variable}={control}: experimental control writes to memory only (Debug build).");
             var previewControl = new Wmi2ControlWiring(
-                Wmi2ControlPreview.Consent(control), (_, _, ct) => Wmi2ControlPreview.OpenAsync(control, ct), PreStateStore.ForWmi2(AppPaths.Root).FilePath);
+                Wmi2ControlPreview.Consent(control), (_, _, _, ct) => Wmi2ControlPreview.OpenAsync(control, ct), PreStateStore.ForWmi2(AppPaths.Root).FilePath);
             ShowReportsOnly(
                 app, instance, log, WmiProbe.UnsupportedMessage(WmiInterface.Wmi2), WmiInterface.Wmi2, _ => Wmi2Preview.Opener(preview)(), previewControl);
             return null;
@@ -380,7 +381,8 @@ internal sealed class GuiBootstrapper : IDisposable
         if (decision.ReportsOnly is { } reportsOnly)
         {
             log.Warn($"Unsupported or unanswered MSI WMI; reports-only window opened. {reportsOnly.LogMessage}");
-            ShowReportsOnly(app, instance, log, reportsOnly.Message, reportsOnly.Detected, gate => Wmi2LiveSource.Open(gate, log), control: null);
+            ShowReportsOnly(
+                app, instance, log, reportsOnly.Message, reportsOnly.Detected, gate => Wmi2LiveSource.Open(gate, log), Wmi2Control(settings, log));
             return null;
         }
 
@@ -393,6 +395,16 @@ internal sealed class GuiBootstrapper : IDisposable
 
         return decision.Session;
     }
+
+    /// <summary>
+    /// Experimental control for the WMI2 window: the consent is saved through the store that read the file, and control
+    /// follows <c>dryRun</c> like the P65 window, so a first install writes nothing. The window offers it only on a
+    /// WMI2 laptop with an exact list entry.
+    /// </summary>
+    private static Wmi2ControlWiring Wmi2Control(LoadedSettings settings, FileLog log) => new(
+        new SettingsWmi2Consent(settings.Store, settings.Settings),
+        (gate, list, firmware, ct) => Wmi2ControlSource.OpenAsync(firmware, list, AppPaths.Root, settings.Settings.DryRun, gate, log, ct),
+        PreStateStore.ForWmi2(AppPaths.Root).FilePath);
 
     /// <summary>
     /// The report actions in a window of their own, until it is closed: no gateway, no port, no tray (a
@@ -429,9 +441,15 @@ internal sealed class GuiBootstrapper : IDisposable
         using var controls = live is null || control is null
             ? null
             : new Wmi2ControlsViewModel(
-                live, (firmware, ct) => control.Open(AccessAllowed, firmware, ct), new DialogConfirm(() => window, theme), control.Consent,
+                live, OpenControl, new DialogConfirm(() => window, theme), control.Consent,
                 TimeProvider.System, log, detected, wmi2List, control.PreStatePath);
         var msiBand = live is null ? null : new MsiSoftwareBand(MsiSoftwareProbe.Default.ReadSoftware, log);
+
+        // The view model asks only on an exact entry of a list that loaded; without one nothing is opened.
+        Task<Wmi2ControlOpening> OpenControl(string firmware, CancellationToken ct) => wmi2List is { } list
+            ? control!.Open(AccessAllowed, list, firmware, ct)
+            : Task.FromResult(Wmi2ControlOpening.NotOpened(Wmi2ControlUnavailable.NotExactFirmware));
+
         window = new ReportOnlyWindow(problem, report, status, live, controls, msiBand, theme.IsDark);
         instance.ListenForShowRequests(() => app.Dispatcher.BeginInvoke(() => window.Activate()));
         _ = report.LoadAsync(); // Off the UI thread; the WMI2 button stays hidden until it answers.
