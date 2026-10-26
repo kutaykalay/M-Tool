@@ -172,8 +172,87 @@ public class Wmi2OutcomeTextTests
     {
         var line = Wmi2OutcomeText.RevertLine(new Wmi2WriteOutcome(WriteStatus.Applied, register, 0x00), PreStatePath);
 
-        line.Should().Be(string.Format(Strings.Wmi2_RevertLine, Text(name), Strings.Wmi2_OutcomeAlreadySet));
+        line.Should().Be(string.Format(Strings.Wmi2_RevertLine, Text(name), Strings.Wmi2_RevertLineAlreadySet));
     }
+
+    [Fact]
+    public void A_revert_line_says_only_how_that_register_went()
+    {
+        Line(new(WriteStatus.Applied, 0x98, 0x82, new RegisterWrite(0x98, 0x02))).Should().Be(Strings.Wmi2_RevertLineRestored);
+        Line(new(WriteStatus.DryRun, 0x98, 0x82, new RegisterWrite(0x98, 0x02))).Should().Be(Strings.Wmi2_RevertLineDryRun);
+        Line(new(WriteStatus.FailedRecovered, 0x98, Problem: Wmi2GatewayProblem.ReadBackDiffers))
+            .Should().Be(string.Format(Strings.Wmi2_RevertLineFailed, Strings.Wmi2_ProblemReadBack));
+        Line(new(WriteStatus.FailedUnrecovered, 0x98, Problem: Wmi2GatewayProblem.WriteFailed))
+            .Should().Be(string.Format(Strings.Wmi2_RevertLineFailed, Strings.Wmi2_ProblemWriteFailed));
+        Line(new(WriteStatus.Rejected, 0x98, Block: Wmi2WriteBlock.SessionLocked)).Should().Be(Strings.Wmi2_RefusedLocked);
+
+        static string Line(Wmi2WriteOutcome outcome) =>
+            Wmi2OutcomeText.RevertLine(outcome, PreStatePath)[(Strings.Wmi2_CoolerBoost.Length + 2)..];
+    }
+
+    [Fact]
+    public void A_revert_that_held_says_so_once()
+    {
+        var revert = Revert(Applied(0x98), Applied(0xD2), Applied(0xD4), Applied(0xD7));
+
+        (revert.Summary, revert.Kind).Should().Be((Strings.Wmi2_RevertDone, MessageKind.Info));
+        revert.Lines.Should().HaveCount(4);
+    }
+
+    [Fact]
+    public void A_dry_run_revert_says_nothing_was_written()
+    {
+        var revert = Revert(Applied(0x98), new(WriteStatus.DryRun, 0xD2, 0xC1, Write));
+
+        (revert.Summary, revert.Kind).Should().Be((Strings.Wmi2_OutcomeDryRun, MessageKind.Info));
+    }
+
+    [Fact]
+    public void What_to_do_and_that_writes_are_off_is_said_once_not_on_every_line()
+    {
+        var revert = Revert(
+            Applied(0x98),
+            new(WriteStatus.FailedRecovered, 0xD2, Problem: Wmi2GatewayProblem.ReadBackDiffers),
+            new(WriteStatus.FailedUnrecovered, 0xD4, Problem: Wmi2GatewayProblem.WriteFailed),
+            new(WriteStatus.Rejected, 0xD7, Block: Wmi2WriteBlock.SessionLocked));
+
+        (revert.Summary, revert.Kind).Should().Be((Strings.Wmi2_RevertUnrecovered, MessageKind.Warning));
+        revert.Lines.Should().HaveCount(4).And.NotContain(l => l.Contains(Strings.Wmi2_RevertUnrecovered, StringComparison.Ordinal));
+        revert.Lines.Should().NotContain(l => l.Contains(string.Format(Strings.Wmi2_OutcomeUnrecovered, string.Empty).Trim(), StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void A_failure_that_was_recovered_comes_before_a_refusal()
+    {
+        var revert = Revert(
+            new(WriteStatus.FailedRecovered, 0x98, Problem: Wmi2GatewayProblem.WriteFailed),
+            new(WriteStatus.Rejected, 0xD2, Block: Wmi2WriteBlock.SessionLocked));
+
+        (revert.Summary, revert.Kind).Should().Be((Strings.Wmi2_RevertRecovered, MessageKind.Warning));
+    }
+
+    [Fact]
+    public void Refusals_for_different_reasons_keep_their_lines()
+    {
+        var revert = Revert(Applied(0x98), new(WriteStatus.Rejected, 0xD2, Block: Wmi2WriteBlock.SessionLocked));
+
+        (revert.Summary, revert.Kind).Should().Be((Strings.Wmi2_RevertRefused, MessageKind.Warning));
+        revert.Lines.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void The_same_refusal_for_every_register_is_said_once_without_lines()
+    {
+        var revert = Revert([.. Wmi2WriteCeiling.Registers.Select(r => new Wmi2WriteOutcome(
+            WriteStatus.Rejected, r, Problem: Wmi2GatewayProblem.PreStateUnreadable))]);
+
+        (revert.Summary, revert.Kind).Should().Be((string.Format(Strings.Wmi2_ProblemPreStateUnreadable, PreStatePath), MessageKind.Warning));
+        revert.Lines.Should().BeEmpty();
+    }
+
+    private static Wmi2WriteOutcome Applied(byte register) => new(WriteStatus.Applied, register, 0x00, new RegisterWrite(register, 0x01));
+
+    private static Wmi2RevertText Revert(params Wmi2WriteOutcome[] outcomes) => Wmi2OutcomeText.Revert(outcomes, PreStatePath);
 
     [Theory]
     [InlineData(WriteStatus.Applied, MessageKind.Info)]

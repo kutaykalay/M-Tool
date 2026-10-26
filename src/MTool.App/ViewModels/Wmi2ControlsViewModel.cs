@@ -78,6 +78,7 @@ internal sealed partial class Wmi2ControlsViewModel : ObservableObject, IDisposa
     }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsOpen), nameof(ShowEnable), nameof(ShowTurnOff), nameof(Band))]
     public partial Wmi2ControlState State { get; private set; } = Wmi2ControlState.Hidden;
 
     /// <summary>Why control is not offered, did not open, or cannot write in this session; null otherwise.</summary>
@@ -172,8 +173,8 @@ internal sealed partial class Wmi2ControlsViewModel : ObservableObject, IDisposa
         RunWriteAsync("back to before M-Tool", warning: null, async control =>
         {
             var outcomes = await control.RevertAsync(_closing.Token);
-            RevertLines = outcomes.Select(o => Wmi2OutcomeText.RevertLine(o, _preStatePath)).ToArray();
-            ResultKind = outcomes.All(o => Wmi2OutcomeText.KindOf(o) == MessageKind.Info) ? MessageKind.Info : MessageKind.Warning;
+            var text = Wmi2OutcomeText.Revert(outcomes, _preStatePath);
+            (Result, ResultKind, RevertLines) = (text.Summary, text.Kind, text.Lines);
             _log.Info($"WMI2 back to before M-Tool: {string.Join(", ", outcomes.Select(Describe))}.");
         });
 
@@ -256,6 +257,7 @@ internal sealed partial class Wmi2ControlsViewModel : ObservableObject, IDisposa
         var status = _live.LastStatus;
         (CoolerBoostOn, Performance, FanMode, ChargeLimitPercent) =
             (status?.CoolerBoost, status?.Performance, status?.FanMode, status?.ChargeLimitPercent);
+        FollowChargeLimit(status);
 
         if (Control is { } control)
         {
@@ -304,7 +306,7 @@ internal sealed partial class Wmi2ControlsViewModel : ObservableObject, IDisposa
     /// </summary>
     private async Task OpenControlAsync(string firmware)
     {
-        (State, Reason, IsSwitching) = (Wmi2ControlState.Opening, null, true);
+        (State, Reason, IsSwitching) = (Wmi2ControlState.Opening, Strings.Wmi2_ControlOpening, true);
         Wmi2ControlOpening? opening = null;
         bool switched;
         try

@@ -595,7 +595,7 @@
     <value>Bu dizüstü için deneysel kontrol açılsın mı?&#10;&#10;M-Tool bundan sonra Cooler Boost'u, performans modunu, fan modunu (otomatik ya da sessiz) ve şarj limitini değiştirebilir. M-Tool bu modelde test edilmedi: msi-ec bu firmware'i listeliyor, ama yanlış bir değer fanların, performansın ya da şarjın beklediğinizden farklı davranmasına yol açabilir.&#10;&#10;M-Tool yalnızca siz bir anahtarı değiştirdiğinizde yazar, her değeri önce kontrol eder ve geri okur. İlk değişiklikten önce M-Tool öncesindeki değerleri kaydeder; "M-Tool öncesine dön" bunları geri yazar. MSI Center da her şeyi yeniden ayarlayabilir.&#10;&#10;BIOS güncellemesinden sonra yeniden sorulur.</value>
   </data>
   <data name="Wmi2_ControlBand" xml:space="preserve">
-    <value>Deneysel kontrol açık: M-Tool yalnızca siz bir anahtarı değiştirdiğinizde yazar. "M-Tool öncesine dön" ilk değişiklikten önce kaydedilen değerleri geri yükler.</value>
+    <value>Deneysel kontrol açık: M-Tool yalnızca siz bir anahtarı değiştirdiğinizde yazar.</value>
   </data>
   <data name="Wmi2_ControlRevert" xml:space="preserve">
     <value>M-Tool öncesine dön</value>
@@ -704,6 +704,30 @@
   </data>
   <data name="Wmi2_RevertLine" xml:space="preserve">
     <value>{0}: {1}</value>
+  </data>
+  <data name="Wmi2_RevertDone" xml:space="preserve">
+    <value>M-Tool öncesine dönüldü: kaydedilen değerler geri yazıldı.</value>
+  </data>
+  <data name="Wmi2_RevertRecovered" xml:space="preserve">
+    <value>Bazı değerler geri yazılamadı; bu değerler olduğu gibi kaldı. M-Tool yeniden başlayana kadar her yazma kapalı.</value>
+  </data>
+  <data name="Wmi2_RevertUnrecovered" xml:space="preserve">
+    <value>Bazı değerler geri yazılamadı. MSI Center'da yeniden ayarlayın ya da dizüstüyü yeniden başlatın. M-Tool yeniden başlayana kadar her yazma kapalı.</value>
+  </data>
+  <data name="Wmi2_RevertRefused" xml:space="preserve">
+    <value>Bazı değerler geri yazılmadı; sebebi satırlarda.</value>
+  </data>
+  <data name="Wmi2_RevertLineRestored" xml:space="preserve">
+    <value>Geri yazıldı.</value>
+  </data>
+  <data name="Wmi2_RevertLineAlreadySet" xml:space="preserve">
+    <value>Zaten öyleydi.</value>
+  </data>
+  <data name="Wmi2_RevertLineDryRun" xml:space="preserve">
+    <value>Yazılmadı (deneme modu).</value>
+  </data>
+  <data name="Wmi2_RevertLineFailed" xml:space="preserve">
+    <value>Geri yazılamadı. {0}</value>
   </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Ayarlar…</value>

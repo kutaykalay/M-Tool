@@ -595,7 +595,7 @@
     <value>Activer le contrôle expérimental pour cet ordinateur portable ?&#10;&#10;M-Tool pourra alors modifier Cooler Boost, le mode de performance, le mode du ventilateur (auto ou silencieux) et la limite de charge. M-Tool n'a pas été testé sur ce modèle : msi-ec liste ce firmware, mais une valeur incorrecte peut faire que les ventilateurs, les performances ou la charge se comportent autrement que prévu.&#10;&#10;M-Tool n'écrit que lorsque vous changez un interrupteur, vérifie chaque valeur avant et la relit. Avant le premier changement, il enregistre les valeurs d'avant M-Tool ; "Rétablir l'état d'avant M-Tool" les réécrit. MSI Center peut aussi tout redéfinir.&#10;&#10;La question est reposée après une mise à jour du BIOS.</value>
   </data>
   <data name="Wmi2_ControlBand" xml:space="preserve">
-    <value>Le contrôle expérimental est activé : M-Tool n'écrit que lorsque vous changez un interrupteur. "Rétablir l'état d'avant M-Tool" rétablit les valeurs enregistrées avant le premier changement.</value>
+    <value>Le contrôle expérimental est activé : M-Tool n'écrit que lorsque vous changez un interrupteur.</value>
   </data>
   <data name="Wmi2_ControlRevert" xml:space="preserve">
     <value>Rétablir l'état d'avant M-Tool</value>
@@ -704,6 +704,30 @@
   </data>
   <data name="Wmi2_RevertLine" xml:space="preserve">
     <value>{0} : {1}</value>
+  </data>
+  <data name="Wmi2_RevertDone" xml:space="preserve">
+    <value>État d'avant M-Tool rétabli : les valeurs enregistrées ont été réécrites.</value>
+  </data>
+  <data name="Wmi2_RevertRecovered" xml:space="preserve">
+    <value>Certaines valeurs n'ont pas pu être réécrites ; elles ont gardé leur valeur actuelle. Toute écriture est désactivée jusqu'au prochain démarrage de M-Tool.</value>
+  </data>
+  <data name="Wmi2_RevertUnrecovered" xml:space="preserve">
+    <value>Certaines valeurs n'ont pas pu être réécrites. Redéfinissez-les dans MSI Center, ou redémarrez l'ordinateur portable. Toute écriture est désactivée jusqu'au prochain démarrage de M-Tool.</value>
+  </data>
+  <data name="Wmi2_RevertRefused" xml:space="preserve">
+    <value>Certaines valeurs n'ont pas été réécrites ; chaque ligne indique pourquoi.</value>
+  </data>
+  <data name="Wmi2_RevertLineRestored" xml:space="preserve">
+    <value>Réécrit.</value>
+  </data>
+  <data name="Wmi2_RevertLineAlreadySet" xml:space="preserve">
+    <value>Déjà réglé.</value>
+  </data>
+  <data name="Wmi2_RevertLineDryRun" xml:space="preserve">
+    <value>Non écrit (mode d'essai).</value>
+  </data>
+  <data name="Wmi2_RevertLineFailed" xml:space="preserve">
+    <value>Non réécrit. {0}</value>
   </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Paramètres…</value>

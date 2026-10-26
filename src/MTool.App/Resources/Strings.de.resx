@@ -595,7 +595,7 @@
     <value>Experimentelle Steuerung für diesen Laptop einschalten?&#10;&#10;M-Tool kann dann Cooler Boost, den Leistungsmodus, den Lüftermodus (Auto oder Leise) und das Ladelimit ändern. M-Tool wurde auf diesem Modell nicht getestet: msi-ec listet diese Firmware, aber ein falscher Wert kann dazu führen, dass Lüfter, Leistung oder Laden sich anders verhalten, als Sie erwarten.&#10;&#10;M-Tool schreibt nur, wenn Sie einen Schalter ändern, prüft jeden Wert vorher und liest ihn zurück. Vor der ersten Änderung speichert es die Werte von vor M-Tool; "Zurück auf den Stand vor M-Tool" schreibt sie zurück. MSI Center kann ebenfalls alles neu einstellen.&#10;&#10;Nach einem BIOS-Update werden Sie erneut gefragt.</value>
   </data>
   <data name="Wmi2_ControlBand" xml:space="preserve">
-    <value>Experimentelle Steuerung ist an: M-Tool schreibt nur, wenn Sie einen Schalter ändern. "Zurück auf den Stand vor M-Tool" stellt die vor der ersten Änderung gespeicherten Werte wieder her.</value>
+    <value>Experimentelle Steuerung ist an: M-Tool schreibt nur, wenn Sie einen Schalter ändern.</value>
   </data>
   <data name="Wmi2_ControlRevert" xml:space="preserve">
     <value>Zurück auf den Stand vor M-Tool</value>
@@ -704,6 +704,30 @@
   </data>
   <data name="Wmi2_RevertLine" xml:space="preserve">
     <value>{0}: {1}</value>
+  </data>
+  <data name="Wmi2_RevertDone" xml:space="preserve">
+    <value>Zurück auf den Stand vor M-Tool: Die gespeicherten Werte wurden zurückgeschrieben.</value>
+  </data>
+  <data name="Wmi2_RevertRecovered" xml:space="preserve">
+    <value>Einige Werte konnten nicht zurückgeschrieben werden; sie haben ihren bisherigen Wert behalten. Bis M-Tool neu startet, ist jedes Schreiben aus.</value>
+  </data>
+  <data name="Wmi2_RevertUnrecovered" xml:space="preserve">
+    <value>Einige Werte konnten nicht zurückgeschrieben werden. Stellen Sie sie in MSI Center neu ein oder starten Sie den Laptop neu. Bis M-Tool neu startet, ist jedes Schreiben aus.</value>
+  </data>
+  <data name="Wmi2_RevertRefused" xml:space="preserve">
+    <value>Einige Werte wurden nicht zurückgeschrieben; der Grund steht in der jeweiligen Zeile.</value>
+  </data>
+  <data name="Wmi2_RevertLineRestored" xml:space="preserve">
+    <value>Zurückgeschrieben.</value>
+  </data>
+  <data name="Wmi2_RevertLineAlreadySet" xml:space="preserve">
+    <value>Bereits gesetzt.</value>
+  </data>
+  <data name="Wmi2_RevertLineDryRun" xml:space="preserve">
+    <value>Nicht geschrieben (Testmodus).</value>
+  </data>
+  <data name="Wmi2_RevertLineFailed" xml:space="preserve">
+    <value>Nicht zurückgeschrieben. {0}</value>
   </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Einstellungen…</value>

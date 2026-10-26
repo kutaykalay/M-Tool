@@ -69,7 +69,8 @@ public sealed class PreStateStore
     public static PreStateStore ForWmi2(string directory) =>
         new(directory, Wmi2FileName, [.. Wmi2WriteCeiling.Registers]);
 
-    private string FilePath => Path.Combine(_directory, _fileName);
+    /// <summary>The snapshot file, for messages that name it.</summary>
+    public string FilePath => Path.Combine(_directory, _fileName);
 
     public bool Exists => File.Exists(FilePath);
 

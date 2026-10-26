@@ -595,7 +595,7 @@
     <value>Ativar o controle experimental neste notebook?&#10;&#10;O M-Tool poderá alterar o Cooler Boost, o modo de desempenho, o modo da ventoinha (auto ou silencioso) e o limite de carga. O M-Tool não foi testado neste modelo: o msi-ec lista este firmware, mas um valor errado pode fazer as ventoinhas, o desempenho ou a carga se comportarem de forma diferente do esperado.&#10;&#10;O M-Tool só grava quando você muda um botão, verifica cada valor antes e o lê de volta. Antes da primeira alteração, ele salva os valores de antes do M-Tool; "Voltar ao estado anterior ao M-Tool" os grava de volta. O MSI Center também pode definir tudo de novo.&#10;&#10;A pergunta é feita de novo após uma atualização da BIOS.</value>
   </data>
   <data name="Wmi2_ControlBand" xml:space="preserve">
-    <value>O controle experimental está ativado: o M-Tool só grava quando você muda um botão. "Voltar ao estado anterior ao M-Tool" restaura os valores salvos antes da primeira alteração.</value>
+    <value>O controle experimental está ativado: o M-Tool só grava quando você muda um botão.</value>
   </data>
   <data name="Wmi2_ControlRevert" xml:space="preserve">
     <value>Voltar ao estado anterior ao M-Tool</value>
@@ -704,6 +704,30 @@
   </data>
   <data name="Wmi2_RevertLine" xml:space="preserve">
     <value>{0}: {1}</value>
+  </data>
+  <data name="Wmi2_RevertDone" xml:space="preserve">
+    <value>Estado anterior ao M-Tool restaurado: os valores salvos foram gravados de volta.</value>
+  </data>
+  <data name="Wmi2_RevertRecovered" xml:space="preserve">
+    <value>Não foi possível gravar alguns valores de volta; eles mantiveram o valor que tinham. Toda gravação fica desativada até o M-Tool iniciar de novo.</value>
+  </data>
+  <data name="Wmi2_RevertUnrecovered" xml:space="preserve">
+    <value>Não foi possível gravar alguns valores de volta. Defina-os de novo no MSI Center ou reinicie o notebook. Toda gravação fica desativada até o M-Tool iniciar de novo.</value>
+  </data>
+  <data name="Wmi2_RevertRefused" xml:space="preserve">
+    <value>Alguns valores não foram gravados de volta; cada linha diz o motivo.</value>
+  </data>
+  <data name="Wmi2_RevertLineRestored" xml:space="preserve">
+    <value>Gravado de volta.</value>
+  </data>
+  <data name="Wmi2_RevertLineAlreadySet" xml:space="preserve">
+    <value>Já definido.</value>
+  </data>
+  <data name="Wmi2_RevertLineDryRun" xml:space="preserve">
+    <value>Não gravado (modo de teste).</value>
+  </data>
+  <data name="Wmi2_RevertLineFailed" xml:space="preserve">
+    <value>Não gravado de volta. {0}</value>
   </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Configurações…</value>

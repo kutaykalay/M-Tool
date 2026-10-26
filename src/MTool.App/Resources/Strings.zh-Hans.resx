@@ -595,7 +595,7 @@
     <value>为这台笔记本电脑开启实验性控制？&#10;&#10;之后 M-Tool 可以更改 Cooler Boost、性能模式、风扇模式（自动或静音）和充电上限。M-Tool 尚未在此型号上测试：msi-ec 列出了这个固件，但错误的值可能使风扇、性能或充电的表现与你预期的不同。&#10;&#10;M-Tool 只在你更改开关时写入，会先检查每个值并读回。第一次更改前，它会保存使用 M-Tool 之前的值；"恢复到使用 M-Tool 之前"会把它们写回。MSI Center 也可以重新设置所有内容。&#10;&#10;BIOS 更新后会再次询问。</value>
   </data>
   <data name="Wmi2_ControlBand" xml:space="preserve">
-    <value>实验性控制已开启：M-Tool 只在你更改开关时写入。"恢复到使用 M-Tool 之前"会还原第一次更改前保存的值。</value>
+    <value>实验性控制已开启：M-Tool 只在你更改开关时写入。</value>
   </data>
   <data name="Wmi2_ControlRevert" xml:space="preserve">
     <value>恢复到使用 M-Tool 之前</value>
@@ -704,6 +704,30 @@
   </data>
   <data name="Wmi2_RevertLine" xml:space="preserve">
     <value>{0}：{1}</value>
+  </data>
+  <data name="Wmi2_RevertDone" xml:space="preserve">
+    <value>已恢复到使用 M-Tool 之前：保存的值已写回。</value>
+  </data>
+  <data name="Wmi2_RevertRecovered" xml:space="preserve">
+    <value>部分值无法写回；它们保持原来的值。在 M-Tool 重新启动之前，所有写入都已关闭。</value>
+  </data>
+  <data name="Wmi2_RevertUnrecovered" xml:space="preserve">
+    <value>部分值无法写回。请在 MSI Center 中重新设置，或重新启动笔记本电脑。在 M-Tool 重新启动之前，所有写入都已关闭。</value>
+  </data>
+  <data name="Wmi2_RevertRefused" xml:space="preserve">
+    <value>部分值未写回；每一行都写明了原因。</value>
+  </data>
+  <data name="Wmi2_RevertLineRestored" xml:space="preserve">
+    <value>已写回。</value>
+  </data>
+  <data name="Wmi2_RevertLineAlreadySet" xml:space="preserve">
+    <value>已经是该值。</value>
+  </data>
+  <data name="Wmi2_RevertLineDryRun" xml:space="preserve">
+    <value>未写入（试运行）。</value>
+  </data>
+  <data name="Wmi2_RevertLineFailed" xml:space="preserve">
+    <value>未写回。{0}</value>
   </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>设置…</value>

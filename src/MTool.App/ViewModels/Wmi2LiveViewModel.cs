@@ -544,7 +544,7 @@ internal sealed partial class Wmi2LiveViewModel(
         _ => null,
     };
 
-    private static string? FanModeName(Wmi2FanMode? mode) => mode switch
+    internal static string? FanModeName(Wmi2FanMode? mode) => mode switch
     {
         Wmi2FanMode.Auto => Strings.Wmi2_FanAuto,
         Wmi2FanMode.Silent => Strings.Wmi2_FanSilent,

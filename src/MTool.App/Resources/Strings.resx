@@ -791,8 +791,8 @@
     <comment>SAFETY. Question in a Yes/No window before experimental WMI2 control is turned on (No is the default). Say clearly: which four things M-Tool can then change; that M-Tool is not tested on this model and a wrong value can make fans, performance or charging act unexpectedly; that it writes only when the user changes a switch, checks and reads back every value; that it saves the values from before M-Tool and "Back to before M-Tool" (Wmi2_ControlRevert) writes them back; that MSI Center can set everything again; that the question comes again after a BIOS update. Keep M-Tool, msi-ec, MSI Center, Cooler Boost, the quoted button name as in Wmi2_ControlRevert, and the line breaks. The answer buttons are Common_Yes and Common_No.</comment>
   </data>
   <data name="Wmi2_ControlBand" xml:space="preserve">
-    <value>Experimental control is on: M-Tool writes only when you change a switch. "Back to before M-Tool" restores the values saved before the first change.</value>
-    <comment>SAFETY. Band in the WMI2 window while experimental control is on, in place of Wmi2_ExperimentalBand. Say that M-Tool writes only when the user changes a switch, and that the button named as in Wmi2_ControlRevert restores the values saved before the first change.</comment>
+    <value>Experimental control is on: M-Tool writes only when you change a switch.</value>
+    <comment>SAFETY. Band in the WMI2 window while experimental control is on, in place of Wmi2_ExperimentalBand. Say that experimental control is on and that M-Tool writes only when the user changes a switch. One sentence.</comment>
   </data>
   <data name="Wmi2_ControlRevert" xml:space="preserve">
     <value>Back to before M-Tool</value>
@@ -937,6 +937,38 @@
   <data name="Wmi2_RevertLine" xml:space="preserve">
     <value>{0}: {1}</value>
     <comment>One line of the "Back to before M-Tool" result. {0}: what was written back (Wmi2_CoolerBoost, Wmi2_PerformanceMode, Wmi2_FanMode or Wmi2_ChargeLimit). {1}: the result sentence. Use the colon spacing of your language.</comment>
+  </data>
+  <data name="Wmi2_RevertDone" xml:space="preserve">
+    <value>Back to before M-Tool: the saved values were written back.</value>
+    <comment>Band after "Back to before M-Tool" when every value was written back (or already set). One sentence.</comment>
+  </data>
+  <data name="Wmi2_RevertRecovered" xml:space="preserve">
+    <value>Some values could not be written back; they kept the value they had. Every write is off until M-Tool starts again.</value>
+    <comment>SAFETY. Band after "Back to before M-Tool" when some values could not be written back but kept the value they had. Say that every write is off until M-Tool restarts. The lines below the band name the registers.</comment>
+  </data>
+  <data name="Wmi2_RevertUnrecovered" xml:space="preserve">
+    <value>Some values could not be written back. Set them again in MSI Center, or restart the laptop. Every write is off until M-Tool starts again.</value>
+    <comment>SAFETY. Band after "Back to before M-Tool" when some values could not be written back and may be left changed. Say what to do (MSI Center or restart) and that every write is off until M-Tool restarts. Keep MSI Center. The lines below the band name the registers.</comment>
+  </data>
+  <data name="Wmi2_RevertRefused" xml:space="preserve">
+    <value>Some values were not written back; each line says why.</value>
+    <comment>Band after "Back to before M-Tool" when M-Tool refused to write some values back; each line below says why.</comment>
+  </data>
+  <data name="Wmi2_RevertLineRestored" xml:space="preserve">
+    <value>Written back.</value>
+    <comment>Short status after a register name in a "Back to before M-Tool" line: the saved value was written back and read back.</comment>
+  </data>
+  <data name="Wmi2_RevertLineAlreadySet" xml:space="preserve">
+    <value>Already set.</value>
+    <comment>Short status after a register name in a "Back to before M-Tool" line: the register already held the saved value.</comment>
+  </data>
+  <data name="Wmi2_RevertLineDryRun" xml:space="preserve">
+    <value>Not written (dry run).</value>
+    <comment>Short status after a register name in a "Back to before M-Tool" line: dry-run mode, nothing was written.</comment>
+  </data>
+  <data name="Wmi2_RevertLineFailed" xml:space="preserve">
+    <value>Not written back. {0}</value>
+    <comment>Short status after a register name in a "Back to before M-Tool" line: the write back failed. {0}: why (one of the Wmi2_Problem* sentences).</comment>
   </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Settings…</value>

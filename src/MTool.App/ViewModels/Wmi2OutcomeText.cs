@@ -4,6 +4,9 @@ using MTool.Core.Ec;
 
 namespace MTool.App.ViewModels;
 
+/// <summary>What "Back to before M-Tool" did: one band for the whole, and a short line per register (none when all share one refusal).</summary>
+internal sealed record Wmi2RevertText(string Summary, MessageKind Kind, IReadOnlyList<string> Lines);
+
 /// <summary>
 /// The words for what an experimental WMI2 write did (plan asama15 15c-5). Core hands over enums only. A
 /// reason the user cannot act on (a programming error the gateway still guards against) shares one sentence
@@ -29,9 +32,46 @@ internal static class Wmi2OutcomeText
         _ => Strings.Wmi2_ControlNotExact,
     };
 
-    /// <summary>One line of "Back to before M-Tool": what was written back, and how it went.</summary>
+    /// <summary>
+    /// "Back to before M-Tool": what to do and that writes are off is said once, in the band, by the worst outcome;
+    /// each line only says how its register went. The same refusal for every register is the band alone.
+    /// </summary>
+    public static Wmi2RevertText Revert(IReadOnlyList<Wmi2WriteOutcome> outcomes, string preStatePath)
+    {
+        ArgumentNullException.ThrowIfNull(outcomes);
+        var lines = outcomes.Select(o => RevertLine(o, preStatePath)).ToArray();
+        if (outcomes.Any(o => o.Status == WriteStatus.FailedUnrecovered))
+        {
+            return new(Strings.Wmi2_RevertUnrecovered, MessageKind.Warning, lines);
+        }
+
+        if (outcomes.Any(o => o.Status == WriteStatus.FailedRecovered))
+        {
+            return new(Strings.Wmi2_RevertRecovered, MessageKind.Warning, lines);
+        }
+
+        if (outcomes.Any(o => o.Status == WriteStatus.Rejected))
+        {
+            var refusals = outcomes.Select(o => o.Status == WriteStatus.Rejected ? Refusal(o, preStatePath) : null).Distinct().ToArray();
+            return refusals is [{ } only]
+                ? new(only, MessageKind.Warning, [])
+                : new(Strings.Wmi2_RevertRefused, MessageKind.Warning, lines);
+        }
+
+        return outcomes.Any(o => o.Status == WriteStatus.DryRun)
+            ? new(Strings.Wmi2_OutcomeDryRun, MessageKind.Info, lines)
+            : new(Strings.Wmi2_RevertDone, MessageKind.Info, lines);
+    }
+
+    /// <summary>One line of "Back to before M-Tool": what was written back, and how that register went.</summary>
     public static string RevertLine(Wmi2WriteOutcome outcome, string preStatePath) =>
-        string.Format(Strings.Wmi2_RevertLine, RegisterName(outcome.Register), Of(outcome, preStatePath));
+        string.Format(Strings.Wmi2_RevertLine, RegisterName(outcome.Register), outcome.Status switch
+        {
+            WriteStatus.Applied => outcome.Write is null ? Strings.Wmi2_RevertLineAlreadySet : Strings.Wmi2_RevertLineRestored,
+            WriteStatus.DryRun => Strings.Wmi2_RevertLineDryRun,
+            WriteStatus.FailedRecovered or WriteStatus.FailedUnrecovered => string.Format(Strings.Wmi2_RevertLineFailed, WhyItFailed(outcome.Problem)),
+            _ => Refusal(outcome, preStatePath),
+        });
 
     /// <summary>A write that held, or a dry run, is information; anything else is a warning.</summary>
     public static MessageKind KindOf(Wmi2WriteOutcome outcome) =>

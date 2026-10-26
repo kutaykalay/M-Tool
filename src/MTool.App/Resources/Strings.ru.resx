@@ -595,7 +595,7 @@
     <value>Включить экспериментальное управление для этого ноутбука?&#10;&#10;M-Tool сможет менять Cooler Boost, режим производительности, режим вентилятора (авто или тихий) и лимит заряда. M-Tool не тестировался на этой модели: msi-ec содержит эту прошивку, но неверное значение может привести к тому, что вентиляторы, производительность или зарядка поведут себя не так, как вы ожидаете.&#10;&#10;M-Tool записывает только тогда, когда вы меняете переключатель, сначала проверяет каждое значение и считывает его обратно. Перед первым изменением он сохраняет значения, которые были до M-Tool; "Вернуть состояние до M-Tool" записывает их обратно. MSI Center тоже может задать всё заново.&#10;&#10;После обновления BIOS вопрос будет задан снова.</value>
   </data>
   <data name="Wmi2_ControlBand" xml:space="preserve">
-    <value>Экспериментальное управление включено: M-Tool записывает только тогда, когда вы меняете переключатель. "Вернуть состояние до M-Tool" восстанавливает значения, сохранённые перед первым изменением.</value>
+    <value>Экспериментальное управление включено: M-Tool записывает только тогда, когда вы меняете переключатель.</value>
   </data>
   <data name="Wmi2_ControlRevert" xml:space="preserve">
     <value>Вернуть состояние до M-Tool</value>
@@ -704,6 +704,30 @@
   </data>
   <data name="Wmi2_RevertLine" xml:space="preserve">
     <value>{0}: {1}</value>
+  </data>
+  <data name="Wmi2_RevertDone" xml:space="preserve">
+    <value>Состояние до M-Tool восстановлено: сохранённые значения записаны обратно.</value>
+  </data>
+  <data name="Wmi2_RevertRecovered" xml:space="preserve">
+    <value>Некоторые значения не удалось записать обратно; они сохранили прежнее значение. Любая запись выключена до следующего запуска M-Tool.</value>
+  </data>
+  <data name="Wmi2_RevertUnrecovered" xml:space="preserve">
+    <value>Некоторые значения не удалось записать обратно. Задайте их снова в MSI Center или перезагрузите ноутбук. Любая запись выключена до следующего запуска M-Tool.</value>
+  </data>
+  <data name="Wmi2_RevertRefused" xml:space="preserve">
+    <value>Некоторые значения не записаны обратно; причина указана в каждой строке.</value>
+  </data>
+  <data name="Wmi2_RevertLineRestored" xml:space="preserve">
+    <value>Записано обратно.</value>
+  </data>
+  <data name="Wmi2_RevertLineAlreadySet" xml:space="preserve">
+    <value>Уже задано.</value>
+  </data>
+  <data name="Wmi2_RevertLineDryRun" xml:space="preserve">
+    <value>Не записано (пробный режим).</value>
+  </data>
+  <data name="Wmi2_RevertLineFailed" xml:space="preserve">
+    <value>Не записано обратно. {0}</value>
   </data>
   <data name="Tray_Settings" xml:space="preserve">
     <value>Настройки…</value>

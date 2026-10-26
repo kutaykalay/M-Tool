@@ -17,7 +17,7 @@ namespace MTool.Tests.ViewModels;
 /// on an exact list entry, turned on only after a risk question (No by default), kept per firmware so it opens
 /// by itself until a BIOS update, and every write goes through the gateway with the write-path test first.
 /// </summary>
-public sealed class Wmi2ControlsViewModelTests : IDisposable
+public sealed partial class Wmi2ControlsViewModelTests : IDisposable
 {
     private const string Exact = "15M3EMS1.105";
     private const string PreStatePath = @"C:\M-Tool\pre-mtool-state-wmi2.json";
@@ -473,8 +473,9 @@ public sealed class Wmi2ControlsViewModelTests : IDisposable
         await controls.RevertCommand.ExecuteAsync(null);
 
         _control.Calls.Should().Equal("test", "revert");
-        controls.RevertLines.Should().Equal(_control.RevertOutcomes.Select(o => Wmi2OutcomeText.RevertLine(o, PreStatePath)));
-        controls.ResultKind.Should().Be(MessageKind.Warning);
+        var expected = Wmi2OutcomeText.Revert(_control.RevertOutcomes, PreStatePath);
+        controls.RevertLines.Should().Equal(expected.Lines);
+        (controls.Result, controls.ResultKind).Should().Be((expected.Summary, MessageKind.Warning));
     }
 
     [Fact]
@@ -485,7 +486,7 @@ public sealed class Wmi2ControlsViewModelTests : IDisposable
         await controls.RevertCommand.ExecuteAsync(null);
 
         controls.RevertLines.Should().HaveCount(Wmi2WriteCeiling.Registers.Count);
-        controls.ResultKind.Should().Be(MessageKind.Info);
+        (controls.Result, controls.ResultKind).Should().Be((Strings.Wmi2_RevertDone, MessageKind.Info));
     }
 
     [Fact]

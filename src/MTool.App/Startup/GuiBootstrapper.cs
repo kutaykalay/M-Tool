@@ -349,7 +349,12 @@ internal sealed class GuiBootstrapper : IDisposable
         if (Wmi2Preview.Current is { } preview)
         {
             log.Warn($"{Wmi2Preview.Variable}={preview}: reports-only window with made-up WMI2 values (Debug build).");
-            ShowReportsOnly(app, instance, log, WmiProbe.UnsupportedMessage(WmiInterface.Wmi2), WmiInterface.Wmi2, _ => Wmi2Preview.Opener(preview)());
+            var control = Wmi2ControlPreview.Current;
+            log.Warn($"{Wmi2ControlPreview.Variable}={control}: experimental control writes to memory only (Debug build).");
+            var previewControl = new Wmi2ControlWiring(
+                Wmi2ControlPreview.Consent(control), (_, _, ct) => Wmi2ControlPreview.OpenAsync(control, ct), PreStateStore.ForWmi2(AppPaths.Root).FilePath);
+            ShowReportsOnly(
+                app, instance, log, WmiProbe.UnsupportedMessage(WmiInterface.Wmi2), WmiInterface.Wmi2, _ => Wmi2Preview.Opener(preview)(), previewControl);
             return null;
         }
 #endif
@@ -375,7 +380,7 @@ internal sealed class GuiBootstrapper : IDisposable
         if (decision.ReportsOnly is { } reportsOnly)
         {
             log.Warn($"Unsupported or unanswered MSI WMI; reports-only window opened. {reportsOnly.LogMessage}");
-            ShowReportsOnly(app, instance, log, reportsOnly.Message, reportsOnly.Detected, gate => Wmi2LiveSource.Open(gate, log));
+            ShowReportsOnly(app, instance, log, reportsOnly.Message, reportsOnly.Detected, gate => Wmi2LiveSource.Open(gate, log), control: null);
             return null;
         }
 
@@ -397,9 +402,10 @@ internal sealed class GuiBootstrapper : IDisposable
     /// closes the interface before anything else.
     /// </summary>
     /// <param name="openLive">Opens the WMI2 interface with the given access gate; null when there is none.</param>
+    /// <param name="control">Experimental control on a WMI2 laptop; null leaves the window reading only.</param>
     private static void ShowReportsOnly(
         Application app, SingleInstance instance, FileLog log, string problem,
-        WmiInterface? detected, Func<Func<bool>, IWmi2LiveSource?> openLive)
+        WmiInterface? detected, Func<Func<bool>, IWmi2LiveSource?> openLive, Wmi2ControlWiring? control)
     {
         using var theme = new ThemeManager(app);
         using var status = new StatusViewModel(BandNotifier.Silent, new DispatcherUi(app), TimeProvider.System);
@@ -419,8 +425,14 @@ internal sealed class GuiBootstrapper : IDisposable
         var wmi2List = detected == WmiInterface.Wmi2 ? Wmi2Support.LoadEmbedded(log) : null;
         using var live = Wmi2LiveViewModel.For(
             detected, () => openLive(AccessAllowed), new DialogConfirm(() => window, theme), AccessAllowed, log, wmi2List);
+        // Declared after the live values, so it lets go of them first when the window closes.
+        using var controls = live is null || control is null
+            ? null
+            : new Wmi2ControlsViewModel(
+                live, (firmware, ct) => control.Open(AccessAllowed, firmware, ct), new DialogConfirm(() => window, theme), control.Consent,
+                TimeProvider.System, log, detected, wmi2List, control.PreStatePath);
         var msiBand = live is null ? null : new MsiSoftwareBand(MsiSoftwareProbe.Default.ReadSoftware, log);
-        window = new ReportOnlyWindow(problem, report, status, live, msiBand, theme.IsDark);
+        window = new ReportOnlyWindow(problem, report, status, live, controls, msiBand, theme.IsDark);
         instance.ListenForShowRequests(() => app.Dispatcher.BeginInvoke(() => window.Activate()));
         _ = report.LoadAsync(); // Off the UI thread; the WMI2 button stays hidden until it answers.
         _ = msiBand?.LoadAsync(); // Off the UI thread too; no band until it answers.

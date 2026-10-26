@@ -86,6 +86,13 @@ public sealed class Wmi2PreStateTests : IDisposable
     }
 
     [Fact]
+    public void The_file_path_names_the_file_a_message_points_to()
+    {
+        PreStateStore.ForWmi2(_folder).FilePath.Should().Be(Path.Combine(_folder, "pre-mtool-state-wmi2.json"));
+        new PreStateStore(_folder).FilePath.Should().Be(Path.Combine(_folder, "pre-mtool-state.json"));
+    }
+
+    [Fact]
     public void A_wmi2_snapshot_is_never_overwritten()
     {
         using var sim = SimulatedWmi2Ec.Typical();
