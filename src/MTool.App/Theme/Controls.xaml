@@ -79,9 +79,9 @@
                             <Trigger.Value>
                                 <sys:Boolean>True</sys:Boolean>
                             </Trigger.Value>
-                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.Accent}" />
+                            <!-- A faint tint and an accent edge: the choice shows without a solid block of colour. -->
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.AccentSoft}" />
                             <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Brush.AccentText}" />
                         </Trigger>
                         <!--
                             Every command disables the buttons for its few hundred milliseconds. Dimming

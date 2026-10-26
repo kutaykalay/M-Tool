@@ -10,6 +10,8 @@
     <SolidColorBrush x:Key="Brush.Accent" Color="#E06A3C" />
     <SolidColorBrush x:Key="Brush.ChartSecondary" Color="#5AA9E6" />
     <SolidColorBrush x:Key="Brush.AccentText" Color="#1C1D20" />
+    <!-- A selected choice: the accent, faint, over the surface. -->
+    <SolidColorBrush x:Key="Brush.AccentSoft" Color="#2EE06A3C" />
     <SolidColorBrush x:Key="Brush.Info" Color="#1E3A5F" />
     <SolidColorBrush x:Key="Brush.Warning" Color="#4A3B12" />
     <SolidColorBrush x:Key="Brush.Error" Color="#5A2320" />
