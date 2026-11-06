@@ -32,8 +32,49 @@ WMI2 laptop yet. An owner can help with the steps in
 
 A device report with WMI2 holds the same values twice: in the raw packets and read through
 `Get_Data`. When both agree with the owner's tool, the addresses can be trusted for that model.
-Showing values on a WMI2 laptop never leads to writing on it: M-Tool never calls a `Set_*`
-method, and WMI2 writes would need a plan of their own and the step-by-step tests below.
+Showing values never writes anything. Experimental control, which can write on a model whose
+firmware msi-ec lists exactly, is a separate opt-in; its volunteer protocol is the next section.
+
+## WMI2 volunteer write protocol
+
+Experimental control on a WMI2 laptop (see "Experimental control on msi-ec models" in the
+[README](README.md#experimental-control-on-msi-ec-models)) has not been tried on real hardware by
+anyone but its author. If your laptop's firmware is listed exactly (the **msi-ec list** row says
+so), you can help by running these steps in order. You run them at your own risk and can stop at
+any step. After each one, note what MSI Center, HWiNFO or the laptop itself shows.
+
+Before you start: close MSI Center and any other fan or EC tool, keep the laptop on AC power, and
+leave dry run on (the default `"dryRun": true` in `%AppData%\M-Tool\settings.json`).
+
+1. **Read without writing:** under **Live values (experimental)**, choose **Show live values** and
+   answer Yes. Compare the temperatures, fan speeds, performance mode, fan mode, charge limit and
+   Cooler Boost with MSI Center or HWiNFO. Do they match? Do not go on if they do not.
+2. **Dry run:** choose **Turn on experimental control…** and read the question. Answer Yes, then
+   press one switch. The log in `%AppData%\M-Tool\logs` shows what M-Tool would write, and the
+   laptop does not change.
+3. **Unchanged write:** close M-Tool, set `"dryRun": false`, start it again and open experimental
+   control. The first change you make is preceded by one write of the performance mode the laptop
+   already holds, read back to prove the write works. Check that nothing changed.
+4. **Single changes,** one at a time, each followed by a return to the old value, and a look at
+   what changed:
+   - Cooler Boost on, then off;
+   - the performance mode: one of the three modes, another, then back to the first;
+   - the charge limit: from the current value one step down, then back (for example 80, 79, 80);
+   - the fan mode: **Auto**, **Silent**, **Auto**.
+5. **Back to before M-Tool,** then put the laptop to sleep and wake it. Do the values stay as they
+   were? M-Tool does not apply anything again by itself.
+6. **Send EC data (for a config):** from the tray menu, or the window M-Tool opens, send what the
+   preview shows (see the README) and say which steps worked and which did not.
+
+Stop at once and report if a result says a value was not read back, if a fan behaves in a way the
+step did not ask for, or if M-Tool says every write is off for this session. If a fan stops under
+load or temperatures keep climbing, shut the laptop down. **Back to before M-Tool**, or MSI Center,
+sets the values again.
+
+Do not use experimental control on a laptop whose firmware is not listed exactly, do not edit
+`settings.json` to get past a refusal, and do not run it while MSI Center is changing the same
+settings.
+<!-- TODO(Kutay): step 6 assumes "Send EC data" carries what the volunteer did; revisit once the experimental block of the send flow (15c-6) exists. -->
 
 ## Write verification with a volunteer
 

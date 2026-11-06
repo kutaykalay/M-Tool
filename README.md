@@ -9,8 +9,9 @@ charge limit. One exe, no background service. Today it controls the **MSI P65 Cr
 MSI laptops are read-only for now (see [Supported devices](#supported-devices)).
 
 > **Status:** beta. M-Tool writes settings on one laptop and firmware only. Other MSI laptops with
-> WMI1 are read-only and experimental, and on MSI laptops with WMI2 it shows a few values, read-only
-> and experimental; see [Supported devices](#supported-devices).
+> WMI1 are read-only and experimental, and on MSI laptops with WMI2 it shows a few values and, for
+> firmware msi-ec lists exactly, offers experimental control; see
+> [Supported devices](#supported-devices).
 
 ## Features
 
@@ -60,7 +61,7 @@ issue reads the same for everyone. Corrections are welcome: see "Translations" i
 | MSI P65 Creator 9SE | `16Q4EMS2.107` | WMI1 | yes | yes |
 | MSI P65 Creator 9SE, other firmware (`16Q4EMS2.1xx`) | | WMI1 | yes, unverified | no |
 | Other MSI laptops with WMI1 (mostly Intel 10th gen and older) | | WMI1 | yes, unverified | no |
-| MSI laptops with WMI2 that msi-ec lists (258 firmware versions) | | WMI2 | experimental, a few values; [help check them](#wmi2-testers-wanted) | no |
+| MSI laptops with WMI2 that msi-ec lists (258 firmware versions) | | WMI2 | experimental, a few values; [help check them](#wmi2-testers-wanted) | experimental, [opt-in](#experimental-control-on-msi-ec-models) |
 | Other MSI laptops with WMI2 (mostly Intel 11th gen and newer) | | WMI2 | experimental, a few values | no |
 
 M-Tool checks the firmware at start-up and, with any other firmware, only **reads**. Other MSI
@@ -71,13 +72,52 @@ the P65's map and may be wrong.
 On a WMI2 laptop M-Tool opens its reports window instead of the app. Its **Live values
 (experimental)** section shows the temperatures, fan speeds and a few settings, read through MSI's
 WMI2 `Get_*` methods: only after you say Yes, and about every 2 seconds while the window is on screen.
-Nothing is written. The EC addresses come from other projects and have not been checked with
-M-Tool on any WMI2 laptop yet, so every value is shown with its raw byte and marked *not
-verified*. The **msi-ec list** row says whether the Linux [msi-ec](https://github.com/BeardOverflow/msi-ec)
+Nothing is written unless you turn on
+[experimental control](#experimental-control-on-msi-ec-models). The EC addresses come from other
+projects and have not been checked with M-Tool on any WMI2 laptop yet, so every value is shown
+with its raw byte and marked *not verified*. The **msi-ec list** row says whether the Linux [msi-ec](https://github.com/BeardOverflow/msi-ec)
 driver lists your exact EC firmware, only its family (same model, other version), or neither; on
 a listed family M-Tool also names that family's own performance-mode bytes. A band warns while MSI
 software such as MSI Center is running, since it may undo settings. You can help check the values:
 see [WMI2 testers wanted](#wmi2-testers-wanted).
+
+## Experimental control on msi-ec models
+
+For MSI laptops that have only the WMI2 interface (no WMI1), where M-Tool otherwise opens the
+reports-only window. It is experimental: it has not been checked on any of these laptops yet.
+
+- **When it is offered:** only when the EC firmware the laptop is running is listed exactly in a
+  built-in entry derived from [msi-ec](https://github.com/BeardOverflow/msi-ec). A family match
+  (same model, other version) or no match stays read-only, and the window says why.
+- **What it controls:** Cooler Boost, the performance mode (the three standard modes), the fan mode
+  (**Auto** or **Silent** only) and the charge limit from 50 to 100 %. Nothing else, and no fan
+  curves.
+- **Turning it on:** in the reports window, after you have chosen **Show live values**, choose
+  **Turn on experimental control…**. M-Tool names what it can then change and asks whether to go
+  on; the answer is **No** unless you choose Yes. The consent is stored per firmware in
+  `settings.json`, so from then on control opens by itself when live values start, until the
+  firmware changes (a BIOS update), when M-Tool asks again. **Turn off experimental control**
+  forgets the consent; nothing is written.
+- **Dry run:** WMI2 writes follow `"dryRun"` in `settings.json`, as the main window does. A fresh
+  install writes nothing; to let M-Tool write, set `"dryRun": false` as described under
+  [Install](#install).
+- **Safety:** every write is a click of yours; M-Tool never re-applies anything on its own, not at
+  start-up, after sleep or when the power source changes. Each write is checked first and read
+  back, and before the first change M-Tool saves the values the laptop held. **Back to before
+  M-Tool** writes those values back. If the saved charge limit was 10 to 49 %, which M-Tool itself
+  never sets, it can be written back too, so you do not need MSI Center for that.
+- **Risks:** a wrong value can make the fans, the performance or the charging act differently than
+  you expect, and the registers have not been tried with M-Tool on most models. If something goes
+  wrong, choose **Back to before M-Tool**, or set the value again in MSI Center, and open an
+  [issue](https://github.com/kutaykalay/M-Tool/issues) with the log from `%AppData%\M-Tool\logs`.
+  MSI software that is running may undo what M-Tool sets.
+- **About the stored consent:** the consent in `settings.json` is not signed. Another program running
+  as the same Windows user could write it together with `"dryRun": false`, and control would then
+  open without the question. Every write would still need a click of yours, and the exact firmware
+  match and the value checks still apply.
+
+To help check it on your model, see "WMI2 volunteer write protocol" in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## How to help
 
