@@ -564,6 +564,22 @@
     <value>Don't send</value>
     <comment>Button in the preview window; the default (Enter and Esc). Short.</comment>
   </data>
+  <data name="Submit_FeedbackIntro" xml:space="preserve">
+    <value>You changed these with experimental control. Did each one do what it says? Your answers are added to the text below; a question you skip sends nothing.</value>
+    <comment>Above the questions in the preview, shown only after an experimental WMI2 write. Say: the user changed these switches with experimental control; did each work; the answers are added to the text below (the user sees them appear); a skipped question sends nothing.</comment>
+  </data>
+  <data name="Submit_FeedbackWorked" xml:space="preserve">
+    <value>Worked</value>
+    <comment>Answer button in the preview: the switch did what it says. Short.</comment>
+  </data>
+  <data name="Submit_FeedbackNotWorked" xml:space="preserve">
+    <value>Didn't work</value>
+    <comment>Answer button in the preview: the switch did not do what it says. Short.</comment>
+  </data>
+  <data name="Submit_FeedbackNotTried" xml:space="preserve">
+    <value>Didn't check</value>
+    <comment>Answer button in the preview: the user did not check whether the switch worked. Short.</comment>
+  </data>
   <data name="Submit_Wmi2Confirm" xml:space="preserve">
     <value>Read this laptop's WMI2 data for the submission?&#10;&#10;M-Tool only reads. It calls a fixed list of this laptop's Get_* WMI2 methods once. Nothing is written to the laptop and nothing is changed.&#10;&#10;Nothing is sent yet: you will see the full text first and choose whether to send it.</value>
     <comment>SAFETY. Yes/No question before the WMI2 data is read for the submission; No is the default. Say clearly that this only reads, that a fixed list of Get_* methods is called once, that nothing is written or changed, and that nothing is sent before the user sees the full text and chooses. Keep Get_*, WMI2, M-Tool and the line breaks (

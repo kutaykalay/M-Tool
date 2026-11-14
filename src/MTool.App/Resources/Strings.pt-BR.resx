@@ -426,6 +426,18 @@
   <data name="Submit_DontSend" xml:space="preserve">
     <value>Não enviar</value>
   </data>
+  <data name="Submit_FeedbackIntro" xml:space="preserve">
+    <value>Você alterou estes botões com o controle experimental. Cada um fez o que diz? Suas respostas são adicionadas ao texto abaixo; uma pergunta ignorada não envia nada.</value>
+  </data>
+  <data name="Submit_FeedbackWorked" xml:space="preserve">
+    <value>Funcionou</value>
+  </data>
+  <data name="Submit_FeedbackNotWorked" xml:space="preserve">
+    <value>Não funcionou</value>
+  </data>
+  <data name="Submit_FeedbackNotTried" xml:space="preserve">
+    <value>Não verifiquei</value>
+  </data>
   <data name="Submit_Wmi2Confirm" xml:space="preserve">
     <value>Ler os dados WMI2 deste notebook para o envio?&#10;&#10;O M-Tool apenas lê. Ele chama uma única vez uma lista fixa de métodos WMI2 Get_* deste notebook. Nada é gravado no notebook e nada é alterado.&#10;&#10;Nada é enviado ainda: você verá primeiro o texto completo e decidirá se quer enviá-lo.</value>
   </data>

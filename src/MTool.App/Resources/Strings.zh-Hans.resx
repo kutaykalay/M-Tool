@@ -426,6 +426,18 @@
   <data name="Submit_DontSend" xml:space="preserve">
     <value>不发送</value>
   </data>
+  <data name="Submit_FeedbackIntro" xml:space="preserve">
+    <value>你用实验性控制更改了这些开关。每个开关是否都按说明生效了？你的回答会添加到下方文本中；跳过的问题不会发送任何内容。</value>
+  </data>
+  <data name="Submit_FeedbackWorked" xml:space="preserve">
+    <value>有效</value>
+  </data>
+  <data name="Submit_FeedbackNotWorked" xml:space="preserve">
+    <value>无效</value>
+  </data>
+  <data name="Submit_FeedbackNotTried" xml:space="preserve">
+    <value>未检查</value>
+  </data>
   <data name="Submit_Wmi2Confirm" xml:space="preserve">
     <value>读取这台笔记本电脑的 WMI2 数据用于提交吗？&#10;&#10;M-Tool 只读取。它会对这台笔记本电脑的一组固定 Get_* WMI2 方法各调用一次。不会向笔记本电脑写入任何内容，也不会更改任何设置。&#10;&#10;目前还不会发送任何内容：您会先看到完整文本，再决定是否发送。</value>
   </data>

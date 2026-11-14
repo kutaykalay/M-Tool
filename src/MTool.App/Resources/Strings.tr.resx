@@ -426,6 +426,18 @@
   <data name="Submit_DontSend" xml:space="preserve">
     <value>Gönderme</value>
   </data>
+  <data name="Submit_FeedbackIntro" xml:space="preserve">
+    <value>Bunları deneysel kontrolle değiştirdiniz. Her biri söylediğini yaptı mı? Cevaplarınız aşağıdaki metne eklenir; atladığınız soru için hiçbir şey gönderilmez.</value>
+  </data>
+  <data name="Submit_FeedbackWorked" xml:space="preserve">
+    <value>Çalıştı</value>
+  </data>
+  <data name="Submit_FeedbackNotWorked" xml:space="preserve">
+    <value>Çalışmadı</value>
+  </data>
+  <data name="Submit_FeedbackNotTried" xml:space="preserve">
+    <value>Bakmadım</value>
+  </data>
   <data name="Submit_Wmi2Confirm" xml:space="preserve">
     <value>Gönderim için bu laptopun WMI2 verisi okunsun mu?&#10;&#10;M-Tool yalnızca okur. Bu laptopun sabit bir Get_* WMI2 yöntemleri listesini bir kez çağırır. Laptopa hiçbir şey yazılmaz, hiçbir şey değiştirilmez.&#10;&#10;Henüz hiçbir şey gönderilmez: önce metnin tamamını görürsünüz, göndermeye siz karar verirsiniz.</value>
   </data>

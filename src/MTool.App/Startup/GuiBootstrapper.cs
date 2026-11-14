@@ -489,8 +489,8 @@ internal sealed class GuiBootstrapper : IDisposable
         /// <summary>The text sent is the text the window shows when Send is chosen.</summary>
         public string? Confirm(SubmissionDraft draft)
         {
-            var text = draft.Render([]);
-            return new SubmissionPreviewWindow(text, theme.IsDark, Owned(owner)).ShowDialog() == true ? text : null;
+            var preview = new SubmissionPreviewViewModel(draft);
+            return new SubmissionPreviewWindow(preview, theme.IsDark, Owned(owner)).ShowDialog() == true ? preview.Text : null;
         }
 
         private static Window? Owned(Func<Window?> owner) => owner() is { IsLoaded: true, IsVisible: true } shown ? shown : null;

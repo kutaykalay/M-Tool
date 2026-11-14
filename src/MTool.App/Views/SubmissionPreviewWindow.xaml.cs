@@ -1,18 +1,20 @@
 using System.Windows;
+using MTool.App.ViewModels;
 
 namespace MTool.App.Views;
 
 /// <summary>
 /// The full text "Send EC data" would send, read-only, with "Don't send" as the default (Enter and Esc).
 /// Closing the window, or the owner closing it, counts as "Don't send" (<see cref="Window.ShowDialog"/> returns false).
+/// After an experimental WMI2 write it also asks about each switch (<see cref="SubmissionPreviewViewModel"/>).
 /// </summary>
 internal partial class SubmissionPreviewWindow : Window
 {
     /// <param name="owner">The visible window that asked; null when M-Tool is only in the tray.</param>
-    public SubmissionPreviewWindow(string text, bool dark, Window? owner)
+    public SubmissionPreviewWindow(SubmissionPreviewViewModel preview, bool dark, Window? owner)
     {
         InitializeComponent();
-        PayloadText.Text = text;
+        DataContext = preview;
         Owner = owner;
         // Opened from the tray it has no owner: it must not come up behind other windows while the menu waits.
         Topmost = owner is null;

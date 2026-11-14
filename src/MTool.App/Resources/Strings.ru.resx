@@ -426,6 +426,18 @@
   <data name="Submit_DontSend" xml:space="preserve">
     <value>Не отправлять</value>
   </data>
+  <data name="Submit_FeedbackIntro" xml:space="preserve">
+    <value>Вы изменили эти переключатели с помощью экспериментального управления. Сработал ли каждый так, как заявлено? Ваши ответы добавляются в текст ниже; пропущенный вопрос ничего не отправляет.</value>
+  </data>
+  <data name="Submit_FeedbackWorked" xml:space="preserve">
+    <value>Сработало</value>
+  </data>
+  <data name="Submit_FeedbackNotWorked" xml:space="preserve">
+    <value>Не сработало</value>
+  </data>
+  <data name="Submit_FeedbackNotTried" xml:space="preserve">
+    <value>Не проверял</value>
+  </data>
   <data name="Submit_Wmi2Confirm" xml:space="preserve">
     <value>Прочитать данные WMI2 этого ноутбука для отправки?&#10;&#10;M-Tool только читает. Он один раз вызывает фиксированный список методов WMI2 Get_* этого ноутбука. На ноутбук ничего не записывается и ничего не меняется.&#10;&#10;Пока ничего не отправляется: сначала вы увидите весь текст и сами решите, отправлять ли его.</value>
   </data>

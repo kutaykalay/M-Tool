@@ -2,17 +2,71 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:res="clr-namespace:MTool.App.Resources"
-        Title="{x:Static res:Strings.Submit_PreviewTitle}" Width="640" Height="520" MinWidth="420" MinHeight="320"
+        xmlns:diag="clr-namespace:MTool.Core.Diagnostics;assembly=MTool.Core"
+        Title="{x:Static res:Strings.Submit_PreviewTitle}" Width="640" Height="560" MinWidth="420" MinHeight="440"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
         FontFamily="Segoe UI" FontSize="13" UseLayoutRounding="True">
     <DockPanel Margin="16,14,16,16">
         <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Strings.Submit_PreviewNotice}" TextWrapping="Wrap" Margin="0,0,0,12" />
+        <!-- Only after an experimental WMI2 write: one question per switch a write changed; nothing chosen until the user chooses. -->
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12" Visibility="{Binding HasQuestions, Converter={StaticResource BoolToVisible}}">
+            <TextBlock Text="{x:Static res:Strings.Submit_FeedbackIntro}" TextWrapping="Wrap" Margin="0,0,0,8" />
+            <ItemsControl ItemsSource="{Binding Questions}" Focusable="False">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" MinWidth="120" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" />
+                            <Button Grid.Column="1" Style="{StaticResource Choice}" MinWidth="96" Content="{x:Static res:Strings.Submit_FeedbackWorked}"
+                                    ToolTip="{x:Static res:Strings.Submit_FeedbackWorked}"
+                                    AutomationProperties.HelpText="{Binding Label}"
+                                    Command="{Binding ChooseCommand}" CommandParameter="{x:Static diag:Wmi2FeatureAnswer.Worked}">
+                                <Button.Tag>
+                                    <MultiBinding Converter="{StaticResource Equal}">
+                                        <Binding Path="Answer" />
+                                        <Binding Source="{x:Static diag:Wmi2FeatureAnswer.Worked}" />
+                                    </MultiBinding>
+                                </Button.Tag>
+                            </Button>
+                            <Button Grid.Column="2" Style="{StaticResource Choice}" MinWidth="96" Content="{x:Static res:Strings.Submit_FeedbackNotWorked}"
+                                    ToolTip="{x:Static res:Strings.Submit_FeedbackNotWorked}"
+                                    AutomationProperties.HelpText="{Binding Label}"
+                                    Command="{Binding ChooseCommand}" CommandParameter="{x:Static diag:Wmi2FeatureAnswer.NotWorked}">
+                                <Button.Tag>
+                                    <MultiBinding Converter="{StaticResource Equal}">
+                                        <Binding Path="Answer" />
+                                        <Binding Source="{x:Static diag:Wmi2FeatureAnswer.NotWorked}" />
+                                    </MultiBinding>
+                                </Button.Tag>
+                            </Button>
+                            <Button Grid.Column="3" Style="{StaticResource Choice}" MinWidth="96" Margin="0" Content="{x:Static res:Strings.Submit_FeedbackNotTried}"
+                                    ToolTip="{x:Static res:Strings.Submit_FeedbackNotTried}"
+                                    AutomationProperties.HelpText="{Binding Label}"
+                                    Command="{Binding ChooseCommand}" CommandParameter="{x:Static diag:Wmi2FeatureAnswer.NotTried}">
+                                <Button.Tag>
+                                    <MultiBinding Converter="{StaticResource Equal}">
+                                        <Binding Path="Answer" />
+                                        <Binding Source="{x:Static diag:Wmi2FeatureAnswer.NotTried}" />
+                                    </MultiBinding>
+                                </Button.Tag>
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
         <UniformGrid DockPanel.Dock="Bottom" Rows="1" Margin="0,16,0,0" HorizontalAlignment="Right">
             <Button x:Name="SendButton" Style="{StaticResource Choice}" MinWidth="120" Content="{x:Static res:Strings.Submit_Send}" Click="OnSendClick" />
             <Button x:Name="DontSendButton" Style="{StaticResource Choice}" MinWidth="120" Margin="0" Content="{x:Static res:Strings.Submit_DontSend}" IsDefault="True" IsCancel="True" />
         </UniformGrid>
-        <TextBox x:Name="PayloadText" AutomationProperties.Name="{x:Static res:Strings.Submit_PreviewTitle}" IsReadOnly="True" IsReadOnlyCaretVisible="True" FontFamily="Consolas" FontSize="12"
+        <!-- The text sent on Send is exactly this text: the view model renders it again on every answer. -->
+        <TextBox x:Name="PayloadText" Text="{Binding Text, Mode=OneWay}" AutomationProperties.Name="{x:Static res:Strings.Submit_PreviewTitle}" IsReadOnly="True" IsReadOnlyCaretVisible="True" FontFamily="Consolas" FontSize="12"
                  TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                  Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" />
     </DockPanel>

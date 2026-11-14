@@ -426,6 +426,18 @@
   <data name="Submit_DontSend" xml:space="preserve">
     <value>Nicht senden</value>
   </data>
+  <data name="Submit_FeedbackIntro" xml:space="preserve">
+    <value>Sie haben diese Schalter mit der experimentellen Steuerung geändert. Hat jeder getan, was er soll? Ihre Antworten werden dem Text darunter hinzugefügt; zu einer übersprungenen Frage wird nichts gesendet.</value>
+  </data>
+  <data name="Submit_FeedbackWorked" xml:space="preserve">
+    <value>Funktioniert</value>
+  </data>
+  <data name="Submit_FeedbackNotWorked" xml:space="preserve">
+    <value>Ging nicht</value>
+  </data>
+  <data name="Submit_FeedbackNotTried" xml:space="preserve">
+    <value>Nicht geprüft</value>
+  </data>
   <data name="Submit_Wmi2Confirm" xml:space="preserve">
     <value>WMI2-Daten dieses Laptops für die Übermittlung lesen?&#10;&#10;M-Tool liest nur. Es ruft eine feste Liste der Get_*-WMI2-Methoden dieses Laptops einmal auf. Es wird nichts auf den Laptop geschrieben und nichts geändert.&#10;&#10;Es wird noch nichts gesendet: Sie sehen zuerst den vollständigen Text und entscheiden dann, ob Sie ihn senden.</value>
   </data>

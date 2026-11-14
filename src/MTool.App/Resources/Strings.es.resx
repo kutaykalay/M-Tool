@@ -426,6 +426,18 @@
   <data name="Submit_DontSend" xml:space="preserve">
     <value>No enviar</value>
   </data>
+  <data name="Submit_FeedbackIntro" xml:space="preserve">
+    <value>Cambió estos interruptores con el control experimental. ¿Hizo cada uno lo que dice? Sus respuestas se añaden al texto de abajo; si omite una pregunta, no se envía nada.</value>
+  </data>
+  <data name="Submit_FeedbackWorked" xml:space="preserve">
+    <value>Funcionó</value>
+  </data>
+  <data name="Submit_FeedbackNotWorked" xml:space="preserve">
+    <value>No funcionó</value>
+  </data>
+  <data name="Submit_FeedbackNotTried" xml:space="preserve">
+    <value>No comprobado</value>
+  </data>
   <data name="Submit_Wmi2Confirm" xml:space="preserve">
     <value>¿Leer los datos WMI2 de este portátil para el envío?&#10;&#10;M-Tool solo lee. Llama una sola vez a una lista fija de métodos WMI2 Get_* de este portátil. No se escribe nada en el portátil y no se cambia nada.&#10;&#10;Todavía no se envía nada: primero verá el texto completo y decidirá si lo envía.</value>
   </data>
