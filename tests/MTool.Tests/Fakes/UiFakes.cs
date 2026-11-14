@@ -1,3 +1,4 @@
+using MTool.Core.Diagnostics;
 using MTool.App.ViewModels;
 
 namespace MTool.Tests.Fakes;
@@ -77,15 +78,30 @@ internal sealed class FakeSubmissionPreview : ISubmissionPreview
 {
     public bool Answer { get; set; } = true;
 
+    /// <summary>Every text rendered and shown, in order: first with no answers, then once per entry of <see cref="AnswerSteps"/>.</summary>
     public List<string> Shown { get; } = [];
+
+    /// <summary>The questions of each draft shown.</summary>
+    public List<IReadOnlyList<Wmi2Feature>> Asked { get; } = [];
+
+    /// <summary>The answers after each click of the user; the preview renders again after each.</summary>
+    public List<IReadOnlyList<Wmi2FeatureFeedback>> AnswerSteps { get; } = [];
 
     /// <summary>Runs while the preview is open, as the user would see the app.</summary>
     public Action? WhileOpen { get; set; }
 
-    public bool Confirm(string text)
+    public string? Confirm(SubmissionDraft draft)
     {
+        Asked.Add(draft.Questions);
+        var text = draft.Render([]);
         Shown.Add(text);
+        foreach (var answers in AnswerSteps)
+        {
+            text = draft.Render(answers);
+            Shown.Add(text);
+        }
+
         WhileOpen?.Invoke();
-        return Answer;
+        return Answer ? text : null;
     }
 }

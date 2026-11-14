@@ -28,7 +28,7 @@ public sealed class EcGatewayWmi2Tests : IDisposable
         """,
         [P65()]);
 
-    private static readonly Wmi2LayoutResult Verified = new([]);
+    private static readonly Wmi2LayoutResult Verified = Wmi2LayoutCheck.Check(new Wmi2Status(0x02, 0xC1, 0x0D, 0xE4));
 
     private readonly SimulatedWmi2Ec _ec = SimulatedWmi2Ec.Typical();
     private readonly FakeEcLock _lock = new();
@@ -148,7 +148,7 @@ public sealed class EcGatewayWmi2Tests : IDisposable
         var setup = closed switch
         {
             "no consent" => Setup() with { Consented = false },
-            "layout" => Setup() with { Layout = new Wmi2LayoutResult([new Wmi2LayoutMismatch(0xD2, 0x00)]) },
+            "layout" => Setup() with { Layout = Wmi2LayoutCheck.Check(new Wmi2Status(0x02, 0x00, 0x0D, 0xE4)) },
             "family only" => Setup("15M3EMS1.199"),
             _ => Setup(firmware: null),
         };

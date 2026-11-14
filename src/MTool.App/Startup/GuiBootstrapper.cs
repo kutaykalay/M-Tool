@@ -429,8 +429,11 @@ internal sealed class GuiBootstrapper : IDisposable
         bool AccessAllowed() => coordinator.IsEcAccessAllowed;
 
         ReportOnlyWindow? window = null;
+        // What experimental control writes in this window's session, for "Send EC data" only; in memory, never on disk.
+        var journal = new Wmi2WriteJournal();
         var report = new ReportViewModel(
-            new ReportService(new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords()),
+            new ReportService(
+                new LiveReportSources(log), log, AppPaths.Reports, AppVersion, ReportService.CurrentUserWords(), journal: journal),
             new DialogConfirm(() => window, theme), new DialogPreview(() => window, theme), submissions, new ShellLauncher(log),
             status, new BandNotifier(status), log, stop: stop.Token);
         // The msi-ec list only matters on a WMI2 laptop; one that does not load is logged and counts as no list.
@@ -442,7 +445,7 @@ internal sealed class GuiBootstrapper : IDisposable
             ? null
             : new Wmi2ControlsViewModel(
                 live, OpenControl, new DialogConfirm(() => window, theme), control.Consent,
-                TimeProvider.System, log, detected, wmi2List, control.PreStatePath);
+                TimeProvider.System, log, detected, wmi2List, control.PreStatePath, journal);
         var msiBand = live is null ? null : new MsiSoftwareBand(MsiSoftwareProbe.Default.ReadSoftware, log);
 
         // The view model asks only on an exact entry of a list that loaded; without one nothing is opened.
@@ -483,8 +486,12 @@ internal sealed class GuiBootstrapper : IDisposable
     /// <summary>Shows the text over the window that is asking, so that window can close it on exit (then nothing is sent).</summary>
     private sealed class DialogPreview(Func<Window?> owner, ThemeManager theme) : ISubmissionPreview
     {
-        public bool Confirm(string text) =>
-            new SubmissionPreviewWindow(text, theme.IsDark, Owned(owner)).ShowDialog() == true;
+        /// <summary>The text sent is the text the window shows when Send is chosen.</summary>
+        public string? Confirm(SubmissionDraft draft)
+        {
+            var text = draft.Render([]);
+            return new SubmissionPreviewWindow(text, theme.IsDark, Owned(owner)).ShowDialog() == true ? text : null;
+        }
 
         private static Window? Owned(Func<Window?> owner) => owner() is { IsLoaded: true, IsVisible: true } shown ? shown : null;
     }

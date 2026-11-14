@@ -5,8 +5,10 @@ using Microsoft.Extensions.Time.Testing;
 using MTool.App.Reports;
 using MTool.App.Resources;
 using MTool.App.ViewModels;
+using MTool.Core.Device;
 using MTool.Core.Device.Config;
 using MTool.Core.Diagnostics;
+using MTool.Core.Ec;
 using MTool.Tests.Fakes;
 
 namespace MTool.Tests.Reports;
@@ -35,9 +37,47 @@ public sealed class ReportViewModelSubmitTests : IDisposable
         Directory.Delete(_root, recursive: true);
     }
 
-    private ReportViewModel ViewModel(FakeReportSources sources, CancellationToken stop = default) =>
-        new(new ReportService(sources, _log, Path.Combine(_root, "reports"), "0.12.0", ["Kutay"]),
+    private ReportViewModel ViewModel(FakeReportSources sources, CancellationToken stop = default, Wmi2WriteJournal? journal = null) =>
+        new(new ReportService(sources, _log, Path.Combine(_root, "reports"), "0.12.0", ["Kutay"], journal: journal),
             _confirm, _preview, _client, new FakeShellLauncher(), _status, _notifier, _log, _time, stop);
+
+    private static Wmi2WriteJournal TwoSwitchesWritten()
+    {
+        var journal = new Wmi2WriteJournal();
+        journal.Opened("15M3EMS1.109", Wmi2LayoutCheck.Check(new Wmi2Status(0x02, 0xC1, 0x0D, 0xE4)));
+        journal.Record(new Wmi2WriteOutcome(WriteStatus.Applied, 0x98, 0x02, new RegisterWrite(0x98, 0x82)));
+        journal.Record(new Wmi2WriteOutcome(WriteStatus.Applied, 0xD7, 0xE4, new RegisterWrite(0xD7, 0xD0)));
+        return journal;
+    }
+
+    [Fact]
+    public async Task After_experimental_writes_the_preview_asks_per_switch_and_sends_the_answers_it_showed_last()
+    {
+        _preview.AnswerSteps.Add([new Wmi2FeatureFeedback(Wmi2Feature.ChargeLimit, Wmi2FeatureAnswer.NotWorked)]);
+        _preview.AnswerSteps.Add([
+            new Wmi2FeatureFeedback(Wmi2Feature.ChargeLimit, Wmi2FeatureAnswer.NotWorked),
+            new Wmi2FeatureFeedback(Wmi2Feature.CoolerBoost, Wmi2FeatureAnswer.Worked),
+        ]);
+        var vm = ViewModel(new FakeReportSources { Wmi = WmiInterface.Wmi2 }, journal: TwoSwitchesWritten());
+
+        await Run(vm.SendEcDataCommand);
+
+        _preview.Asked.Should().ContainSingle().Which.Should().Equal(Wmi2Feature.CoolerBoost, Wmi2Feature.ChargeLimit);
+        var last = _preview.Shown[^1];
+        last.Should().Contain("\"user\": \"worked\"").And.Contain("\"user\": \"not_worked\"");
+        _http.Requests.Should().ContainSingle().Which.Body.Should().Equal(Encoding.UTF8.GetBytes(last));
+    }
+
+    [Fact]
+    public async Task Without_experimental_writes_the_preview_asks_nothing()
+    {
+        var vm = ViewModel(new FakeReportSources());
+
+        await Run(vm.SendEcDataCommand);
+
+        _preview.Asked.Should().ContainSingle().Which.Should().BeEmpty();
+        _preview.Shown.Single().Should().NotContain("experimental");
+    }
 
     private static Task Run(System.Windows.Input.ICommand command)
     {

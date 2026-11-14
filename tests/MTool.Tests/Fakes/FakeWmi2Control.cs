@@ -13,7 +13,7 @@ internal sealed class FakeWmi2Control : IWmi2Control
 {
     public FakeWmi2LiveSource Reads { get; } = new() { Firmware = "15M3EMS1.105" };
 
-    public Wmi2LayoutResult Layout { get; set; } = new([]);
+    public Wmi2LayoutResult Layout { get; set; } = Wmi2LayoutCheck.Check(new Wmi2Status(0x02, 0xC1, 0x0D, 0xE4));
 
     public bool IsWritePathTested { get; set; }
 

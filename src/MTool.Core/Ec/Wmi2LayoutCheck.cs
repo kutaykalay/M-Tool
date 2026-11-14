@@ -12,10 +12,14 @@ public sealed record Wmi2LayoutMismatch(byte Register, byte Value)
 /// <summary>The once-per-session layout check; <see cref="Verified"/> only when nothing is out of place. Not value-comparable.</summary>
 public sealed class Wmi2LayoutResult
 {
-    public Wmi2LayoutResult(IReadOnlyList<Wmi2LayoutMismatch> mismatches)
+    /// <param name="status">The bytes the check read; the EC data submission sends them (15c-6).</param>
+    public Wmi2LayoutResult(Wmi2Status status, IReadOnlyList<Wmi2LayoutMismatch> mismatches)
     {
+        Status = status ?? throw new ArgumentNullException(nameof(status));
         Mismatches = mismatches ?? throw new ArgumentNullException(nameof(mismatches));
     }
+
+    public Wmi2Status Status { get; }
 
     public IReadOnlyList<Wmi2LayoutMismatch> Mismatches { get; }
 
@@ -59,7 +63,7 @@ public static class Wmi2LayoutCheck
         Add(mismatches, Wmi2WriteCeiling.PerformanceRegister, status.PerformanceRaw);
         Add(mismatches, Wmi2WriteCeiling.FanModeRegister, status.FanModeRaw);
         Add(mismatches, Wmi2WriteCeiling.ChargeLimitRegister, status.ChargeRaw);
-        return new Wmi2LayoutResult(mismatches.AsReadOnly());
+        return new Wmi2LayoutResult(status, mismatches.AsReadOnly());
     }
 
     private static void Add(List<Wmi2LayoutMismatch> mismatches, byte register, byte value)

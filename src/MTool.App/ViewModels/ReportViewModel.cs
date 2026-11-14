@@ -93,27 +93,23 @@ internal sealed partial class ReportViewModel(
             }
 
             notifier.ShowInfo(AppName, Strings.Submit_Collecting);
-            var json = await OffUiAsync(() => service.CollectForSubmission(withWmi2), "Collecting the EC data");
-            if (json is null)
+            var draft = await OffUiAsync(() => service.CollectForSubmission(withWmi2), "Collecting the EC data");
+            if (draft is null || TooLarge(draft.Render([])))
             {
                 return;
             }
 
-            var bytes = Encoding.UTF8.GetByteCount(json);
-            if (bytes > EcSubmission.MaxBytes)
-            {
-                log.Warn($"EC submission: payload {bytes} bytes > {EcSubmission.MaxBytes}, not sent.");
-                Warn(Strings.Submit_TooLarge);
-                return;
-            }
-
-            if (!preview.Confirm(json))
+            // The answers add a few bytes, so the text the preview hands back is measured again.
+            if (preview.Confirm(draft) is not { } json)
             {
                 log.Info("EC submission: not sent (declined in preview).");
                 return;
             }
 
-            Tell(await submissions.SendAsync(json, stop), bytes);
+            if (!TooLarge(json))
+            {
+                Tell(await submissions.SendAsync(json, stop), Encoding.UTF8.GetByteCount(json));
+            }
         }
         finally
         {
@@ -148,6 +144,19 @@ internal sealed partial class ReportViewModel(
     }
 
     private bool CanStart() => !IsBusy;
+
+    private bool TooLarge(string json)
+    {
+        var bytes = Encoding.UTF8.GetByteCount(json);
+        if (bytes <= EcSubmission.MaxBytes)
+        {
+            return false;
+        }
+
+        log.Warn($"EC submission: payload {bytes} bytes > {EcSubmission.MaxBytes}, not sent.");
+        Warn(Strings.Submit_TooLarge);
+        return true;
+    }
 
     private bool CanStartWmi2() => !IsBusy && HasWmi2;
 

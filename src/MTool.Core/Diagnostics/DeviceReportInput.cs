@@ -56,6 +56,7 @@ public sealed record MsiInfo(MsiSchemaInfo Schema, MsiSoftwareInfo Software)
 /// <param name="Computer">SMBIOS and Windows.</param>
 /// <param name="Interface">The probe's answer; when WMI did not answer, the step that failed and its code.</param>
 /// <param name="Wmi2">The raw WMI2 packets; null when not asked for (<c>--report --wmi2</c>).</param>
+/// <param name="Experimental">What WMI2 experimental control wrote in this session; only "Send EC data" passes it.</param>
 public sealed record DeviceReportInput(
     string AppVersion,
     DateTimeOffset At,
@@ -65,4 +66,5 @@ public sealed record DeviceReportInput(
     MsiInfo Msi,
     Section<int> DsdtBytes,
     Section<EcReadout> Ec,
-    Section<Wmi2Readout>? Wmi2 = null);
+    Section<Wmi2Readout>? Wmi2 = null,
+    ExperimentalSession? Experimental = null);

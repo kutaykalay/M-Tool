@@ -127,10 +127,12 @@ public class Wmi2LayoutCheckTests
     public void A_missing_status_or_list_is_refused()
     {
         var check = () => Wmi2LayoutCheck.Check(null!);
-        var result = () => new Wmi2LayoutResult(null!);
+        var noStatus = () => new Wmi2LayoutResult(null!, []);
+        var noList = () => new Wmi2LayoutResult(new Wmi2Status(0, 0xC1, 0x0D, 0xE4), null!);
 
         check.Should().Throw<ArgumentNullException>();
-        result.Should().Throw<ArgumentNullException>();
+        noStatus.Should().Throw<ArgumentNullException>();
+        noList.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]

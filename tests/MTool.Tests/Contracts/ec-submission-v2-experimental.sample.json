@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 2,
+  "app": {
+    "version": "0.18.0-beta.1+abc1234"
+  },
+  "system": {
+    "manufacturer": "Micro-Star International Co., Ltd.",
+    "model": "Katana GF66 11UE",
+    "baseBoard": "MS-1581",
+    "biosVersion": "E1581IMS.10D",
+    "biosDate": "2021-05-13",
+    "cpu": "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+    "windows": "Windows 11 Home 10.0.26300"
+  },
+  "wmi": {
+    "interface": "WMI2",
+    "interfaceStatus": "ok",
+    "failure": null,
+    "classesStatus": "ok",
+    "classes": [
+      {
+        "name": "MSI_ACPI",
+        "properties": []
+      }
+    ]
+  },
+  "msi": {
+    "schema": {
+      "registration": "not_set",
+      "file": "missing",
+      "signature": "unknown"
+    },
+    "software": {
+      "installed": false,
+      "running": false
+    }
+  },
+  "ec": {
+    "status": "not_read",
+    "firmware": null,
+    "firmwareDate": null,
+    "match": {
+      "kind": "None",
+      "recordId": null
+    },
+    "layoutId": null,
+    "fields": [],
+    "skipped": 0
+  },
+  "wmi2": {
+    "status": "not_asked",
+    "calls": []
+  },
+  "experimental": {
+    "firmware": "15M3EMS1.109",
+    "match": "exact",
+    "layoutCheck": {
+      "status": "ok",
+      "bytes": {
+        "0xD2": "0xC1",
+        "0xD4": "0x0D",
+        "0xD7": "0xE4",
+        "0x98": "0x02"
+      }
+    },
+    "writes": [
+      {
+        "feature": "performance_mode",
+        "before": "0xC1",
+        "after": "0xC1",
+        "readBack": "ok"
+      },
+      {
+        "feature": "cooler_boost",
+        "before": "0x02",
+        "after": "0x82",
+        "readBack": "ok"
+      },
+      {
+        "feature": "performance_mode",
+        "before": "0xC1",
+        "after": "0xC4",
+        "readBack": "differs"
+      },
+      {
+        "feature": "charge_limit",
+        "before": "0xE4",
+        "after": "0xD0",
+        "readBack": "failed"
+      }
+    ],
+    "feedback": [
+      {
+        "feature": "cooler_boost",
+        "user": "worked"
+      },
+      {
+        "feature": "performance_mode",
+        "user": "not_worked"
+      },
+      {
+        "feature": "charge_limit",
+        "user": "not_tried"
+      }
+    ]
+  }
+}

@@ -8,6 +8,7 @@ using MTool.App.Resources;
 using MTool.Core;
 using MTool.Core.Device;
 using MTool.Core.Device.Config;
+using MTool.Core.Diagnostics;
 using MTool.Core.Ec;
 using MTool.Core.Localization;
 using MTool.Core.Settings;
@@ -61,18 +62,21 @@ internal sealed partial class Wmi2ControlsViewModel : ObservableObject, IDisposa
     private readonly WmiInterface? _detected;
     private readonly Wmi2FirmwareList? _list;
     private readonly string _preStatePath;
+    private readonly Wmi2WriteJournal _journal;
     private readonly CancellationTokenSource _closing = new();
     private bool _autoOpenTried; // control opens by itself at most once per reading, so a failure does not loop
     private bool _turnedOff; // the user turned control off in this session: it does not open by itself again
 
     /// <param name="openControl">Opens control for the consented firmware; it runs off the UI thread.</param>
     /// <param name="preStatePath">The "before M-Tool" snapshot file, named when it is the problem.</param>
+    /// <param name="journal">The session's record of writes for "Send EC data" (15c-6); in memory only.</param>
     public Wmi2ControlsViewModel(
         Wmi2LiveViewModel live, Func<string, CancellationToken, Task<Wmi2ControlOpening>> openControl, IConfirm confirm,
-        IWmi2Consent consent, TimeProvider time, IAppLog log, WmiInterface? detected, Wmi2FirmwareList? list, string preStatePath)
+        IWmi2Consent consent, TimeProvider time, IAppLog log, WmiInterface? detected, Wmi2FirmwareList? list, string preStatePath,
+        Wmi2WriteJournal journal)
     {
         (_live, _openControl, _confirm, _consent, _time, _log) = (live, openControl, confirm, consent, time, log);
-        (_detected, _list, _preStatePath) = (detected, list, preStatePath);
+        (_detected, _list, _preStatePath, _journal) = (detected, list, preStatePath, journal);
         _live.StateChanged += OnLiveChanged;
         _live.PropertyChanged += OnLivePropertyChanged;
     }
@@ -173,6 +177,11 @@ internal sealed partial class Wmi2ControlsViewModel : ObservableObject, IDisposa
         RunWriteAsync("back to before M-Tool", warning: null, async control =>
         {
             var outcomes = await control.RevertAsync(_closing.Token);
+            foreach (var outcome in outcomes)
+            {
+                _journal.Record(outcome);
+            }
+
             var text = Wmi2OutcomeText.Revert(outcomes, _preStatePath);
             (Result, ResultKind, RevertLines) = (text.Summary, text.Kind, text.Lines);
             _log.Info($"WMI2 back to before M-Tool: {string.Join(", ", outcomes.Select(Describe))}.");
@@ -328,10 +337,10 @@ internal sealed partial class Wmi2ControlsViewModel : ObservableObject, IDisposa
             IsSwitching = false;
         }
 
-        Opened(switched, opening);
+        Opened(firmware, switched, opening);
     }
 
-    private void Opened(bool switched, Wmi2ControlOpening? opening)
+    private void Opened(string firmware, bool switched, Wmi2ControlOpening? opening)
     {
         if (!switched)
         {
@@ -344,6 +353,11 @@ internal sealed partial class Wmi2ControlsViewModel : ObservableObject, IDisposa
         {
             (State, Reason) = (Wmi2ControlState.Unavailable, opening?.Unavailable is { } reason ? Wmi2OutcomeText.Of(reason) : Strings.Wmi2_ControlOpenFailed);
             return;
+        }
+
+        if (Control is { } control)
+        {
+            _journal.Opened(firmware, control.Layout);
         }
 
         Update(allowAutoOpen: false); // open, or reading did not come back either (hidden)
@@ -388,6 +402,8 @@ internal sealed partial class Wmi2ControlsViewModel : ObservableObject, IDisposa
                     Show(test);
                     return;
                 }
+
+                _journal.Record(test); // a passing test wrote the same byte again: a real write, kept like any other
             }
 
             await write(control);
@@ -408,8 +424,10 @@ internal sealed partial class Wmi2ControlsViewModel : ObservableObject, IDisposa
         }
     }
 
+    /// <summary>Also the session's record: a write that reached the EC is kept for "Send EC data".</summary>
     private void Show(Wmi2WriteOutcome outcome)
     {
+        _journal.Record(outcome);
         (Result, ResultKind) = (Wmi2OutcomeText.Of(outcome, _preStatePath), Wmi2OutcomeText.KindOf(outcome));
         _log.Info($"WMI2 write {Describe(outcome)}.");
     }

@@ -19,8 +19,10 @@ internal sealed record ReportResult(string Path, string Text, string? Model, str
 /// Which report it makes is chosen by the method, not by a flag: <see cref="Create"/> never asks WMI2
 /// for anything, only <see cref="CreateWithWmi2"/> does (and only on a WMI2 laptop).
 /// </summary>
+/// <param name="journal">The WMI2 window's record of experimental writes; only "Send EC data" reads it, never a report.</param>
 internal sealed class ReportService(
-    IReportSources sources, IAppLog log, string folder, string appVersion, IReadOnlyList<string> privateWords, TimeProvider? time = null)
+    IReportSources sources, IAppLog log, string folder, string appVersion, IReadOnlyList<string> privateWords, TimeProvider? time = null,
+    Wmi2WriteJournal? journal = null)
 {
     private readonly TimeProvider _time = time ?? TimeProvider.System;
 
@@ -60,14 +62,15 @@ internal sealed class ReportService(
     public ReportResult CreateWithWmi2() => Run(includeWmi2: true);
 
     /// <summary>
-    /// The text "Send EC data" shows and then sends (<see cref="EcSubmission"/>): the same parts as the
-    /// report but no DSDT, and nothing written to disk. WMI2 is called only when asked for, and only on a
+    /// What "Send EC data" shows and then sends (<see cref="EcSubmission"/>): the same parts as the
+    /// report but no DSDT, and nothing written to disk; after an experimental WMI2 write in this session, also
+    /// what was written, and the preview asks about it. WMI2 is called only when asked for, and only on a
     /// WMI2 laptop; the caller asks the user first.
     /// </summary>
-    public string CollectForSubmission(bool includeWmi2)
+    public SubmissionDraft CollectForSubmission(bool includeWmi2)
     {
         var data = ReportCommand.Collect(sources, appVersion, _time.GetLocalNow(), log.Warn, includeWmi2, includeDsdt: false);
-        return EcSubmission.ToJson(data.Input, privateWords);
+        return new SubmissionDraft(data.Input with { Experimental = journal?.Snapshot() }, privateWords);
     }
 
     private ReportResult Run(bool includeWmi2)

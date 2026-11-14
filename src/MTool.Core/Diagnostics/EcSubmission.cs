@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using MTool.Core.Device.Config;
+using MTool.Core.Ec;
 
 namespace MTool.Core.Diagnostics;
 
@@ -23,6 +24,9 @@ public static class EcSubmission
 
     /// <summary>Longest text value, in UTF-16 units; the server refuses longer ones.</summary>
     public const int MaxTextLength = 128;
+
+    /// <summary>The server takes an experimental firmware of exactly this length.</summary>
+    private const int ExperimentalFirmwareLength = 12;
 
     private static readonly JsonWriterOptions Options = new()
     {
@@ -49,6 +53,7 @@ public static class EcSubmission
             WriteMsi(json, input.Msi);
             WriteEc(json, input, text);
             WriteWmi2(json, input.Wmi2, text);
+            WriteExperimental(json, input.Experimental, text);
             json.WriteEndObject();
         }
 
@@ -180,6 +185,84 @@ public static class EcSubmission
         json.WriteEndArray();
         json.WriteEndObject();
     }
+
+    /// <summary>
+    /// Only after an experimental write (plan asama15 15a-2). Writes happen only on an exact firmware match, so the
+    /// match is always "exact". The server takes a firmware of exactly 12 characters: any other, or one the cleaning had to change (a
+    /// private name masked to the same length), leaves the whole block out rather than have the whole submission refused.
+    /// </summary>
+    private static void WriteExperimental(Utf8JsonWriter json, ExperimentalSession? session, Cleaner text)
+    {
+        if (session is null || ExperimentalFirmware(session, text) is not { } firmware)
+        {
+            return;
+        }
+
+        json.WriteStartObject("experimental");
+        json.WriteString("firmware", firmware);
+        json.WriteString("match", "exact");
+        json.WriteStartObject("layoutCheck");
+        json.WriteString("status", session.LayoutVerified ? "ok" : "failed");
+        json.WriteStartObject("bytes");
+        var status = session.LayoutStatus;
+        json.WriteString(Hex(Wmi2WriteCeiling.PerformanceRegister), Hex(status.PerformanceRaw));
+        json.WriteString(Hex(Wmi2WriteCeiling.FanModeRegister), Hex(status.FanModeRaw));
+        json.WriteString(Hex(Wmi2WriteCeiling.ChargeLimitRegister), Hex(status.ChargeRaw));
+        json.WriteString(Hex(Wmi2WriteCeiling.CoolerBoostRegister), Hex(status.CoolerBoostRaw));
+        json.WriteEndObject();
+        json.WriteEndObject();
+        json.WriteStartArray("writes");
+        foreach (var write in session.Writes.TakeLast(Wmi2WriteJournal.MaxWrites))
+        {
+            json.WriteStartObject();
+            json.WriteString("feature", FeatureName(write.Feature));
+            json.WriteString("before", Hex(write.Before));
+            json.WriteString("after", Hex(write.After));
+            json.WriteString("readBack", write.ReadBack switch
+            {
+                Wmi2ReadBack.Ok => "ok",
+                Wmi2ReadBack.Differs => "differs",
+                _ => "failed",
+            });
+            json.WriteEndObject();
+        }
+
+        json.WriteEndArray();
+        json.WriteStartArray("feedback");
+        foreach (var answer in session.Feedback.DistinctBy(f => f.Feature))
+        {
+            json.WriteStartObject();
+            json.WriteString("feature", FeatureName(answer.Feature));
+            json.WriteString("user", answer.Answer switch
+            {
+                Wmi2FeatureAnswer.Worked => "worked",
+                Wmi2FeatureAnswer.NotWorked => "not_worked",
+                _ => "not_tried",
+            });
+            json.WriteEndObject();
+        }
+
+        json.WriteEndArray();
+        json.WriteEndObject();
+    }
+
+    /// <summary>Whether the payload will carry the <c>experimental</c> block; the preview asks its questions only then.</summary>
+    public static bool IncludesExperimental(ExperimentalSession? session, IReadOnlyCollection<string> privateWords) =>
+        ExperimentalFirmware(session, new Cleaner(privateWords)) is not null;
+
+    /// <summary>The firmware to send; null when there is no session or cleaning would have to change it.</summary>
+    private static string? ExperimentalFirmware(ExperimentalSession? session, Cleaner text) =>
+        session is not null && text.Clean(session.Firmware) is { Length: ExperimentalFirmwareLength } firmware && firmware == session.Firmware
+            ? firmware
+            : null;
+
+    private static string FeatureName(Wmi2Feature feature) => feature switch
+    {
+        Wmi2Feature.CoolerBoost => "cooler_boost",
+        Wmi2Feature.PerformanceMode => "performance_mode",
+        Wmi2Feature.ChargeLimit => "charge_limit",
+        _ => "fan_mode",
+    };
 
     /// <summary>"none" only when WMI answered without an MSI class; a probe that failed is "unknown".</summary>
     private static string InterfaceName(WmiProbeOutcome probe) => probe switch

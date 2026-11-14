@@ -1,3 +1,5 @@
+using MTool.Core.Diagnostics;
+
 namespace MTool.App.ViewModels;
 
 /// <summary>Moves work to the UI thread (sensor events arrive on thread-pool threads).</summary>
@@ -16,8 +18,12 @@ public interface IConfirm
 /// <summary>Shows the full text "Send EC data" would send; nothing is sent unless the user chooses to.</summary>
 public interface ISubmissionPreview
 {
-    /// <returns>True only when the user chose Send; the default button is Don't send.</returns>
-    bool Confirm(string text);
+    /// <summary>Shows the draft rendered, asks its questions and renders it again on each answer.</summary>
+    /// <returns>
+    /// The text to send, exactly the text shown last, only when the user chose Send; null otherwise (the default
+    /// button is Don't send).
+    /// </returns>
+    string? Confirm(SubmissionDraft draft);
 }
 
 /// <summary>Tray balloon for problems the user must see even with the window closed.</summary>

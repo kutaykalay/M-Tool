@@ -4,6 +4,7 @@ using MTool.App.Resources;
 using MTool.App.ViewModels;
 using MTool.Core.Device;
 using MTool.Core.Device.Config;
+using MTool.Core.Diagnostics;
 using MTool.Core.Ec;
 using MTool.Core.Sensors;
 using MTool.Core.Settings;
@@ -42,6 +43,7 @@ public sealed partial class Wmi2ControlsViewModelTests : IDisposable
     private readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 10, 26, 18, 0, 0, TimeSpan.Zero));
     private readonly ListLog _log = new();
     private readonly List<string> _openedFor = [];
+    private readonly Wmi2WriteJournal _journal = new();
     private Func<Wmi2ControlOpening> _opening;
     private int _readOnlyOpens;
     private bool _readOnlyFailsToOpen;
@@ -66,7 +68,7 @@ public sealed partial class Wmi2ControlsViewModelTests : IDisposable
                 _readOnlyOpens++;
                 return _readOnlyFailsToOpen ? null : _readOnly;
             }, new Wmi2CircuitBreaker(), _confirm, () => true, _time, _log, WmiInterface.Wmi2, list ?? List);
-        _controls = new Wmi2ControlsViewModel(Live, OpenControl, _confirm, _consent, _time, _log, WmiInterface.Wmi2, list ?? List, PreStatePath);
+        _controls = new Wmi2ControlsViewModel(Live, OpenControl, _confirm, _consent, _time, _log, WmiInterface.Wmi2, list ?? List, PreStatePath, _journal);
         return _controls;
     }
 
@@ -145,7 +147,7 @@ public sealed partial class Wmi2ControlsViewModelTests : IDisposable
         _controls!.Dispose();
         _live!.Dispose();
         _live = new Wmi2LiveViewModel(() => _readOnly, new Wmi2CircuitBreaker(), _confirm, () => true, _time, _log, WmiInterface.Wmi2, list: null);
-        _controls = new Wmi2ControlsViewModel(Live, OpenControl, _confirm, _consent, _time, _log, WmiInterface.Wmi2, list: null, PreStatePath);
+        _controls = new Wmi2ControlsViewModel(Live, OpenControl, _confirm, _consent, _time, _log, WmiInterface.Wmi2, list: null, PreStatePath, _journal);
 
         await Live.ShowCommand.ExecuteAsync(null);
 
@@ -492,7 +494,7 @@ public sealed partial class Wmi2ControlsViewModelTests : IDisposable
     [Fact]
     public async Task A_layout_that_does_not_fit_closes_every_switch_and_shows_the_raw_bytes()
     {
-        _control.Layout = new Wmi2LayoutResult([new Wmi2LayoutMismatch(0xD2, 0x00)]);
+        _control.Layout = Wmi2LayoutCheck.Check(new Wmi2Status(0x02, 0x00, 0x0D, 0xE4));
         var controls = await OpenAsync();
 
         controls.Reason.Should().Be(string.Format(Strings.Wmi2_ControlLayout, "0xD2=0x00"));
