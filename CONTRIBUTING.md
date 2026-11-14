@@ -63,8 +63,11 @@ leave dry run on (the default `"dryRun": true` in `%AppData%\M-Tool\settings.jso
    - the fan mode: **Auto**, **Silent**, **Auto**.
 5. **Back to before M-Tool,** then put the laptop to sleep and wake it. Do the values stay as they
    were? M-Tool does not apply anything again by itself.
-6. **Send EC data (for a config):** from the tray menu, or the window M-Tool opens, send what the
-   preview shows (see the README) and say which steps worked and which did not.
+6. **Send EC data,** before you close M-Tool: in the window M-Tool opens, choose **Send EC data**.
+   The preview lists each write of this session (the byte before, the byte written, and whether it
+   read back) and asks, for each switch you changed, **Worked**, **Didn't work** or **Didn't check**.
+   Your answers appear in the text; a question you skip sends nothing. The record is kept in memory
+   only and is gone once M-Tool closes. Writes made with dry run on are not in it.
 
 Stop at once and report if a result says a value was not read back, if a fan behaves in a way the
 step did not ask for, or if M-Tool says every write is off for this session. If a fan stops under
@@ -74,7 +77,6 @@ sets the values again.
 Do not use experimental control on a laptop whose firmware is not listed exactly, do not edit
 `settings.json` to get past a refusal, and do not run it while MSI Center is changing the same
 settings.
-<!-- TODO(Kutay): step 6 assumes "Send EC data" carries what the volunteer did; revisit once the experimental block of the send flow (15c-6) exists. -->
 
 ## Write verification with a volunteer
 

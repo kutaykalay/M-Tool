@@ -190,7 +190,12 @@ Sent:
 - the MSI WMI interface and the MSI class and property names;
 - the EC firmware version and date, the matching record, and the register numbers and values of
   the WMI1 fields M-Tool could read (live sensor values included);
-- on a WMI2 laptop, only if you said Yes: the raw `Get_*` answers.
+- on a WMI2 laptop, only if you said Yes: the raw `Get_*` answers;
+- after experimental control wrote in this session: the firmware, the four bytes the layout check
+  read, each write (the byte before, the byte written, whether it read back; at most 20), and
+  your answer for each switch you changed (**Worked**, **Didn't work**, **Didn't check**; a
+  question you skip sends nothing). This record is kept in memory only and is gone once M-Tool
+  closes.
 
 Not sent:
 
