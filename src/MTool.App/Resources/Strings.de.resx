@@ -658,7 +658,7 @@
     <value>Bereits gesetzt: Es wurde nichts geschrieben.</value>
   </data>
   <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
-    <value>Testmodus: geprüft und protokolliert, nichts geschrieben. Zum Schreiben setzen Sie "dryRun": false in settings.json.</value>
+    <value>Testmodus: geprüft und protokolliert, nichts geschrieben.</value>
   </data>
   <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
     <value>{0} Der alte Wert wurde zurückgeschrieben und zurückgelesen. Bis M-Tool neu startet, ist jedes Schreiben aus.</value>

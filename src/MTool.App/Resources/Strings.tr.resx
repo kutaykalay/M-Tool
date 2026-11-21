@@ -658,7 +658,7 @@
     <value>Zaten ayarlı: hiçbir şey yazılmadı.</value>
   </data>
   <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
-    <value>Deneme modu: kontrol edildi ve günlüğe yazıldı, hiçbir şey yazılmadı. Yazmak için settings.json'da "dryRun": false yapın.</value>
+    <value>Deneme modu: kontrol edildi ve günlüğe yazıldı, hiçbir şey yazılmadı.</value>
   </data>
   <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
     <value>{0} Eski değer geri yazıldı ve geri okundu. M-Tool yeniden başlayana kadar her yazma kapalı.</value>

@@ -52,7 +52,7 @@ public sealed class Wmi2ControlSourceTests : IDisposable
         new(_ec, new Wmi2WritableRegisters(_ec, _ec), _owned, new FakeEcLock(), () => true, _log);
 
     private Wmi2ControlOptions Options(string consented = Firmware) =>
-        new(consented, List, PreStateStore.ForWmi2(_folder), () => _wmi2Only, DryRun: false);
+        new(consented, List, PreStateStore.ForWmi2(_folder), () => _wmi2Only);
 
     private async Task<Wmi2ControlOpening> Opening(Wmi2ControlOptions? options = null, CancellationToken cancellationToken = default)
     {
@@ -240,6 +240,17 @@ public sealed class Wmi2ControlSourceTests : IDisposable
             .Split("OpenWritable").Should().HaveCount(2, "one call, inside OpenForControl");
         RepoFiles.Under("src", "*.cs").Where(file => File.ReadAllText(file).Contains("OpenForControl(")).Select(Path.GetFileName)
             .Should().BeEquivalentTo(["Wmi2LiveSource.cs", "Wmi2ControlSource.cs"]);
+    }
+
+    [Fact]
+    public void Consent_is_the_permission_to_write_so_control_does_not_follow_the_settings_dry_run()
+    {
+        // Kutay, 2026-11-21: after the risk question, editing "dryRun" in settings.json is not asked of the user.
+        typeof(Wmi2ControlOptions).GetProperties().Select(p => p.Name).Should().NotContain("DryRun");
+        typeof(Wmi2ControlSource).GetMethod(nameof(Wmi2ControlSource.OpenAsync))!.GetParameters()
+            .Select(p => p.Name).Should().NotContain("dryRun");
+        File.ReadAllText(Path.Combine(RepoFiles.Root, "src", "MTool.App", "Startup", "GuiBootstrapper.cs"))
+            .Should().NotContain("Wmi2ControlSource.OpenAsync(firmware, list, AppPaths.Root, settings.Settings.DryRun");
     }
 
     private static byte[] EcPacket(string firmware)

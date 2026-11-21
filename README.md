@@ -98,9 +98,8 @@ reports-only window. It is experimental: it has not been checked on any of these
   `settings.json`, so from then on control opens by itself when live values start, until the
   firmware changes (a BIOS update), when M-Tool asks again. **Turn off experimental control**
   forgets the consent; nothing is written.
-- **Dry run:** WMI2 writes follow `"dryRun"` in `settings.json`, as the main window does. A fresh
-  install writes nothing; to let M-Tool write, set `"dryRun": false` as described under
-  [Install](#install).
+- **No dry run:** your Yes to the question is the permission to write. Experimental control does
+  not follow `"dryRun"` in `settings.json`, so there is nothing to edit by hand.
 - **Safety:** every write is a click of yours; M-Tool never re-applies anything on its own, not at
   start-up, after sleep or when the power source changes. Each write is checked first and read
   back, and before the first change M-Tool saves the values the laptop held. **Back to before
@@ -112,9 +111,9 @@ reports-only window. It is experimental: it has not been checked on any of these
   [issue](https://github.com/kutaykalay/M-Tool/issues) with the log from `%AppData%\M-Tool\logs`.
   MSI software that is running may undo what M-Tool sets.
 - **About the stored consent:** the consent in `settings.json` is not signed. Another program running
-  as the same Windows user could write it together with `"dryRun": false`, and control would then
-  open without the question. Every write would still need a click of yours, and the exact firmware
-  match and the value checks still apply.
+  as the same Windows user could write it, and that alone would open control without the question.
+  Every write would still need a click of yours, and the exact firmware match and the value checks
+  still apply.
 
 To help check it on your model, see "WMI2 volunteer write protocol" in
 [CONTRIBUTING.md](CONTRIBUTING.md).

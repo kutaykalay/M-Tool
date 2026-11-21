@@ -658,7 +658,7 @@
     <value>Já definido: nada foi gravado.</value>
   </data>
   <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
-    <value>Modo de teste: verificado e registrado, nada foi gravado. Para gravar, defina "dryRun": false em settings.json.</value>
+    <value>Modo de teste: verificado e registrado, nada foi gravado.</value>
   </data>
   <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
     <value>{0} O valor antigo foi gravado de volta e lido de volta. Toda gravação fica desativada até o M-Tool iniciar de novo.</value>

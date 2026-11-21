@@ -397,13 +397,13 @@ internal sealed class GuiBootstrapper : IDisposable
     }
 
     /// <summary>
-    /// Experimental control for the WMI2 window: the consent is saved through the store that read the file, and control
-    /// follows <c>dryRun</c> like the P65 window, so a first install writes nothing. The window offers it only on a
-    /// WMI2 laptop with an exact list entry.
+    /// Experimental control for the WMI2 window: the consent is saved through the store that read the file. The consent
+    /// is the permission to write, so control does not follow <c>dryRun</c> (Kutay, 2026-11-21). The window offers it
+    /// only on a WMI2 laptop with an exact list entry.
     /// </summary>
     private static Wmi2ControlWiring Wmi2Control(LoadedSettings settings, FileLog log) => new(
         new SettingsWmi2Consent(settings.Store, settings.Settings),
-        (gate, list, firmware, ct) => Wmi2ControlSource.OpenAsync(firmware, list, AppPaths.Root, settings.Settings.DryRun, gate, log, ct),
+        (gate, list, firmware, ct) => Wmi2ControlSource.OpenAsync(firmware, list, AppPaths.Root, gate, log, ct),
         PreStateStore.ForWmi2(AppPaths.Root).FilePath);
 
     /// <summary>

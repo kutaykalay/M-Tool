@@ -875,8 +875,8 @@
     <comment>Result of an experimental write: the laptop already held the value, so nothing was written.</comment>
   </data>
   <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
-    <value>Dry run: checked and logged, nothing was written. To write, set "dryRun": false in settings.json.</value>
-    <comment>Result of an experimental write in dry-run mode. Keep "dryRun": false and settings.json exactly.</comment>
+    <value>Dry run: checked and logged, nothing was written.</value>
+    <comment>Result of an experimental write in dry-run mode (only the Debug preview produces it; real experimental control always writes).</comment>
   </data>
   <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
     <value>{0} The old value was written back and read back. Every write is off until M-Tool starts again.</value>

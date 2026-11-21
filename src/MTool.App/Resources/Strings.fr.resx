@@ -658,7 +658,7 @@
     <value>Déjà réglé : rien n'a été écrit.</value>
   </data>
   <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
-    <value>Mode d'essai : vérifié et consigné, rien n'a été écrit. Pour écrire, mettez "dryRun": false dans settings.json.</value>
+    <value>Mode d'essai : vérifié et consigné, rien n'a été écrit.</value>
   </data>
   <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
     <value>{0} L'ancienne valeur a été réécrite et relue. Toute écriture est désactivée jusqu'au prochain démarrage de M-Tool.</value>

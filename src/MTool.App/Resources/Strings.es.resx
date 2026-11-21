@@ -658,7 +658,7 @@
     <value>Ya establecido: no se escribió nada.</value>
   </data>
   <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
-    <value>Modo de prueba: comprobado y registrado, no se escribió nada. Para escribir, ponga "dryRun": false en settings.json.</value>
+    <value>Modo de prueba: comprobado y registrado, no se escribió nada.</value>
   </data>
   <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
     <value>{0} El valor anterior se escribió de nuevo y se volvió a leer. Toda escritura queda desactivada hasta que M-Tool se inicie otra vez.</value>

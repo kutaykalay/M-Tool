@@ -658,7 +658,7 @@
     <value>Уже задано: ничего не записано.</value>
   </data>
   <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
-    <value>Пробный режим: проверено и записано в журнал, ничего не записано. Чтобы записывать, укажите "dryRun": false в settings.json.</value>
+    <value>Пробный режим: проверено и записано в журнал, ничего не записано.</value>
   </data>
   <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
     <value>{0} Старое значение записано обратно и считано обратно. Любая запись выключена до следующего запуска M-Tool.</value>

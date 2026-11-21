@@ -658,7 +658,7 @@
     <value>已经是该值：未写入任何内容。</value>
   </data>
   <data name="Wmi2_OutcomeDryRun" xml:space="preserve">
-    <value>试运行：已检查并记录，未写入任何内容。要写入，请在 settings.json 中设置 "dryRun": false。</value>
+    <value>试运行：已检查并记录，未写入任何内容。</value>
   </data>
   <data name="Wmi2_OutcomeRecovered" xml:space="preserve">
     <value>{0} 旧值已写回并读回。在 M-Tool 重新启动之前，所有写入都已关闭。</value>

@@ -43,18 +43,17 @@ anyone but its author. If your laptop's firmware is listed exactly (the **msi-ec
 so), you can help by running these steps in order. You run them at your own risk and can stop at
 any step. After each one, note what MSI Center, HWiNFO or the laptop itself shows.
 
-Before you start: close MSI Center and any other fan or EC tool, keep the laptop on AC power, and
-leave dry run on (the default `"dryRun": true` in `%AppData%\M-Tool\settings.json`).
+Before you start: close MSI Center and any other fan or EC tool, and keep the laptop on AC power.
 
 1. **Read without writing:** under **Live values (experimental)**, choose **Show live values** and
    answer Yes. Compare the temperatures, fan speeds, performance mode, fan mode, charge limit and
    Cooler Boost with MSI Center or HWiNFO. Do they match? Do not go on if they do not.
-2. **Dry run:** choose **Turn on experimental control…** and read the question. Answer Yes, then
-   press one switch. The log in `%AppData%\M-Tool\logs` shows what M-Tool would write, and the
-   laptop does not change.
-3. **Unchanged write:** close M-Tool, set `"dryRun": false`, start it again and open experimental
-   control. The first change you make is preceded by one write of the performance mode the laptop
-   already holds, read back to prove the write works. Check that nothing changed.
+2. **Turn on:** choose **Turn on experimental control…** and read the question. Answer Yes only if
+   you are fine with M-Tool writing from now on: there is no dry run, and the next switch you press
+   is written. Turning it on writes nothing by itself.
+3. **Unchanged write:** press one switch. Before that change M-Tool writes once the performance mode
+   the laptop already holds and reads it back, to prove the write works; then it writes your change.
+   The log in `%AppData%\M-Tool\logs` shows both. Put the switch back.
 4. **Single changes,** one at a time, each followed by a return to the old value, and a look at
    what changed:
    - Cooler Boost on, then off;
@@ -67,7 +66,7 @@ leave dry run on (the default `"dryRun": true` in `%AppData%\M-Tool\settings.jso
    The preview lists each write of this session (the byte before, the byte written, and whether it
    read back) and asks, for each switch you changed, **Worked**, **Didn't work** or **Didn't check**.
    Your answers appear in the text; a question you skip sends nothing. The record is kept in memory
-   only and is gone once M-Tool closes. Writes made with dry run on are not in it.
+   only and is gone once M-Tool closes.
 
 Stop at once and report if a result says a value was not read back, if a fan behaves in a way the
 step did not ask for, or if M-Tool says every write is off for this session. If a fan stops under

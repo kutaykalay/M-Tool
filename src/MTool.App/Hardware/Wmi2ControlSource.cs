@@ -9,8 +9,12 @@ namespace MTool.App.Hardware;
 
 /// <summary>What experimental control is built from; <paramref name="ConsentedFirmware"/> is the firmware the user consented for.</summary>
 /// <param name="IsWmi2Only">Asked right before every write (<see cref="Wmi2ControlSource.IsWmi2Only"/> in the app).</param>
+/// <remarks>
+/// No dry-run: the consent question is the permission to write (Kutay, 2026-11-21), so <c>dryRun</c> in
+/// settings.json does not apply here. Every write is still a click, checked, snapshotted first and read back.
+/// </remarks>
 internal sealed record Wmi2ControlOptions(
-    string ConsentedFirmware, Wmi2FirmwareList List, PreStateStore PreState, Func<bool> IsWmi2Only, bool DryRun);
+    string ConsentedFirmware, Wmi2FirmwareList List, PreStateStore PreState, Func<bool> IsWmi2Only);
 
 /// <summary>Why experimental control was not opened; the window stays read-only and says so (15c-5).</summary>
 internal enum Wmi2ControlUnavailable
@@ -64,12 +68,12 @@ internal sealed class Wmi2ControlSource : IWmi2Control
     /// <summary>Probes, opens a writable session and builds control; when control does not apply nothing is left open.</summary>
     /// <exception cref="EcAccessException">The interface cannot be opened or read.</exception>
     public static async Task<Wmi2ControlOpening> OpenAsync(
-        string consentedFirmware, Wmi2FirmwareList list, string dataDirectory, bool dryRun, Func<bool> accessGate, IAppLog log,
+        string consentedFirmware, Wmi2FirmwareList list, string dataDirectory, Func<bool> accessGate, IAppLog log,
         CancellationToken cancellationToken)
     {
         // Everything that may throw comes first: from OpenForControl on, CreateAsync owns the open session.
         var options = new Wmi2ControlOptions(
-            consentedFirmware, list, PreStateStore.ForWmi2(dataDirectory), () => IsWmi2Only(WmiProbe.Detect), dryRun);
+            consentedFirmware, list, PreStateStore.ForWmi2(dataDirectory), () => IsWmi2Only(WmiProbe.Detect));
         return Wmi2LiveSource.OpenForControl(accessGate, log) is { } live
             ? await CreateAsync(live, options, log, cancellationToken).ConfigureAwait(false)
             : Wmi2ControlOpening.NotOpened(Wmi2ControlUnavailable.NotWmi2);
@@ -139,8 +143,8 @@ internal sealed class Wmi2ControlSource : IWmi2Control
             log.Warn($"WMI2 layout does not fit ({layout}); every WMI2 write is off for this session.");
         }
 
-        var setup = new Wmi2GatewaySetup(options.List, firmware, Consented: true, layout, options.PreState, options.IsWmi2Only, options.DryRun);
-        log.Info($"WMI2 experimental control open for {firmware.Version} (layout {layout}{(options.DryRun ? ", dry-run" : "")}).");
+        var setup = new Wmi2GatewaySetup(options.List, firmware, Consented: true, layout, options.PreState, options.IsWmi2Only, DryRun: false);
+        log.Info($"WMI2 experimental control open for {firmware.Version} (layout {layout}).");
         return Wmi2ControlOpening.Opened(new Wmi2ControlSource(live, new EcGateway(live.Worker, setup, log), layout));
     }
 
