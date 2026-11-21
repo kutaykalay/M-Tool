@@ -5,8 +5,11 @@
 [![Build](https://github.com/kutaykalay/M-Tool/actions/workflows/build.yml/badge.svg)](https://github.com/kutaykalay/M-Tool/actions/workflows/build.yml)
 
 A small Windows tray app for MSI laptops: fan curves, Cooler Boost, performance mode and battery
-charge limit. One exe, no background service. Today it controls the **MSI P65 Creator 9SE**; other
-MSI laptops are read-only for now (see [Supported devices](#supported-devices)).
+charge limit. One exe, no background service. Today it fully controls the **MSI P65 Creator 9SE**.
+On newer MSI laptops (WMI2) whose firmware msi-ec lists exactly, you can opt in to
+[experimental control](#experimental-control-on-msi-ec-models) of Cooler Boost, performance mode,
+fan mode and charge limit; other MSI laptops are read-only for now (see
+[Supported devices](#supported-devices)).
 
 > **Status:** beta. M-Tool writes settings on one laptop and firmware only. Other MSI laptops with
 > WMI1 are read-only and experimental, and on MSI laptops with WMI2 it shows a few values and, for
@@ -35,6 +38,10 @@ MSI laptops are read-only for now (see [Supported devices](#supported-devices)).
   copy, licenses, GitHub, log folder, update check).
 - A drift band when the laptop no longer holds what you chose, with one-click reapply.
 - A command line for dumps and scripted changes.
+- **Experimental control on newer MSI laptops** (WMI2, firmware msi-ec lists exactly; opt-in):
+  Cooler Boost, performance mode, fan mode (Auto or Silent) and charge limit, with
+  **Back to before M-Tool**. Not checked on any of these laptops yet; see
+  [Experimental control on msi-ec models](#experimental-control-on-msi-ec-models).
 
 ## Languages
 
@@ -141,7 +148,9 @@ run firmware code that is assumed to have no side effects, which is why this par
 ### WMI2 testers wanted
 
 M-Tool's WMI2 reading has not run on a real WMI2 laptop yet. If you have one (most MSI laptops
-from Intel 11th gen on), a ten-minute check helps a lot. Nothing in it writes to the laptop.
+from Intel 11th gen on), a ten-minute check helps a lot. Nothing in it writes to the laptop. If
+your firmware is listed exactly and you also want to try experimental control, follow the
+"WMI2 volunteer write protocol" in [CONTRIBUTING.md](CONTRIBUTING.md) afterwards.
 
 1. Start M-Tool. In the reports window, under **Live values (experimental)**, choose **Show live
    values** and answer **Yes**. Note what the **msi-ec list** row says.
@@ -302,16 +311,20 @@ or the GPU switch. Today it controls one model, the MSI P65 Creator 9SE; see the
 
 ### Does it work on my MSI laptop?
 
-M-Tool writes settings only on the MSI P65 Creator 9SE with EC firmware `16Q4EMS2.107`, because
-every write was tested by hand on that laptop. On other MSI laptops it only reads, and the values
-it shows are not verified yet; see [Supported devices](#supported-devices). Sending your laptop's
+M-Tool fully supports the MSI P65 Creator 9SE with EC firmware `16Q4EMS2.107`, because every
+write was tested by hand on that laptop. On a newer MSI laptop with WMI2 whose firmware msi-ec lists
+exactly, you can turn on [experimental control](#experimental-control-on-msi-ec-models) of Cooler
+Boost, the performance mode, the fan mode and the charge limit; it has not been checked on those
+laptops yet. Other MSI laptops are read-only, and the values M-Tool shows are not verified yet; see
+[Supported devices](#supported-devices). Sending your laptop's
 data with **Send EC data** is how a new model gets added.
 
 ### Can I set a battery charge limit on an MSI laptop without MSI Center?
 
 On the supported P65, yes: M-Tool sets it between 50 and 100 % and the laptop keeps it across sleep
 and restarts. It needs [PawnIO](https://pawnio.eu), because the charge limit has no field in MSI's
-WMI interface.
+WMI interface. On a WMI2 laptop that msi-ec lists exactly, experimental control sets it between 50
+and 100 % too, without PawnIO.
 
 ### Is there a G-Helper for MSI laptops?
 
@@ -322,8 +335,10 @@ and not affiliated with G-Helper.
 ### Is it safe to change fan settings with M-Tool?
 
 Every write goes through one gate: a firmware check, a register whitelist with value rules, a fan
-curve check with a safety floor, and a read-back. The first start is a dry run that writes nothing.
-If a write fails, M-Tool restores the factory fan table and stops writing. See
+curve check with a safety floor, and a read-back. On the P65 the first start is a dry run that
+writes nothing. If a write fails, M-Tool restores the factory fan table and stops writing.
+Experimental control on WMI2 laptops writes only after you answer Yes to its risk question and
+only when you change a switch; it never touches fan curves. See
 [How it works](#how-it-works). It is still a beta, and you use it at your own risk.
 
 ### Does M-Tool send data anywhere?
